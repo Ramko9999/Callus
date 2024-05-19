@@ -1,31 +1,57 @@
-import { StyleSheet } from 'react-native';
+import { NECK, PUSH, UPPER_BODY } from "@/constants/SampleWorkouts";
+import { useWorkoutActivity } from "@/context/WorkoutActivityContext";
+import { useNavigation, useRouter } from "expo-router";
+import { Text, View } from "@/components/Themed";
+import { Button, StyleSheet } from "react-native";
+import { useEffect } from "react";
+import { WorkoutViewTile } from "@/components/workout/view";
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+const styles = StyleSheet.create({
+  headerTitle: {
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  workoutView: {
+    backgroundColor: "transparent",
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+    alignItems: "center",
+  },
+  workoutViewTiles: {
+    display: "flex",
+    flexDirection: "column",
+    margin: 20,
+    width: "100%",
+    backgroundColor: "transparent",
+    alignItems: "center",
+    gap: 20,
+  },
+});
 
-export default function TabOneScreen() {
+const workouts = [
+  { name: "Push", workout: PUSH },
+  { name: "Neck", workout: NECK },
+];
+
+function HomeHeader() {
+  return <Text style={styles.headerTitle}>{"Today"}</Text>;
+}
+
+export default function Home() {
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    navigation.setOptions({ headerTitle: (_) => <HomeHeader /> });
+  }, []);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+    <View style={styles.workoutView}>
+      <View style={styles.workoutViewTiles}>
+        {workouts.map(({ name, workout }, index) => (
+          <WorkoutViewTile key={index} workoutName={name} workout={workout} />
+        ))}
+      </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-});
