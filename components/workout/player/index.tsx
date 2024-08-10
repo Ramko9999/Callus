@@ -3,7 +3,6 @@ import {
   WorkoutActivity,
   WorkoutActivityType,
   ExercisingActivity,
-  ChangingExerciseActivity,
   RestingActivity,
 } from "@/interface";
 import { View, Text } from "../../Themed";
@@ -11,8 +10,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import {
   ExercisingActivityTile,
-  RestingActivityTile,
-  ChangingExerciseActivityTile,
+  RestingActivityTile
 } from "./WorkoutActivityTile";
 import { useWorkoutActivity } from "@/context/WorkoutActivityContext";
 import { getDurationDisplay } from "@/util";
@@ -32,10 +30,8 @@ const styles = StyleSheet.create({
 export function WorkoutPlayer() {
   const {
     isInWorkout,
-    instantiateWorkout,
-    currentActivity,
-    hasNextActivity,
-    forwardToNextActivity,
+    activity,
+    actions
   } = useWorkoutActivity();
 
   const [workoutDuration, setWorkoutDuration] = useState<number>(0);
@@ -55,29 +51,24 @@ export function WorkoutPlayer() {
     return null;
   }
 
-  const { type, activityData } = currentActivity as WorkoutActivity;
+  const { type, activityData } = activity as WorkoutActivity;
 
   const getWorkoutActivityTile = () => {
     switch (type) {
       case WorkoutActivityType.EXERCISING:
+        const exercisingData = activityData as unknown as ExercisingActivity
         return (
           <ExercisingActivityTile
-            activityData={activityData as unknown as ExercisingActivity}
-            onFinish={forwardToNextActivity}
+            activityData={exercisingData}
+            onFinish={() => actions.completeSet(exercisingData.setId)}
           />
         );
       case WorkoutActivityType.RESTING:
+        const restingData = activityData as unknown as RestingActivity
         return (
           <RestingActivityTile
             activityData={activityData as unknown as RestingActivity}
-            onFinish={forwardToNextActivity}
-          />
-        );
-      case WorkoutActivityType.CHANGING_EXERCISE:
-        return (
-          <ChangingExerciseActivityTile
-            activityData={activityData as unknown as ChangingExerciseActivity}
-            onFinish={forwardToNextActivity}
+            onFinish={() => actions.completeRest(restingData.setId)}
           />
         );
       default:

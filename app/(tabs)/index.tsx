@@ -1,8 +1,7 @@
-import { NECK, PUSH, UPPER_BODY } from "@/constants/SampleWorkouts";
-import { useWorkoutActivity } from "@/context/WorkoutActivityContext";
+import { NECK, PUSH } from "@/constants/SampleWorkouts";
 import { useNavigation, useRouter } from "expo-router";
 import { Text, View } from "@/components/Themed";
-import { Button, StyleSheet } from "react-native";
+import { StyleSheet, Button } from "react-native";
 import { useEffect } from "react";
 import { WorkoutViewTile } from "@/components/workout/view";
 
@@ -34,15 +33,15 @@ const workouts = [
   { name: "Neck", workout: NECK },
 ];
 
-function HomeHeader() {
-  return <Text style={styles.headerTitle}>{"Today"}</Text>;
-}
 
 export default function Home() {
   const navigation = useNavigation();
+  const router = useRouter();
 
   useEffect(() => {
-    navigation.setOptions({ headerTitle: (_) => <HomeHeader /> });
+    navigation.setOptions({
+      title: "Today"
+    });
   }, []);
 
   return (
@@ -52,6 +51,7 @@ export default function Home() {
           <WorkoutViewTile key={index} workoutName={name} workout={workout} />
         ))}
       </View>
+      <Button title={"Create Workout"} onPress={() => router.push("/workout-creator") }/>
     </View>
   );
 }

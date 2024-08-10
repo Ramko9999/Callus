@@ -37,12 +37,12 @@ type Props = {
 };
 
 export function WorkoutViewTile({ workoutName, workout }: Props) {
-  const { instantiateWorkout } = useWorkoutActivity();
+  const { actions } = useWorkoutActivity();
   const router = useRouter();
 
   const onStartWorkout = () => {
-    instantiateWorkout(workout);
-    router.push("/workout");
+    actions.startWorkout(workout);
+    router.push("/workout-player");
   };
 
   return (

@@ -1,7 +1,6 @@
 import {
   ExercisingActivity,
-  RestingActivity,
-  ChangingExerciseActivity,
+  RestingActivity
 } from "@/interface";
 import { View, Text } from "../../Themed";
 import { StyleSheet, Button } from "react-native";
@@ -93,25 +92,6 @@ export function RestingActivityTile({
           title={"Add 15s"}
           onPress={() => setRestDuration((duration) => duration + 15)}
         />
-      </View>
-    </View>
-  );
-}
-
-type ChangingExerciseActivityTileProps = {
-  activityData: ChangingExerciseActivity;
-  onFinish: () => void;
-};
-
-export function ChangingExerciseActivityTile({
-  activityData,
-  onFinish,
-}: ChangingExerciseActivityTileProps) {
-  return (
-    <View style={styles.activityTile}>
-      <Text style={styles.activityTileTitle}>Changing Exercise</Text>
-      <View style={styles.activityTileActions}>
-        <Button title={"Done"} onPress={onFinish}></Button>
       </View>
     </View>
   );
