@@ -5,10 +5,9 @@ import {
   updateSet,
   useWorkoutActivity,
 } from "@/context/WorkoutActivityContext";
-import { View, TextInput, Text } from "../../Themed";
+import { View, TextInput, Text, Action, Icon } from "../../Themed";
 import { ExercisePlan, SetPlan, WorkoutActivityPlan } from "@/interface";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 const styles = StyleSheet.create({
   setTile: {
@@ -17,38 +16,29 @@ const styles = StyleSheet.create({
     paddingBottom: "2%",
     flexDirection: "row",
     gap: 20,
-    borderColor: "#3F4147",
     borderStyle: "solid",
     borderBottomWidth: 1,
-    backgroundColor: "#27272F",
   },
   setTileMeta: {
     display: "flex",
     flexDirection: "column",
     gap: 5,
-    backgroundColor: "#27272F",
   },
   setTileActions: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "flex-end",
-    backgroundColor: "#27272F",
     paddingRight: "2%",
     flexGrow: 1,
   },
   setTileAction: {
     padding: "4%",
-    backgroundColor: "#27272F"
   },
   setTileMetaValue: {
     display: "flex",
     flexDirection: "row",
     gap: 2,
-    backgroundColor: "#27272F",
-  },
-  setTileMetaValueText: {
-    fontSize: 16,
   },
   exerciseTilesContainer: {
     display: "flex",
@@ -59,36 +49,19 @@ const styles = StyleSheet.create({
   exerciseTile: {
     borderRadius: 10,
     padding: "2%",
-    backgroundColor: "#27272F",
   },
   exerciseTileActions: {
     display: "flex",
     flexDirection: "row",
-    backgroundColor: "#27272F",
     paddingTop: "2%",
     gap: 10,
   },
-  exerciseTileAction: {
-    fontSize: 16,
-    color: "lightblue",
-  },
-  exerciseTileActionDanger: {
-    fontSize: 16,
-    color: "#D1242F",
-  },
   exerciseTileNameContainer: {
-    borderColor: "#3F4147",
     borderStyle: "solid",
     borderBottomWidth: 1,
-    backgroundColor: "#27272F",
     paddingBottom: "2%",
   },
-  exerciseTileName: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
   workoutNameInput: {
-    fontSize: 24,
     textAlign: "center",
     padding: "2%",
   },
@@ -116,40 +89,43 @@ function SetTile({ set }: SetTileProps) {
   };
 
   const onRemoveSet = () => {
-    actions.updateWorkoutPlan(removeSet(id, workoutPlan as WorkoutActivityPlan));
+    actions.updateWorkoutPlan(
+      removeSet(id, workoutPlan as WorkoutActivityPlan)
+    );
   };
 
   return (
     <View style={styles.setTile}>
       {weight != undefined ? (
-      <View style={styles.setTileMeta}>
-        <Text>Weight</Text>
-        <View style={styles.setTileMetaValue}>
-          <TextInput
-            keyboardType="number-pad"
-            style={styles.setTileMetaValueText}
-            value={weight?.toString()}
-            onChangeText={onUpdateWeight}
-          />
-          <Text style={styles.setTileMetaValueText}> lbs</Text>
+        <View style={styles.setTileMeta}>
+          <Text _type="small">Weight</Text>
+          <View style={styles.setTileMetaValue}>
+            <TextInput
+              _type="neutral"
+              keyboardType="number-pad"
+              value={weight?.toString()}
+              onChangeText={onUpdateWeight}
+            />
+            <Text _type="neutral"> lbs</Text>
+          </View>
         </View>
-      </View>): null}
+      ) : null}
       <View style={styles.setTileMeta}>
-        <Text>Reps</Text>
+        <Text _type="small">Reps</Text>
         <View style={styles.setTileMetaValue}>
           <TextInput
+            _type="neutral"
             keyboardType="number-pad"
-            style={styles.setTileMetaValueText}
             value={reps?.toString()}
             onChangeText={onUpdateReps}
           />
-          <Text style={styles.setTileMetaValueText}> reps</Text>
+          <Text _type="neutral"> reps</Text>
         </View>
       </View>
       <View style={styles.setTileActions}>
         <TouchableOpacity onPress={onRemoveSet}>
           <View style={styles.setTileAction}>
-          <FontAwesome name={"minus"} color={"white"} />
+            <Icon name={"minus"} />
           </View>
         </TouchableOpacity>
       </View>
@@ -160,33 +136,39 @@ function SetTile({ set }: SetTileProps) {
 type ExerciseTileProps = { exercise: ExercisePlan };
 
 function ExerciseTile({ exercise }: ExerciseTileProps) {
-  const {editor} = useWorkoutActivity();
-  const {workoutPlan, actions} = editor;
-  const {id, sets, name} = exercise;
+  const { editor } = useWorkoutActivity();
+  const { workoutPlan, actions } = editor;
+  const { id, sets, name } = exercise;
 
   const onAddSet = () => {
-    actions.updateWorkoutPlan(duplicateLastSet(id, workoutPlan as WorkoutActivityPlan))
-  }
+    actions.updateWorkoutPlan(
+      duplicateLastSet(id, workoutPlan as WorkoutActivityPlan)
+    );
+  };
 
   const onRemoveExercise = () => {
-    actions.updateWorkoutPlan(removeExercise(id, workoutPlan as WorkoutActivityPlan))
-  }
+    actions.updateWorkoutPlan(
+      removeExercise(id, workoutPlan as WorkoutActivityPlan)
+    );
+  };
 
   return (
     <View style={styles.exerciseTile}>
       <View style={styles.exerciseTileNameContainer}>
-        <Text style={styles.exerciseTileName}>{name}</Text>
+        <Text _type="emphasized">{name}</Text>
       </View>
       {sets.map((set, index) => {
         return <SetTile key={index} set={set} />;
       })}
       <View style={styles.exerciseTileActions}>
-        <TouchableOpacity onPress={onAddSet}>
-          <Text style={styles.exerciseTileAction}>Add set</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onRemoveExercise}>
-          <Text style={styles.exerciseTileActionDanger}>Remove exercise</Text>
-        </TouchableOpacity>
+        <Action
+          _action={{ name: "Add set", type: "neutral" }}
+          onPress={onAddSet}
+        />
+        <Action
+          _action={{ name: "Remove exercise", type: "danger" }}
+          onPress={onRemoveExercise}
+        />
       </View>
     </View>
   );
@@ -198,13 +180,19 @@ export function WorkoutEditor() {
 
   return (
     <ScrollView>
-        <TextInput
-          style={styles.workoutNameInput}
-          value={workoutPlan && workoutPlan.name}
-          onChangeText={(text) => {actions.updateWorkoutPlan({...workoutPlan as WorkoutActivityPlan, name: text})}}
-          placeholder="Workout Name"
-        />
-      <View style={styles.exerciseTilesContainer}>
+      <TextInput
+        _type="large"
+        style={styles.workoutNameInput}
+        value={workoutPlan && workoutPlan.name}
+        onChangeText={(text) => {
+          actions.updateWorkoutPlan({
+            ...(workoutPlan as WorkoutActivityPlan),
+            name: text,
+          });
+        }}
+        placeholder="Workout Name"
+      />
+      <View _type="background" style={styles.exerciseTilesContainer}>
         {workoutPlan?.exercises.map((exercise, index) => {
           return <ExerciseTile key={index} exercise={exercise} />;
         })}

@@ -3,7 +3,7 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
-import {DarkTheme} from "@/constants/Colors";
+import {darkNavigationColorTheme} from "@/constants/Themes";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -53,7 +53,7 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === "dark" ? darkNavigationColorTheme : DefaultTheme}>
       <WorkoutActivityProvider>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

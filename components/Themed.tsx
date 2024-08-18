@@ -1,52 +1,98 @@
-/**
- * Learn more about Light and Dark modes:
- * https://docs.expo.io/guides/color-schemes/
- */
+import {
+  Text as DefaultText,
+  View as DefaultView,
+  TextInput as DefaultTextInput,
+  TextStyle,
+  ViewStyle,
+  TouchableOpacity,
+} from "react-native";
 
-import { Text as DefaultText, View as DefaultView, TextInput as DefaultTextInput } from 'react-native';
+import {
+  textTheme,
+  UIColor,
+  lightColorTheme,
+  darkColorTheme,
+} from "@/constants/Themes";
+import { useColorScheme } from "./useColorScheme";
+import { FontAwesome } from "@expo/vector-icons";
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from './useColorScheme';
-
-type ThemeProps = {
-  lightColor?: string;
-  darkColor?: string;
+type ViewThemeProps = {
+  _type?: "background" | "foreground"
 };
 
-export type TextProps = ThemeProps & DefaultText['props'];
-export type ViewProps = ThemeProps & DefaultView['props'];
-export type TextInputProps = ThemeProps & DefaultTextInput['props'];
+type TextThemeProps = {
+  _type: keyof typeof textTheme;
+};
 
-export function useThemeColor(
-  props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
-) {
-  const theme = useColorScheme() ?? 'light';
-  const colorFromProps = props[theme];
+type ActionThemeProps = {
+  _action: {
+    type: "neutral" | "danger";
+    style?: TextStyle;
+    name: string;
+  };
+};
 
-  if (colorFromProps) {
-    return colorFromProps;
-  } else {
-    return Colors[theme][colorName];
+export type ViewProps = DefaultView["props"] & ViewThemeProps;
+export type TextProps = DefaultText["props"] & TextThemeProps;
+export type TextInputProps = DefaultTextInput["props"] & TextThemeProps;
+export type ActionProps = Omit<TouchableOpacity["props"], "children"> &
+  ActionThemeProps;
+export type IconProps = {
+  name: React.ComponentProps<typeof FontAwesome>["name"];
+};
+
+export function useThemeColoring(color: UIColor) {
+  const theme = useColorScheme() ?? "light";
+
+  if (theme === "dark") {
+    return darkColorTheme[color];
   }
+  return lightColorTheme[color];
 }
 
 export function Text(props: TextProps) {
-  const { style, lightColor, darkColor, ...otherProps } = props;
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
+  const { style, _type, ...otherProps } = props;
+  const coloring = useThemeColoring("text") as TextStyle;
 
-  return <DefaultText style={[{ color }, style]} {...otherProps} />;
+  return (
+    <DefaultText
+      style={[coloring, textTheme[_type] as TextStyle, style]}
+      {...otherProps}
+    />
+  );
 }
 
 export function View(props: ViewProps) {
-  const { style, lightColor, darkColor, ...otherProps } = props;
-  const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
+  const { style, _type, ...otherProps } = props;
 
-  return <DefaultView style={[{ backgroundColor }, style]} {...otherProps} />;
+  const coloring = useThemeColoring(_type !== undefined && _type === "background" ? "viewBackground" : "viewForeground") as ViewStyle;
+
+  return <DefaultView style={[coloring, style]} {...otherProps} />;
 }
 
-export function TextInput(props: TextInputProps){
-  const { style, lightColor, darkColor, ...otherProps } = props;
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
-  return <DefaultTextInput style={[{color}, style]} {...otherProps}/>
+export function TextInput(props: TextInputProps) {
+  const { style, _type, ...otherProps } = props;
+  const coloring = useThemeColoring("text") as TextStyle;
+  return <DefaultTextInput style={[coloring, textTheme[_type] as TextStyle, style]} {...otherProps} />;
+}
+
+export function Action(props: ActionProps) {
+  const { _action, ...otherProps } = props;
+  const { type, style, name } = _action;
+  const coloring = useThemeColoring(
+    type === "danger" ? "actionDanger" : "actionNeutral"
+  );
+  return (
+    <TouchableOpacity {...otherProps}>
+      <Text _type="neutral" style={[coloring, style]}>
+        {name}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+export function Icon({ name }: IconProps) {
+  const coloring = useThemeColoring("text") as TextStyle;
+
+  return <FontAwesome name={name} color={coloring.color} />;
 }

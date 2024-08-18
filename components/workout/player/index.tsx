@@ -79,7 +79,7 @@ export function WorkoutPlayer() {
   return (
     <View style={styles.workoutPlayer}>
       {getWorkoutActivityTile()}
-      <Text style={styles.workoutDuration}>{getDurationDisplay(workoutDuration)}</Text>
+      <Text _type="neutral" style={styles.workoutDuration}>{getDurationDisplay(workoutDuration)}</Text>
     </View>
   );
 }

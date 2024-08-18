@@ -8,26 +8,16 @@ const styles = StyleSheet.create({
   workoutViewTileContainer: {
     width: "80%",
     borderRadius: 2,
-    borderWidth: 1,
-    borderColor: "white"
+    borderWidth: 1
   },
   workoutViewTile: {
     padding: 8,
-  },
-  workoutViewTitle: {
-    fontSize: 12,
-    color: "darkgrey",
   },
   workoutViewExerciseList: {
     marginTop: 10,
     display: "flex",
     flexDirection: "column",
     gap: 5,
-  },
-  workoutViewExerciseNameContainer: {
-  },
-  workoutViewExerciseName: {
-    fontSize: 16,
   },
 });
 
@@ -48,11 +38,11 @@ export function WorkoutViewTile({ workout }: Props) {
     <View style={styles.workoutViewTileContainer}>
       <Pressable onPress={onStartWorkout}>
         <View style={styles.workoutViewTile}>
-          <Text style={styles.workoutViewTitle}>{workout.name}</Text>
+          <Text _type="small">{workout.name}</Text>
           <View style={styles.workoutViewExerciseList}>
             {workout.exercises.map((exercise, index) => (
-              <View style={styles.workoutViewExerciseNameContainer} key={index}>
-                <Text style={styles.workoutViewExerciseName}>
+              <View key={index}>
+                <Text _type="neutral">
                   {exercise.name}
                 </Text>
               </View>

@@ -2,7 +2,7 @@ import {
   ExercisingActivity,
   RestingActivity
 } from "@/interface";
-import { View, Text } from "../../Themed";
+import { View, Text, Action } from "../../Themed";
 import { StyleSheet, Button } from "react-native";
 import { useState, useEffect } from "react";
 import { getDurationDisplay } from "@/util";
@@ -17,16 +17,13 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   activityTileTitle: {
-    fontWeight: "bold",
     fontSize: 36,
-  },
-  activityTileSubtitle: {
-    fontSize: 24,
   },
   activityTileActions: {
     display: "flex",
     flexDirection: "row",
     marginTop: "10%",
+    gap: 20
   },
 });
 
@@ -42,12 +39,12 @@ export function ExercisingActivityTile({
   const { exerciseName, reps, weight } = activityData;
   return (
     <View style={styles.activityTile}>
-      <Text style={styles.activityTileTitle}>{exerciseName}</Text>
-      <Text style={styles.activityTileSubtitle}>
+      <Text _type="emphasized" style={styles.activityTileTitle}>{exerciseName}</Text>
+      <Text _type="large">
         {weight} x {reps}
       </Text>
       <View style={styles.activityTileActions}>
-        <Button title={"Done"} onPress={onFinish} />
+        <Action _action={{name:"Done", type: "neutral"}} onPress={onFinish}/>
       </View>
     </View>
   );
@@ -82,16 +79,13 @@ export function RestingActivityTile({
 
   return (
     <View style={styles.activityTile}>
-      <Text style={styles.activityTileTitle}>Rest</Text>
-      <Text style={styles.activityTileSubtitle}>
+      <Text _type="emphasized" style={styles.activityTileTitle}>Rest</Text>
+      <Text _type="large">
         {getDurationDisplay(restDuration)}
       </Text>
       <View style={styles.activityTileActions}>
-        <Button title={"Skip"} onPress={onFinish}></Button>
-        <Button
-          title={"Add 15s"}
-          onPress={() => setRestDuration((duration) => duration + 15)}
-        />
+      <Action _action={{name:"Skip", type: "neutral"}} onPress={onFinish}/>
+      <Action _action={{name:"Add 15s", type: "neutral"}} onPress={() => setRestDuration((duration) => duration + 15)}/>
       </View>
     </View>
   );

@@ -47,7 +47,6 @@ export default function Home() {
           <WorkoutViewTile key={index} workout={workout} />
         ))}
       </View>
-      <Button title={"Create Workout"} onPress={() => router.push("/workout-creator") }/>
     </View>
   );
 }
