@@ -32,11 +32,10 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  workoutName: string;
   workout: Workout;
 };
 
-export function WorkoutViewTile({ workoutName, workout }: Props) {
+export function WorkoutViewTile({ workout }: Props) {
   const { actions } = useWorkoutActivity();
   const router = useRouter();
 
@@ -49,7 +48,7 @@ export function WorkoutViewTile({ workoutName, workout }: Props) {
     <View style={styles.workoutViewTileContainer}>
       <Pressable onPress={onStartWorkout}>
         <View style={styles.workoutViewTile}>
-          <Text style={styles.workoutViewTitle}>{workoutName}</Text>
+          <Text style={styles.workoutViewTitle}>{workout.name}</Text>
           <View style={styles.workoutViewExerciseList}>
             {workout.exercises.map((exercise, index) => (
               <View style={styles.workoutViewExerciseNameContainer} key={index}>

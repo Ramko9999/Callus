@@ -1,7 +1,8 @@
 export const PUSH = {
+    name: "Push Day",
     exercises: [
         {
-            name: "Bench-Press",
+            name: "Bench Press",
             rest: 30,
             sets: [
                 {weight: 90, reps: 6},
@@ -44,6 +45,7 @@ export const PUSH = {
 }
 
 export const NECK = {
+    name: "Auxillary Neck Work",
     exercises: [
         {
             name: "Neck Curls",

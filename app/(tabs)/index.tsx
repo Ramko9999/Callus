@@ -28,11 +28,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const workouts = [
-  { name: "Push", workout: PUSH },
-  { name: "Neck", workout: NECK },
-];
-
+const workouts = [PUSH, NECK];
 
 export default function Home() {
   const navigation = useNavigation();
@@ -47,8 +43,8 @@ export default function Home() {
   return (
     <View style={styles.workoutView}>
       <View style={styles.workoutViewTiles}>
-        {workouts.map(({ name, workout }, index) => (
-          <WorkoutViewTile key={index} workoutName={name} workout={workout} />
+        {workouts.map((workout, index) => (
+          <WorkoutViewTile key={index} workout={workout} />
         ))}
       </View>
       <Button title={"Create Workout"} onPress={() => router.push("/workout-creator") }/>
