@@ -1,21 +1,21 @@
-type Set = {
+type SetPlan = {
     weight?: number
     reps: number
 }
 
-export type Exercise = {
+export type ExercisePlan = {
     name: string
     rest: number
-    sets: Set[]
+    sets: SetPlan[]
 }
 
-export type Workout = {
+export type WorkoutPlan = {
     name: string,
-    exercises: Exercise[]
+    exercises: ExercisePlan[]
 }
 
 
-export enum SetPlanStatus {
+export enum SetStatus {
     UNSTARTED, RESTING, FINISHED
 }
 
@@ -23,22 +23,25 @@ enum Sentiment {
     UNHAPPY, MILDLY_UNHAPPY, NEUTRAL, MIDLY_HAPPY, HAPPY
 }
 
-export type SetPlan = Set & {
+export type Set = SetPlan & {
     id: string,
-    status: SetPlanStatus,
+    status: SetStatus,
     sentiment?: Sentiment
 }
 
-export type ExercisePlan = {
+export type Exercise = {
     id: string,
     name: string,
     rest: number,
-    sets: SetPlan[]
+    sets: Set[]
 }
 
-export type WorkoutActivityPlan = {
+export type Workout = {
+    id: string,
+    startedAt: number,
+    endedAt?: number,
     name: string,
-    exercises: ExercisePlan[]
+    exercises: Exercise[]
 }
 
 export enum WorkoutActivityType {
@@ -60,4 +63,10 @@ export type RestingActivity = {
 export type WorkoutActivity = {
     type: WorkoutActivityType,
     activityData: ExercisingActivity | RestingActivity | {}
+}
+
+export type WorkoutSummary = {
+    totalReps: number,
+    totalWeightLifted: number,
+    totalDuration: number
 }

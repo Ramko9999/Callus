@@ -3,10 +3,10 @@ import {
   removeExercise,
   removeSet,
   updateSet,
-  useWorkoutActivity,
-} from "@/context/WorkoutActivityContext";
+  useWorkout,
+} from "@/context/WorkoutContext";
 import { View, TextInput, Text, Action, Icon } from "../../Themed";
-import { ExercisePlan, SetPlan, WorkoutActivityPlan } from "@/interface";
+import { Exercise, Set, Workout } from "@/interface";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 
 const styles = StyleSheet.create({
@@ -67,15 +67,15 @@ const styles = StyleSheet.create({
   },
 });
 
-type SetTileProps = { set: SetPlan };
+type SetTileProps = { set: Set };
 
 function SetTile({ set }: SetTileProps) {
-  const { editor } = useWorkoutActivity();
+  const { editor } = useWorkout();
   const { weight, reps, id } = set;
-  const { workoutPlan, actions } = editor;
-  const onUpdateSet = (setPlanUpdate: Partial<SetPlan>) => {
-    actions.updateWorkoutPlan(
-      updateSet(id, setPlanUpdate, workoutPlan as WorkoutActivityPlan)
+  const { workout, actions } = editor;
+  const onUpdateSet = (setPlanUpdate: Partial<Set>) => {
+    actions.updateWorkout(
+      updateSet(id, setPlanUpdate, workout as Workout)
     );
   };
   const onUpdateWeight = (weight: string) => {
@@ -89,8 +89,8 @@ function SetTile({ set }: SetTileProps) {
   };
 
   const onRemoveSet = () => {
-    actions.updateWorkoutPlan(
-      removeSet(id, workoutPlan as WorkoutActivityPlan)
+    actions.updateWorkout(
+      removeSet(id, workout as Workout)
     );
   };
 
@@ -133,22 +133,22 @@ function SetTile({ set }: SetTileProps) {
   );
 }
 
-type ExerciseTileProps = { exercise: ExercisePlan };
+type ExerciseTileProps = { exercise: Exercise };
 
 function ExerciseTile({ exercise }: ExerciseTileProps) {
-  const { editor } = useWorkoutActivity();
-  const { workoutPlan, actions } = editor;
+  const { editor } = useWorkout();
+  const { workout, actions } = editor;
   const { id, sets, name } = exercise;
 
   const onAddSet = () => {
-    actions.updateWorkoutPlan(
-      duplicateLastSet(id, workoutPlan as WorkoutActivityPlan)
+    actions.updateWorkout(
+      duplicateLastSet(id, workout as Workout)
     );
   };
 
   const onRemoveExercise = () => {
-    actions.updateWorkoutPlan(
-      removeExercise(id, workoutPlan as WorkoutActivityPlan)
+    actions.updateWorkout(
+      removeExercise(id, workout as Workout)
     );
   };
 
@@ -175,25 +175,25 @@ function ExerciseTile({ exercise }: ExerciseTileProps) {
 }
 
 export function WorkoutEditor() {
-  const { editor } = useWorkoutActivity();
-  const { workoutPlan, actions } = editor;
+  const { editor } = useWorkout();
+  const { workout, actions } = editor;
 
   return (
     <ScrollView>
       <TextInput
         _type="large"
         style={styles.workoutNameInput}
-        value={workoutPlan && workoutPlan.name}
+        value={workout && workout.name}
         onChangeText={(text) => {
-          actions.updateWorkoutPlan({
-            ...(workoutPlan as WorkoutActivityPlan),
+          actions.updateWorkout({
+            ...(workout as Workout),
             name: text,
           });
         }}
         placeholder="Workout Name"
       />
       <View _type="background" style={styles.exerciseTilesContainer}>
-        {workoutPlan?.exercises.map((exercise, index) => {
+        {workout?.exercises.map((exercise, index) => {
           return <ExerciseTile key={index} exercise={exercise} />;
         })}
       </View>

@@ -1,5 +1,4 @@
 import {
-  Workout,
   WorkoutActivity,
   WorkoutActivityType,
   ExercisingActivity,
@@ -10,9 +9,10 @@ import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import {
   ExercisingActivityTile,
+  FinishWorkoutActivityTile,
   RestingActivityTile
 } from "./WorkoutActivityTile";
-import { useWorkoutActivity } from "@/context/WorkoutActivityContext";
+import { useWorkout } from "@/context/WorkoutContext";
 import { getDurationDisplay } from "@/util";
 
 const styles = StyleSheet.create({
@@ -32,7 +32,7 @@ export function WorkoutPlayer() {
     isInWorkout,
     activity,
     actions
-  } = useWorkoutActivity();
+  } = useWorkout();
 
   const [workoutDuration, setWorkoutDuration] = useState<number>(0);
 
@@ -71,6 +71,8 @@ export function WorkoutPlayer() {
             onFinish={() => actions.completeRest(restingData.setId)}
           />
         );
+      case WorkoutActivityType.FINISHED:
+        return (<FinishWorkoutActivityTile onFinish={actions.finishWorkout} />)
       default:
         null;
     }

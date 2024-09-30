@@ -1,8 +1,9 @@
-import { Workout } from "@/interface";
+import { Workout, WorkoutPlan } from "@/interface";
 import { Pressable, StyleSheet } from "react-native";
 import { View, Text } from "@/components/Themed";
-import { useWorkoutActivity } from "@/context/WorkoutActivityContext";
+import { getWorkoutSummary, useWorkout } from "@/context/WorkoutContext";
 import { useRouter } from "expo-router";
+import { getTimePeriodDisplay } from "@/util";
 
 const styles = StyleSheet.create({
   workoutViewTileContainer: {
@@ -15,28 +16,57 @@ const styles = StyleSheet.create({
   },
   workoutViewExerciseList: {
     marginTop: 10,
+    marginBottom: 10,
     display: "flex",
     flexDirection: "column",
     gap: 5,
   },
 });
 
-type Props = {
-  workout: Workout;
+type WorkoutPlanViewTileProps = {
+  workoutPlan: WorkoutPlan;
 };
 
-export function WorkoutViewTile({ workout }: Props) {
-  const { actions } = useWorkoutActivity();
+export function WorkoutPlanViewTile({ workoutPlan }: WorkoutPlanViewTileProps) {
+  const { actions } = useWorkout();
   const router = useRouter();
 
   const onStartWorkout = () => {
-    actions.startWorkout(workout);
+    actions.startWorkout(workoutPlan);
     router.push("/workout-player");
   };
 
   return (
     <View style={styles.workoutViewTileContainer}>
       <Pressable onPress={onStartWorkout}>
+        <View style={styles.workoutViewTile}>
+          <Text _type="small">{workoutPlan.name}</Text>
+          <View style={styles.workoutViewExerciseList}>
+            {workoutPlan.exercises.map((exercise, index) => (
+              <View key={index}>
+                <Text _type="neutral">
+                  {exercise.name}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </Pressable>
+    </View>
+  );
+}
+
+type WorkoutViewTileProps = {
+  workout: Workout
+}
+
+export function WorkoutViewTile({workout}: WorkoutViewTileProps) {
+  const { actions, isInWorkout } = useWorkout();
+  const {totalReps, totalWeightLifted, totalDuration} = getWorkoutSummary(workout);
+  const router = useRouter();
+
+  return (
+    <View style={styles.workoutViewTileContainer}>
         <View style={styles.workoutViewTile}>
           <Text _type="small">{workout.name}</Text>
           <View style={styles.workoutViewExerciseList}>
@@ -48,8 +78,8 @@ export function WorkoutViewTile({ workout }: Props) {
               </View>
             ))}
           </View>
+          <Text _type="small">{`${totalWeightLifted} lbs | ${totalReps} reps | ${getTimePeriodDisplay(totalDuration)}`}</Text>
         </View>
-      </Pressable>
     </View>
   );
 }

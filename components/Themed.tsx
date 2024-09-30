@@ -39,6 +39,7 @@ export type ActionProps = Omit<TouchableOpacity["props"], "children"> &
   ActionThemeProps;
 export type IconProps = {
   name: React.ComponentProps<typeof FontAwesome>["name"];
+  size?: number
 };
 
 export function useThemeColoring(color: UIColor) {
@@ -89,10 +90,10 @@ export function Action(props: ActionProps) {
       </Text>
     </TouchableOpacity>
   );
-}
+} 
 
-export function Icon({ name }: IconProps) {
+export function Icon({ name, size }: IconProps) {
   const coloring = useThemeColoring("text") as TextStyle;
 
-  return <FontAwesome name={name} color={coloring.color} />;
+  return <FontAwesome name={name} color={coloring.color} size={size} />;
 }

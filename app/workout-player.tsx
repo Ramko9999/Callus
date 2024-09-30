@@ -8,7 +8,13 @@ export default function () {
   const router = useRouter();
 
   useEffect(() => {
-    navigation.setOptions({ title: "Workout", headerBackTitle: "Back", headerRight: () => <Button title={"Edit"} onPress={() => router.push("/workout-editor")}/> });
+    navigation.setOptions({
+      title: "Workout",
+      headerBackTitle: "Back",
+      headerRight: () => (
+        <Button title={"Edit"} onPress={() => router.push("/workout-editor")} />
+      ),
+    });
   }, [navigation]);
 
   return <WorkoutPlayer />;

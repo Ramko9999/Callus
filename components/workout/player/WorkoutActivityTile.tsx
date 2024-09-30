@@ -1,11 +1,10 @@
-import {
-  ExercisingActivity,
-  RestingActivity
-} from "@/interface";
+import { ExercisingActivity, RestingActivity } from "@/interface";
 import { View, Text, Action } from "../../Themed";
-import { StyleSheet, Button } from "react-native";
+import { StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
 import { getDurationDisplay } from "@/util";
+import { useRouter } from "expo-router";
+
 
 const styles = StyleSheet.create({
   activityTile: {
@@ -23,7 +22,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     marginTop: "10%",
-    gap: 20
+    gap: 20,
   },
 });
 
@@ -39,12 +38,17 @@ export function ExercisingActivityTile({
   const { exerciseName, reps, weight } = activityData;
   return (
     <View style={styles.activityTile}>
-      <Text _type="emphasized" style={styles.activityTileTitle}>{exerciseName}</Text>
+      <Text _type="emphasized" style={styles.activityTileTitle}>
+        {exerciseName}
+      </Text>
       <Text _type="large">
         {weight} x {reps}
       </Text>
       <View style={styles.activityTileActions}>
-        <Action _action={{name:"Done", type: "neutral"}} onPress={onFinish}/>
+        <Action
+          _action={{ name: "Done", type: "neutral" }}
+          onPress={onFinish}
+        />
       </View>
     </View>
   );
@@ -63,6 +67,7 @@ export function RestingActivityTile({
   const [restDuration, setRestDuration] = useState<number>(duration);
 
   useEffect(() => {
+    // todo: use the timestamp of when the rest should complete instead
     const interval = setInterval(() => {
       setRestDuration((duration) => Math.max(0, duration - 1));
     }, 1000);
@@ -79,14 +84,44 @@ export function RestingActivityTile({
 
   return (
     <View style={styles.activityTile}>
-      <Text _type="emphasized" style={styles.activityTileTitle}>Rest</Text>
-      <Text _type="large">
-        {getDurationDisplay(restDuration)}
+      <Text _type="emphasized" style={styles.activityTileTitle}>
+        Rest
       </Text>
+      <Text _type="large">{getDurationDisplay(restDuration)}</Text>
       <View style={styles.activityTileActions}>
-      <Action _action={{name:"Skip", type: "neutral"}} onPress={onFinish}/>
-      <Action _action={{name:"Add 15s", type: "neutral"}} onPress={() => setRestDuration((duration) => duration + 15)}/>
+        <Action
+          _action={{ name: "Skip", type: "neutral" }}
+          onPress={onFinish}
+        />
+        <Action
+          _action={{ name: "Add 15s", type: "neutral" }}
+          onPress={() => setRestDuration((duration) => duration + 15)}
+        />
       </View>
+    </View>
+  );
+}
+
+type FinishWorkoutActivityTileProps = {
+  onFinish: () => void;
+};
+
+export function FinishWorkoutActivityTile({
+  onFinish,
+}: FinishWorkoutActivityTileProps) {
+  const router = useRouter();
+
+  const onFinishWorkout = () => {
+    onFinish();
+    router.back();
+  };
+
+  return (
+    <View style={styles.activityTile}>
+      <Action
+        _action={{ name: "Finish", type: "neutral", style: {} }}
+        onPress={onFinishWorkout}
+      />
     </View>
   );
 }

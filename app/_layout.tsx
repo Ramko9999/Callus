@@ -10,7 +10,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 
 import { useColorScheme } from "@/components/useColorScheme";
-import { WorkoutActivityProvider } from "@/context/WorkoutActivityContext";
+import { WorkoutProvider } from "@/context/WorkoutContext";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -54,12 +54,12 @@ function RootLayoutNav() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? darkNavigationColorTheme : DefaultTheme}>
-      <WorkoutActivityProvider>
+      <WorkoutProvider>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="workout-editor" options={{ headerShown: false, presentation: "modal"}} />
         </Stack>
-      </WorkoutActivityProvider>
+      </WorkoutProvider>
     </ThemeProvider>
   );
 }
