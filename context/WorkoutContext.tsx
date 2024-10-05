@@ -12,10 +12,6 @@ function generateExerciseId(){
   return generateRandomId("ex", 8);
 }
 
-function generateWorkoutId(){
-  return generateRandomId("wk", 8);
-}
-
 export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
   const exercisePlans: Exercise[] = workoutPlan.exercises.map(({name, sets, rest}) => {
     const setPlans = sets.map((set) => ({
@@ -26,7 +22,9 @@ export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
     return { id: generateExerciseId(), name:name, rest: rest, sets: setPlans };
   });
 
-  return { name: workoutPlan.name, exercises: exercisePlans, startedAt: Date.now(), id: generateWorkoutId() };
+  const startedAt = Date.now()
+
+  return { name: workoutPlan.name, exercises: exercisePlans, startedAt: startedAt, id: WorkoutStoreApi.getWorkoutId(startedAt, workoutPlan) };
 }
 
 export function getCurrentWorkoutActivity(workout: Workout) {

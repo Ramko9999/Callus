@@ -1,13 +1,26 @@
-import { useNavigation, useRouter } from "expo-router";
+import { useNavigation, usePathname } from "expo-router";
 import { Icon, Text, View } from "@/components/Themed";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
-import { WorkoutPlanViewTile, WorkoutViewTile } from "@/components/workout/view";
+import {
+  WorkoutPlanViewTile,
+  WorkoutViewTile,
+} from "@/components/workout/view";
 import { getDateDisplay, truncTime, addDays, removeDays } from "@/util";
-import { Workout, WorkoutPlan } from "@/interface";
-import { WorkoutStoreApi } from "@/app/api/workout-store";
+import { WorkoutItinerary, WorkoutStoreApi } from "@/app/api/workout-store";
 
 const styles = StyleSheet.create({
+  expansiveCenterAlignedView: {
+    height: "100%",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  workoutItineraryView: {
+    flexDirection: "row",
+    justifyContent: "center",
+  },
   headerTitle: {
     fontWeight: "600",
     fontSize: 16,
@@ -17,13 +30,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 20,
-    justifyContent: "center"
+    justifyContent: "center",
   },
   headerAction: {
     padding: "8%",
     display: "flex",
     flexDirection: "row",
-    justifyContent: "center"
+    justifyContent: "center",
   },
   workoutView: {
     backgroundColor: "transparent",
@@ -67,13 +80,64 @@ function HomeHeader({ date, onLookBack, onLookForward }: HomeHeaderProps) {
   );
 }
 
+function WorkoutItineraryLoading() {
+  return (
+    <View _type="background" style={styles.expansiveCenterAlignedView}>
+      <Text _type="neutral">Loading workouts...</Text>
+    </View>
+  );
+}
+
+type WorkoutItineraryProps = {
+  workoutItinerary: WorkoutItinerary;
+  isForToday: boolean
+};
+
+function WorkoutItineraryView({ workoutItinerary, isForToday }: WorkoutItineraryProps) {
+  const { workouts, workoutPlans } = workoutItinerary;
+  const completedWorkouts = workouts.filter(
+    (workout) => workout.endedAt != undefined
+  );
+  const inProgressWorkouts = workouts.filter(
+    (workout) => workout.endedAt == undefined
+  );
+  const isRestDay = workouts.length === 0 && workoutPlans.length === 0;
+
+  return isRestDay ? (
+    <View _type="background" style={styles.expansiveCenterAlignedView}>
+      <Text _type="neutral">It's a rest day. Take it easy :)</Text>
+    </View>
+  ) : (
+    <View style={styles.workoutView}>
+      <View style={styles.workoutViewTiles}>
+        {completedWorkouts.length > 0 && <Text _type="neutral">Completed</Text>}
+        {completedWorkouts.map((workout, index) => (
+          <WorkoutViewTile key={index} workout={workout} />
+        ))}
+        {inProgressWorkouts.length > 0 && (
+          <Text _type="neutral">In Progress</Text>
+        )}
+        {inProgressWorkouts.map((workout, index) => (
+          <WorkoutViewTile key={index} workout={workout} />
+        ))}
+        {workoutPlans.length > 0 && <Text _type="neutral">{isForToday ? "Upcoming": "Missed"}</Text>}
+        {workoutPlans.map((workoutPlan, index) => (
+          <WorkoutPlanViewTile key={index} workoutPlan={workoutPlan} />
+        ))}
+      </View>
+    </View>
+  );
+}
+
 export default function Home() {
   const navigation = useNavigation();
+  const pathname = usePathname();
   const [workoutDate, setWorkoutDate] = useState<number>(truncTime(Date.now()));
-  const [plannedWorkouts, setPlannedWorkouts] = useState<WorkoutPlan[]>([]);
-  const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [workoutItinerary, setWorkoutItinerary] = useState<WorkoutItinerary>();
 
   useEffect(() => {
+    setLoading(true);
     navigation.setOptions({
       headerTitle: (props: any) => (
         <HomeHeader
@@ -88,22 +152,18 @@ export default function Home() {
         />
       ),
     });
-    WorkoutStoreApi.getPlannedWorkouts(workoutDate).then(setPlannedWorkouts);
-    WorkoutStoreApi.getWorkouts(workoutDate).then(setWorkouts);
-  }, [workoutDate]);
 
-  return (
-    <View style={styles.workoutView}>
-      <View style={styles.workoutViewTiles}>
-        {
-        workouts.map((workout, index) => (
-            <WorkoutViewTile key={index} workout={workout}/>
-        ))
-        }
-        {plannedWorkouts.map((workoutPlan, index) => (
-          <WorkoutPlanViewTile key={index} workoutPlan={workoutPlan} />
-        ))}
-      </View>
-    </View>
+    WorkoutStoreApi.getWorkoutItineray(workoutDate)
+      .then(setWorkoutItinerary)
+      .finally(() => setLoading(false));
+  }, [workoutDate, pathname]);
+
+  return loading ? (
+    <WorkoutItineraryLoading />
+  ) : (
+    <WorkoutItineraryView
+      workoutItinerary={workoutItinerary as WorkoutItinerary}
+      isForToday={workoutDate === truncTime(Date.now())}
+    />
   );
 }

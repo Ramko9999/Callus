@@ -1,4 +1,5 @@
 
+
 export function getDurationDisplay(durationinSeconds: number) {
   const minutes = Math.floor(durationinSeconds / 60);
   const seconds = new String(durationinSeconds % 60).padStart(2, "0");
@@ -19,6 +20,12 @@ export const Period = {
 export function truncTime(timestamp: number) {
   const date = new Date(timestamp);
   date.setHours(0, 0, 0, 0);
+  return date.valueOf();
+}
+
+export function truncTimeUtc(timestamp: number) {
+  const date = new Date(timestamp);
+  date.setUTCHours(0, 0, 0, 0);
   return date.valueOf();
 }
 

@@ -1,7 +1,6 @@
 import { NECK, PUSH, PULL, LEG, BLANK, PULL_INSTANTIATION } from "@/constants/SampleWorkouts";
 import { WorkoutPlan, Workout } from "@/interface";
-import { truncTime } from "@/util";
-import * as FS from "expo-file-system";
+import { truncTime, truncTimeUtc } from "@/util";
 
 const PUSH_DAY: WorkoutPlan[] = [PUSH, NECK];
 const PULL_DAY: WorkoutPlan[] = [PULL, NECK];
@@ -20,7 +19,7 @@ class InMemoryWorkoutStore {
   }
 
   private getPartitionKey(date: number): string {
-    const d = new Date(truncTime(date));
+    const d = new Date(date);
     return `${d.getUTCFullYear()}-${d.getUTCMonth()}`;
   }
 
@@ -30,7 +29,7 @@ class InMemoryWorkoutStore {
     const updatedWorkouts = workouts.filter(({ id }) => id !== workout.id);
     updatedWorkouts.push(workout);
     return new Promise((resolve) => {
-      console.info(`[IN-MEMORY-WORKOUT-STORE] Saving workout ${workout.id}`);
+      console.info(`[IN-MEMORY-WORKOUT-STORE] Saving workout ${partitionKey} ${workout.id}`);
       this.workoutStore.set(partitionKey, updatedWorkouts);
       resolve();
     });
@@ -43,24 +42,36 @@ class InMemoryWorkoutStore {
 
   async getWorkouts(date: number): Promise<Workout[]> {
     const partitionKey = this.getPartitionKey(date);
-    console.log(date, this.workoutStore);
+    console.info(`[IN-MEMORY-WORKOUT-STORE] Getting workouts ${partitionKey}`)
     const workouts = this.workoutStore.get(partitionKey) ?? [];
     return new Promise((resolve) =>
       resolve(
         workouts.filter(
-          ({ startedAt }) => truncTime(startedAt) === truncTime(date)
+          ({ startedAt }) => truncTimeUtc(startedAt) === truncTimeUtc(date)
         )
       )
     );
   }
 }
 
+export type WorkoutItinerary = {
+  workouts: Workout[],
+  workoutPlans: WorkoutPlan[]
+}
+
 export class WorkoutStoreApi {
-  static async getPlannedWorkouts(date: number): Promise<WorkoutPlan[]> {
-    return new Promise((resolve) => {
-      const dayType = new Date(date).getDate() % 4;
-      resolve(DAY_TO_PLAN[dayType]);
-    });
+
+  static async getWorkoutItineray(date: number): Promise<WorkoutItinerary> {
+    const workouts = await InMemoryWorkoutStore.instance().getWorkouts(date);
+    const workoutIds = new Set(workouts.map((workout) => workout.id));
+
+    const workoutPlans = this.getWorkoutPlans(date).filter((workoutPlan) => !workoutIds.has(this.getWorkoutId(date, workoutPlan)));
+    return {workouts, workoutPlans}
+  }
+
+  private static getWorkoutPlans(date: number): WorkoutPlan[] {
+    const dayType = new Date(date).getDate() % 4;
+    return DAY_TO_PLAN[dayType];
   }
 
   static async getWorkouts(date: number): Promise<Workout[]> {
@@ -69,5 +80,9 @@ export class WorkoutStoreApi {
 
   static async saveWorkout(workout: Workout): Promise<void> {
     await InMemoryWorkoutStore.instance().saveWorkout(workout);
+  }
+
+  static getWorkoutId(date: number, workoutPlan: WorkoutPlan) {
+    return `${new Date(truncTimeUtc(date)).toISOString()}-${workoutPlan.name}`
   }
 }
