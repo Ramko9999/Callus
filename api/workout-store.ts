@@ -48,7 +48,13 @@ class DiskStore implements Store {
       }
       return this.appDirectory
     } catch (error) {
-      console.error(`[DISK-STORE]: Error when getting directory: ${error}`);
+      console.log(`[DISK-STORE]: Error when getting directory: ${error}`);
+      if(error instanceof Error){
+        // race conditions
+        if(error.message.includes("file with the same name already exists")){
+          return this.appDirectory;
+        }
+      }
       throw error;
     }
   }

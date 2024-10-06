@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "WorkoutLog",
-    "slug": "WorkoutLog",
+    "slug": "workoutlog",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -35,6 +35,12 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "315bb499-fda3-424e-9f18-e80cd1ddc9b3"
+      }
+    },
+    "owner": "ramko9999"
   }
 }

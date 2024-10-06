@@ -183,18 +183,16 @@ export default function Home() {
   const [workoutDate, setWorkoutDate] = useState<number>(Date.now());
   const [loading, setLoading] = useState<boolean>(true);
   const [workoutItinerary, setWorkoutItinerary] = useState<WorkoutItinerary>();
-  const {actions} = useWorkout();
+  const { actions } = useWorkout();
 
   useEffect(() => {
     WorkoutApi.getInProgressWorkout().then((workout) => {
-      
-      if(workout){
+      if (workout) {
         actions.resumeInProgressWorkout(workout);
         router.push("/workout-player");
       }
     });
-  }, [])
-
+  }, []);
 
   useEffect(() => {
     setLoading(true);
