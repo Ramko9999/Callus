@@ -1,4 +1,4 @@
-import { useNavigation, usePathname } from "expo-router";
+import { useNavigation, usePathname, useRouter } from "expo-router";
 import { Icon, Text, View } from "@/components/Themed";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
@@ -8,6 +8,8 @@ import {
 } from "@/components/workout/view";
 import { getDateDisplay, truncTime, addDays, removeDays } from "@/util";
 import { WorkoutItinerary, WorkoutStoreApi } from "@/app/api/workout-store";
+import { useWorkout } from "@/context/WorkoutContext";
+import { Workout, WorkoutPlan } from "@/interface";
 
 const styles = StyleSheet.create({
   expansiveCenterAlignedView: {
@@ -15,7 +17,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
   },
   workoutItineraryView: {
     flexDirection: "row",
@@ -60,9 +62,15 @@ type HomeHeaderProps = {
   date: number;
   onLookBack: () => void;
   onLookForward: () => void;
+  canLookForward: boolean;
 };
 
-function HomeHeader({ date, onLookBack, onLookForward }: HomeHeaderProps) {
+function HomeHeader({
+  date,
+  onLookBack,
+  onLookForward,
+  canLookForward,
+}: HomeHeaderProps) {
   return (
     <View _type="background" style={styles.headerView}>
       <TouchableOpacity onPress={onLookBack}>
@@ -71,11 +79,13 @@ function HomeHeader({ date, onLookBack, onLookForward }: HomeHeaderProps) {
         </View>
       </TouchableOpacity>
       <Text _type="neutral">{getDateDisplay(date)}</Text>
-      <TouchableOpacity onPress={onLookForward}>
-        <View _type="background" style={styles.headerAction}>
-          <Icon name={"caret-right"} size={24} />
-        </View>
-      </TouchableOpacity>
+      {canLookForward && (
+        <TouchableOpacity onPress={onLookForward}>
+          <View _type="background" style={styles.headerAction}>
+            <Icon name={"caret-right"} size={24} />
+          </View>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -90,10 +100,16 @@ function WorkoutItineraryLoading() {
 
 type WorkoutItineraryProps = {
   workoutItinerary: WorkoutItinerary;
-  isForToday: boolean
+  date: number;
 };
 
-function WorkoutItineraryView({ workoutItinerary, isForToday }: WorkoutItineraryProps) {
+function WorkoutItineraryView({
+  workoutItinerary,
+  date,
+}: WorkoutItineraryProps) {
+  const { actions, isInWorkout } = useWorkout();
+  const router = useRouter();
+
   const { workouts, workoutPlans } = workoutItinerary;
   const completedWorkouts = workouts.filter(
     (workout) => workout.endedAt != undefined
@@ -102,6 +118,20 @@ function WorkoutItineraryView({ workoutItinerary, isForToday }: WorkoutItinerary
     (workout) => workout.endedAt == undefined
   );
   const isRestDay = workouts.length === 0 && workoutPlans.length === 0;
+
+  const onResumeInProgressWorkout = (workout: Workout) => {
+    actions.resumeInProgressWorkout(workout);
+    router.push("/workout-player");
+  };
+
+  const onStartWorkout = (workoutPlan: WorkoutPlan) => {
+    actions.startWorkout(workoutPlan);
+    router.push("/workout-player");
+  };
+
+  const isToday = truncTime(Date.now()) === date;
+  const isFromPast = truncTime(Date.now()) > date;
+  const isInFuture = truncTime(Date.now()) < date;
 
   return isRestDay ? (
     <View _type="background" style={styles.expansiveCenterAlignedView}>
@@ -118,11 +148,29 @@ function WorkoutItineraryView({ workoutItinerary, isForToday }: WorkoutItinerary
           <Text _type="neutral">In Progress</Text>
         )}
         {inProgressWorkouts.map((workout, index) => (
-          <WorkoutViewTile key={index} workout={workout} />
+          <WorkoutViewTile
+            key={index}
+            workout={workout}
+            onClick={() => onResumeInProgressWorkout(workout)}
+          />
         ))}
-        {workoutPlans.length > 0 && <Text _type="neutral">{isForToday ? "Upcoming": "Missed"}</Text>}
+        {workoutPlans.length > 0 && (
+          <Text _type="neutral">
+            {isToday ? "Todo" : isFromPast ? "Missed" : "Upcoming"}
+          </Text>
+        )}
         {workoutPlans.map((workoutPlan, index) => (
-          <WorkoutPlanViewTile key={index} workoutPlan={workoutPlan} />
+          <WorkoutPlanViewTile
+            key={index}
+            workoutPlan={workoutPlan}
+            onClick={
+              isToday && !isInWorkout
+                ? () => {
+                    onStartWorkout(workoutPlan);
+                  }
+                : () => {}
+            }
+          />
         ))}
       </View>
     </View>
@@ -132,7 +180,7 @@ function WorkoutItineraryView({ workoutItinerary, isForToday }: WorkoutItinerary
 export default function Home() {
   const navigation = useNavigation();
   const pathname = usePathname();
-  const [workoutDate, setWorkoutDate] = useState<number>(truncTime(Date.now()));
+  const [workoutDate, setWorkoutDate] = useState<number>(Date.now());
   const [loading, setLoading] = useState<boolean>(true);
   const [workoutItinerary, setWorkoutItinerary] = useState<WorkoutItinerary>();
 
@@ -149,11 +197,12 @@ export default function Home() {
           onLookForward={() => {
             setWorkoutDate((wd) => addDays(wd, 1));
           }}
+          canLookForward={true} //truncTime(addDays(workoutDate, 1)) <= truncTime(Date.now())}
         />
       ),
     });
 
-    WorkoutStoreApi.getWorkoutItineray(workoutDate)
+    WorkoutStoreApi.getWorkoutItinerary(truncTime(workoutDate))
       .then(setWorkoutItinerary)
       .finally(() => setLoading(false));
   }, [workoutDate, pathname]);
@@ -163,7 +212,7 @@ export default function Home() {
   ) : (
     <WorkoutItineraryView
       workoutItinerary={workoutItinerary as WorkoutItinerary}
-      isForToday={workoutDate === truncTime(Date.now())}
+      date={truncTime(workoutDate)}
     />
   );
 }

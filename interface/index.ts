@@ -27,6 +27,9 @@ export type Set = SetPlan & {
     id: string,
     status: SetStatus,
     sentiment?: Sentiment
+    startedAt?: number
+    restStartedAt?: number
+    restEndedAt?: number 
 }
 
 export type Exercise = {
@@ -55,6 +58,7 @@ export type ExercisingActivity = {
     reps: number
 }
 
+// expose restStarted at not run into inconsistencies
 export type RestingActivity = {
     setId: string,
     duration: number
@@ -70,3 +74,8 @@ export type WorkoutSummary = {
     totalWeightLifted: number,
     totalDuration: number
 }
+
+export type WorkoutMetadata = {
+    startedAt: number
+  }
+  

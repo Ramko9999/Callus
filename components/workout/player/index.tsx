@@ -3,6 +3,7 @@ import {
   WorkoutActivityType,
   ExercisingActivity,
   RestingActivity,
+  WorkoutMetadata,
 } from "@/interface";
 import { View, Text } from "../../Themed";
 import { useEffect, useState } from "react";
@@ -10,7 +11,7 @@ import { StyleSheet } from "react-native";
 import {
   ExercisingActivityTile,
   FinishWorkoutActivityTile,
-  RestingActivityTile
+  RestingActivityTile,
 } from "./WorkoutActivityTile";
 import { useWorkout } from "@/context/WorkoutContext";
 import { getDurationDisplay } from "@/util";
@@ -22,24 +23,20 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   workoutDuration: {
-    textAlign:"center",
-    fontSize: 36
-  }
+    textAlign: "center",
+    fontSize: 36,
+  },
 });
 
 export function WorkoutPlayer() {
-  const {
-    isInWorkout,
-    activity,
-    actions
-  } = useWorkout();
+  const { isInWorkout, activity, metadata, actions } = useWorkout();
 
-  const [workoutDuration, setWorkoutDuration] = useState<number>(0);
+  const [now, setNow] = useState<number>(Date.now());
 
   useEffect(() => {
     if (isInWorkout) {
       const interval = setInterval(() => {
-        setWorkoutDuration((duration) => duration + 1);
+        setNow(Date.now());
       }, 1000);
       return () => {
         clearInterval(interval);
@@ -56,7 +53,7 @@ export function WorkoutPlayer() {
   const getWorkoutActivityTile = () => {
     switch (type) {
       case WorkoutActivityType.EXERCISING:
-        const exercisingData = activityData as unknown as ExercisingActivity
+        const exercisingData = activityData as unknown as ExercisingActivity;
         return (
           <ExercisingActivityTile
             activityData={exercisingData}
@@ -64,7 +61,7 @@ export function WorkoutPlayer() {
           />
         );
       case WorkoutActivityType.RESTING:
-        const restingData = activityData as unknown as RestingActivity
+        const restingData = activityData as unknown as RestingActivity;
         return (
           <RestingActivityTile
             activityData={activityData as unknown as RestingActivity}
@@ -72,7 +69,7 @@ export function WorkoutPlayer() {
           />
         );
       case WorkoutActivityType.FINISHED:
-        return (<FinishWorkoutActivityTile onFinish={actions.finishWorkout} />)
+        return <FinishWorkoutActivityTile onFinish={actions.finishWorkout} />;
       default:
         null;
     }
@@ -81,7 +78,13 @@ export function WorkoutPlayer() {
   return (
     <View style={styles.workoutPlayer}>
       {getWorkoutActivityTile()}
-      <Text _type="neutral" style={styles.workoutDuration}>{getDurationDisplay(workoutDuration)}</Text>
+      <Text _type="neutral" style={styles.workoutDuration}>
+        {getDurationDisplay(
+          Math.floor(
+            (Date.now() - (metadata as WorkoutMetadata).startedAt) / 1000
+          )
+        )}
+      </Text>
     </View>
   );
 }
