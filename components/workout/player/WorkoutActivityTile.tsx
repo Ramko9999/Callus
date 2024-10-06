@@ -4,7 +4,7 @@ import { StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
 import { getDurationDisplay } from "@/util";
 import { useRouter } from "expo-router";
-
+import { useWorkout } from "@/context/WorkoutContext";
 
 const styles = StyleSheet.create({
   activityTile: {
@@ -65,9 +65,9 @@ export function RestingActivityTile({
 }: RestingActivityTileProps) {
   const { duration } = activityData;
   const [restDuration, setRestDuration] = useState<number>(duration);
+  const { soundPlayer } = useWorkout();
 
   useEffect(() => {
-    // todo: use the timestamp of when the rest should complete instead
     const interval = setInterval(() => {
       setRestDuration((duration) => Math.max(0, duration - 1));
     }, 1000);
@@ -77,8 +77,12 @@ export function RestingActivityTile({
   }, []);
 
   useEffect(() => {
-    if (restDuration === 0) {
-      onFinish();
+    if (restDuration == 0) {
+      soundPlayer.playNextSetBegin().then(onFinish);
+    } else {
+      if (restDuration <= 6 && restDuration % 2 === 0) {
+        soundPlayer.playRestCompleting();
+      }
     }
   }, [restDuration]);
 

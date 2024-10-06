@@ -9,9 +9,10 @@ import {
   WorkoutSummary,
   WorkoutMetadata,
 } from "@/interface";
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 import { generateRandomId } from "@/util";
 import { WorkoutApi } from "@/api/workout-store";
+import { Audio } from "expo-av";
 
 function generateSetId() {
   return generateRandomId("st", 8);
@@ -82,7 +83,11 @@ export function updateSet(
   setUpdate: Partial<Set>,
   workout: Workout
 ): Workout {
-  console.log(`[WORKOUT-CONTEXT] Updating set ${setId} for ${workout.id} with ${JSON.stringify(setUpdate)}`);
+  console.log(
+    `[WORKOUT-CONTEXT] Updating set ${setId} for ${
+      workout.id
+    } with ${JSON.stringify(setUpdate)}`
+  );
   const exercises = workout.exercises.map((ep) => {
     const sets = ep.sets.map((sp) => {
       if (sp.id == setId) {
@@ -180,12 +185,23 @@ type WorkoutEditor = {
   actions: WorkoutEditorActions;
 };
 
+type WorkoutSounds = {
+  restCompleting: Audio.Sound;
+  nextSetBegin: Audio.Sound;
+};
+
+type WorkoutSoundPlayer = {
+  playRestCompleting: () => Promise<void>;
+  playNextSetBegin: () => Promise<void>;
+};
+
 type WorkoutContext = {
   isInWorkout: boolean;
   metadata?: WorkoutMetadata;
   activity?: WorkoutActivity;
   actions: WorkoutActions;
   editor: WorkoutEditor;
+  soundPlayer: WorkoutSoundPlayer;
 };
 
 const context = createContext<WorkoutContext>({
@@ -195,10 +211,14 @@ const context = createContext<WorkoutContext>({
     completeSet: () => {},
     completeRest: () => {},
     finishWorkout: () => {},
-    resumeInProgressWorkout: () => {}
+    resumeInProgressWorkout: () => {},
   },
   editor: {
     actions: { updateWorkout: (_: Workout) => {} },
+  },
+  soundPlayer: {
+    playRestCompleting: async () => {},
+    playNextSetBegin: async () => {},
   },
 });
 
@@ -208,6 +228,7 @@ type Props = {
 
 export function WorkoutProvider({ children }: Props) {
   const [workout, setWorkout] = useState<Workout>();
+  const [sounds, setSounds] = useState<WorkoutSounds>();
 
   const startWorkout = (workoutPlan: WorkoutPlan) => {
     let newWorkout = createWorkoutFromPlan(workoutPlan);
@@ -270,7 +291,16 @@ export function WorkoutProvider({ children }: Props) {
 
   const resumeInProgressWorkout = (workout: Workout) => {
     setWorkout(workout);
-  }
+  };
+
+  useEffect(() => {
+    Promise.all([
+      Audio.Sound.createAsync(require("@/assets/audio/short-beep.mp3")),
+      Audio.Sound.createAsync(require("@/assets/audio/long-beep.mp3")),
+    ]).then(([{ sound: shortBeep }, { sound: longBeep }]) => {
+      setSounds({ restCompleting: shortBeep, nextSetBegin: longBeep });
+    });
+  }, []);
 
   return (
     <context.Provider
@@ -280,14 +310,23 @@ export function WorkoutProvider({ children }: Props) {
           completeRest,
           completeSet,
           finishWorkout,
-          resumeInProgressWorkout
+          resumeInProgressWorkout,
         },
         activity: workout && getCurrentWorkoutActivity(workout),
-        metadata: workout && {startedAt: workout.startedAt},
+        metadata: workout && { startedAt: workout.startedAt },
         isInWorkout: workout != undefined,
         editor: {
           workout: workout,
           actions: { updateWorkout: updateWorkoutPlan },
+        },
+        soundPlayer: {
+          playRestCompleting: async () => {
+            console.log(`Sounds are: ${sounds}`)
+            await sounds?.restCompleting.playFromPositionAsync(0);
+          },
+          playNextSetBegin: async () => {
+            await sounds?.nextSetBegin.playFromPositionAsync(0);
+          },
         },
       }}
     >
