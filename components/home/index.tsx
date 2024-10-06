@@ -7,7 +7,7 @@ import {
   WorkoutViewTile,
 } from "@/components/workout/view";
 import { getDateDisplay, truncTime, addDays, removeDays } from "@/util";
-import { WorkoutItinerary, WorkoutStoreApi } from "@/app/api/workout-store";
+import { WorkoutItinerary, WorkoutApi } from "@/api/workout-store";
 import { useWorkout } from "@/context/WorkoutContext";
 import { Workout, WorkoutPlan } from "@/interface";
 
@@ -131,7 +131,6 @@ function WorkoutItineraryView({
 
   const isToday = truncTime(Date.now()) === date;
   const isFromPast = truncTime(Date.now()) > date;
-  const isInFuture = truncTime(Date.now()) < date;
 
   return isRestDay ? (
     <View _type="background" style={styles.expansiveCenterAlignedView}>
@@ -179,10 +178,23 @@ function WorkoutItineraryView({
 
 export default function Home() {
   const navigation = useNavigation();
+  const router = useRouter();
   const pathname = usePathname();
   const [workoutDate, setWorkoutDate] = useState<number>(Date.now());
   const [loading, setLoading] = useState<boolean>(true);
   const [workoutItinerary, setWorkoutItinerary] = useState<WorkoutItinerary>();
+  const {actions} = useWorkout();
+
+  useEffect(() => {
+    WorkoutApi.getInProgressWorkout().then((workout) => {
+      
+      if(workout){
+        actions.resumeInProgressWorkout(workout);
+        router.push("/workout-player");
+      }
+    });
+  }, [])
+
 
   useEffect(() => {
     setLoading(true);
@@ -202,7 +214,7 @@ export default function Home() {
       ),
     });
 
-    WorkoutStoreApi.getWorkoutItinerary(truncTime(workoutDate))
+    WorkoutApi.getWorkoutItinerary(truncTime(workoutDate))
       .then(setWorkoutItinerary)
       .finally(() => setLoading(false));
   }, [workoutDate, pathname]);

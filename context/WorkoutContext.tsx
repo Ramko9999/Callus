@@ -9,9 +9,9 @@ import {
   WorkoutSummary,
   WorkoutMetadata,
 } from "@/interface";
-import { createContext, useState, useContext, useEffect } from "react";
+import { createContext, useState, useContext } from "react";
 import { generateRandomId } from "@/util";
-import { WorkoutStoreApi } from "@/app/api/workout-store";
+import { WorkoutApi } from "@/api/workout-store";
 
 function generateSetId() {
   return generateRandomId("st", 8);
@@ -44,7 +44,7 @@ export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
     name: workoutPlan.name,
     exercises: exercisePlans,
     startedAt: startedAt,
-    id: WorkoutStoreApi.getWorkoutId(startedAt, workoutPlan),
+    id: WorkoutApi.getWorkoutId(startedAt, workoutPlan),
   };
 }
 
@@ -219,7 +219,7 @@ export function WorkoutProvider({ children }: Props) {
         newWorkout as Workout
       );
     }
-    WorkoutStoreApi.saveWorkout(newWorkout).then(() => {
+    WorkoutApi.saveWorkout(newWorkout).then(() => {
       setWorkout(newWorkout);
     });
   };
@@ -230,7 +230,7 @@ export function WorkoutProvider({ children }: Props) {
       { status: SetStatus.RESTING, restStartedAt: Date.now() },
       workout as Workout
     );
-    WorkoutStoreApi.saveWorkout(newWorkout).then(() => {
+    WorkoutApi.saveWorkout(newWorkout).then(() => {
       setWorkout(newWorkout);
     });
   };
@@ -249,21 +249,21 @@ export function WorkoutProvider({ children }: Props) {
         newWorkout as Workout
       );
     }
-    WorkoutStoreApi.saveWorkout(newWorkout).then(() => {
+    WorkoutApi.saveWorkout(newWorkout).then(() => {
       setWorkout(newWorkout);
     });
   };
 
   const updateWorkoutPlan = (update: Partial<Workout>) => {
     const newWorkout = { ...(workout as Workout), ...update };
-    WorkoutStoreApi.saveWorkout(newWorkout).then(() => {
+    WorkoutApi.saveWorkout(newWorkout).then(() => {
       setWorkout(newWorkout);
     });
   };
 
   const finishWorkout = () => {
     const newWorkout = finish(workout as Workout);
-    WorkoutStoreApi.saveWorkout(newWorkout).then(() => {
+    WorkoutApi.saveWorkout(newWorkout).then(() => {
       setWorkout(undefined);
     });
   };
@@ -271,15 +271,6 @@ export function WorkoutProvider({ children }: Props) {
   const resumeInProgressWorkout = (workout: Workout) => {
     setWorkout(workout);
   }
-
-
-  useEffect(() => {
-    WorkoutStoreApi.getInProgressWorkout().then((workout) => {
-      if(workout){
-        setWorkout(workout)
-      }
-    });
-  }, [])
 
   return (
     <context.Provider
