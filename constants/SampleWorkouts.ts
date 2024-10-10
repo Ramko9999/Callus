@@ -231,3 +231,9 @@ export const NECK = {
     },
   ],
 };
+
+export const PUSH_PULL_LEGS_PROGRAM = {
+  name: "Push Pull Legs",
+  id: "Push Pull Legs",
+  skippedDays: []
+}

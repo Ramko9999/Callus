@@ -11,7 +11,7 @@ import {
 } from "@/interface";
 import { createContext, useState, useContext, useEffect } from "react";
 import { generateRandomId } from "@/util";
-import { WorkoutApi } from "@/api/workout-store";
+import { WorkoutApi } from "@/api/workout";
 import { Audio } from "expo-av";
 
 function generateSetId() {

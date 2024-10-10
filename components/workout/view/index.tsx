@@ -5,15 +5,14 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { View, Text } from "@/components/Themed";
-import { getWorkoutSummary, useWorkout } from "@/context/WorkoutContext";
-import { useRouter } from "expo-router";
+import { getWorkoutSummary } from "@/context/WorkoutContext";
 import { getTimePeriodDisplay } from "@/util";
 
 const styles = StyleSheet.create({
   workoutViewTileContainer: {
-    width: "80%",
     borderRadius: 2,
     borderWidth: 1,
+    width: "80%"
   },
   workoutViewTile: {
     padding: 8,
@@ -59,7 +58,6 @@ type WorkoutViewTileProps = {
 export function WorkoutViewTile({ workout, onClick }: WorkoutViewTileProps) {
   const { totalReps, totalWeightLifted, totalDuration } =
     getWorkoutSummary(workout);
-  const router = useRouter();
 
   return (
     <View style={styles.workoutViewTileContainer}>

@@ -1,0 +1,1 @@
+export const STORAGE_NAMESPACE = "test-v3-10-6";

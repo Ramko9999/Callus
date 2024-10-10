@@ -77,5 +77,10 @@ export type WorkoutSummary = {
 
 export type WorkoutMetadata = {
     startedAt: number
-  }
+}
   
+export type Program = {
+    id: string,
+    name: string,
+    skippedDays: number[]
+}
