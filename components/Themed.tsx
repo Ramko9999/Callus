@@ -85,7 +85,7 @@ export function Action(props: ActionProps) {
   );
   return (
     <TouchableOpacity {...otherProps}>
-      <Text _type="neutral" style={[coloring, style]}>
+      <Text _type="neutral" style={[coloring, {padding: "3%"}, style]}>
         {name}
       </Text>
     </TouchableOpacity>

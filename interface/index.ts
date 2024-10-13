@@ -30,6 +30,7 @@ export type Set = SetPlan & {
     startedAt?: number
     restStartedAt?: number
     restEndedAt?: number 
+    restDuration?: number
 }
 
 export type Exercise = {
@@ -61,7 +62,8 @@ export type ExercisingActivity = {
 // expose restStarted at not run into inconsistencies
 export type RestingActivity = {
     setId: string,
-    duration: number
+    duration: number,
+    startedAt: number
 }
 
 export type WorkoutActivity = {

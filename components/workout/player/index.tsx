@@ -14,7 +14,7 @@ import {
   RestingActivityTile,
 } from "./WorkoutActivityTile";
 import { useWorkout } from "@/context/WorkoutContext";
-import { getDurationDisplay } from "@/util";
+import { getTimePeriodDisplay } from "@/util";
 
 const styles = StyleSheet.create({
   workoutPlayer: {
@@ -79,11 +79,7 @@ export function WorkoutPlayer() {
     <View style={styles.workoutPlayer}>
       {getWorkoutActivityTile()}
       <Text _type="neutral" style={styles.workoutDuration}>
-        {getDurationDisplay(
-          Math.floor(
-            (Date.now() - (metadata as WorkoutMetadata).startedAt) / 1000
-          )
-        )}
+        {getTimePeriodDisplay(Date.now() - (metadata as WorkoutMetadata).startedAt)}
       </Text>
     </View>
   );

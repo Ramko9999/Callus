@@ -67,7 +67,7 @@ export function getCurrentWorkoutActivity(workout: Workout) {
     } else if (set.status === SetStatus.RESTING) {
       return {
         type: WorkoutActivityType.RESTING,
-        activityData: { duration: set.exercise.rest, setId: set.id },
+        activityData: { duration: set.exercise.rest, setId: set.id, startedAt: set.restStartedAt },
       };
     }
   }

@@ -1,6 +1,6 @@
 import { useNavigation, usePathname, useRouter } from "expo-router";
 import { Action, Icon, Text, View } from "@/components/Themed";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import {
   WorkoutPlanViewTile,
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 5,
     width: "100%",
-    backgroundColor: "transparent"
+    backgroundColor: "transparent",
   },
 });
 
@@ -115,7 +115,7 @@ type WorkoutItineraryProps = {
 function WorkoutItineraryView({
   workoutItinerary,
   date,
-  comeBackToToday
+  comeBackToToday,
 }: WorkoutItineraryProps) {
   const { actions, isInWorkout } = useWorkout();
   const router = useRouter();
@@ -148,51 +148,55 @@ function WorkoutItineraryView({
       <Text _type="neutral">It's a rest day. Take it easy :)</Text>
     </View>
   ) : (
-    <View _type="background" style={styles.workoutView}>
-      <View style={styles.workoutViewTiles}>
-        {completedWorkouts.length > 0 && <Text _type="neutral">Completed</Text>}
-        {completedWorkouts.map((workout, index) => (
-          <WorkoutViewTile key={index} workout={workout} />
-        ))}
-        {inProgressWorkouts.length > 0 && (
-          <Text _type="neutral">In Progress</Text>
-        )}
-        {inProgressWorkouts.map((workout, index) => (
-          <WorkoutViewTile
-            key={index}
-            workout={workout}
-            onClick={() => onResumeInProgressWorkout(workout)}
-          />
-        ))}
-        {workoutPlans.length > 0 && (
-          <Text _type="neutral">
-            {isToday ? "Todo" : isFromPast ? "Missed" : "Upcoming"}
-          </Text>
-        )}
-        {workoutPlans.map((workoutPlan, index) => (
-          <View _type="background" style={styles.workoutViewPlan} key={index}>
-            <WorkoutPlanViewTile
-              workoutPlan={workoutPlan}
-              onClick={
-                isToday && !isInWorkout
-                  ? () => {
-                      onStartWorkout(workoutPlan);
-                    }
-                  : () => {}
-              }
+    <ScrollView>
+      <View _type="background" style={styles.workoutView}>
+        <View style={styles.workoutViewTiles}>
+          {completedWorkouts.length > 0 && (
+            <Text _type="neutral">Completed</Text>
+          )}
+          {completedWorkouts.map((workout, index) => (
+            <WorkoutViewTile key={index} workout={workout} />
+          ))}
+          {inProgressWorkouts.length > 0 && (
+            <Text _type="neutral">In Progress</Text>
+          )}
+          {inProgressWorkouts.map((workout, index) => (
+            <WorkoutViewTile
+              key={index}
+              workout={workout}
+              onClick={() => onResumeInProgressWorkout(workout)}
             />
-            {isYesterday && (
-              <Action
-                _action={{ type: "neutral", name: "Do it today!" }}
-                onPress={() => {
-                  ProgramApi.skipDate(date).then(comeBackToToday);
-                }}
+          ))}
+          {workoutPlans.length > 0 && (
+            <Text _type="neutral">
+              {isToday ? "Todo" : isFromPast ? "Missed" : "Upcoming"}
+            </Text>
+          )}
+          {workoutPlans.map((workoutPlan, index) => (
+            <View _type="background" style={styles.workoutViewPlan} key={index}>
+              <WorkoutPlanViewTile
+                workoutPlan={workoutPlan}
+                onClick={
+                  isToday && !isInWorkout
+                    ? () => {
+                        onStartWorkout(workoutPlan);
+                      }
+                    : () => {}
+                }
               />
-            )}
-          </View>
-        ))}
+              {isYesterday && (
+                <Action
+                  _action={{ type: "neutral", name: "Do it today!" }}
+                  onPress={() => {
+                    ProgramApi.skipDate(date).then(comeBackToToday);
+                  }}
+                />
+              )}
+            </View>
+          ))}
+        </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -243,7 +247,7 @@ export default function Home() {
     <WorkoutItineraryView
       workoutItinerary={workoutItinerary as WorkoutItinerary}
       date={truncTime(workoutDate)}
-      comeBackToToday={()=> setWorkoutDate(Date.now())}
+      comeBackToToday={() => setWorkoutDate(Date.now())}
     />
   );
 }

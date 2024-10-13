@@ -1,6 +1,6 @@
 import { ExercisingActivity, RestingActivity } from "@/interface";
 import { View, Text, Action } from "../../Themed";
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { useState, useEffect } from "react";
 import { getDurationDisplay } from "@/util";
 import { useRouter } from "expo-router";
@@ -22,7 +22,11 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     marginTop: "10%",
-    gap: 20,
+    gap: 60,
+  },
+  activityTileAction: {
+    backgroundColor: "green",
+    padding: "10%",
   },
 });
 
@@ -63,20 +67,30 @@ export function RestingActivityTile({
   activityData,
   onFinish,
 }: RestingActivityTileProps) {
-  const { duration } = activityData;
-  const [restDuration, setRestDuration] = useState<number>(duration);
+  const { duration, startedAt } = activityData;
+  // todo: consider storing rest as a property of sets instead of an exercise
+  const [restDuration, setRestDuration] = useState<number>(
+    duration + Math.ceil((startedAt - Date.now()) / 1000.0)
+  );
   const { soundPlayer } = useWorkout();
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setRestDuration((duration) => Math.max(0, duration - 1));
-    }, 1000);
-    return () => {
-      clearInterval(interval);
-    };
+    if (restDuration >= 0) {
+      const interval = setInterval(() => {
+        setRestDuration((duration) =>
+          Math.max(0, duration - 1)
+        );
+      }, 1000);
+      return () => {
+        clearInterval(interval);
+      };
+    }
   }, []);
 
   useEffect(() => {
+    if (restDuration < 0) {
+      onFinish();
+    }
     if (restDuration == 0) {
       soundPlayer.playNextSetBegin().then(onFinish);
     } else {
