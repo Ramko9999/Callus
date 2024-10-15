@@ -23,18 +23,18 @@ function generateExerciseId() {
 }
 
 export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
-  const exercisePlans: Exercise[] = workoutPlan.exercises.map(
-    ({ name, sets, rest }) => {
-      const setPlans = sets.map((set) => ({
+  const exercises: Exercise[] = workoutPlan.exercises.map(
+    ({ name, sets:setPlans, rest }) => {
+      const sets = setPlans.map((set) => ({
         ...set,
         id: generateSetId(),
         status: SetStatus.UNSTARTED,
+        restDuration: rest
       }));
       return {
         id: generateExerciseId(),
         name: name,
-        rest: rest,
-        sets: setPlans,
+        sets: sets,
       };
     }
   );
@@ -43,7 +43,7 @@ export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
 
   return {
     name: workoutPlan.name,
-    exercises: exercisePlans,
+    exercises: exercises,
     startedAt: startedAt,
     id: WorkoutApi.getWorkoutId(startedAt, workoutPlan),
   };
@@ -67,7 +67,7 @@ export function getCurrentWorkoutActivity(workout: Workout) {
     } else if (set.status === SetStatus.RESTING) {
       return {
         type: WorkoutActivityType.RESTING,
-        activityData: { duration: set.exercise.rest, setId: set.id, startedAt: set.restStartedAt },
+        activityData: { duration: set.restDuration || set.exercise.rest, setId: set.id, startedAt: set.restStartedAt },
       };
     }
   }
@@ -171,6 +171,7 @@ export function getWorkoutSummary(workout: Workout): WorkoutSummary {
 type WorkoutActions = {
   startWorkout: (_: WorkoutPlan) => void;
   completeSet: (_: string) => void;
+  updateRestDuration: (_: string, u: number) => void;
   completeRest: (_: string) => void;
   finishWorkout: () => void;
   resumeInProgressWorkout: (_: Workout) => void;
@@ -212,6 +213,7 @@ const context = createContext<WorkoutContext>({
     completeRest: () => {},
     finishWorkout: () => {},
     resumeInProgressWorkout: () => {},
+    updateRestDuration: () => {}
   },
   editor: {
     actions: { updateWorkout: (_: Workout) => {} },
@@ -289,6 +291,13 @@ export function WorkoutProvider({ children }: Props) {
     });
   };
 
+  const updateRestDuration = (setId: string, updatedRestDuration: number) => {
+    let newWorkout = updateSet(setId, {restDuration: updatedRestDuration}, workout as Workout)
+    WorkoutApi.saveWorkout(newWorkout).then(() => {
+      setWorkout(newWorkout)
+    });
+  }
+
   const resumeInProgressWorkout = (workout: Workout) => {
     setWorkout(workout);
   };
@@ -311,6 +320,7 @@ export function WorkoutProvider({ children }: Props) {
           completeSet,
           finishWorkout,
           resumeInProgressWorkout,
+          updateRestDuration
         },
         activity: workout && getCurrentWorkoutActivity(workout),
         metadata: workout && { startedAt: workout.startedAt },
@@ -321,7 +331,6 @@ export function WorkoutProvider({ children }: Props) {
         },
         soundPlayer: {
           playRestCompleting: async () => {
-            console.log(`Sounds are: ${sounds}`)
             await sounds?.restCompleting.playFromPositionAsync(0);
           },
           playNextSetBegin: async () => {

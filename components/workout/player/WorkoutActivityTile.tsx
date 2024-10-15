@@ -1,6 +1,6 @@
 import { ExercisingActivity, RestingActivity } from "@/interface";
 import { View, Text, Action } from "../../Themed";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
 import { getDurationDisplay } from "@/util";
 import { useRouter } from "expo-router";
@@ -61,14 +61,15 @@ export function ExercisingActivityTile({
 type RestingActivityTileProps = {
   activityData: RestingActivity;
   onFinish: () => void;
+  onUpdateRestDuration: (updatedDuration: number) => void;
 };
 
 export function RestingActivityTile({
   activityData,
   onFinish,
+  onUpdateRestDuration,
 }: RestingActivityTileProps) {
   const { duration, startedAt } = activityData;
-  // todo: consider storing rest as a property of sets instead of an exercise
   const [restDuration, setRestDuration] = useState<number>(
     duration + Math.ceil((startedAt - Date.now()) / 1000.0)
   );
@@ -77,15 +78,13 @@ export function RestingActivityTile({
   useEffect(() => {
     if (restDuration >= 0) {
       const interval = setInterval(() => {
-        setRestDuration((duration) =>
-          Math.max(0, duration - 1)
-        );
+        setRestDuration(duration + Math.ceil((startedAt - Date.now()) / 1000.0))
       }, 1000);
       return () => {
         clearInterval(interval);
       };
     }
-  }, []);
+  }, [duration]);
 
   useEffect(() => {
     if (restDuration < 0) {
@@ -113,7 +112,7 @@ export function RestingActivityTile({
         />
         <Action
           _action={{ name: "Add 15s", type: "neutral" }}
-          onPress={() => setRestDuration((duration) => duration + 15)}
+          onPress={() => onUpdateRestDuration(duration + 15)}
         />
       </View>
     </View>

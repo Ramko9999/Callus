@@ -66,6 +66,7 @@ export function WorkoutPlayer() {
           <RestingActivityTile
             activityData={activityData as unknown as RestingActivity}
             onFinish={() => actions.completeRest(restingData.setId)}
+            onUpdateRestDuration={(duration) => actions.updateRestDuration(restingData.setId, duration)}
           />
         );
       case WorkoutActivityType.FINISHED:
@@ -79,7 +80,7 @@ export function WorkoutPlayer() {
     <View style={styles.workoutPlayer}>
       {getWorkoutActivityTile()}
       <Text _type="neutral" style={styles.workoutDuration}>
-        {getTimePeriodDisplay(Date.now() - (metadata as WorkoutMetadata).startedAt)}
+        {getTimePeriodDisplay(now - (metadata as WorkoutMetadata).startedAt)}
       </Text>
     </View>
   );

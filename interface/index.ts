@@ -36,7 +36,7 @@ export type Set = SetPlan & {
 export type Exercise = {
     id: string,
     name: string,
-    rest: number,
+    rest?: number,
     sets: Set[]
 }
 
