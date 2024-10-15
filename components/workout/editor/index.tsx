@@ -7,7 +7,12 @@ import {
 } from "@/context/WorkoutContext";
 import { View, TextInput, Text, Action, Icon } from "../../Themed";
 import { Exercise, Set, Workout } from "@/interface";
-import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+} from "react-native";
 
 const styles = StyleSheet.create({
   setTile: {
@@ -74,9 +79,7 @@ function SetTile({ set }: SetTileProps) {
   const { weight, reps, id } = set;
   const { workout, actions } = editor;
   const onUpdateSet = (setPlanUpdate: Partial<Set>) => {
-    actions.updateWorkout(
-      updateSet(id, setPlanUpdate, workout as Workout)
-    );
+    actions.updateWorkout(updateSet(id, setPlanUpdate, workout as Workout));
   };
   const onUpdateWeight = (weight: string) => {
     const newWeight = weight.trim().length > 0 ? parseInt(weight) : 0;
@@ -89,9 +92,7 @@ function SetTile({ set }: SetTileProps) {
   };
 
   const onRemoveSet = () => {
-    actions.updateWorkout(
-      removeSet(id, workout as Workout)
-    );
+    actions.updateWorkout(removeSet(id, workout as Workout));
   };
 
   return (
@@ -141,15 +142,11 @@ function ExerciseTile({ exercise }: ExerciseTileProps) {
   const { id, sets, name } = exercise;
 
   const onAddSet = () => {
-    actions.updateWorkout(
-      duplicateLastSet(id, workout as Workout)
-    );
+    actions.updateWorkout(duplicateLastSet(id, workout as Workout));
   };
 
   const onRemoveExercise = () => {
-    actions.updateWorkout(
-      removeExercise(id, workout as Workout)
-    );
+    actions.updateWorkout(removeExercise(id, workout as Workout));
   };
 
   return (
@@ -178,25 +175,28 @@ export function WorkoutEditor() {
   const { editor } = useWorkout();
   const { workout, actions } = editor;
 
+  // todo: the below isn't UI correct, but moves the element above the keyboard at least.
   return (
-    <ScrollView>
-      <TextInput
-        _type="large"
-        style={styles.workoutNameInput}
-        value={workout && workout.name}
-        onChangeText={(text) => {
-          actions.updateWorkout({
-            ...(workout as Workout),
-            name: text,
-          });
-        }}
-        placeholder="Workout Name"
-      />
-      <View _type="background" style={styles.exerciseTilesContainer}>
-        {workout?.exercises.map((exercise, index) => {
-          return <ExerciseTile key={index} exercise={exercise} />;
-        })}
-      </View>
-    </ScrollView>
+    <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
+      <ScrollView>
+        <TextInput
+          _type="large"
+          style={styles.workoutNameInput}
+          value={workout && workout.name}
+          onChangeText={(text) => {
+            actions.updateWorkout({
+              ...(workout as Workout),
+              name: text,
+            });
+          }}
+          placeholder="Workout Name"
+        />
+        <View _type="background" style={styles.exerciseTilesContainer}>
+          {workout?.exercises.map((exercise, index) => {
+            return <ExerciseTile key={index} exercise={exercise} />;
+          })}
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
