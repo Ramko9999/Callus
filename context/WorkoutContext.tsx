@@ -8,6 +8,7 @@ import {
   WorkoutActivityType,
   WorkoutSummary,
   WorkoutMetadata,
+  ExerciseMeta,
 } from "@/interface";
 import { createContext, useState, useContext, useEffect } from "react";
 import { generateRandomId } from "@/util";
@@ -24,14 +25,15 @@ function generateExerciseId() {
 
 export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
   const exercises: Exercise[] = workoutPlan.exercises.map(
-    ({ name, sets:setPlans, rest }) => {
+    ({ name, sets: setPlans, rest, difficultyType }) => {
       const sets = setPlans.map((set) => ({
         ...set,
         id: generateSetId(),
         status: SetStatus.UNSTARTED,
-        restDuration: rest
+        restDuration: rest,
       }));
       return {
+        difficultyType,
         id: generateExerciseId(),
         name: name,
         sets: sets,
@@ -67,7 +69,11 @@ export function getCurrentWorkoutActivity(workout: Workout) {
     } else if (set.status === SetStatus.RESTING) {
       return {
         type: WorkoutActivityType.RESTING,
-        activityData: { duration: set.restDuration || set.exercise.rest, setId: set.id, startedAt: set.restStartedAt },
+        activityData: {
+          duration: set.restDuration || set.exercise.rest,
+          setId: set.id,
+          startedAt: set.restStartedAt,
+        },
       };
     }
   }
@@ -145,6 +151,29 @@ export function removeExercise(exerciseId: string, workout: Workout): Workout {
   return { ...workout, exercises };
 }
 
+function createDefaultSet(): Set {
+  return {
+    id: generateSetId(),
+    status: SetStatus.UNSTARTED,
+    restDuration: 60,
+    reps: 0,
+    weight: 0,
+  };
+}
+
+export function addExercise(
+  exerciseMeta: ExerciseMeta,
+  workout: Workout
+): Workout {
+  const newExercise = {
+    ...exerciseMeta,
+    id: generateExerciseId(),
+    sets: [createDefaultSet()],
+  };
+  const exercises: Exercise[] = [...workout.exercises, newExercise];
+  return { ...workout, exercises };
+}
+
 export function updateWorkout(
   workoutUpdate: Partial<Workout>,
   workout: Workout
@@ -213,7 +242,7 @@ const context = createContext<WorkoutContext>({
     completeRest: () => {},
     finishWorkout: () => {},
     resumeInProgressWorkout: () => {},
-    updateRestDuration: () => {}
+    updateRestDuration: () => {},
   },
   editor: {
     actions: { updateWorkout: (_: Workout) => {} },
@@ -292,11 +321,15 @@ export function WorkoutProvider({ children }: Props) {
   };
 
   const updateRestDuration = (setId: string, updatedRestDuration: number) => {
-    let newWorkout = updateSet(setId, {restDuration: updatedRestDuration}, workout as Workout)
+    let newWorkout = updateSet(
+      setId,
+      { restDuration: updatedRestDuration },
+      workout as Workout
+    );
     WorkoutApi.saveWorkout(newWorkout).then(() => {
-      setWorkout(newWorkout)
+      setWorkout(newWorkout);
     });
-  }
+  };
 
   const resumeInProgressWorkout = (workout: Workout) => {
     setWorkout(workout);
@@ -320,7 +353,7 @@ export function WorkoutProvider({ children }: Props) {
           completeSet,
           finishWorkout,
           resumeInProgressWorkout,
-          updateRestDuration
+          updateRestDuration,
         },
         activity: workout && getCurrentWorkoutActivity(workout),
         metadata: workout && { startedAt: workout.startedAt },

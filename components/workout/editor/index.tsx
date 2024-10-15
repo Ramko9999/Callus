@@ -1,4 +1,5 @@
 import {
+  addExercise,
   duplicateLastSet,
   removeExercise,
   removeSet,
@@ -6,13 +7,18 @@ import {
   useWorkout,
 } from "@/context/WorkoutContext";
 import { View, TextInput, Text, Action, Icon } from "../../Themed";
-import { Exercise, Set, Workout } from "@/interface";
+import { Exercise, ExerciseMeta, Set, Workout } from "@/interface";
 import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   KeyboardAvoidingView,
+  Modal,
+  TouchableWithoutFeedback,
 } from "react-native";
+import { ExerciseFinder } from "../exercise";
+import { EXERCISE_REPOSITORY } from "@/constants";
+import { useState } from "react";
 
 const styles = StyleSheet.create({
   setTile: {
@@ -66,9 +72,26 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     paddingBottom: "2%",
   },
+  exerciseScrollView: {
+    display: "flex",
+    flexDirection: "column",
+  },
   workoutNameInput: {
     textAlign: "center",
     padding: "2%",
+  },
+  addExerciseAction: {
+    alignSelf: "center",
+    paddingBottom: "4%",
+  },
+  exerciseFinderContainer: {
+    display: "flex",
+    flexDirection: "row",
+    height: "100%",
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
 });
 
@@ -171,14 +194,46 @@ function ExerciseTile({ exercise }: ExerciseTileProps) {
   );
 }
 
+type ExerciseFinderModalProps = {
+  shouldShow: boolean;
+  onClose: () => void;
+  onSelectExercise: (exerciseMeta: ExerciseMeta) => void;
+};
+
+function ExerciseFinderModal({
+  shouldShow,
+  onClose,
+  onSelectExercise,
+}: ExerciseFinderModalProps) {
+  return (
+    <Modal
+      transparent={true}
+      onRequestClose={onClose}
+      visible={shouldShow}
+      animationType="none"
+    >
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.exerciseFinderContainer}>
+          <ExerciseFinder
+            onSelect={(exerciseMeta) => onSelectExercise(exerciseMeta)}
+            onCancel={onClose}
+            allExercises={EXERCISE_REPOSITORY}
+          />
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
+}
+
 export function WorkoutEditor() {
+  const [showExerciseFinder, setShowExerciseFinder] = useState(false);
   const { editor } = useWorkout();
   const { workout, actions } = editor;
 
   // todo: the below isn't UI correct, but moves the element above the keyboard at least.
   return (
     <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
-      <ScrollView>
+      <ScrollView style={styles.exerciseScrollView}>
         <TextInput
           _type="large"
           style={styles.workoutNameInput}
@@ -196,7 +251,22 @@ export function WorkoutEditor() {
             return <ExerciseTile key={index} exercise={exercise} />;
           })}
         </View>
+        <Action
+          _action={{ name: "Add exercise", type: "neutral" }}
+          style={styles.addExerciseAction}
+          onPress={() => setShowExerciseFinder(true)}
+        />
       </ScrollView>
+      <ExerciseFinderModal
+        shouldShow={showExerciseFinder}
+        onClose={() => {
+          setShowExerciseFinder(false);
+        }}
+        onSelectExercise={(exerciseMeta) => {
+          actions.updateWorkout(addExercise(exerciseMeta, workout as Workout));
+          setShowExerciseFinder(false);
+        }}
+      />
     </KeyboardAvoidingView>
   );
 }

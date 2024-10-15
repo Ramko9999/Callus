@@ -17,7 +17,7 @@ import { useColorScheme } from "./useColorScheme";
 import { FontAwesome } from "@expo/vector-icons";
 
 type ViewThemeProps = {
-  _type?: "background" | "foreground"
+  _type?: "background" | "foreground";
 };
 
 type TextThemeProps = {
@@ -39,7 +39,8 @@ export type ActionProps = Omit<TouchableOpacity["props"], "children"> &
   ActionThemeProps;
 export type IconProps = {
   name: React.ComponentProps<typeof FontAwesome>["name"];
-  size?: number
+  size?: number;
+  color?: string;
 };
 
 export function useThemeColoring(color: UIColor) {
@@ -66,7 +67,11 @@ export function Text(props: TextProps) {
 export function View(props: ViewProps) {
   const { style, _type, ...otherProps } = props;
 
-  const coloring = useThemeColoring(_type !== undefined && _type === "background" ? "viewBackground" : "viewForeground") as ViewStyle;
+  const coloring = useThemeColoring(
+    _type !== undefined && _type === "background"
+      ? "viewBackground"
+      : "viewForeground"
+  ) as ViewStyle;
 
   return <DefaultView style={[coloring, style]} {...otherProps} />;
 }
@@ -74,7 +79,12 @@ export function View(props: ViewProps) {
 export function TextInput(props: TextInputProps) {
   const { style, _type, ...otherProps } = props;
   const coloring = useThemeColoring("text") as TextStyle;
-  return <DefaultTextInput style={[coloring, textTheme[_type] as TextStyle, style]} {...otherProps} />;
+  return (
+    <DefaultTextInput
+      style={[coloring, textTheme[_type] as TextStyle, style]}
+      {...otherProps}
+    />
+  );
 }
 
 export function Action(props: ActionProps) {
@@ -85,15 +95,17 @@ export function Action(props: ActionProps) {
   );
   return (
     <TouchableOpacity {...otherProps}>
-      <Text _type="neutral" style={[coloring, {padding: "3%"}, style]}>
+      <Text _type="neutral" style={[coloring, { padding: "3%" }, style]}>
         {name}
       </Text>
     </TouchableOpacity>
   );
-} 
+}
 
-export function Icon({ name, size }: IconProps) {
+export function Icon({ name, size, color }: IconProps) {
   const coloring = useThemeColoring("text") as TextStyle;
 
-  return <FontAwesome name={name} color={coloring.color} size={size} />;
+  return (
+    <FontAwesome name={name} color={color || coloring.color} size={size} />
+  );
 }

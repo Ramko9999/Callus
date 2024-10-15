@@ -1,10 +1,22 @@
+export enum DifficultyType {
+    WEIGHT,
+    BODY_WEIGHT,
+    ASSISTED_BODY_WEIGHT,
+    WEIGHTED_BODY_WEIGHT,
+    TIME
+}
+
+export type ExerciseMeta = {
+    name: string,
+    difficultyType: DifficultyType
+}
+
 type SetPlan = {
     weight?: number
     reps: number
 }
 
-export type ExercisePlan = {
-    name: string
+export type ExercisePlan = ExerciseMeta & {
     rest: number
     sets: SetPlan[]
 }
@@ -33,9 +45,8 @@ export type Set = SetPlan & {
     restDuration?: number
 }
 
-export type Exercise = {
+export type Exercise = ExerciseMeta & {
     id: string,
-    name: string,
     rest?: number,
     sets: Set[]
 }

@@ -13,6 +13,9 @@ export const darkColorTheme = {
   },
   actionDanger: {
     color: "#FF6347",
+  },
+  searchBackground: {
+    backgroundColor: "#313035"
   }
 };
 
@@ -31,6 +34,9 @@ export const lightColorTheme = {
   actionDanger: {
     color: "#DC143C",
   },
+  searchBackground: {
+    backgroundColor: "#eeeef0"
+  }
 };
 
 export type UIColor = keyof typeof darkColorTheme &
