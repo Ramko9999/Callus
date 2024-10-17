@@ -1,0 +1,1435 @@
+[
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Air-squat.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Calves"],
+    "name": "Air Squat"
+  },
+  {
+    "difficultyType": "ASSISTED_BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/02/assisterade-chins-med-omvant-grepp.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Biceps",
+      "Reat Delts",
+      "Forearm Flexors",
+      "Rotator Cuffs"
+    ],
+    "name": "Assisted Chin-Up"
+  },
+  {
+    "difficultyType": "ASSISTED_BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/02/assisterade-chins.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Biceps",
+      "Reat Delts",
+      "Forearm Flexors",
+      "Rotator Cuffs"
+    ],
+    "name": "Assisted Pull-Up"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/05/back-extension-frontloaded.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Glutes", "Lower Back", "Hamstrings"],
+    "name": "Back Extension"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/02/slam-ball.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Lats", "Abs", "Obliques", "Glutes", "Front Deltoids"],
+    "name": "Ball Slams"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/Band-Pull-Apart.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Reat Delt", "Rotator Cuff", "Traps"],
+    "name": "Band Pull-Apart"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/05/bench-with-band-assistance.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Band-Assisted Bench Press"
+  },
+  {
+    "difficultyType": "ASSISTED_BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/02/Banded-Muscle-Up.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Chest",
+      "Lats",
+      "Triceps",
+      "Biceps",
+      "Forearm Flexors",
+      "Front Delt",
+      "Reat Delts",
+      "Rotator Cuffs"
+    ],
+    "name": "Banded Muscle-Up"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Banded-Side-Kick.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abductors", "Glutes"],
+    "name": "Banded Side Kicks"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Dips.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Bar Dip"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/12/Barbell-biceps-curl.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Biceps", "Forearm Flexors"],
+    "name": "Barbell Curl"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Barbell-Front-Raise.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Front Delt", "Lateral Delt"],
+    "name": "Barbell Front Raise"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2022/04/Barbell-Hack-Squat-Exercise.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Quads",
+      "Glutes",
+      "Adductors",
+      "Lower Back",
+      "Traps",
+      "Forearm Flexors",
+      "Calves"
+    ],
+    "name": "Barbell Hack Squat"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/preacher-curl-barbell.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Biceps", "Forearm Flexors"],
+    "name": "Barbell Preacher Curl"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/01/Barbell-Rear-Delt-Row.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Reat Delt",
+      "Traps",
+      "Rotator Cuff",
+      "Biceps",
+      "Forearm Flexors"
+    ],
+    "name": "Barbell Rear Delt Row"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2022/03/Barbell-Row.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Traps",
+      "Reat Delts",
+      "Biceps",
+      "Lower Back",
+      "Forearm Flexors",
+      "Rotator Cuff"
+    ],
+    "name": "Barbell Row"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Barbell-Shrug.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Traps", "Forearm Flexors"],
+    "name": "Barbell Shrug"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/11/Barbell-upright-row.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Lateral Delt", "Front Delt", "Traps", "Biceps"],
+    "name": "Barbell Upright Row"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/01/Behind-the-neck-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Front Delt", "Lateral Delt", "Traps", "Triceps"],
+    "name": "Behind the Neck Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/01/belt-squat.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Calves"],
+    "name": "Belt Squat"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2022/12/C7251A7B-7A1B-47AE-A88C-7054692BCEF0.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Triceps", "Chest", "Front Delt"],
+    "name": "Bench Dip"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/09/bench-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Bench Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/05/bench-against-band.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Bench Press Against Band"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/02/block-clean.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Adductors",
+      "Quads",
+      "Hamstrings",
+      "Traps",
+      "Forearm Flexors",
+      "Calves"
+    ],
+    "name": "Block Clean"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/01/block-snatch.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Adductors",
+      "Quads",
+      "Hamstrings",
+      "Traps",
+      "Calves",
+      "Forearm Flexors"
+    ],
+    "name": "Block Snatch"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/05/board-bench-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Board Press"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/02/Bodyweight-curls.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Biceps", "Lats", "Forearm Flexors"],
+    "name": "Bodyweight Curl"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/01/body-weight-leg-curl.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Hamstrings", "Glutes"],
+    "name": "Bodyweight Leg Curl"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/Box-Squat.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Lower Back", "Calves"],
+    "name": "Box Squat"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/cable-chest-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Cable Chest Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/cable-row-seated-narrow-grip.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Traps",
+      "Reat Delts",
+      "Biceps",
+      "Forearm Flexors",
+      "Rotator Cuffs"
+    ],
+    "name": "Cable Close Grip Seated Row"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/cable-crunch.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abs", "Obliques"],
+    "name": "Cable Crunch"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/cable-curl-with-handle.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Biceps", "Forearm Flexors"],
+    "name": "Cable Curl With Bar"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/cable-curl-with-rope.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Biceps", "Forearm Flexors"],
+    "name": "Cable Curl With Rope"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/cable-lateral-raise.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Lateral Delt", "Front Delt"],
+    "name": "Cable Lateral Raise"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/cable-pull-through.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Glutes", "Lower Back", "Hamstrings", "Adductors"],
+    "name": "Cable Pull Through"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/cable-rear-delt-row.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Reat Delt", "Rotator Cuff", "Traps", "Biceps"],
+    "name": "Cable Rear Delt Row"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/cable-row-seated-wide-grip.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Traps",
+      "Reat Delts",
+      "Biceps",
+      "Forearm Flexors",
+      "Rotator Cuffs"
+    ],
+    "name": "Cable Wide Grip Seated Row"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/03/chair-squats.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Calves"],
+    "name": "Chair Squat"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/chin-up.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Biceps",
+      "Reat Delts",
+      "Forearm Flexors",
+      "Rotator Cuffs"
+    ],
+    "name": "Chin-Up"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/01/clamshell.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abductors", "Glutes"],
+    "name": "Clamshells"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/clean.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Adductors",
+      "Quads",
+      "Hamstrings",
+      "Traps",
+      "Forearm Flexors",
+      "Calves"
+    ],
+    "name": "Clean"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/clean-and-jerk.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Adductors",
+      "Quads",
+      "Front Delt",
+      "Hamstrings",
+      "Traps",
+      "Forearm Flexors",
+      "Triceps",
+      "Lateral Delt",
+      "Calves"
+    ],
+    "name": "Clean and Jerk"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/09/Close-grip-bench-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Triceps", "Chest", "Front Delt"],
+    "name": "Close-Grip Bench Press"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2022/09/close-grip-push-up.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Triceps", "Abs", "Chest", "Front Delt"],
+    "name": "Close-Grip Push-Up"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Concentration-curl.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Biceps", "Forearm Flexors"],
+    "name": "Concentration Curl"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/01/Crunch.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abs", "Obliques"],
+    "name": "Crunch"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/01/deadbug.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abs", "Obliques"],
+    "name": "Dead Bug"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/11/Deadlift.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Quads",
+      "Hamstrings",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Deadlift"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Decline-Bench-Press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Triceps", "Front Deltoid "],
+    "name": "Decline Bench Press"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/05/Decline-push-up.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps", "Abs"],
+    "name": "Decline Push-Up"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Defifict-deadlift.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Quads",
+      "Hamstrings",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Deficit Deadlift"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Dumbbell-Chest-Fly.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt"],
+    "name": "Dumbbell Chest Fly"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Dumbbell-Chest-Press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Dumbbell Chest Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Hantelcurl.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Biceps", "Forearm Flexors"],
+    "name": "Dumbbell Curl"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/dumbbell-deadlift.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Quads",
+      "Hamstrings",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Dumbbell Deadlift"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/02/dumbbell-decline-chest-press.gif?resize=600%2C601&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Dumbbell Decline Chest Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2022/09/dumbbell-floor-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Dumbbell Floor Press"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/01/Dumbbell-frog-pump.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Glutes", "Hamstrings", "Adductors"],
+    "name": "Dumbbell Frog Pumps"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Dumbbell-Front-Raise.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Front Delt", "Lateral Delt"],
+    "name": "Dumbbell Front Raise"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/12/Dumbbell-Lateral-Raise.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Lateral Delt", "Front Delt"],
+    "name": "Dumbbell Lateral Raise"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Dumbbell-Lunge.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Forearm Flexors"],
+    "name": "Dumbbell Lunge"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Dumbbell-Preacher-Curl.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Biceps", "Forearm Flexors"],
+    "name": "Dumbbell Preacher Curl"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Dumbbell-Pullover.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Lats"],
+    "name": "Dumbbell Pullover"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/01/Dumbbell-Rear-Delt-Row.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Reat Delt",
+      "Traps",
+      "Rotator Cuff",
+      "Biceps",
+      "Forearm Flexors"
+    ],
+    "name": "Dumbbell Rear Delt Row"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2022/09/romanian-deadlift-with-dumbbells.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Hamstrings",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Dumbbell Romanian Deadlift"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Dumbbell-shoulder-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Front Delt", "Triceps", "Lateral Delt"],
+    "name": "Dumbbell Shoulder Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Dumbbell-Shrug.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Traps", "Forearm Flexors"],
+    "name": "Dumbbell Shrug"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Dumbbell-Squat.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Lower Back", "Calves"],
+    "name": "Dumbbell Squat"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/05/face-pull.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Reat Delt", "Rotator Cuff", "Traps", "Lateral Delt"],
+    "name": "Face Pull"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/01/Farmers-walk.gif?resize=600%2C480&ssl=1",
+    "muscles": [
+      "Forearm Flexors",
+      "Obliques",
+      "Glutes",
+      "Traps",
+      "Quads",
+      "Abs",
+      "Lower Back",
+      "Calves",
+      "Lateral Delts"
+    ],
+    "name": "Farmers Walk"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/01/Fat-Bar-Deadlift.gif?resize=600%2C599&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Forearm Flexors",
+      "Lower Back",
+      "Quads",
+      "Hamstrings",
+      "Adductors",
+      "Traps"
+    ],
+    "name": "Fat Bar Deadlift"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/09/Feet-Up-Bench-Press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Feet-Up Bench Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Floor-Press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Floor Press"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/01/Frog-pump.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Glutes", "Hamstrings", "Adductors"],
+    "name": "Frog Pumps"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/09/Front-squat.gif?resize=600%2C595&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Lower Back", "Calves"],
+    "name": "Front Squat"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/06/Glute-Bridge.gif?resize=522%2C522&ssl=1",
+    "muscles": ["Glutes", "Quads"],
+    "name": "Glute Bridge"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Goblet-squat.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Lower Back", "Calves"],
+    "name": "Goblet Squat"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Good-morning.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Glutes", "Lower Back", "Hamstrings", "Adductors"],
+    "name": "Good Morning"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Hammer-curl.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Biceps", "Forearm Flexors"],
+    "name": "Hammer Curl"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/hang-clean.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Adductors",
+      "Quads",
+      "Hamstrings",
+      "Traps",
+      "Forearm Flexors",
+      "Calves"
+    ],
+    "name": "Hang Clean"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/hang-power-clean.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Adductors",
+      "Hamstrings",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Hang Power Clean"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/hang-power-snatch.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Adductors",
+      "Hamstrings",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Hang Power Snatch"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/hang-snatch.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Adductors",
+      "Quads",
+      "Hamstrings",
+      "Traps",
+      "Forearm Flexors",
+      "Calves"
+    ],
+    "name": "Hang Snatch"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/hanging-knee-raise.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abs", "Obliques"],
+    "name": "Hanging Knee Raise"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/hanging-leg-raise.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abs", "Obliques"],
+    "name": "Hanging Leg Raise"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/hanging-sit-up.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abs", "Obliques"],
+    "name": "Hanging Sit-Up"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/01/Band-Wood-Chop-High-to-Low.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Obliques", "Abs"],
+    "name": "High to Low Wood Chop with Band"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Band-Seated-Hip-Abduction.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abductors", "Glutes"],
+    "name": "Hip Abduction Against Band"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/hip-abduction-machine.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abductors", "Glutes"],
+    "name": "Hip Abduction Machine"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Hip-thrust.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Glutes", "Adductors", "Quads"],
+    "name": "Hip Thrust"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/hip-thrust-machine.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Glutes", "Adductors", "Quads"],
+    "name": "Hip Thrust Machine"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Incline-Bench-Press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Incline Bench Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/Incline-Dumbbell-Curl.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Biceps", "Forearm Flexors"],
+    "name": "Incline Dumbbell Curl"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Dumbbell-Incline-Press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Incline Dumbbell Press"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/03/incline-push-up-exercise-technique.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps", "Abs"],
+    "name": "Incline Push-Up"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/hangande-rodd-overhandsgrepp.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Traps",
+      "Reat Delts",
+      "Biceps",
+      "Forearm Flexors",
+      "Rotator Cuff"
+    ],
+    "name": "Inverted Row"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/09/Jefferson-Curl.gif?resize=576%2C1024&ssl=1",
+    "muscles": ["Lower Back", "Adductors", "Glutes", "Hamstrings", "Traps"],
+    "name": "Jefferson Curl"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/02/kettlebell-floorpress.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Kettlebell Floor Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Kettlebellsving.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Hamstrings",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Kettlebell Swing"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/05/kneeling-ab-wheel.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abs", "Obliques"],
+    "name": "Kneeling Ab Wheel Roll-Out"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/11/Kneeling-incline-push-up.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps", "Abs"],
+    "name": "Kneeling Incline Push-Up"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Kneeling-push-ups.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps", "Abs"],
+    "name": "Kneeling Push-Up"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2022/04/Landmine-Squat-Exercise.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Lower Back", "Calves"],
+    "name": "Landmine Squat"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/lat-pulldown-with-pronated-grip.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Biceps",
+      "Reat Delts",
+      "Forearm Flexors",
+      "Rotator Cuffs"
+    ],
+    "name": "Lat Pulldown"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Banded-Side-Step.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abductors", "Glutes"],
+    "name": "Lateral Walk With Band"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/leg-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Hamstrings"],
+    "name": "Leg Press"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/lying-leg-raises.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abs", "Obliques"],
+    "name": "Lying Leg Raise"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/01/Lying-Windshield-Wipers-1.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Obliques", "Abs"],
+    "name": "Lying Windshield Wiper"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/01/Lying-Windshield-Wipers-with-Bent-Knees.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Obliques", "Abs"],
+    "name": "Lying Windshield Wiper with Bent Knees"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/01/Machine-biceps-curl.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Biceps", "Forearm Flexors"],
+    "name": "Machine Bicep Curl"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/machine-chest-fly.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt"],
+    "name": "Machine Chest Fly"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/machine-chest-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Machine Chest Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/machine-crunch.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abs", "Obliques"],
+    "name": "Machine Crunch"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/lateral-raise-machine.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Lateral Delt", "Front Delt"],
+    "name": "Machine Lateral Raise"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/machine-shoulder-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Front Delt", "Triceps", "Lateral Delt"],
+    "name": "Machine Shoulder Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2022/09/monkey-row.gif?resize=526%2C526&ssl=1",
+    "muscles": ["Lateral Delt", "Reat Delt", "Traps", "Biceps"],
+    "name": "Monkey Row"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/01/Mountain-climbers.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abs", "Obliques"],
+    "name": "Mountain Climbers"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/02/Bar-Muscle-Up.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Chest",
+      "Lats",
+      "Triceps",
+      "Biceps",
+      "Forearm Flexors",
+      "Front Delt",
+      "Reat Delts",
+      "Rotator Cuffs"
+    ],
+    "name": "Muscle-Up (Bar)"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/03/ring-muscle-up.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Chest",
+      "Lats",
+      "Triceps",
+      "Biceps",
+      "Forearm Flexors",
+      "Front Delt",
+      "Reat Delts",
+      "Rotator Cuffs"
+    ],
+    "name": "Muscle-Up (Rings)"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/12/Oblique-crunch.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Obliques", "Abs"],
+    "name": "Oblique Crunch"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/12/Oblique-sit-up.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Obliques", "Abs"],
+    "name": "Oblique Sit-Up"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/cable-row-seated-single-arm.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Traps",
+      "Reat Delts",
+      "Biceps",
+      "Forearm Flexors",
+      "Rotator Cuffs"
+    ],
+    "name": "One-Handed Cable Row"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/lat-pulldown-single-arm.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Biceps",
+      "Reat Delts",
+      "Forearm Flexors",
+      "Rotator Cuffs"
+    ],
+    "name": "One-Handed Lat Pulldown"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2022/09/One-legged-glute-bridge.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Glutes", "Adductors", "Abductors", "Quads"],
+    "name": "One-Legged Glute Bridge"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/06/One-Legged-Hip-Thrust.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Glutes", "Adductors", "Abductors", "Quads"],
+    "name": "One-Legged Hip Thrust"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/12/Overhead-press-exercise.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Front Delt", "Triceps", "Lateral Delt"],
+    "name": "Overhead Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Pause-deadlift.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Quads",
+      "Hamstrings",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Pause Deadlift"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/Pause-squat.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Lower Back", "Calves"],
+    "name": "Pause Squat"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/pec-deck.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt"],
+    "name": "Pec Deck"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/02/pin-bench-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Pin Bench Press"
+  },
+  {
+    "difficultyType": "TIME",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/02/plank-with-leglift.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abs", "Obliques"],
+    "name": "Plank with Leg Lifts"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/01/Plate-front-raise.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Front Delt", "Lateral Delt"],
+    "name": "Plate Front Raise"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/power-clean.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Quads",
+      "Adductors",
+      "Hamstrings",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Power Clean"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/power-jerk.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Front Delt",
+      "Quads",
+      "Glutes",
+      "Adductors",
+      "Lower Back",
+      "Traps",
+      "Triceps",
+      "Lateral Delt"
+    ],
+    "name": "Power Jerk"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/power-snatch.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Quads",
+      "Adductors",
+      "Hamstrings",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Power Snatch"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/pull-up.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Biceps",
+      "Reat Delts",
+      "Forearm Flexors",
+      "Rotator Cuffs"
+    ],
+    "name": "Pull-Up"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/02/chins-neutralt-grepp.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Biceps",
+      "Reat Delts",
+      "Forearm Flexors",
+      "Rotator Cuffs"
+    ],
+    "name": "Pull-Up With a Neutral Grip"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/push-press.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Front Delt",
+      "Quads",
+      "Glutes",
+      "Adductors",
+      "Lower Back",
+      "Traps",
+      "Triceps",
+      "Lateral Delt"
+    ],
+    "name": "Push Press"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Push-up.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps", "Abs"],
+    "name": "Push-Up"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/03/pushups-against-wall.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps", "Abs"],
+    "name": "Push-Up Against Wall"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Rack-pull.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Hamstrings",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Rack Pull"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/08/Reverse-cable-fly.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Reat Delt", "Rotator Cuff", "Traps"],
+    "name": "Reverse Cable Flyes"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Reverse-dumbbell-flyes.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Reat Delt", "Rotator Cuff", "Traps"],
+    "name": "Reverse Dumbbell Flyes"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/reverse-machine-fly.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Reat Delt", "Rotator Cuff", "Traps"],
+    "name": "Reverse Machine Fly"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/03/ring-pullups.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Biceps",
+      "Reat Delts",
+      "Forearm Flexors",
+      "Rotator Cuffs"
+    ],
+    "name": "Ring Pull-Up"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/05/ring-rows.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Traps",
+      "Reat Delts",
+      "Biceps",
+      "Forearm Flexors",
+      "Rotator Cuff"
+    ],
+    "name": "Ring Row"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2022/01/Romanian-deadlift.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Hamstrings",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Romanian Deadlift"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/11/safetybar-squat.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Lower Back", "Calves"],
+    "name": "Safety Bar Squat"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/11/Seated-barbell-overhead-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Front Delt", "Triceps", "Lateral Delt"],
+    "name": "Seated Barbell Overhead Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/11/Seated-dumbbell-shoulder-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Front Delt", "Triceps", "Lateral Delt"],
+    "name": "Seated Dumbbell Shoulder Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/seated-machine-row.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Traps",
+      "Reat Delts",
+      "Biceps",
+      "Forearm Flexors",
+      "Rotator Cuff"
+    ],
+    "name": "Seated Machine Row"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/03/shallow-lunges-bw.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Hamstrings"],
+    "name": "Shallow Body Weight Lunge"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/01/Single-leg-romanian-deadlift.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Hamstrings",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Single Leg Romanian Deadlift"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Sit-up.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Abs", "Obliques"],
+    "name": "Sit-Up"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/smith-machine-bench-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Smith Machine Bench Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/smith-machine-incline-bench-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Smith Machine Incline Bench Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/smith-machine-squat.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Lower Back", "Calves"],
+    "name": "Smith Machine Squat"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/snatch.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Adductors",
+      "Quads",
+      "Hamstrings",
+      "Traps",
+      "Forearm Flexors",
+      "Calves"
+    ],
+    "name": "Snatch"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/01/snatch-grip-behind-the-neck-press.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Front Delt", "Lateral Delt", "Traps", "Triceps"],
+    "name": "Snatch Grip Behind the Neck Press"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/snatch-deadlift.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Quads",
+      "Hamstrings",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Snatch Grip Deadlift"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/split-jerk.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Front Delt",
+      "Quads",
+      "Glutes",
+      "Adductors",
+      "Lower Back",
+      "Traps",
+      "Triceps",
+      "Lateral Delt"
+    ],
+    "name": "Split Jerk"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/11/squat.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Adductors", "Glutes", "Lower Back", "Calves"],
+    "name": "Squat"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/squat-jerk.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Adductors",
+      "Quads",
+      "Front Delt",
+      "Traps",
+      "Triceps",
+      "Lateral Delt",
+      "Calves"
+    ],
+    "name": "Squat Jerk"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/cable-chest-fly.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt"],
+    "name": "Standing Cable Chest Fly"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/02/standing-resistance-band-chest-fly.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Chest", "Front Delt"],
+    "name": "Standing Resistance Band Chest Fly"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2021/10/stiff-leg-deadlifts.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Hamstrings",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Stiff-Legged Deadlift"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/12/Straight-arm-lat-pulldown.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Lats", "Reat Delts", "Rotator Cuffs"],
+    "name": "Straight Arm Lat Pulldown"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/10/Sumo-deadlift.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Quads",
+      "Hamstrings",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Sumo Deadlift"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/04/t-bar-row-machine.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Lats",
+      "Traps",
+      "Reat Delts",
+      "Biceps",
+      "Lower Back",
+      "Forearm Flexors",
+      "Rotator Cuff"
+    ],
+    "name": "T-Bar Row"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Trap-Bar-Deadlift-With-High-Handles.gif?resize=600%2C600&ssl=1",
+    "muscles": [
+      "Glutes",
+      "Lower Back",
+      "Quads",
+      "Adductors",
+      "Traps",
+      "Forearm Flexors"
+    ],
+    "name": "Trap Bar Deadlift"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/11/zercher-squat.gif?resize=600%2C600&ssl=1",
+    "muscles": ["Quads", "Glutes", "Adductors", "Lower Back", "Calves"],
+    "name": "Zercher Squat"
+  }
+]

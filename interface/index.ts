@@ -1,22 +1,46 @@
 export enum DifficultyType {
-    WEIGHT,
-    BODY_WEIGHT,
-    ASSISTED_BODY_WEIGHT,
-    WEIGHTED_BODY_WEIGHT,
-    TIME
+    WEIGHT = "WEIGHT",
+    BODYWEIGHT = "BODYWEIGHT",
+    ASSISTED_BODYWEIGHT = "ASSISTED_BODYWEIGHT",
+    WEIGHTED_BODYWEIGHT = "WEIGHTED_BODYWEIGHT",
+    TIME = "TIME"
 }
+
+export type WeightDifficulty = {
+    weight: number
+    reps: number
+}
+
+export type BodyWeightDifficulty = {
+    reps: number
+}
+
+export type AssistedBodyWeightDifficulty = {
+    assistanceWeight: number
+    reps: number
+}
+
+export type TimeDifficulty = {
+    duration: number
+}
+
+export type Difficulty = WeightDifficulty | BodyWeightDifficulty | AssistedBodyWeightDifficulty | TimeDifficulty
 
 export type ExerciseMeta = {
     name: string,
     difficultyType: DifficultyType
+    demoUrl: string,
+    muscles: string[]
 }
 
 type SetPlan = {
     weight?: number
-    reps: number
+    reps: number,
+    difficulty?: Difficulty
 }
 
-export type ExercisePlan = ExerciseMeta & {
+export type ExercisePlan = {
+    name: string,
     rest: number
     sets: SetPlan[]
 }
@@ -45,8 +69,10 @@ export type Set = SetPlan & {
     restDuration?: number
 }
 
-export type Exercise = ExerciseMeta & {
+export type Exercise =  {
     id: string,
+    difficultyType: DifficultyType,
+    name: string,
     rest?: number,
     sets: Set[]
 }
@@ -65,9 +91,11 @@ export enum WorkoutActivityType {
 
 export type ExercisingActivity = {
     setId: string,
-    exerciseName: string
+    name: string
     weight: number | null
-    reps: number
+    reps: number,
+    difficulty?: Difficulty
+    difficultyType?: DifficultyType
 }
 
 // expose restStarted at not run into inconsistencies

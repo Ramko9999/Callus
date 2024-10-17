@@ -1,10 +1,17 @@
-import { ExercisingActivity, RestingActivity } from "@/interface";
+import {
+  Difficulty,
+  DifficultyType,
+  ExercisingActivity,
+  RestingActivity,
+} from "@/interface";
 import { View, Text, Action } from "../../Themed";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Image } from "react-native";
 import { useState, useEffect } from "react";
 import { getDurationDisplay } from "@/util";
 import { useRouter } from "expo-router";
 import { useWorkout } from "@/context/WorkoutContext";
+import { DifficultyTile } from "./difficulty-tile";
+import { NAME_TO_EXERCISE_META } from "@/constants";
 
 const styles = StyleSheet.create({
   activityTile: {
@@ -28,6 +35,11 @@ const styles = StyleSheet.create({
     backgroundColor: "green",
     padding: "10%",
   },
+  exercisingActivityTileDemo: {
+    width: "80%",
+    height: "50%",
+    borderRadius: 20,
+  },
 });
 
 type ExercisingActivityTileProps = {
@@ -39,15 +51,21 @@ export function ExercisingActivityTile({
   activityData,
   onFinish,
 }: ExercisingActivityTileProps) {
-  const { exerciseName, reps, weight } = activityData;
+  const { name, reps, weight, difficulty, difficultyType } = activityData;
+  const uri = NAME_TO_EXERCISE_META.get(name)?.demoUrl || "";
+
+  // todo: load the image quick
   return (
     <View style={styles.activityTile}>
       <Text _type="emphasized" style={styles.activityTileTitle}>
-        {exerciseName}
+        {name}
       </Text>
-      <Text _type="large">
-        {weight} x {reps}
-      </Text>
+      <DifficultyTile
+        difficulty={difficulty as Difficulty}
+        type={difficultyType as DifficultyType}
+        fallback={{ weight, reps }}
+      />
+      <Image source={{ uri }} style={styles.exercisingActivityTileDemo} />
       <View style={styles.activityTileActions}>
         <Action
           _action={{ name: "Done", type: "neutral" }}
@@ -78,7 +96,9 @@ export function RestingActivityTile({
   useEffect(() => {
     if (restDuration >= 0) {
       const interval = setInterval(() => {
-        setRestDuration(duration + Math.ceil((startedAt - Date.now()) / 1000.0))
+        setRestDuration(
+          duration + Math.ceil((startedAt - Date.now()) / 1000.0)
+        );
       }, 1000);
       return () => {
         clearInterval(interval);

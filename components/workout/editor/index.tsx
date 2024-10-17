@@ -7,7 +7,13 @@ import {
   useWorkout,
 } from "@/context/WorkoutContext";
 import { View, TextInput, Text, Action, Icon } from "../../Themed";
-import { Exercise, ExerciseMeta, Set, Workout } from "@/interface";
+import {
+  DifficultyType,
+  Exercise,
+  ExerciseMeta,
+  Set,
+  Workout,
+} from "@/interface";
 import {
   ScrollView,
   StyleSheet,
@@ -19,6 +25,7 @@ import {
 import { ExerciseFinder } from "../exercise";
 import { EXERCISE_REPOSITORY } from "@/constants";
 import { useState } from "react";
+import { DifficultyUpdate } from "./difficulty-update";
 
 const styles = StyleSheet.create({
   setTile: {
@@ -95,23 +102,14 @@ const styles = StyleSheet.create({
   },
 });
 
-type SetTileProps = { set: Set };
+type SetTileProps = { set: Set; difficultyType?: DifficultyType };
 
-function SetTile({ set }: SetTileProps) {
+function SetTile({ set, difficultyType }: SetTileProps) {
   const { editor } = useWorkout();
-  const { weight, reps, id } = set;
+  const { weight, reps, id, difficulty } = set;
   const { workout, actions } = editor;
   const onUpdateSet = (setPlanUpdate: Partial<Set>) => {
     actions.updateWorkout(updateSet(id, setPlanUpdate, workout as Workout));
-  };
-  const onUpdateWeight = (weight: string) => {
-    const newWeight = weight.trim().length > 0 ? parseInt(weight) : 0;
-    onUpdateSet({ weight: newWeight });
-  };
-
-  const onUpdateReps = (reps: string) => {
-    const newReps = reps.trim().length > 0 ? parseInt(reps) : 0;
-    onUpdateSet({ reps: newReps });
   };
 
   const onRemoveSet = () => {
@@ -120,32 +118,13 @@ function SetTile({ set }: SetTileProps) {
 
   return (
     <View style={styles.setTile}>
-      {weight != undefined ? (
-        <View style={styles.setTileMeta}>
-          <Text _type="small">Weight</Text>
-          <View style={styles.setTileMetaValue}>
-            <TextInput
-              _type="neutral"
-              keyboardType="number-pad"
-              value={weight?.toString()}
-              onChangeText={onUpdateWeight}
-            />
-            <Text _type="neutral"> lbs</Text>
-          </View>
-        </View>
-      ) : null}
-      <View style={styles.setTileMeta}>
-        <Text _type="small">Reps</Text>
-        <View style={styles.setTileMetaValue}>
-          <TextInput
-            _type="neutral"
-            keyboardType="number-pad"
-            value={reps?.toString()}
-            onChangeText={onUpdateReps}
-          />
-          <Text _type="neutral"> reps</Text>
-        </View>
-      </View>
+      <DifficultyUpdate
+        type={difficultyType}
+        difficulty={difficulty}
+        fallback={{ weight, reps }}
+        onUpdateDifficulty={(difficulty) => onUpdateSet({ difficulty })}
+        onUpdateFallback={(fallback) => onUpdateSet({ ...fallback })}
+      />
       <View style={styles.setTileActions}>
         <TouchableOpacity onPress={onRemoveSet}>
           <View style={styles.setTileAction}>
@@ -162,7 +141,7 @@ type ExerciseTileProps = { exercise: Exercise };
 function ExerciseTile({ exercise }: ExerciseTileProps) {
   const { editor } = useWorkout();
   const { workout, actions } = editor;
-  const { id, sets, name } = exercise;
+  const { id, sets, name, difficultyType } = exercise;
 
   const onAddSet = () => {
     actions.updateWorkout(duplicateLastSet(id, workout as Workout));
@@ -178,7 +157,9 @@ function ExerciseTile({ exercise }: ExerciseTileProps) {
         <Text _type="emphasized">{name}</Text>
       </View>
       {sets.map((set, index) => {
-        return <SetTile key={index} set={set} />;
+        return (
+          <SetTile key={index} set={set} difficultyType={difficultyType} />
+        );
       })}
       <View style={styles.exerciseTileActions}>
         <Action
@@ -230,7 +211,6 @@ export function WorkoutEditor() {
   const { editor } = useWorkout();
   const { workout, actions } = editor;
 
-  // todo: the below isn't UI correct, but moves the element above the keyboard at least.
   return (
     <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
       <ScrollView style={styles.exerciseScrollView}>

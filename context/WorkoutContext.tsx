@@ -9,11 +9,14 @@ import {
   WorkoutSummary,
   WorkoutMetadata,
   ExerciseMeta,
+  DifficultyType,
+  Difficulty,
 } from "@/interface";
 import { createContext, useState, useContext, useEffect } from "react";
 import { generateRandomId } from "@/util";
 import { WorkoutApi } from "@/api/workout";
 import { Audio } from "expo-av";
+import { NAME_TO_EXERCISE_META } from "@/constants";
 
 function generateSetId() {
   return generateRandomId("st", 8);
@@ -25,18 +28,24 @@ function generateExerciseId() {
 
 export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
   const exercises: Exercise[] = workoutPlan.exercises.map(
-    ({ name, sets: setPlans, rest, difficultyType }) => {
-      const sets = setPlans.map((set) => ({
+    ({ name, sets: setPlans, rest }) => {
+      const sets: Set[] = setPlans.map((set) => ({
         ...set,
         id: generateSetId(),
         status: SetStatus.UNSTARTED,
         restDuration: rest,
       }));
+
+      //todo: remove this after import/export
+      const difficultyType =
+        NAME_TO_EXERCISE_META.get(name)?.difficultyType ||
+        DifficultyType.BODYWEIGHT;
+
       return {
         difficultyType,
         id: generateExerciseId(),
-        name: name,
-        sets: sets,
+        name,
+        sets,
       };
     }
   );
@@ -60,10 +69,12 @@ export function getCurrentWorkoutActivity(workout: Workout) {
       return {
         type: WorkoutActivityType.EXERCISING,
         activityData: {
-          exerciseName: set.exercise.name,
+          name: set.exercise.name,
+          difficultyType: set.exercise.difficultyType,
           weight: set.weight,
           reps: set.reps,
           setId: set.id,
+          difficulty: set.difficulty,
         },
       };
     } else if (set.status === SetStatus.RESTING) {
@@ -151,13 +162,27 @@ export function removeExercise(exerciseId: string, workout: Workout): Workout {
   return { ...workout, exercises };
 }
 
-function createDefaultSet(): Set {
+function createDefaultSet(type: DifficultyType): Set {
+  let difficulty: Difficulty;
+  if (type === DifficultyType.ASSISTED_BODYWEIGHT) {
+    difficulty = { assistanceWeight: 0, reps: 0 };
+  } else if (type === DifficultyType.TIME) {
+    difficulty = { duration: 60 };
+  } else if (type === DifficultyType.WEIGHT) {
+    difficulty = { reps: 0, weight: 0 };
+  } else if (type === DifficultyType.WEIGHTED_BODYWEIGHT) {
+    difficulty = { reps: 0, weight: 0 };
+  } else {
+    difficulty = { reps: 0 };
+  }
+
   return {
     id: generateSetId(),
     status: SetStatus.UNSTARTED,
     restDuration: 60,
     reps: 0,
     weight: 0,
+    difficulty: difficulty,
   };
 }
 
@@ -168,8 +193,9 @@ export function addExercise(
   const newExercise = {
     ...exerciseMeta,
     id: generateExerciseId(),
-    sets: [createDefaultSet()],
+    sets: [createDefaultSet(exerciseMeta.difficultyType)],
   };
+  console.log(exerciseMeta, JSON.stringify(newExercise));
   const exercises: Exercise[] = [...workout.exercises, newExercise];
   return { ...workout, exercises };
 }
@@ -188,6 +214,7 @@ export function getWorkoutSummary(workout: Workout): WorkoutSummary {
     ex.sets.forEach((set) => {
       if (set.status !== SetStatus.UNSTARTED) {
         totalReps += set.reps;
+        //todo: fix this ish using the difficulty
         totalWeightLifted += (set.weight ?? 0) * set.reps;
       }
     })
