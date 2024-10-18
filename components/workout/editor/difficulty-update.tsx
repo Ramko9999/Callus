@@ -42,33 +42,12 @@ function NumericUpdate({ value, onUpdate, label, unit }: NumericUpdateProps) {
         <TextInput
           _type="neutral"
           keyboardType="number-pad"
-          value={value?.toString()}
-          onChangeText={(value) => onUpdate(parseInt(value))}
-        />
-        <Text _type="neutral"> {unit}</Text>
-      </View>
-    </View>
-  );
-}
-
-type TimeUpdateProps = {
-  value: number;
-  onUpdate: (_: number) => void;
-  label: string;
-  unit: string;
-};
-
-function TimeUpdate({ value, onUpdate, label, unit }: TimeUpdateProps) {
-  // todo: fix this so that it is easier to update the time duration
-  return (
-    <View style={styles.updateContainer}>
-      <Text _type="small">{label.padEnd(16)}</Text>
-      <View style={styles.updateValue}>
-        <TextInput
-          _type="neutral"
-          keyboardType="number-pad"
-          value={value?.toString()}
-          onChangeText={(value) => onUpdate(parseInt(value))}
+          value={value.toString()}
+          onChangeText={(value) => {
+            if(!Number.isNaN(parseInt(value))){
+              onUpdate(parseInt(value));
+            }
+          }}
         />
         <Text _type="neutral"> {unit}</Text>
       </View>
@@ -133,7 +112,6 @@ function AssistedBodyWeightDifficultyUpdate({
   difficulty,
   onUpdateDifficulty,
 }: AssistedBodyWeightDifficultyUpdateProps) {
-  console.log(difficulty);
   return (
     <View style={styles.difficultyUpdateContainer}>
       <NumericUpdate
@@ -165,7 +143,7 @@ function TimeDifficultyUpdate({
 }: TimeDifficultyUpdateProps) {
   return (
     <View style={styles.difficultyUpdateContainer}>
-      <TimeUpdate
+      <NumericUpdate
         value={difficulty.duration}
         label="Duration"
         unit="seconds"
@@ -176,43 +154,16 @@ function TimeDifficultyUpdate({
 }
 
 type DifficultyUpdateProps = {
-  type?: DifficultyType;
-  difficulty?: Difficulty;
+  type: DifficultyType;
+  difficulty: Difficulty;
   onUpdateDifficulty: (newDifficulty: Difficulty) => void;
-  fallback: { weight?: number; reps: number };
-  onUpdateFallback: (fallback: { weight?: number; reps: number }) => void;
 };
 
 export function DifficultyUpdate({
   type,
   difficulty,
   onUpdateDifficulty,
-  fallback,
-  onUpdateFallback,
 }: DifficultyUpdateProps) {
-  // todo: delete fallback after export/import functionality is built
-  if (difficulty == undefined) {
-    const { weight, reps } = fallback;
-    if (weight === undefined) {
-      return (
-        <BodyWeightDifficultyUpdate
-          difficulty={{ reps }}
-          onUpdateDifficulty={({ reps }) =>
-            onUpdateFallback({ ...fallback, reps })
-          }
-        />
-      );
-    }
-    return (
-      <WeightDifficultyUpdate
-        difficulty={{ reps, weight }}
-        onUpdateDifficulty={(update) =>
-          onUpdateFallback({ ...fallback, ...update })
-        }
-      />
-    );
-  }
-
   switch (type as DifficultyType) {
     case DifficultyType.WEIGHT:
       return (

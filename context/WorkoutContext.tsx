@@ -11,12 +11,15 @@ import {
   ExerciseMeta,
   DifficultyType,
   Difficulty,
+  BodyWeightDifficulty,
+  AssistedBodyWeightDifficulty,
+  WeightDifficulty,
 } from "@/interface";
 import { createContext, useState, useContext, useEffect } from "react";
 import { generateRandomId } from "@/util";
 import { WorkoutApi } from "@/api/workout";
 import { Audio } from "expo-av";
-import { NAME_TO_EXERCISE_META } from "@/constants";
+import { BW, NAME_TO_EXERCISE_META } from "@/constants";
 
 function generateSetId() {
   return generateRandomId("st", 8);
@@ -60,6 +63,7 @@ export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
   };
 }
 
+// todo: adding a set at the end of the workout doesn't lead to the set being shown in the player
 export function getCurrentWorkoutActivity(workout: Workout) {
   const sets = workout.exercises.flatMap((exercise) =>
     exercise.sets.map((set) => ({ ...set, exercise }))
@@ -70,9 +74,8 @@ export function getCurrentWorkoutActivity(workout: Workout) {
         type: WorkoutActivityType.EXERCISING,
         activityData: {
           name: set.exercise.name,
-          difficultyType: set.exercise.difficultyType,
-          weight: set.weight,
-          reps: set.reps,
+          difficultyType: NAME_TO_EXERCISE_META.get(set.exercise.name)
+            ?.difficultyType,
           setId: set.id,
           difficulty: set.difficulty,
         },
@@ -81,7 +84,7 @@ export function getCurrentWorkoutActivity(workout: Workout) {
       return {
         type: WorkoutActivityType.RESTING,
         activityData: {
-          duration: set.restDuration || set.exercise.rest,
+          duration: set.restDuration,
           setId: set.id,
           startedAt: set.restStartedAt,
         },
@@ -180,8 +183,6 @@ function createDefaultSet(type: DifficultyType): Set {
     id: generateSetId(),
     status: SetStatus.UNSTARTED,
     restDuration: 60,
-    reps: 0,
-    weight: 0,
     difficulty: difficulty,
   };
 }
@@ -213,9 +214,28 @@ export function getWorkoutSummary(workout: Workout): WorkoutSummary {
   workout.exercises.forEach((ex) =>
     ex.sets.forEach((set) => {
       if (set.status !== SetStatus.UNSTARTED) {
-        totalReps += set.reps;
-        //todo: fix this ish using the difficulty
-        totalWeightLifted += (set.weight ?? 0) * set.reps;
+        const difficultyType = (
+          NAME_TO_EXERCISE_META.get(ex.name) as ExerciseMeta
+        ).difficultyType;
+        if (difficultyType === DifficultyType.ASSISTED_BODYWEIGHT) {
+          const { reps, assistanceWeight } =
+            set.difficulty as AssistedBodyWeightDifficulty;
+          totalReps += reps;
+          totalWeightLifted += (BW - assistanceWeight) * reps;
+        } else if (difficultyType === DifficultyType.BODYWEIGHT) {
+          const { reps } = set.difficulty as BodyWeightDifficulty;
+          totalReps += reps;
+          totalWeightLifted += BW * reps;
+        } else if (difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT) {
+          const { reps, weight } = set.difficulty as WeightDifficulty;
+          totalReps += reps;
+          totalWeightLifted += (BW + weight) * reps;
+        } else if (difficultyType === DifficultyType.WEIGHT) {
+          const { reps, weight } = set.difficulty as WeightDifficulty;
+          totalReps += reps;
+          totalWeightLifted += weight * reps;
+        }
+        // todo: use the duration during which work is done for time difficulty
       }
     })
   );

@@ -59,28 +59,11 @@ function TimeDifficultyTile({ difficulty }: TimeDifficultyTileProps) {
 }
 
 type DifficultyTileProps = {
-  difficulty?: Difficulty;
-  type?: DifficultyType;
-  fallback: { weight: number | null; reps: number };
+  difficulty: Difficulty;
+  type: DifficultyType;
 };
 
-export function DifficultyTile({
-  difficulty,
-  type,
-  fallback,
-}: DifficultyTileProps) {
-
-  // todo: delete fallback after export/import functionality is built
-  if (difficulty == undefined) {
-    const { weight, reps } = fallback;
-    if (weight != null) {
-      return (
-        <WeightDifficultyTile difficulty={{ weight: weight as number, reps }} />
-      );
-    }
-    return <BodyWeightDifficultyTile difficulty={{ reps }} />;
-  }
-
+export function DifficultyTile({ difficulty, type }: DifficultyTileProps) {
   switch (type) {
     case DifficultyType.WEIGHT:
       return (

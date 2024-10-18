@@ -23,7 +23,7 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { ExerciseFinder } from "../exercise";
-import { EXERCISE_REPOSITORY } from "@/constants";
+import { EXERCISE_REPOSITORY, NAME_TO_EXERCISE_META } from "@/constants";
 import { useState } from "react";
 import { DifficultyUpdate } from "./difficulty-update";
 
@@ -102,11 +102,11 @@ const styles = StyleSheet.create({
   },
 });
 
-type SetTileProps = { set: Set; difficultyType?: DifficultyType };
+type SetTileProps = { set: Set; difficultyType: DifficultyType };
 
 function SetTile({ set, difficultyType }: SetTileProps) {
   const { editor } = useWorkout();
-  const { weight, reps, id, difficulty } = set;
+  const { id, difficulty } = set;
   const { workout, actions } = editor;
   const onUpdateSet = (setPlanUpdate: Partial<Set>) => {
     actions.updateWorkout(updateSet(id, setPlanUpdate, workout as Workout));
@@ -121,9 +121,7 @@ function SetTile({ set, difficultyType }: SetTileProps) {
       <DifficultyUpdate
         type={difficultyType}
         difficulty={difficulty}
-        fallback={{ weight, reps }}
         onUpdateDifficulty={(difficulty) => onUpdateSet({ difficulty })}
-        onUpdateFallback={(fallback) => onUpdateSet({ ...fallback })}
       />
       <View style={styles.setTileActions}>
         <TouchableOpacity onPress={onRemoveSet}>
@@ -141,7 +139,7 @@ type ExerciseTileProps = { exercise: Exercise };
 function ExerciseTile({ exercise }: ExerciseTileProps) {
   const { editor } = useWorkout();
   const { workout, actions } = editor;
-  const { id, sets, name, difficultyType } = exercise;
+  const { id, sets, name } = exercise;
 
   const onAddSet = () => {
     actions.updateWorkout(duplicateLastSet(id, workout as Workout));
@@ -158,7 +156,13 @@ function ExerciseTile({ exercise }: ExerciseTileProps) {
       </View>
       {sets.map((set, index) => {
         return (
-          <SetTile key={index} set={set} difficultyType={difficultyType} />
+          <SetTile
+            key={index}
+            set={set}
+            difficultyType={
+              (NAME_TO_EXERCISE_META.get(name) as ExerciseMeta).difficultyType
+            }
+          />
         );
       })}
       <View style={styles.exerciseTileActions}>
@@ -211,6 +215,7 @@ export function WorkoutEditor() {
   const { editor } = useWorkout();
   const { workout, actions } = editor;
 
+  // todo: fix the weird padding introduced by keyboard avoiding view
   return (
     <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
       <ScrollView style={styles.exerciseScrollView}>

@@ -1,20 +1,23 @@
 import * as FileSystem from "expo-file-system";
 
 export interface Store<T> {
-  read(partition: string, fallback: T): Promise<T>;
+  read(partition: string): Promise<T>;
   write(partition: string, content: T): Promise<void>;
+  readAllPartitions(): Promise<Map<string, T>>;
 }
 
 export class MemoryStore<T> implements Store<T> {
   store: Map<string, T>;
+  fallback: T;
 
-  constructor() {
+  constructor(fallback: T) {
     this.store = new Map<string, T>();
+    this.fallback = fallback;
   }
 
-  async read(partition: string, fallback: T): Promise<T> {
+  async read(partition: string): Promise<T> {
     return new Promise((resolve) =>
-      resolve(this.store.get(partition) || fallback)
+      resolve(this.store.get(partition) || this.fallback)
     );
   }
 
@@ -24,12 +27,25 @@ export class MemoryStore<T> implements Store<T> {
       resolve();
     });
   }
+
+  async readAllPartitions() {
+    const partitions = this.store.keys().toArray();
+    const data = (await Promise.all(
+      partitions.map((partition) => this.read(partition))
+    )) as T[];
+    return new Map(
+      partitions.map((partition, index) => [partition, data[index]])
+    );
+  }
 }
 
 export class DiskStore<T> implements Store<T> {
   appDirectory: string;
-  constructor(subdirectory: string) {
+  fallback: T;
+
+  constructor(subdirectory: string, fallback: T) {
     this.appDirectory = `${FileSystem.documentDirectory}${subdirectory}`;
+    this.fallback = fallback;
   }
 
   private async createDirectoryIfNotExists() {
@@ -52,12 +68,12 @@ export class DiskStore<T> implements Store<T> {
     }
   }
 
-  async read(partition: string, fallback: T): Promise<T> {
+  async read(partition: string): Promise<T> {
     const fileUri = `${await this.createDirectoryIfNotExists()}/${partition}.json`;
     try {
       const info = await FileSystem.getInfoAsync(fileUri);
       if (!info.exists) {
-        return fallback;
+        return this.fallback;
       }
       return JSON.parse(await FileSystem.readAsStringAsync(fileUri));
     } catch (error) {
@@ -69,5 +85,19 @@ export class DiskStore<T> implements Store<T> {
   async write(partition: string, content: T): Promise<void> {
     const fileUri = `${await this.createDirectoryIfNotExists()}/${partition}.json`;
     await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(content));
+  }
+
+  async readAllPartitions() {
+    const appDir = await this.createDirectoryIfNotExists();
+    const partitions = (await FileSystem.readDirectoryAsync(appDir)).map((p) =>
+      p.replace(".json", "")
+    ).filter((p) => !p.includes("programs"));
+
+    const data = (await Promise.all(
+      partitions.map((partition) => this.read(partition))
+    )) as T[];
+    return new Map(
+      partitions.map((partition, index) => [partition, data[index]])
+    );
   }
 }

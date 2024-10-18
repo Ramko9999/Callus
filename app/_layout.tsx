@@ -1,9 +1,6 @@
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import {
-  DefaultTheme,
-  ThemeProvider,
-} from "@react-navigation/native";
-import {darkNavigationColorTheme} from "@/constants/Themes";
+import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import { darkNavigationColorTheme } from "@/constants/Themes";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -11,6 +8,7 @@ import { useEffect } from "react";
 
 import { useColorScheme } from "@/components/useColorScheme";
 import { WorkoutProvider } from "@/context/WorkoutContext";
+import { ToastProvider } from "react-native-toast-notifications";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -53,13 +51,20 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? darkNavigationColorTheme : DefaultTheme}>
-      <WorkoutProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="workout-editor" options={{ headerShown: false, presentation: "modal"}} />
-        </Stack>
-      </WorkoutProvider>
+    <ThemeProvider
+      value={colorScheme === "dark" ? darkNavigationColorTheme : DefaultTheme}
+    >
+      <ToastProvider>
+        <WorkoutProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="workout-editor"
+              options={{ headerShown: false, presentation: "modal" }}
+            />
+          </Stack>
+        </WorkoutProvider>
+      </ToastProvider>
     </ThemeProvider>
   );
 }

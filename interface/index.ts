@@ -34,9 +34,7 @@ export type ExerciseMeta = {
 }
 
 type SetPlan = {
-    weight?: number
-    reps: number,
-    difficulty?: Difficulty
+    difficulty: Difficulty
 }
 
 export type ExercisePlan = {
@@ -66,14 +64,12 @@ export type Set = SetPlan & {
     startedAt?: number
     restStartedAt?: number
     restEndedAt?: number 
-    restDuration?: number
+    restDuration: number
 }
 
 export type Exercise =  {
     id: string,
-    difficultyType: DifficultyType,
     name: string,
-    rest?: number,
     sets: Set[]
 }
 
@@ -92,10 +88,8 @@ export enum WorkoutActivityType {
 export type ExercisingActivity = {
     setId: string,
     name: string
-    weight: number | null
-    reps: number,
-    difficulty?: Difficulty
-    difficultyType?: DifficultyType
+    difficulty: Difficulty
+    difficultyType: DifficultyType
 }
 
 // expose restStarted at not run into inconsistencies

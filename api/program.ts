@@ -8,7 +8,7 @@ import {
 } from "@/constants/SampleWorkouts";
 import { Program, WorkoutPlan } from "@/interface";
 import { truncTime, Period } from "@/util";
-import { Store, DiskStore } from "./disk-store";
+import { Store, DiskStore } from "./store";
 import { STORAGE_NAMESPACE } from "@/constants";
 
 let SINGLETON_STORE_API: ProgramStoreApi;
@@ -24,7 +24,7 @@ const PROGRAM = [
   [],
   [],
 ];
-const START_DATE = new Date("2024-10-05T00:00:00.000");
+const START_DATE = new Date("2024-10-18T00:00:00.000");
 
 class ProgramStoreApi {
   store: Store<Program>;
@@ -36,30 +36,25 @@ class ProgramStoreApi {
   static instance(): ProgramStoreApi {
     SINGLETON_STORE_API =
       SINGLETON_STORE_API ??
-      new ProgramStoreApi(new DiskStore(STORAGE_NAMESPACE));
+      new ProgramStoreApi(
+        new DiskStore(STORAGE_NAMESPACE, PUSH_PULL_LEGS_PROGRAM)
+      );
     return SINGLETON_STORE_API;
   }
 
   async skipDay(date: number) {
-    const program = await this.store.read(
-      "programs",
-      PUSH_PULL_LEGS_PROGRAM
-    );
+    const program = await this.store.read("programs");
     if (
       program.skippedDays.length === 0 ||
       program.skippedDays[program.skippedDays.length - 1] < date
     ) {
       program.skippedDays.push(date);
     }
-    console.log(`[PROGRAM-STORE-API] Skipping another day: ${program.skippedDays.map(sd => new Date(sd))}`);
     await this.store.write("programs", program);
   }
 
   async getSkippedDays(): Promise<number[]> {
-    const program = await this.store.read(
-      "programs",
-      PUSH_PULL_LEGS_PROGRAM
-    );
+    const program = await this.store.read("programs");
     return program.skippedDays;
   }
 }
@@ -67,20 +62,14 @@ class ProgramStoreApi {
 export class ProgramApi {
   static async getWorkoutPlans(date: number): Promise<WorkoutPlan[]> {
     const daysToSkip = await ProgramStoreApi.instance().getSkippedDays();
-    if (daysToSkip.includes(date)) {
-      // todo: show as rest day for now, change this in the future
+    if (daysToSkip.includes(date) || date < START_DATE.valueOf()) {
+      // todo: show as rest day for now, change this in the future, we need more information than just rest day here
       return [];
     }
 
     const actualDate = new Date(truncTime(date));
     let daysDelta = Math.floor(
       (actualDate.valueOf() - START_DATE.valueOf()) / Period.DAY
-    );
-
-    console.log(
-      `[PROGRAM-API] Getting workouts for day ${actualDate} with days to skip: [${daysToSkip.map(
-        (d) => new Date(d)
-      )}]`
     );
 
     const skippedDayCount = daysToSkip.filter(
@@ -96,11 +85,6 @@ export class ProgramApi {
   }
 
   static async skipDate(localDate: number) {
-    console.log(
-      `[PROGRAM-STORE-API] Skipping workouts for day to do it the next day ${new Date(
-        localDate
-      )}`
-    );
     await ProgramStoreApi.instance().skipDay(localDate);
   }
 }

@@ -51,7 +51,7 @@ export function ExercisingActivityTile({
   activityData,
   onFinish,
 }: ExercisingActivityTileProps) {
-  const { name, reps, weight, difficulty, difficultyType } = activityData;
+  const { name, difficulty, difficultyType } = activityData;
   const uri = NAME_TO_EXERCISE_META.get(name)?.demoUrl || "";
 
   // todo: load the image quick
@@ -63,7 +63,6 @@ export function ExercisingActivityTile({
       <DifficultyTile
         difficulty={difficulty as Difficulty}
         type={difficultyType as DifficultyType}
-        fallback={{ weight, reps }}
       />
       <Image source={{ uri }} style={styles.exercisingActivityTileDemo} />
       <View style={styles.activityTileActions}>

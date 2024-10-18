@@ -38,7 +38,7 @@
   {
     "difficultyType": "WEIGHT",
     "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2024/02/slam-ball.gif?resize=600%2C600&ssl=1",
-    "muscles": ["Lats", "Abs", "Obliques", "Glutes", "Front Deltoids"],
+    "muscles": ["Lats", "Abs", "Obliques", "Glutes", "Front Delt"],
     "name": "Ball Slams"
   },
   {
@@ -75,10 +75,10 @@
     "name": "Banded Side Kicks"
   },
   {
-    "difficultyType": "WEIGHT",
+    "difficultyType": "BODYWEIGHT",
     "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/02/Dips.gif?resize=600%2C600&ssl=1",
     "muscles": ["Chest", "Front Delt", "Triceps"],
-    "name": "Bar Dip"
+    "name": "Dip"
   },
   {
     "difficultyType": "WEIGHT",
@@ -406,7 +406,7 @@
   {
     "difficultyType": "WEIGHT",
     "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2020/03/Decline-Bench-Press.gif?resize=600%2C600&ssl=1",
-    "muscles": ["Chest", "Triceps", "Front Deltoid "],
+    "muscles": ["Chest", "Triceps", "Front Delt"],
     "name": "Decline Bench Press"
   },
   {
@@ -1431,5 +1431,102 @@
     "demoUrl": "https://i0.wp.com/www.strengthlog.com/wp-content/uploads/2023/11/zercher-squat.gif?resize=600%2C600&ssl=1",
     "muscles": ["Quads", "Glutes", "Adductors", "Lower Back", "Calves"],
     "name": "Zercher Squat"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Pike-Push-up.gif",
+    "muscles": ["Front Delt", "Triceps", "Traps"],
+    "name": "Pike Push-Up"
+  },
+  {
+    "difficultyType": "WEIGHTED_BODYWEIGHT",
+    "demoUrl": "https://gymvisual.com/img/p/7/5/5/9/7559.gif",
+    "muscles": ["Front Delt", "Triceps", "Chest"],
+    "name": "Weighted Dip"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://fitnessprogramer.com/wp-content/uploads/2022/08/Suspended-Push-Up.gif",
+    "muscles": ["Front Delt", "Triceps", "Chest"],
+    "name": "Ring Push-Up"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "",
+    "muscles": ["Triceps"],
+    "name": "Ring Overhead Extension"
+  },
+  {
+    "difficultyType": "WEIGHTED_BODYWEIGHT",
+    "demoUrl": "https://burnfit.io/wp-content/uploads/2023/11/WEI_PULL_UP.gif",
+    "muscles": [
+      "Lats",
+      "Biceps",
+      "Reat Delts",
+      "Forearm Flexors",
+      "Rotator Cuffs"
+    ],
+    "name": "Weighted Pull-Up"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://fitnessprogramer.com/wp-content/uploads/2022/01/Ring-Inverted-Row.gif",
+    "muscles": [
+      "Lats",
+      "Traps",
+      "Reat Delts",
+      "Biceps",
+      "Forearm Flexors",
+      "Rotator Cuff"
+    ],
+    "name": "Ring Inverted Row"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "",
+    "muscles": ["Lats", "Reat Delts"],
+    "name": "Ring Arc Row"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "",
+    "muscles": ["Reat Delt", "Rotator Cuff", "Traps", "Lateral Delt"],
+    "name": "Ring Face Pull"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://i.pinimg.com/originals/0e/28/5a/0e285a77dd05c78347d534eb089a6bc0.gif",
+    "muscles":  ["Quads", "Adductors", "Glutes", "Lower Back", "Calves"],
+    "name": "Pistol Squat"
+  },
+  {
+    "difficultyType": "TIME",
+    "demoUrl": "https://www.docteur-fitness.com/wp-content/uploads/2022/04/hollow-hold.gif",
+    "muscles": ["Abs"],
+    "name": "Hollow Body Hold"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://svc.heygainz.com/storage/exercises/409/056212-landmine-180.gif",
+    "muscles": ["Abs", "Obliques", "Front Delt"],
+    "name": "Landmine 180"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i.pinimg.com/originals/89/26/a7/8926a7a5a9a148016ae027715f7690df.gif",
+    "muscles": ["Neck Flexors"],
+    "name": "Neck Flexion"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://i.pinimg.com/originals/17/90/5d/17905dc2fda2f75d7099e41f12695541.gif",
+    "muscles": ["Neck Extensors"],
+    "name": "Neck Extension"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "demoUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRo27DMMIwVVBPCEY4zAEMF55Rr4DzR7Bp8-g&s",
+    "muscles": ["Neck Flexors", "Neck Extensors"],
+    "name": "Neck Side Flexion"
   }
 ]
