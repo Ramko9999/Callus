@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
   updateContainer: {
     display: "flex",
     flexDirection: "column",
-    gap: 5,
+    gap: 5
   },
   updateValue: {
     display: "flex",
@@ -37,7 +37,7 @@ type NumericUpdateProps = {
 function NumericUpdate({ value, onUpdate, label, unit }: NumericUpdateProps) {
   return (
     <View style={styles.updateContainer}>
-      <Text _type="small">{label.padEnd(16)}</Text>
+      <Text _type="small"  numberOfLines={1}>{label.padEnd(16)}</Text>
       <View style={styles.updateValue}>
         <TextInput
           _type="neutral"
@@ -46,10 +46,12 @@ function NumericUpdate({ value, onUpdate, label, unit }: NumericUpdateProps) {
           onChangeText={(value) => {
             if(!Number.isNaN(parseInt(value))){
               onUpdate(parseInt(value));
+            } else {
+              onUpdate(0);
             }
           }}
         />
-        <Text _type="neutral"> {unit}</Text>
+        <Text _type="neutral" numberOfLines={1}> {unit}</Text>
       </View>
     </View>
   );

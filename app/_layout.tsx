@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { useColorScheme } from "@/components/useColorScheme";
 import { WorkoutProvider } from "@/context/WorkoutContext";
 import { ToastProvider } from "react-native-toast-notifications";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -51,20 +52,21 @@ function RootLayoutNav() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider
-      value={colorScheme === "dark" ? darkNavigationColorTheme : DefaultTheme}
-    >
-      <ToastProvider>
-        <WorkoutProvider>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="workout-editor"
-              options={{ headerShown: false, presentation: "modal" }}
-            />
-          </Stack>
-        </WorkoutProvider>
-      </ToastProvider>
-    </ThemeProvider>
+    <GestureHandlerRootView>
+      <ThemeProvider
+        value={colorScheme === "dark" ? darkNavigationColorTheme : DefaultTheme}
+      >
+        <ToastProvider>
+          <WorkoutProvider>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="workout-editor"
+              />
+            </Stack>
+          </WorkoutProvider>
+        </ToastProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
