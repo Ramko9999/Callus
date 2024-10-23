@@ -2,8 +2,7 @@ import { DifficultyType, ExerciseMeta } from "@/interface";
 import STATIC_EXERCISE_REPOSITORY from "@/assets/exercises/exerciseMetas.json";
 
 // test-v3-10-6
-export const STORAGE_NAMESPACE = "test-v9-10-18";
-
+export const STORAGE_NAMESPACE = "test-v9-10-23";
 export const EXERCISE_REPOSITORY: ExerciseMeta[] =
   STATIC_EXERCISE_REPOSITORY.map((staticMeta) => ({
     ...staticMeta,

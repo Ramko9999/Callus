@@ -1,6 +1,6 @@
 import { Workout, WorkoutPlan } from "@/interface";
 import { Pressable, StyleSheet, TouchableOpacity } from "react-native";
-import { View, Text, Icon } from "@/components/Themed";
+import { View, Text } from "@/components/Themed";
 import { getWorkoutSummary } from "@/context/WorkoutContext";
 import { getTimePeriodDisplay } from "@/util";
 
@@ -33,6 +33,7 @@ type WorkoutPlanViewTileProps = {
   onClick?: () => void;
 };
 
+// todo: delete this ish when the time is right
 export function WorkoutPlanViewTile({
   workoutPlan,
   onClick,

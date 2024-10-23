@@ -54,7 +54,7 @@ type TimeDifficultyTileProps = {
 
 function TimeDifficultyTile({ difficulty }: TimeDifficultyTileProps) {
   const { duration } = difficulty;
-  // todo: add a timer
+  // todo: add a timer and make this proper
   return <Text _type="large">{duration} seconds</Text>;
 }
 

@@ -11,8 +11,14 @@ import { WorkoutItinerary, WorkoutApi } from "@/api/workout";
 import { useWorkout } from "@/context/WorkoutContext";
 import { Workout, WorkoutPlan } from "@/interface";
 import { ProgramApi } from "@/api/program";
+import { WorkoutIndicator } from "../workout/player/indicator";
 
 const styles = StyleSheet.create({
+  homeView: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100%",
+  },
   expansiveCenterAlignedView: {
     height: "100%",
     display: "flex",
@@ -202,21 +208,10 @@ function WorkoutItineraryView({
 
 export default function Home() {
   const navigation = useNavigation();
-  const router = useRouter();
   const pathname = usePathname();
   const [workoutDate, setWorkoutDate] = useState<number>(Date.now());
   const [loading, setLoading] = useState<boolean>(true);
   const [workoutItinerary, setWorkoutItinerary] = useState<WorkoutItinerary>();
-  const { actions } = useWorkout();
-
-  useEffect(() => {
-    WorkoutApi.getInProgressWorkout().then((workout) => {
-      if (workout) {
-        actions.resumeInProgressWorkout(workout);
-        router.push("/workout-player");
-      }
-    });
-  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -244,10 +239,13 @@ export default function Home() {
   return loading ? (
     <WorkoutItineraryLoading />
   ) : (
-    <WorkoutItineraryView
-      workoutItinerary={workoutItinerary as WorkoutItinerary}
-      date={truncTime(workoutDate)}
-      comeBackToToday={() => setWorkoutDate(Date.now())}
-    />
+    <View _type="background" style={styles.homeView}>
+      <WorkoutItineraryView
+        workoutItinerary={workoutItinerary as WorkoutItinerary}
+        date={truncTime(workoutDate)}
+        comeBackToToday={() => setWorkoutDate(Date.now())}
+      />
+      <WorkoutIndicator/>
+    </View>
   );
 }

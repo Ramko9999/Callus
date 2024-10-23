@@ -86,6 +86,7 @@ export function RestingActivityTile({
   onFinish,
   onUpdateRestDuration,
 }: RestingActivityTileProps) {
+  // todo: use stopwatch and use timer and create a hook called useRestTimer to sound the rings
   const { duration, startedAt } = activityData;
   const [restDuration, setRestDuration] = useState<number>(
     duration + Math.ceil((startedAt - Date.now()) / 1000.0)
@@ -125,6 +126,10 @@ export function RestingActivityTile({
       </Text>
       <Text _type="large">{getDurationDisplay(restDuration)}</Text>
       <View style={styles.activityTileActions}>
+      <Action
+          _action={{ name: "Subtract 15s", type: "neutral" }}
+          onPress={() => onUpdateRestDuration(duration - 15)}
+        />
         <Action
           _action={{ name: "Skip", type: "neutral" }}
           onPress={onFinish}

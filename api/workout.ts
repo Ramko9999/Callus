@@ -107,6 +107,7 @@ export class WorkoutApi {
     return `${new Date(truncTime(date)).toISOString()}-${workoutPlan.name}`;
   }
 
+  // todo: make this agnostic of day
   static async getInProgressWorkout(): Promise<Workout | undefined> {
     const date = Date.now();
     const workouts = (

@@ -12,6 +12,7 @@ import {
   Exercise,
   ExerciseMeta,
   Set,
+  SetStatus,
   Workout,
 } from "@/interface";
 import {
@@ -25,7 +26,7 @@ import {
 import { ExerciseFinder } from "../exercise";
 import { EXERCISE_REPOSITORY, NAME_TO_EXERCISE_META } from "@/constants";
 import { useState } from "react";
-import { DifficultyUpdate } from "./difficulty-update";
+import { DifficultyUpdate, SetStatusUpdate } from "./update";
 
 const styles = StyleSheet.create({
   setTile: {
@@ -106,7 +107,7 @@ type SetTileProps = { set: Set; difficultyType: DifficultyType };
 
 function SetTile({ set, difficultyType }: SetTileProps) {
   const { editor } = useWorkout();
-  const { id, difficulty } = set;
+  const { id, difficulty, status } = set;
   const { workout, actions } = editor;
   const onUpdateSet = (setPlanUpdate: Partial<Set>) => {
     actions.updateWorkout(updateSet(id, setPlanUpdate, workout as Workout));
@@ -118,6 +119,16 @@ function SetTile({ set, difficultyType }: SetTileProps) {
 
   return (
     <View style={styles.setTile}>
+      <SetStatusUpdate
+        status={status}
+        onToggle={() => {
+          if (status !== SetStatus.FINISHED) {
+            actions.updateWorkout(
+              updateSet(id, { status: SetStatus.FINISHED }, workout as Workout)
+            );
+          }
+        }}
+      />
       <DifficultyUpdate
         type={difficultyType}
         difficulty={difficulty}

@@ -39,6 +39,7 @@ export class MemoryStore<T> implements Store<T> {
   }
 }
 
+// todo: clean this up by making functions in store/index to abstract writing to disk
 export class DiskStore<T> implements Store<T> {
   appDirectory: string;
   fallback: T;

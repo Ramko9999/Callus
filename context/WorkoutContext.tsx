@@ -403,7 +403,7 @@ export function WorkoutProvider({ children }: Props) {
           updateRestDuration,
         },
         activity: workout && getCurrentWorkoutActivity(workout),
-        metadata: workout && { startedAt: workout.startedAt },
+        metadata: workout && { startedAt: workout.startedAt, name: workout.name },
         isInWorkout: workout != undefined,
         editor: {
           workout: workout,

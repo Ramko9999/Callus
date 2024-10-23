@@ -92,7 +92,6 @@ export type ExercisingActivity = {
     difficultyType: DifficultyType
 }
 
-// expose restStarted at not run into inconsistencies
 export type RestingActivity = {
     setId: string,
     duration: number,
@@ -111,7 +110,8 @@ export type WorkoutSummary = {
 }
 
 export type WorkoutMetadata = {
-    startedAt: number
+    startedAt: number,
+    name: string
 }
   
 export type Program = {

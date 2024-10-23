@@ -16,6 +16,8 @@ function TabBarIcon(props: {
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
+  // todo: find a better icon for routines
+
   return (
     <Tabs
       screenOptions={{
@@ -30,6 +32,10 @@ export default function TabLayout() {
           title: 'Home',
           tabBarIcon: ({ color }) => <TabBarIcon name="calendar" color={color} />
         }}
+      />
+      <Tabs.Screen
+        name="workout-plans"
+        options={{title: "Routines", tabBarIcon:({color}) => <TabBarIcon name="hand-paper-o" color={color}/>}}
       />
       <Tabs.Screen
         name="settings"
