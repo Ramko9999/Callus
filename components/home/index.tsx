@@ -6,7 +6,12 @@ import {
   WorkoutPlanViewTile,
   WorkoutViewTile,
 } from "@/components/workout/view";
-import { getDateDisplay, truncTime, addDays, removeDays } from "@/util";
+import {
+  getHumanReadableDateDisplay,
+  truncTime,
+  addDays,
+  removeDays,
+} from "@/util";
 import { WorkoutItinerary, WorkoutApi } from "@/api/workout";
 import { useWorkout } from "@/context/WorkoutContext";
 import { Workout, WorkoutPlan } from "@/interface";
@@ -92,7 +97,7 @@ function HomeHeader({
           <Icon name={"caret-left"} size={24} />
         </View>
       </TouchableOpacity>
-      <Text _type="neutral">{getDateDisplay(date)}</Text>
+      <Text _type="neutral">{getHumanReadableDateDisplay(date)}</Text>
       {canLookForward && (
         <TouchableOpacity onPress={onLookForward}>
           <View _type="background" style={styles.headerAction}>
@@ -145,6 +150,12 @@ function WorkoutItineraryView({
     router.push("/workout-player");
   };
 
+  const onEditCompletedWorkout = (workout: Workout) => {
+    router.push({pathname: "/offline-workout-tracker", params: {
+      serializedWorkout: JSON.stringify(workout)
+    }});
+  }
+
   const isToday = truncTime(Date.now()) === date;
   const isYesterday = removeDays(truncTime(Date.now()), 1) === date;
   const isFromPast = truncTime(Date.now()) > date;
@@ -161,7 +172,7 @@ function WorkoutItineraryView({
             <Text _type="neutral">Completed</Text>
           )}
           {completedWorkouts.map((workout, index) => (
-            <WorkoutViewTile key={index} workout={workout} />
+            <WorkoutViewTile key={index} workout={workout} onClick={() => onEditCompletedWorkout(workout)} />
           ))}
           {inProgressWorkouts.length > 0 && (
             <Text _type="neutral">In Progress</Text>
@@ -245,7 +256,7 @@ export default function Home() {
         date={truncTime(workoutDate)}
         comeBackToToday={() => setWorkoutDate(Date.now())}
       />
-      <WorkoutIndicator/>
+      <WorkoutIndicator />
     </View>
   );
 }

@@ -1,10 +1,12 @@
 import {
   addExercise,
+  areWorkoutsSame,
   duplicateLastSet,
+  finishAllRestingSets,
   removeExercise,
   removeSet,
+  reorderExercises,
   updateSet,
-  useWorkout,
 } from "@/context/WorkoutContext";
 import { View, TextInput, Text, Action, Icon } from "../../Themed";
 import {
@@ -22,11 +24,16 @@ import {
   KeyboardAvoidingView,
   Modal,
   TouchableWithoutFeedback,
+  Button,
 } from "react-native";
 import { ExerciseFinder } from "../exercise";
 import { EXERCISE_REPOSITORY, NAME_TO_EXERCISE_META } from "@/constants";
-import { useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { DifficultyUpdate, SetStatusUpdate } from "./update";
+import { DatetimePicker } from "./datetime-picker";
+import { ExerciseShuffler } from "./exercise-shuffler";
+import { useNavigation } from "expo-router";
+import { useToast } from "react-native-toast-notifications";
 
 const styles = StyleSheet.create({
   setTile: {
@@ -88,11 +95,17 @@ const styles = StyleSheet.create({
     textAlign: "center",
     padding: "2%",
   },
-  addExerciseAction: {
+  editorActions: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 10,
+  },
+  editorAction: {
     alignSelf: "center",
     paddingBottom: "4%",
   },
-  exerciseFinderContainer: {
+  modalBackground: {
     display: "flex",
     flexDirection: "row",
     height: "100%",
@@ -101,20 +114,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
+  workoutMetaEditor: {
+    display: "flex",
+    flexDirection: "column",
+  },
 });
 
-type SetTileProps = { set: Set; difficultyType: DifficultyType };
+type SetTileProps = {
+  set: Set;
+  difficultyType: DifficultyType;
+  workout: Workout;
+  onUpdateWorkout: (update: Partial<Workout>) => void;
+};
 
-function SetTile({ set, difficultyType }: SetTileProps) {
-  const { editor } = useWorkout();
+function SetTile({
+  set,
+  difficultyType,
+  workout,
+  onUpdateWorkout,
+}: SetTileProps) {
   const { id, difficulty, status } = set;
-  const { workout, actions } = editor;
   const onUpdateSet = (setPlanUpdate: Partial<Set>) => {
-    actions.updateWorkout(updateSet(id, setPlanUpdate, workout as Workout));
+    onUpdateWorkout(updateSet(id, setPlanUpdate, workout as Workout));
   };
 
   const onRemoveSet = () => {
-    actions.updateWorkout(removeSet(id, workout as Workout));
+    onUpdateWorkout(removeSet(id, workout as Workout));
   };
 
   return (
@@ -123,8 +148,20 @@ function SetTile({ set, difficultyType }: SetTileProps) {
         status={status}
         onToggle={() => {
           if (status !== SetStatus.FINISHED) {
-            actions.updateWorkout(
+            onUpdateWorkout(
               updateSet(id, { status: SetStatus.FINISHED }, workout as Workout)
+            );
+          } else {
+            onUpdateWorkout(
+              updateSet(
+                id,
+                {
+                  status: SetStatus.UNSTARTED,
+                  restStartedAt: undefined,
+                  restEndedAt: undefined,
+                },
+                workout as Workout
+              )
             );
           }
         }}
@@ -145,19 +182,25 @@ function SetTile({ set, difficultyType }: SetTileProps) {
   );
 }
 
-type ExerciseTileProps = { exercise: Exercise };
+type ExerciseTileProps = {
+  exercise: Exercise;
+  workout: Workout;
+  onUpdateWorkout: (update: Partial<Workout>) => void;
+};
 
-function ExerciseTile({ exercise }: ExerciseTileProps) {
-  const { editor } = useWorkout();
-  const { workout, actions } = editor;
+function ExerciseTile({
+  exercise,
+  onUpdateWorkout,
+  workout,
+}: ExerciseTileProps) {
   const { id, sets, name } = exercise;
 
   const onAddSet = () => {
-    actions.updateWorkout(duplicateLastSet(id, workout as Workout));
+    onUpdateWorkout(duplicateLastSet(id, workout));
   };
 
   const onRemoveExercise = () => {
-    actions.updateWorkout(removeExercise(id, workout as Workout));
+    onUpdateWorkout(removeExercise(id, workout));
   };
 
   return (
@@ -173,16 +216,15 @@ function ExerciseTile({ exercise }: ExerciseTileProps) {
             difficultyType={
               (NAME_TO_EXERCISE_META.get(name) as ExerciseMeta).difficultyType
             }
+            workout={workout}
+            onUpdateWorkout={onUpdateWorkout}
           />
         );
       })}
       <View style={styles.exerciseTileActions}>
+        <Action _action={{ name: "Add", type: "neutral" }} onPress={onAddSet} />
         <Action
-          _action={{ name: "Add set", type: "neutral" }}
-          onPress={onAddSet}
-        />
-        <Action
-          _action={{ name: "Remove exercise", type: "danger" }}
+          _action={{ name: "Remove", type: "danger" }}
           onPress={onRemoveExercise}
         />
       </View>
@@ -209,49 +251,182 @@ function ExerciseFinderModal({
       animationType="none"
     >
       <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.exerciseFinderContainer}>
-          <ExerciseFinder
-            onSelect={(exerciseMeta) => onSelectExercise(exerciseMeta)}
-            onCancel={onClose}
-            allExercises={EXERCISE_REPOSITORY}
-          />
+        <View style={styles.modalBackground}>
+          <TouchableWithoutFeedback
+            onPress={(event) => {
+              event.stopPropagation();
+            }}
+          >
+            <ExerciseFinder
+              onSelect={(exerciseMeta) => onSelectExercise(exerciseMeta)}
+              onCancel={onClose}
+              allExercises={EXERCISE_REPOSITORY}
+            />
+          </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
     </Modal>
   );
 }
 
-export function WorkoutEditor() {
+type ExerciseShufflerModalProps = {
+  shouldShow: boolean;
+  onClose: () => void;
+  exerciseOrder: string[];
+  onShuffle: (newExerciseOrder: string[]) => void;
+};
+
+function ExerciseShufflerModal({
+  shouldShow,
+  onClose,
+  exerciseOrder,
+  onShuffle,
+}: ExerciseShufflerModalProps) {
+  return (
+    <Modal
+      transparent={true}
+      onRequestClose={onClose}
+      visible={shouldShow}
+      animationType="none"
+    >
+      <TouchableWithoutFeedback onPress={onClose}>
+        <View style={styles.modalBackground}>
+          <TouchableWithoutFeedback
+            onPress={(event) => event.stopPropagation()}
+          >
+            <ExerciseShuffler
+              onShuffle={onShuffle}
+              exerciseOrder={exerciseOrder}
+            />
+          </TouchableWithoutFeedback>
+        </View>
+      </TouchableWithoutFeedback>
+    </Modal>
+  );
+}
+
+type WorkoutMetaEditorProps = {
+  name: string;
+  startedAt: number;
+  endedAt?: number;
+  onUpdate: (update: Partial<Workout>) => void;
+};
+function WorkoutMetaEditor({
+  name,
+  startedAt,
+  endedAt,
+  onUpdate,
+}: WorkoutMetaEditorProps) {
+  // todo: rethink how to store the workouts since changing start times may require writing and reading across partitions
+  // todo: fix the datepicker on android as it is broken totally
+  return (
+    <View style={styles.workoutMetaEditor}>
+      <TextInput
+        _type="neutral"
+        style={styles.workoutNameInput}
+        value={name}
+        onChangeText={(text) => {
+          onUpdate({ name: text });
+        }}
+        placeholder="Workout Name"
+      />
+
+      <DatetimePicker
+        value={startedAt}
+        onUpdate={(startedAt) => onUpdate({ startedAt })}
+      />
+      <DatetimePicker
+        value={endedAt || Date.now()}
+        onUpdate={(endedAt) => onUpdate({ endedAt })}
+      />
+    </View>
+  );
+}
+
+type WorkoutEditorProps = {
+  workout: Workout;
+  onSaveWorkout: (updated: Workout) => void;
+};
+
+export function WorkoutEditor({ workout, onSaveWorkout }: WorkoutEditorProps) {
+  const initialWorkout = useRef(workout);
+  const [updatedWorkout, setUpdatedWorkout] = useState<Workout>(workout);
+  const navigation = useNavigation();
+  const toast = useToast();
+
+  useEffect(() => {
+    navigation.setOptions({
+      title: "Edit",
+      headerRight: () => (
+        <Button
+          title="Save"
+          onPress={() => {
+            const unstartedSets = updatedWorkout.exercises
+              .flatMap(({ sets }) => sets)
+              .filter(({ status }) => status === SetStatus.UNSTARTED);
+            if (updatedWorkout.endedAt && unstartedSets.length > 0) {
+              console.log("Failed to save");
+              toast.show(
+                `Failed to save: there are ${unstartedSets.length} sets unstarted`, {type: "danger"}
+              );
+            } else {
+              onSaveWorkout(finishAllRestingSets(updatedWorkout));
+            }
+          }}
+          disabled={areWorkoutsSame(initialWorkout.current, updatedWorkout)}
+        />
+      ),
+    });
+  }, [updatedWorkout, navigation]);
+
+  const onUpdateWorkout = useCallback(
+    (update: Partial<Workout>) => {
+      setUpdatedWorkout((_updatedWorkout) => ({
+        ..._updatedWorkout,
+        ...update,
+      }));
+    },
+    [setUpdatedWorkout]
+  );
+
   const [showExerciseFinder, setShowExerciseFinder] = useState(false);
-  const { editor } = useWorkout();
-  const { workout, actions } = editor;
+  const [showExerciseShuffler, setShowExerciseShuffler] = useState(false);
+  const { name, startedAt, endedAt } = updatedWorkout;
 
   // todo: fix the weird padding introduced by keyboard avoiding view
   return (
     <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
       <ScrollView style={styles.exerciseScrollView}>
-        <TextInput
-          _type="large"
-          style={styles.workoutNameInput}
-          value={workout && workout.name}
-          onChangeText={(text) => {
-            actions.updateWorkout({
-              ...(workout as Workout),
-              name: text,
-            });
-          }}
-          placeholder="Workout Name"
+        <WorkoutMetaEditor
+          name={name}
+          startedAt={startedAt}
+          endedAt={endedAt}
+          onUpdate={onUpdateWorkout}
         />
         <View _type="background" style={styles.exerciseTilesContainer}>
-          {workout?.exercises.map((exercise, index) => {
-            return <ExerciseTile key={index} exercise={exercise} />;
+          {updatedWorkout?.exercises.map((exercise, index) => {
+            return (
+              <ExerciseTile
+                key={index}
+                exercise={exercise}
+                onUpdateWorkout={onUpdateWorkout}
+                workout={updatedWorkout}
+              />
+            );
           })}
         </View>
-        <Action
-          _action={{ name: "Add exercise", type: "neutral" }}
-          style={styles.addExerciseAction}
-          onPress={() => setShowExerciseFinder(true)}
-        />
+        <View _type="background" style={styles.editorActions}>
+          <Action
+            _action={{ name: "Add", type: "neutral" }}
+            style={styles.editorAction}
+            onPress={() => setShowExerciseFinder(true)}
+          />
+          <Action
+            _action={{ name: "Reorder", type: "neutral" }}
+            style={styles.editorAction}
+            onPress={() => setShowExerciseShuffler(true)}
+          />
+        </View>
       </ScrollView>
       <ExerciseFinderModal
         shouldShow={showExerciseFinder}
@@ -259,9 +434,17 @@ export function WorkoutEditor() {
           setShowExerciseFinder(false);
         }}
         onSelectExercise={(exerciseMeta) => {
-          actions.updateWorkout(addExercise(exerciseMeta, workout as Workout));
+          onUpdateWorkout(addExercise(exerciseMeta, updatedWorkout as Workout));
           setShowExerciseFinder(false);
         }}
+      />
+      <ExerciseShufflerModal
+        shouldShow={showExerciseShuffler}
+        onClose={() => setShowExerciseShuffler(false)}
+        exerciseOrder={updatedWorkout.exercises.map(({ name }) => name)}
+        onShuffle={(newExerciseOrder) =>
+          onUpdateWorkout(reorderExercises(updatedWorkout, newExerciseOrder))
+        }
       />
     </KeyboardAvoidingView>
   );

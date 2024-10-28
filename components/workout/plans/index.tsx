@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { View, Text, Icon } from "@/components/Themed";
 import { PAUSE_LEG, PUSH, PULL, NORMAL_LEG } from "@/constants/SampleWorkouts";
 import { useWorkout } from "@/context/WorkoutContext";
+import { useRouter } from "expo-router";
 
 const PLANS = [PUSH, PULL, NORMAL_LEG, PAUSE_LEG];
 
@@ -44,6 +45,7 @@ type WorkoutPlanProps = {
 
 function WorkoutPlanTile({ workoutPlan }: WorkoutPlanProps) {
   const { actions, isInWorkout } = useWorkout();
+  const router = useRouter();
 
   // todo: show alert or modal to show that you are presently in a workout
   return (
@@ -54,6 +56,7 @@ function WorkoutPlanTile({ workoutPlan }: WorkoutPlanProps) {
             console.log("Cannot start as you are in workout...");
           } else {
             actions.startWorkout(workoutPlan);
+            router.push("/workout-player");
           }
         }}
       >

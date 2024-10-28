@@ -17,12 +17,9 @@ const PROGRAM = [
   [PUSH, NECK],
   [PULL, NECK],
   [NORMAL_LEG],
-  [],
   [PUSH, NECK],
   [PULL, NECK],
   [PAUSE_LEG],
-  [],
-  [],
 ];
 const START_DATE = new Date("2024-10-18T00:00:00.000");
 
@@ -62,7 +59,8 @@ class ProgramStoreApi {
 export class ProgramApi {
   static async getWorkoutPlans(date: number): Promise<WorkoutPlan[]> {
     const daysToSkip = await ProgramStoreApi.instance().getSkippedDays();
-    if (daysToSkip.includes(date) || date < START_DATE.valueOf()) {
+    if (daysToSkip.includes(date) || date < START_DATE.valueOf() || true) {
+      // turn of progam api for now
       // todo: show as rest day for now, change this in the future, we need more information than just rest day here
       return [];
     }

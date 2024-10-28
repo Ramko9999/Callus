@@ -18,9 +18,9 @@ import { useRouter } from "expo-router";
 const styles = StyleSheet.create({
   indicator: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: "auto",
+    gap: 10,
     elevation: 20,
     shadowRadius: 30,
     shadowOpacity: 0.2,
@@ -29,7 +29,19 @@ const styles = StyleSheet.create({
       height: -2,
     },
     shadowColor: "black",
-    paddingVertical: "2%"
+    paddingVertical: "4%",
+    justifyContent: "space-between",
+    marginTop: "auto",
+
+  },
+  indicatorContent: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    paddingLeft: "4%"
+  },
+  indicatorTimer: {
+    paddingRight: "4%",
   },
 });
 
@@ -52,7 +64,9 @@ function RestingActivityIndication({
 
   return (
     <View>
-      <Text _type="small">{`Resting: ${getDurationDisplay(Math.floor(remainingMs / 1000))}`}</Text>
+      <Text _type="small">{`Resting: ${getDurationDisplay(
+        Math.floor(remainingMs / 1000)
+      )}`}</Text>
     </View>
   );
 }
@@ -83,7 +97,7 @@ function ActivityIndication({ type, activityData }: WorkoutActivity) {
 }
 
 export function WorkoutIndicator() {
-    // todo: add a better box shadow
+  // todo: add a better box shadow
   const router = useRouter();
   const { actions, isInWorkout, activity, metadata } = useWorkout();
   const { elapsedMs } = useStopwatch({ startTimeMs: metadata?.startedAt || 0 });
@@ -96,8 +110,13 @@ export function WorkoutIndicator() {
   return (
     <TouchableWithoutFeedback onPress={() => router.push("/workout-player")}>
       <View style={styles.indicator}>
-        <Text _type="neutral">`{name}: {getTimePeriodDisplay(elapsedMs)}`</Text>
-        <ActivityIndication {...(activity as WorkoutActivity)} />
+        <View style={styles.indicatorContent}>
+          <Text _type="large">{name}</Text>
+          <ActivityIndication {...(activity as WorkoutActivity)} />
+        </View>
+        <View style={styles.indicatorTimer}>
+          <Text _type="large">{getTimePeriodDisplay(elapsedMs)}</Text>
+        </View>
       </View>
     </TouchableWithoutFeedback>
   );

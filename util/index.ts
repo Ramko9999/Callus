@@ -1,5 +1,3 @@
-
-
 export function getDurationDisplay(durationinSeconds: number) {
   const minutes = Math.floor(durationinSeconds / 60);
   const seconds = new String(durationinSeconds % 60).padStart(2, "0");
@@ -7,14 +5,14 @@ export function getDurationDisplay(durationinSeconds: number) {
 }
 
 export function generateRandomId(prefix = "", length = 8) {
-    return `${prefix}-${Math.random().toString(36).substring(2, length)}`;
+  return `${prefix}-${Math.random().toString(36).substring(2, length)}`;
 }
 
 export const Period = {
   SECOND: 1000,
   MINUTE: 60 * 1000,
   HOUR: 60 * 60 * 1000,
-  DAY: 1000 * 60 * 60 * 24
+  DAY: 1000 * 60 * 60 * 24,
 };
 
 export function truncTime(timestamp: number) {
@@ -37,18 +35,28 @@ export function removeDays(timestamp: number, days: number) {
   return timestamp - days * Period.DAY;
 }
 
-export function getDateDisplay(timestamp: number) {
-  const todayTimestamp = truncTime(Date.now())
-  if(truncTime(timestamp) === todayTimestamp){
-    return "Today"
-  }
-  else if(removeDays(todayTimestamp, 1) === truncTime(timestamp)){
-    return "Yesterday"
+export function getHumanReadableDateDisplay(timestamp: number) {
+  const todayTimestamp = truncTime(Date.now());
+  if (truncTime(timestamp) === todayTimestamp) {
+    return "Today";
+  } else if (removeDays(todayTimestamp, 1) === truncTime(timestamp)) {
+    return "Yesterday";
   } else {
-    const date = new Date(truncTime(timestamp))
-    const month = new Intl.DateTimeFormat("en-US", { month: 'short' }).format(date);
-    return `${month}. ${date.getDate()}`
+    return getDateDisplay(timestamp);
   }
+}
+
+export function getDateDisplay(timestamp: number) {
+  const date = new Date(truncTime(timestamp));
+  const month = new Intl.DateTimeFormat("en-US", { month: "short" }).format(
+    date
+  );
+  return `${month}. ${date.getDate()}`;
+}
+
+export function getTimeDisplay(timestamp: number){
+  const date = new Date(timestamp);
+  return `${date.getHours()}:${date.getMinutes()}`;
 }
 
 export function getTimePeriodDisplay(period: number) {
@@ -67,4 +75,18 @@ export function getTimePeriodDisplay(period: number) {
     builder.push(`${secs}s`);
   }
   return builder.join(" ");
+}
+
+export function usingDateOf(t1: number, t2: number){
+  const d1 = new Date(t1)
+  const d2 = new Date(t2);
+
+  d1.setDate(d2.getDate());
+  d1.setFullYear(d2.getFullYear());
+  d1.setMonth(d2.getMonth());
+  return d1.valueOf();
+}
+
+export function usingTimeOf(t1: number, t2: number){
+  return usingDateOf(t2, t1);
 }

@@ -6,12 +6,7 @@ import {
   useThemeColoring,
   Action,
 } from "@/components/Themed";
-import {
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-} from "react-native";
+import { StyleSheet, ScrollView, TouchableOpacity } from "react-native";
 import { useState } from "react";
 import { ExerciseMeta } from "@/interface";
 
@@ -70,44 +65,38 @@ export function ExerciseFinder({ allExercises, onSelect, onCancel }: Props) {
   });
 
   return (
-    <TouchableWithoutFeedback
-      onPress={(event) => {
-        event.stopPropagation();
-      }}
-    >
-      <View style={styles.exerciseFinder}>
-        <View style={styles.exerciseFinderActions}>
-          <Action
-            _action={{ name: "Cancel", type: "neutral" }}
-            onPress={onCancel}
+    <View style={styles.exerciseFinder}>
+      <View style={styles.exerciseFinderActions}>
+        <Action
+          _action={{ name: "Cancel", type: "neutral" }}
+          onPress={onCancel}
+        />
+      </View>
+      <View style={styles.exerciseFinderContent}>
+        <View style={[styles.exerciseFinderSearch, searchColorStyle]}>
+          <Icon name="search" color="darkgrey" size={14} />
+          <TextInput
+            _type="neutral"
+            value={search}
+            onChangeText={setSearch}
+            placeholderTextColor={"darkgrey"}
+            placeholder="Search exercise"
+            style={styles.exerciseFinderSearchTextInput}
           />
         </View>
-        <View style={styles.exerciseFinderContent}>
-          <View style={[styles.exerciseFinderSearch, searchColorStyle]}>
-            <Icon name="search" color="darkgrey" size={14} />
-            <TextInput
-              _type="neutral"
-              value={search}
-              onChangeText={setSearch}
-              placeholderTextColor={"darkgrey"}
-              placeholder="Search exercise"
-              style={styles.exerciseFinderSearchTextInput}
-            />
-          </View>
-          <ScrollView style={styles.exerciseFinderSearchResults}>
-            {results.map((exerciseMeta, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => onSelect(exerciseMeta)}
-              >
-                <View style={styles.exerciseFinderSearchResult}>
-                  <Text _type="neutral">{exerciseMeta.name}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+        <ScrollView style={styles.exerciseFinderSearchResults}>
+          {results.map((exerciseMeta, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => onSelect(exerciseMeta)}
+            >
+              <View style={styles.exerciseFinderSearchResult}>
+                <Text _type="neutral">{exerciseMeta.name}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
-    </TouchableWithoutFeedback>
+    </View>
   );
 }

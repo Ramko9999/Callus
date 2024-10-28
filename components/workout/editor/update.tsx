@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
+    padding: "2%"
   },
 });
 
@@ -239,15 +240,15 @@ export function SetStatusUpdate({ status, onToggle }: SetStatusUpdateProps) {
       <Text _type="small" numberOfLines={1}>
         {statusText}
       </Text>
-      <View style={styles.setStatusUpdateValue}>
-        <TouchableOpacity onPress={onToggle}>
+      <TouchableOpacity onPress={onToggle}>
+        <View style={styles.setStatusUpdateValue}>
           {status === SetStatus.FINISHED ? (
             <Icon name="circle" size={textTheme.neutral.fontSize} />
           ) : (
             <Icon name="circle-o" size={textTheme.neutral.fontSize} />
           )}
-        </TouchableOpacity>
-      </View>
+        </View>
+      </TouchableOpacity>
     </View>
   );
 }

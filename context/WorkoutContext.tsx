@@ -244,6 +244,39 @@ export function getWorkoutSummary(workout: Workout): WorkoutSummary {
   return { totalReps, totalWeightLifted, totalDuration };
 }
 
+export function reorderExercises(
+  workout: Workout,
+  exerciseOrder: string[]
+): Workout {
+  const exercisesToOrder = new Map(
+    exerciseOrder.map((exercise, index) => [exercise, index])
+  );
+  const workoutExercises = workout.exercises.sort(
+    (a, b) =>
+      (exercisesToOrder.get(a.name) as number) -
+      (exercisesToOrder.get(b.name) as number)
+  );
+  return { ...workout, exercises: workoutExercises };
+}
+
+export function finishAllRestingSets(workout: Workout): Workout {
+  const exercises = workout.exercises.map((exercise) => {
+    const sets = exercise.sets.map((set) => {
+      if (set.status === SetStatus.RESTING) {
+        return { ...set, status: SetStatus.FINISHED, restEndedAt: Date.now() };
+      }
+      return { ...set };
+    });
+
+    return { ...exercise, sets };
+  });
+  return { ...workout, exercises };
+}
+
+export function areWorkoutsSame(a: Workout, b: Workout): boolean {
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
 type WorkoutActions = {
   startWorkout: (_: WorkoutPlan) => void;
   completeSet: (_: string) => void;
@@ -254,7 +287,8 @@ type WorkoutActions = {
 };
 
 type WorkoutEditorActions = {
-  updateWorkout: (_: Workout) => void;
+  updateWorkout: (_: Partial<Workout>) => void;
+  stopCurrentWorkout: () => void;
 };
 
 type WorkoutEditor = {
@@ -292,7 +326,7 @@ const context = createContext<WorkoutContext>({
     updateRestDuration: () => {},
   },
   editor: {
-    actions: { updateWorkout: (_: Workout) => {} },
+    actions: { updateWorkout: (_: Partial<Workout>) => {} },
   },
   soundPlayer: {
     playRestCompleting: async () => {},
@@ -353,7 +387,7 @@ export function WorkoutProvider({ children }: Props) {
     });
   };
 
-  const updateWorkoutPlan = (update: Partial<Workout>) => {
+  const updateWorkout = (update: Partial<Workout>) => {
     const newWorkout = { ...(workout as Workout), ...update };
     WorkoutApi.saveWorkout(newWorkout).then(() => {
       setWorkout(newWorkout);
@@ -365,6 +399,10 @@ export function WorkoutProvider({ children }: Props) {
     WorkoutApi.saveWorkout(newWorkout).then(() => {
       setWorkout(undefined);
     });
+  };
+
+  const stopCurrentWorkout = () => {
+    setWorkout(undefined);
   };
 
   const updateRestDuration = (setId: string, updatedRestDuration: number) => {
@@ -403,11 +441,14 @@ export function WorkoutProvider({ children }: Props) {
           updateRestDuration,
         },
         activity: workout && getCurrentWorkoutActivity(workout),
-        metadata: workout && { startedAt: workout.startedAt, name: workout.name },
+        metadata: workout && {
+          startedAt: workout.startedAt,
+          name: workout.name,
+        },
         isInWorkout: workout != undefined,
         editor: {
           workout: workout,
-          actions: { updateWorkout: updateWorkoutPlan },
+          actions: { updateWorkout, stopCurrentWorkout },
         },
         soundPlayer: {
           playRestCompleting: async () => {

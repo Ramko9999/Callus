@@ -1528,5 +1528,11 @@
     "demoUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRo27DMMIwVVBPCEY4zAEMF55Rr4DzR7Bp8-g&s",
     "muscles": ["Neck Flexors", "Neck Extensors"],
     "name": "Neck Side Flexion"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl":"https://fitnessprogramer.com/wp-content/uploads/2022/07/Ring-Dips.gif",
+    "muscles": ["Chest", "Front Delt", "Triceps"],
+    "name": "Ring Dip"
   }
 ]
