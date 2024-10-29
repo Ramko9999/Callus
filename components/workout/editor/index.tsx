@@ -147,9 +147,17 @@ function SetTile({
       <SetStatusUpdate
         status={status}
         onToggle={() => {
-          if (status !== SetStatus.FINISHED) {
+          if (status === SetStatus.UNSTARTED) {
             onUpdateWorkout(
               updateSet(id, { status: SetStatus.FINISHED }, workout as Workout)
+            );
+          } else if (status === SetStatus.RESTING) {
+            onUpdateWorkout(
+              updateSet(
+                id,
+                { status: SetStatus.FINISHED, restEndedAt: Date.now() },
+                workout as Workout
+              )
             );
           } else {
             onUpdateWorkout(
@@ -367,7 +375,8 @@ export function WorkoutEditor({ workout, onSaveWorkout }: WorkoutEditorProps) {
             if (updatedWorkout.endedAt && unstartedSets.length > 0) {
               console.log("Failed to save");
               toast.show(
-                `Failed to save: there are ${unstartedSets.length} sets unstarted`, {type: "danger"}
+                `Failed to save: there are ${unstartedSets.length} sets unstarted`,
+                { type: "danger" }
               );
             } else {
               onSaveWorkout(finishAllRestingSets(updatedWorkout));

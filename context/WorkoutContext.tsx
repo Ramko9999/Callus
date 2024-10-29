@@ -38,14 +38,8 @@ export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
         status: SetStatus.UNSTARTED,
         restDuration: rest,
       }));
-
-      //todo: remove this after import/export
-      const difficultyType =
-        NAME_TO_EXERCISE_META.get(name)?.difficultyType ||
-        DifficultyType.BODYWEIGHT;
-
+      
       return {
-        difficultyType,
         id: generateExerciseId(),
         name,
         sets,
@@ -326,7 +320,7 @@ const context = createContext<WorkoutContext>({
     updateRestDuration: () => {},
   },
   editor: {
-    actions: { updateWorkout: (_: Partial<Workout>) => {} },
+    actions: { updateWorkout: (_: Partial<Workout>) => {}, stopCurrentWorkout: () => {}},
   },
   soundPlayer: {
     playRestCompleting: async () => {},

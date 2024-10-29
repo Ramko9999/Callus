@@ -16,3 +16,5 @@ export const NAME_TO_EXERCISE_META: Map<string, ExerciseMeta> = new Map(
 
 // todo: store this in the settings
 export const BW = 150;
+
+export const DB_NAME = "store-v2.db"

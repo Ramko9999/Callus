@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import * as DocumentPicker from "expo-document-picker";
-import { WorkoutImportExportApi } from "@/api/workout";
+import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
 import { useToast } from "react-native-toast-notifications";
 
@@ -25,7 +25,7 @@ export function Settings() {
       FileSystem.cacheDirectory
     }/export-${Date.now()}.json`;
 
-    const workouts = await WorkoutImportExportApi.getExportableWorkouts();
+    const workouts = await WorkoutApi.getExportableWorkouts();
     await FileSystem.writeAsStringAsync(
       exportFileUri,
       JSON.stringify(workouts)
@@ -46,13 +46,14 @@ export function Settings() {
         const importedWorkouts = (
           await Promise.all(importWorkoutPromises)
         ).flatMap((workouts) => workouts);
-        await WorkoutImportExportApi.importWorkouts(importedWorkouts);
+        await WorkoutApi.importWorkouts(importedWorkouts);
         toast.show(`Imported ${importedWorkouts.length} workouts!`, {
           type: "success",
         });
       } catch (error) {
         // display a notice suggesting we failed to import workouts
-        toast.show(`Failed to import workouts`, { type: "danger" });
+        // todo: figure out a framework how to alert users
+        toast.show(`Failed to import workouts: ${error}`, { type: "danger" });
       }
     }
   };

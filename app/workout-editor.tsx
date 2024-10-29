@@ -12,6 +12,7 @@ export default function () {
     <WorkoutEditor
       workout={workout as Workout}
       onSaveWorkout={(workout) => {
+        // todo: // fix the routing here...
         actions.updateWorkout(workout);
         actions.stopCurrentWorkout();
         router.back();

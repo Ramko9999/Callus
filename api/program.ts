@@ -3,13 +3,10 @@ import {
   NORMAL_LEG,
   PAUSE_LEG,
   PUSH,
-  NECK,
-  PUSH_PULL_LEGS_PROGRAM,
+  NECK
 } from "@/constants/SampleWorkouts";
-import { Program, WorkoutPlan } from "@/interface";
+import { WorkoutPlan } from "@/interface";
 import { truncTime, Period } from "@/util";
-import { Store, DiskStore } from "./store";
-import { STORAGE_NAMESPACE } from "@/constants";
 
 let SINGLETON_STORE_API: ProgramStoreApi;
 
@@ -24,22 +21,16 @@ const PROGRAM = [
 const START_DATE = new Date("2024-10-18T00:00:00.000");
 
 class ProgramStoreApi {
-  store: Store<Program>;
-
-  constructor(store: Store<Program>) {
-    this.store = store;
-  }
 
   static instance(): ProgramStoreApi {
     SINGLETON_STORE_API =
       SINGLETON_STORE_API ??
-      new ProgramStoreApi(
-        new DiskStore(STORAGE_NAMESPACE, PUSH_PULL_LEGS_PROGRAM)
-      );
+      new ProgramStoreApi();
     return SINGLETON_STORE_API;
   }
 
   async skipDay(date: number) {
+    /*
     const program = await this.store.read("programs");
     if (
       program.skippedDays.length === 0 ||
@@ -48,11 +39,11 @@ class ProgramStoreApi {
       program.skippedDays.push(date);
     }
     await this.store.write("programs", program);
+    */
   }
 
   async getSkippedDays(): Promise<number[]> {
-    const program = await this.store.read("programs");
-    return program.skippedDays;
+    return [];
   }
 }
 
