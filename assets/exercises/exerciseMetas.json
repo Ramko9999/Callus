@@ -1534,5 +1534,17 @@
     "demoUrl":"https://fitnessprogramer.com/wp-content/uploads/2022/07/Ring-Dips.gif",
     "muscles": ["Chest", "Front Delt", "Triceps"],
     "name": "Ring Dip"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "demoUrl": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fgymvisual.com%2F16-animated-gifs%3F%253Fp%253D88%26p%3D219&psig=AOvVaw3EQIfodZi_990ydckuOafl&ust=1730695553532000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCOil876tv4kDFQAAAAAdAAAAABAS",
+    "muscles": ["Biceps"],
+    "name": "Ring Bicep Curl"
+  },
+  {
+    "difficultyType": "TIME",
+    "demoUrl": "https://fitnessprogramer.com/wp-content/uploads/2021/09/L-Sit.gif",
+    "muscles": ["Abs", "Quads"],
+    "name": "L-Sit"
   }
 ]

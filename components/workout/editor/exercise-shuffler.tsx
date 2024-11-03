@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
   },
   exerciseShufflerItem: {
     borderStyle: "solid",
-    borderWidth: 2,
+    borderBottomWidth: 2,
     width: "100%",
     padding: "2%",
     display: "flex",
@@ -38,6 +38,7 @@ function swapArrayPositions(arr: any[], i: number, j: number) {
   arr[j] = value;
   return arr;
 }
+
 
 export function ExerciseShuffler({
   exerciseOrder,

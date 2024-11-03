@@ -132,8 +132,9 @@ export function duplicateLastSet(
 ): Workout {
   const exercises = workout.exercises.map((ep) => {
     if (ep.id === exerciseId) {
-      const lastSet = ep.sets[ep.sets.length - 1];
-      return { ...ep, sets: [...ep.sets, { ...lastSet, id: generateSetId() }] };
+      const {difficulty, restDuration} = ep.sets[ep.sets.length - 1];
+      const setToAdd: Set = {status: SetStatus.UNSTARTED, difficulty, restDuration:restDuration, id: generateSetId() }
+      return { ...ep, sets: [...ep.sets, setToAdd] };
     }
     return ep;
   });

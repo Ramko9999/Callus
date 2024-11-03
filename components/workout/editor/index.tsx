@@ -34,8 +34,12 @@ import { DatetimePicker } from "./datetime-picker";
 import { ExerciseShuffler } from "./exercise-shuffler";
 import { useNavigation } from "expo-router";
 import { useToast } from "react-native-toast-notifications";
+import { KeypadProvider, useKeypad } from "@/context/keypad";
 
 const styles = StyleSheet.create({
+  container: {
+    height: "100%",
+  },
   setTile: {
     display: "flex",
     paddingTop: "2%",
@@ -90,6 +94,7 @@ const styles = StyleSheet.create({
   exerciseScrollView: {
     display: "flex",
     flexDirection: "column",
+    height: "100%",
   },
   workoutNameInput: {
     textAlign: "center",
@@ -134,6 +139,7 @@ function SetTile({
   onUpdateWorkout,
 }: SetTileProps) {
   const { id, difficulty, status } = set;
+
   const onUpdateSet = (setPlanUpdate: Partial<Set>) => {
     onUpdateWorkout(updateSet(id, setPlanUpdate, workout as Workout));
   };
@@ -175,6 +181,7 @@ function SetTile({
         }}
       />
       <DifficultyUpdate
+        id={id}
         type={difficultyType}
         difficulty={difficulty}
         onUpdateDifficulty={(difficulty) => onUpdateSet({ difficulty })}
@@ -246,11 +253,13 @@ type ExerciseFinderModalProps = {
   onSelectExercise: (exerciseMeta: ExerciseMeta) => void;
 };
 
+// todo: this closes on pressing anywhere within the modal
 function ExerciseFinderModal({
   shouldShow,
   onClose,
   onSelectExercise,
 }: ExerciseFinderModalProps) {
+  // todo: figure out a way to get the keyboard to not hide items
   return (
     <Modal
       transparent={true}
@@ -357,7 +366,9 @@ type WorkoutEditorProps = {
 };
 
 export function WorkoutEditor({ workout, onSaveWorkout }: WorkoutEditorProps) {
+  // todo: if there are changes, show a modal confirming that changes will be reverted
   const initialWorkout = useRef(workout);
+  const cancelSavedChangesClick = useRef(0);
   const [updatedWorkout, setUpdatedWorkout] = useState<Workout>(workout);
   const navigation = useNavigation();
   const toast = useToast();
@@ -385,6 +396,28 @@ export function WorkoutEditor({ workout, onSaveWorkout }: WorkoutEditorProps) {
           disabled={areWorkoutsSame(initialWorkout.current, updatedWorkout)}
         />
       ),
+      headerLeft: () => (
+        // todo: implement a modal here brother
+        <Button
+          title="Cancel"
+          onPress={() => {
+            if (!areWorkoutsSame(initialWorkout.current, updatedWorkout)) {
+              if (Date.now() - cancelSavedChangesClick.current < 2000) {
+                toast.hideAll();
+                navigation.goBack();
+              } else {
+                toast.show(
+                  "You have unsaved changes. Click again within 2 seconds if you want to discard them.",
+                  { type: "danger" }
+                );
+                cancelSavedChangesClick.current = Date.now();
+              }
+            } else {
+              navigation.goBack();
+            }
+          }}
+        />
+      ),
     });
   }, [updatedWorkout, navigation]);
 
@@ -404,57 +437,61 @@ export function WorkoutEditor({ workout, onSaveWorkout }: WorkoutEditorProps) {
 
   // todo: fix the weird padding introduced by keyboard avoiding view
   return (
-    <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
-      <ScrollView style={styles.exerciseScrollView}>
-        <WorkoutMetaEditor
-          name={name}
-          startedAt={startedAt}
-          endedAt={endedAt}
-          onUpdate={onUpdateWorkout}
-        />
-        <View _type="background" style={styles.exerciseTilesContainer}>
-          {updatedWorkout?.exercises.map((exercise, index) => {
-            return (
-              <ExerciseTile
-                key={index}
-                exercise={exercise}
-                onUpdateWorkout={onUpdateWorkout}
-                workout={updatedWorkout}
-              />
+    <KeypadProvider>
+      <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
+        <ScrollView style={styles.exerciseScrollView}>
+          <WorkoutMetaEditor
+            name={name}
+            startedAt={startedAt}
+            endedAt={endedAt}
+            onUpdate={onUpdateWorkout}
+          />
+          <View _type="background" style={styles.exerciseTilesContainer}>
+            {updatedWorkout?.exercises.map((exercise, index) => {
+              return (
+                <ExerciseTile
+                  key={index}
+                  exercise={exercise}
+                  onUpdateWorkout={onUpdateWorkout}
+                  workout={updatedWorkout}
+                />
+              );
+            })}
+          </View>
+          <View _type="background" style={styles.editorActions}>
+            <Action
+              _action={{ name: "Add", type: "neutral" }}
+              style={styles.editorAction}
+              onPress={() => setShowExerciseFinder(true)}
+            />
+            <Action
+              _action={{ name: "Reorder", type: "neutral" }}
+              style={styles.editorAction}
+              onPress={() => setShowExerciseShuffler(true)}
+            />
+          </View>
+        </ScrollView>
+        <ExerciseFinderModal
+          shouldShow={showExerciseFinder}
+          onClose={() => {
+            setShowExerciseFinder(false);
+          }}
+          onSelectExercise={(exerciseMeta) => {
+            onUpdateWorkout(
+              addExercise(exerciseMeta, updatedWorkout as Workout)
             );
-          })}
-        </View>
-        <View _type="background" style={styles.editorActions}>
-          <Action
-            _action={{ name: "Add", type: "neutral" }}
-            style={styles.editorAction}
-            onPress={() => setShowExerciseFinder(true)}
-          />
-          <Action
-            _action={{ name: "Reorder", type: "neutral" }}
-            style={styles.editorAction}
-            onPress={() => setShowExerciseShuffler(true)}
-          />
-        </View>
-      </ScrollView>
-      <ExerciseFinderModal
-        shouldShow={showExerciseFinder}
-        onClose={() => {
-          setShowExerciseFinder(false);
-        }}
-        onSelectExercise={(exerciseMeta) => {
-          onUpdateWorkout(addExercise(exerciseMeta, updatedWorkout as Workout));
-          setShowExerciseFinder(false);
-        }}
-      />
-      <ExerciseShufflerModal
-        shouldShow={showExerciseShuffler}
-        onClose={() => setShowExerciseShuffler(false)}
-        exerciseOrder={updatedWorkout.exercises.map(({ name }) => name)}
-        onShuffle={(newExerciseOrder) =>
-          onUpdateWorkout(reorderExercises(updatedWorkout, newExerciseOrder))
-        }
-      />
-    </KeyboardAvoidingView>
+            setShowExerciseFinder(false);
+          }}
+        />
+        <ExerciseShufflerModal
+          shouldShow={showExerciseShuffler}
+          onClose={() => setShowExerciseShuffler(false)}
+          exerciseOrder={updatedWorkout.exercises.map(({ name }) => name)}
+          onShuffle={(newExerciseOrder) =>
+            onUpdateWorkout(reorderExercises(updatedWorkout, newExerciseOrder))
+          }
+        />
+      </KeyboardAvoidingView>
+    </KeypadProvider>
   );
 }

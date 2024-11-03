@@ -1,5 +1,6 @@
 import { View, Text, TextInput, Icon } from "@/components/Themed";
 import { textTheme } from "@/constants/Themes";
+import { useKeypad } from "@/context/keypad";
 import {
   BodyWeightDifficulty,
   WeightDifficulty,
@@ -9,6 +10,7 @@ import {
   DifficultyType,
   SetStatus,
 } from "@/interface";
+import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
@@ -32,7 +34,7 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    padding: "2%"
+    padding: "2%",
   },
 });
 
@@ -72,48 +74,123 @@ function NumericUpdate({ value, onUpdate, label, unit }: NumericUpdateProps) {
 }
 
 type WeightDifficultyUpdateProps = {
+  id: string;
   difficulty: WeightDifficulty;
   onUpdateDifficulty: (newDifficulty: WeightDifficulty) => void;
 };
 
+type WeightUpdateProps = {
+  id: string;
+  weight: number;
+  onUpdateWeight: (weight: number) => void;
+};
+
+function WeightUpdate({ id, weight, onUpdateWeight }: WeightUpdateProps) {
+  const { actions, callerId, value } = useKeypad();
+
+  const displayWeight =
+    callerId === id
+      ? ((value ?? weight.toString()) as string)
+      : weight.toString();
+
+  useEffect(() => {
+    if (callerId === id && value) {
+      onUpdateWeight(parseFloat(value));
+    }
+  }, [callerId, value]);
+
+  return (
+    <View style={styles.updateContainer}>
+      <Text _type="small" numberOfLines={1}>
+        Weight
+      </Text>
+      <TouchableOpacity
+        onPress={() => actions.editWeight(weight.toString(), id)}
+      >
+        <View style={styles.updateValue}>
+          <Text _type="neutral" numberOfLines={1}>
+            {`${displayWeight} lbs`.padEnd(10)}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+type RepUpdateProps = {
+  id: string;
+  reps: number;
+  onUpdateReps: (reps: number) => void;
+};
+
+function RepUpdate({ id, reps, onUpdateReps }: RepUpdateProps) {
+  const { actions, callerId, value } = useKeypad();
+
+  const displayReps =
+    callerId === id ? ((value ?? reps.toString()) as string) : reps.toString();
+
+  useEffect(() => {
+    if (callerId === id && value) {
+      onUpdateReps(parseInt(value));
+    }
+  }, [callerId, value]);
+
+  return (
+    <View style={styles.updateContainer}>
+      <Text _type="small" numberOfLines={1}>
+        Reps
+      </Text>
+      <TouchableOpacity onPress={() => actions.editReps(reps.toString(), id)}>
+        <View style={styles.updateValue}>
+          <Text _type="neutral" numberOfLines={1}>
+            {`${displayReps} reps`.padEnd(8)}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 function WeightDifficultyUpdate({
+  id,
   difficulty,
   onUpdateDifficulty,
 }: WeightDifficultyUpdateProps) {
   return (
     <View style={styles.difficultyUpdateContainer}>
-      <NumericUpdate
-        value={difficulty.weight}
-        label="Weight"
-        unit="lbs"
-        onUpdate={(weight) => onUpdateDifficulty({ ...difficulty, weight })}
+      <WeightUpdate
+        id={`${id}-weight`}
+        weight={difficulty.weight}
+        onUpdateWeight={(weight) =>
+          onUpdateDifficulty({ ...difficulty, weight })
+        }
       />
-      <NumericUpdate
-        value={difficulty.reps}
-        label="Reps"
-        unit="reps"
-        onUpdate={(reps) => onUpdateDifficulty({ ...difficulty, reps })}
+      <RepUpdate
+        id={`${id}-reps`}
+        reps={difficulty.reps}
+        onUpdateReps={(reps) => onUpdateDifficulty({ ...difficulty, reps })}
       />
     </View>
   );
 }
 
 type BodyWeightDifficultyUpdateProps = {
+  id: string;
   difficulty: BodyWeightDifficulty;
   onUpdateDifficulty: (newDifficulty: BodyWeightDifficulty) => void;
 };
 
 function BodyWeightDifficultyUpdate({
+  id,
   difficulty,
   onUpdateDifficulty,
 }: BodyWeightDifficultyUpdateProps) {
   return (
     <View style={styles.difficultyUpdateContainer}>
-      <NumericUpdate
-        value={difficulty.reps}
-        label="Reps"
-        unit="reps"
-        onUpdate={(reps) => onUpdateDifficulty({ ...difficulty, reps })}
+      <RepUpdate
+        id={`${id}-reps`}
+        reps={difficulty.reps}
+        onUpdateReps={(reps) => onUpdateDifficulty({ ...difficulty, reps })}
       />
     </View>
   );
@@ -170,12 +247,14 @@ function TimeDifficultyUpdate({
 }
 
 type DifficultyUpdateProps = {
+  id: string;
   type: DifficultyType;
   difficulty: Difficulty;
   onUpdateDifficulty: (newDifficulty: Difficulty) => void;
 };
 
 export function DifficultyUpdate({
+  id,
   type,
   difficulty,
   onUpdateDifficulty,
@@ -184,6 +263,7 @@ export function DifficultyUpdate({
     case DifficultyType.WEIGHT:
       return (
         <WeightDifficultyUpdate
+          id={id}
           difficulty={difficulty as WeightDifficulty}
           onUpdateDifficulty={onUpdateDifficulty}
         />
@@ -191,6 +271,7 @@ export function DifficultyUpdate({
     case DifficultyType.WEIGHTED_BODYWEIGHT:
       return (
         <WeightDifficultyUpdate
+          id={id}
           difficulty={difficulty as WeightDifficulty}
           onUpdateDifficulty={onUpdateDifficulty}
         />
@@ -205,6 +286,7 @@ export function DifficultyUpdate({
     case DifficultyType.BODYWEIGHT:
       return (
         <BodyWeightDifficultyUpdate
+          id={id}
           difficulty={difficulty as BodyWeightDifficulty}
           onUpdateDifficulty={onUpdateDifficulty}
         />
@@ -227,7 +309,7 @@ type SetStatusUpdateProps = {
 };
 
 export function SetStatusUpdate({ status, onToggle }: SetStatusUpdateProps) {
-  let statusText = "Unstarted";
+  let statusText = "Todo";
   if (status === SetStatus.FINISHED) {
     statusText = "Done";
   } else if (status === SetStatus.RESTING) {

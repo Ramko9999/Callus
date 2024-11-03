@@ -119,3 +119,10 @@ export type Program = {
     name: string,
     skippedDays: number[]
 }
+
+export enum KeypadType {
+    WEIGHT,
+    REPS,
+    DURATION,
+    ASSISTANCE_WEIGHT,
+  }

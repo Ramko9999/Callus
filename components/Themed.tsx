@@ -14,14 +14,22 @@ import {
   darkColorTheme,
 } from "@/constants/Themes";
 import { useColorScheme } from "./useColorScheme";
-import { FontAwesome } from "@expo/vector-icons";
+import {
+  FontAwesome,
+  Feather,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
+import React from "react";
 
 type ViewThemeProps = {
   _type?: "background" | "foreground";
 };
 
+export type TextType = keyof typeof textTheme;
+
 type TextThemeProps = {
-  _type: keyof typeof textTheme;
+  _type: TextType;
 };
 
 type ActionThemeProps = {
@@ -39,6 +47,25 @@ export type ActionProps = Omit<TouchableOpacity["props"], "children"> &
   ActionThemeProps;
 export type IconProps = {
   name: React.ComponentProps<typeof FontAwesome>["name"];
+  size?: number;
+  color?: string;
+};
+// todo: fix this nasty ish
+
+export type FeatherIconProps = {
+  name: React.ComponentProps<typeof Feather>["name"];
+  size?: number;
+  color?: string;
+};
+
+export type IoniconsIconProps = {
+  name: React.ComponentProps<typeof Ionicons>["name"];
+  size?: number;
+  color?: string;
+};
+
+export type MaterialCommunityIconProps = {
+  name: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
   size?: number;
   color?: string;
 };
@@ -102,10 +129,37 @@ export function Action(props: ActionProps) {
   );
 }
 
+// todo: clean this nasty ish up. Matter of fact, clean up the damn file
 export function Icon({ name, size, color }: IconProps) {
   const coloring = useThemeColoring("text") as TextStyle;
 
   return (
     <FontAwesome name={name} color={color || coloring.color} size={size} />
+  );
+}
+
+export function FeatherIcon({ name, size, color }: FeatherIconProps) {
+  const coloring = useThemeColoring("text") as TextStyle;
+
+  return <Feather name={name} color={color || coloring.color} size={size} />;
+}
+
+export function IoniconsIcon({ name, size, color }: IoniconsIconProps) {
+  const coloring = useThemeColoring("text") as TextStyle;
+  return <Ionicons name={name} color={color || coloring.color} size={size} />;
+}
+
+export function MaterialCommunityIcon({
+  name,
+  size,
+  color,
+}: MaterialCommunityIconProps) {
+  const coloring = useThemeColoring("text") as TextStyle;
+  return (
+    <MaterialCommunityIcons
+      name={name}
+      color={color || coloring.color}
+      size={size}
+    />
   );
 }
