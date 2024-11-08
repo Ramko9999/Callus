@@ -9,17 +9,11 @@ export type WorkoutItinerary = {
 };
 
 export class WorkoutApi {
-  static async getWorkoutItinerary(
-    localDate: number
-  ): Promise<WorkoutItinerary> {
-    const workouts = await Store.instance().getWorkoutsBetweenTime(localDate, addDays(localDate, 1));
-    const workoutIds = new Set(workouts.map((workout) => workout.id));
 
-    const workoutPlans = (await ProgramApi.getWorkoutPlans(localDate)).filter(
-      (workoutPlan) =>
-        !workoutIds.has(this.getWorkoutId(localDate, workoutPlan))
-    );
-    return { workouts, workoutPlans };
+  static async getWorkouts(
+    localDate: number
+  ): Promise<Workout[]> {
+    return await Store.instance().getWorkouts(localDate, addDays(localDate, 1));
   }
 
   static async saveWorkout(workout: Workout): Promise<void> {

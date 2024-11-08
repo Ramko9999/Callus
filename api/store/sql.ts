@@ -21,6 +21,6 @@ select workouts.id as id, workouts.name as name, workouts.started_at as started_
 from workouts join exercises on workouts.id = exercises.workout_id where ${predicate} group by 1 order by 3 ASC
 `)
 
-export const GET_WORKOUTS_BETWEEN_TIME = WORKOUT_SELECTION_SQL("started_at > $after and started_at <= $before");
+export const GET_COMPLETED_WORKOUTS_BETWEEN_TIME = WORKOUT_SELECTION_SQL("started_at > $after and started_at <= $before and ended_at is not null");
 
 export const GET_IN_PROGRESS_WORKOUTS = WORKOUT_SELECTION_SQL("ended_at is null");

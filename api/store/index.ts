@@ -1,7 +1,7 @@
 import * as FileSystem from "expo-file-system";
 import { DB_NAME, STORAGE_NAMESPACE } from "@/constants";
 import { SQLiteDatabase, openDatabaseAsync } from "expo-sqlite";
-import { CLEAR_ALL_EXERCISES, EXERCISES_TABLE_CREATION, GET_IN_PROGRESS_WORKOUTS, GET_WORKOUTS_BETWEEN_TIME, UPSERT_EXERCISE, UPSERT_WORKOUT, WORKOUTS_TABLE_CREATION } from "./sql";
+import { CLEAR_ALL_EXERCISES, EXERCISES_TABLE_CREATION, GET_IN_PROGRESS_WORKOUTS, GET_COMPLETED_WORKOUTS_BETWEEN_TIME, UPSERT_EXERCISE, UPSERT_WORKOUT, WORKOUTS_TABLE_CREATION } from "./sql";
 import { Exercise, Workout } from "@/interface";
 
 const APP_DATA_DIRECTORY = `${FileSystem.documentDirectory}${STORAGE_NAMESPACE}`;
@@ -95,12 +95,12 @@ export class Store {
     });
   }
 
-  async getWorkoutsBetweenTime(
+  async getWorkouts(
     after: number,
     before: number
   ): Promise<Workout[]> {
     return (
-      (await this.db.getAllAsync(GET_WORKOUTS_BETWEEN_TIME, {
+      (await this.db.getAllAsync(GET_COMPLETED_WORKOUTS_BETWEEN_TIME, {
         $after: after,
         $before: before,
       })) as any[]
@@ -109,7 +109,7 @@ export class Store {
 
   async getAllWorkouts() {
     return (
-      (await this.db.getAllAsync(GET_WORKOUTS_BETWEEN_TIME, {
+      (await this.db.getAllAsync(GET_COMPLETED_WORKOUTS_BETWEEN_TIME, {
         $after: 0,
         $before: Date.now(),
       })) as any[]

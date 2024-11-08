@@ -1,46 +1,34 @@
 import { Theme } from "@react-navigation/native";
 
-export const darkColorTheme = {
-  text: { color: "#fff" },
-  viewForeground: {
-    backgroundColor: "#27272F",
-    borderColor: "#3F4147",
-  },
-  viewBackground: {
-  },
-  actionNeutral: {
-    color: "#24A0ED",
-  },
-  actionDanger: {
-    color: "#FF6347",
-  },
-  searchBackground: {
-    backgroundColor: "#313035"
-  }
-};
+export const darkColors = {
+  primaryText: "#fff",
+  lightText: "#999EA0",
+  secondaryViewBackground: "#27272F",
+  secondaryViewBorder: "#3F4147",
+  primaryViewBackground: "#27272F",
+  primaryViewBorder: "#48515D",
+  neutralAction: "#24A0ED",
+  dangerAction: "#FF6347",
+  success: "#2ECD70",
+  search: "#313035"
+}
 
-export const lightColorTheme = {
-  text: { color: "#000" },
-  viewForeground: {
-    backgroundColor: "#fff",
-    borderColor: "#DADCE0",
-  },
-  viewBackground: {
-    backgroundColor: "#rgb(242, 242, 242)"
-  },
-  actionNeutral: {
-    color: "#24A0ED",
-  },
-  actionDanger: {
-    color: "#DC143C",
-  },
-  searchBackground: {
-    backgroundColor: "#eeeef0"
-  }
-};
+export const lightColors = {
+  primaryText: "#000",
+  lightText:  "#48515D",
+  secondaryViewBackground: "#fff",
+  secondaryViewBorder: "#DADCE0",
+  primaryViewBackground: "#rgb(242, 242, 242)",
+  primaryViewBorder: "#48515D",
+  neutralAction: "#24A0ED",
+  dangerAction: "#DC143C",
+  success: "#4FA94D",
+  search: "#eeeef0"
+}
 
-export type UIColor = keyof typeof darkColorTheme &
-  keyof typeof lightColorTheme;
+
+export type UIColor = keyof typeof darkColors &
+  keyof typeof lightColors;
 
 export const textTheme = {
   small: {
@@ -50,12 +38,14 @@ export const textTheme = {
     fontSize: 16,
   },
   emphasized: {
-    fontSize: 16,
     fontWeight: "bold",
   },
   large: {
     fontSize: 24,
   },
+  extraLarge: {
+    fontSize: 32
+  }
 };
 
 export function getTabActiveTintColor(theme: "light" | "dark"){

@@ -2,30 +2,21 @@ import { useNavigation, usePathname, useRouter } from "expo-router";
 import { Action, Icon, Text, View } from "@/components/Themed";
 import { StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { useEffect, useState } from "react";
-import {
-  WorkoutPlanViewTile,
-  WorkoutViewTile,
-} from "@/components/workout/view";
-import {
-  getHumanReadableDateDisplay,
-  truncTime,
-  addDays,
-  removeDays,
-} from "@/util";
+import { NewWorkoutViewTile } from "@/components/workout/view";
+import { truncTime, addDays, removeDays, getLongDateDisplay } from "@/util";
 import { WorkoutItinerary, WorkoutApi } from "@/api/workout";
-import { useWorkout } from "@/context/WorkoutContext";
 import { Workout, WorkoutPlan } from "@/interface";
-import { ProgramApi } from "@/api/program";
 import { WorkoutIndicator } from "../workout/player/indicator";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { HistoricalEditorPopup } from "../workout/new-editor/historical";
 
 const styles = StyleSheet.create({
   homeView: {
     display: "flex",
     flexDirection: "column",
-    height: "100%",
+    height: "80%",
   },
   expansiveCenterAlignedView: {
-    height: "100%",
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
@@ -55,7 +46,7 @@ const styles = StyleSheet.create({
   workoutView: {
     display: "flex",
     flexDirection: "column",
-    height: "100%",
+    height: "80%",
     alignItems: "center",
   },
   workoutViewTiles: {
@@ -75,39 +66,14 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "transparent",
   },
+  header: {
+    height: "15%",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "flex-end",
+    paddingLeft: "5%",
+  },
 });
-
-type HomeHeaderProps = {
-  date: number;
-  onLookBack: () => void;
-  onLookForward: () => void;
-  canLookForward: boolean;
-};
-
-function HomeHeader({
-  date,
-  onLookBack,
-  onLookForward,
-  canLookForward,
-}: HomeHeaderProps) {
-  return (
-    <View _type="background" style={styles.headerView}>
-      <TouchableOpacity onPress={onLookBack}>
-        <View _type="background" style={styles.headerAction}>
-          <Icon name={"caret-left"} size={24} />
-        </View>
-      </TouchableOpacity>
-      <Text _type="neutral">{getHumanReadableDateDisplay(date)}</Text>
-      {canLookForward && (
-        <TouchableOpacity onPress={onLookForward}>
-          <View _type="background" style={styles.headerAction}>
-            <Icon name={"caret-right"} size={24} />
-          </View>
-        </TouchableOpacity>
-      )}
-    </View>
-  );
-}
 
 function WorkoutItineraryLoading() {
   return (
@@ -117,48 +83,27 @@ function WorkoutItineraryLoading() {
   );
 }
 
-type WorkoutItineraryProps = {
-  workoutItinerary: WorkoutItinerary;
-  date: number;
-  comeBackToToday: () => void;
+type CompletedWorkoutsProps = {
+  workouts: Workout[];
+  onClickWorkout: (_: Workout) => void;
 };
 
-function WorkoutItineraryView({
-  workoutItinerary,
-  date,
-  comeBackToToday,
-}: WorkoutItineraryProps) {
-  const { actions, isInWorkout } = useWorkout();
+function CompletedWorkouts({
+  workouts,
+  onClickWorkout,
+}: CompletedWorkoutsProps) {
   const router = useRouter();
 
-  const { workouts, workoutPlans } = workoutItinerary;
-  const completedWorkouts = workouts.filter(
-    (workout) => workout.endedAt != undefined
-  );
-  const inProgressWorkouts = workouts.filter(
-    (workout) => workout.endedAt == undefined
-  );
-  const isRestDay = workouts.length === 0 && workoutPlans.length === 0;
-
-  const onResumeInProgressWorkout = (workout: Workout) => {
-    actions.resumeInProgressWorkout(workout);
-    router.push("/workout-player");
-  };
-
-  const onStartWorkout = (workoutPlan: WorkoutPlan) => {
-    actions.startWorkout(workoutPlan);
-    router.push("/workout-player");
-  };
+  const isRestDay = workouts.length === 0;
 
   const onEditCompletedWorkout = (workout: Workout) => {
-    router.push({pathname: "/offline-workout-tracker", params: {
-      serializedWorkout: JSON.stringify(workout)
-    }});
-  }
-
-  const isToday = truncTime(Date.now()) === date;
-  const isYesterday = removeDays(truncTime(Date.now()), 1) === date;
-  const isFromPast = truncTime(Date.now()) > date;
+    router.push({
+      pathname: "/offline-workout-tracker",
+      params: {
+        serializedWorkout: JSON.stringify(workout),
+      },
+    });
+  };
 
   return isRestDay ? (
     <View _type="background" style={styles.expansiveCenterAlignedView}>
@@ -168,48 +113,12 @@ function WorkoutItineraryView({
     <ScrollView>
       <View _type="background" style={styles.workoutView}>
         <View style={styles.workoutViewTiles}>
-          {completedWorkouts.length > 0 && (
-            <Text _type="neutral">Completed</Text>
-          )}
-          {completedWorkouts.map((workout, index) => (
-            <WorkoutViewTile key={index} workout={workout} onClick={() => onEditCompletedWorkout(workout)} />
-          ))}
-          {inProgressWorkouts.length > 0 && (
-            <Text _type="neutral">In Progress</Text>
-          )}
-          {inProgressWorkouts.map((workout, index) => (
-            <WorkoutViewTile
+          {workouts.map((workout, index) => (
+            <NewWorkoutViewTile
               key={index}
               workout={workout}
-              onClick={() => onResumeInProgressWorkout(workout)}
+              onClick={() => onClickWorkout(workout)}
             />
-          ))}
-          {workoutPlans.length > 0 && (
-            <Text _type="neutral">
-              {isToday ? "Todo" : isFromPast ? "Missed" : "Upcoming"}
-            </Text>
-          )}
-          {workoutPlans.map((workoutPlan, index) => (
-            <View _type="background" style={styles.workoutViewPlan} key={index}>
-              <WorkoutPlanViewTile
-                workoutPlan={workoutPlan}
-                onClick={
-                  isToday && !isInWorkout
-                    ? () => {
-                        onStartWorkout(workoutPlan);
-                      }
-                    : () => {}
-                }
-              />
-              {isYesterday && (
-                <Action
-                  _action={{ type: "neutral", name: "Do it today!" }}
-                  onPress={() => {
-                    ProgramApi.skipDate(date).then(comeBackToToday);
-                  }}
-                />
-              )}
-            </View>
           ))}
         </View>
       </View>
@@ -217,46 +126,64 @@ function WorkoutItineraryView({
   );
 }
 
+const TRANSLATION_THRESHOLD = 20;
+const VELOCITY_TRHESHOLD = 100;
+
 export default function Home() {
-  const navigation = useNavigation();
   const pathname = usePathname();
   const [workoutDate, setWorkoutDate] = useState<number>(Date.now());
   const [loading, setLoading] = useState<boolean>(true);
-  const [workoutItinerary, setWorkoutItinerary] = useState<WorkoutItinerary>();
+  const [completedWorkouts, setCompletedWorkouts] = useState<Workout[]>([]);
+  const [workoutToUpdate, setWorkoutToUpdate] = useState<Workout>();
+
+  const panGesture = Gesture.Pan()
+    .onEnd(({ translationX, velocityX }) => {
+      const isPanRightRight = translationX > 0;
+      if (isPanRightRight) {
+        if (
+          translationX > TRANSLATION_THRESHOLD &&
+          velocityX > VELOCITY_TRHESHOLD
+        ) {
+          setWorkoutDate((d) => removeDays(d, 1));
+        }
+      } else {
+        if (
+          translationX < -1 * TRANSLATION_THRESHOLD &&
+          velocityX < -1 * VELOCITY_TRHESHOLD
+        ) {
+          setWorkoutDate((d) => addDays(d, 1));
+        }
+      }
+    })
+    .runOnJS(true);
 
   useEffect(() => {
     setLoading(true);
-    navigation.setOptions({
-      headerTitle: (props: any) => (
-        <HomeHeader
-          {...props}
-          date={workoutDate}
-          onLookBack={() => {
-            setWorkoutDate((wd) => removeDays(wd, 1));
-          }}
-          onLookForward={() => {
-            setWorkoutDate((wd) => addDays(wd, 1));
-          }}
-          canLookForward={true} //truncTime(addDays(workoutDate, 1)) <= truncTime(Date.now())}
-        />
-      ),
-    });
-
-    WorkoutApi.getWorkoutItinerary(truncTime(workoutDate))
-      .then(setWorkoutItinerary)
+    WorkoutApi.getWorkouts(truncTime(workoutDate))
+      .then(setCompletedWorkouts)
       .finally(() => setLoading(false));
   }, [workoutDate, pathname]);
 
   return loading ? (
     <WorkoutItineraryLoading />
   ) : (
-    <View _type="background" style={styles.homeView}>
-      <WorkoutItineraryView
-        workoutItinerary={workoutItinerary as WorkoutItinerary}
-        date={truncTime(workoutDate)}
-        comeBackToToday={() => setWorkoutDate(Date.now())}
-      />
+    <>
+      <GestureDetector gesture={panGesture}>
+        <View _type="background" style={styles.homeView}>
+          <View _type="background" style={styles.header}>
+            <Text extraLarge emphasized>
+              {getLongDateDisplay(workoutDate)}
+            </Text>
+          </View>
+
+          <CompletedWorkouts
+            workouts={completedWorkouts}
+            onClickWorkout={(workout: Workout) => setWorkoutToUpdate(workout)}
+          />
+        </View>
+      </GestureDetector>
       <WorkoutIndicator />
-    </View>
+      <HistoricalEditorPopup show={workoutToUpdate != undefined} hide={() => setWorkoutToUpdate(undefined)} onSaveWorkout={(workout) => {}} workout={workoutToUpdate as Workout}/>
+    </>
   );
 }

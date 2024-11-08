@@ -62,7 +62,7 @@ function RootLayoutNav() {
             <Preloader>
               <Stack>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="workout-editor" />
+                <Stack.Screen name="workout-editor" />         
               </Stack>
             </Preloader>
           </WorkoutProvider>

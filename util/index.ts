@@ -54,7 +54,38 @@ export function getDateDisplay(timestamp: number) {
   return `${month}. ${date.getDate()}`;
 }
 
-export function getTimeDisplay(timestamp: number){
+function getDateSuffix(day: number) {
+  switch (day % 10) {
+    case 1:
+      return "st";
+    case 2:
+      return "nd";
+    case 3:
+      return "rd";
+    default:
+      return "th";
+  }
+}
+
+export function getLongDateDisplay(
+  timestamp: number,
+  withTime: boolean = false
+) {
+  const date = new Date(timestamp);
+  const month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(
+    date
+  );
+  if (withTime) {
+    let hours = date.getHours() > 12 ? date.getHours() - 12 : date.getHours();
+    let isAM = date.getHours() < 12 ? "AM" : "PM";
+    return `${month} ${date.getDate()}${getDateSuffix(
+      date.getDate()
+    )} ${hours}:${date.getMinutes().toString().padStart(2, "0")} ${isAM}`;
+  }
+  return `${month} ${date.getDate()}${getDateSuffix(date.getDate())}`;
+}
+
+export function getTimeDisplay(timestamp: number) {
   const date = new Date(timestamp);
   return `${date.getHours()}:${date.getMinutes()}`;
 }
@@ -77,8 +108,8 @@ export function getTimePeriodDisplay(period: number) {
   return builder.join(" ");
 }
 
-export function usingDateOf(t1: number, t2: number){
-  const d1 = new Date(t1)
+export function usingDateOf(t1: number, t2: number) {
+  const d1 = new Date(t1);
   const d2 = new Date(t2);
 
   d1.setDate(d2.getDate());
@@ -87,6 +118,6 @@ export function usingDateOf(t1: number, t2: number){
   return d1.valueOf();
 }
 
-export function usingTimeOf(t1: number, t2: number){
+export function usingTimeOf(t1: number, t2: number) {
   return usingDateOf(t2, t1);
 }

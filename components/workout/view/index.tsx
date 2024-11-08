@@ -1,8 +1,16 @@
 import { Workout, WorkoutPlan } from "@/interface";
 import { Pressable, StyleSheet, TouchableOpacity } from "react-native";
-import { View, Text } from "@/components/Themed";
+import {
+  View,
+  Text,
+  Icon,
+  MaterialCommunityIcon,
+  useThemeColoring,
+} from "@/components/Themed";
 import { getWorkoutSummary } from "@/context/WorkoutContext";
 import { getTimePeriodDisplay } from "@/util";
+import { textTheme } from "@/constants/Themes";
+import { Ionicons } from "@expo/vector-icons";
 
 const styles = StyleSheet.create({
   workoutViewTileContainer: {
@@ -45,7 +53,10 @@ export function WorkoutPlanViewTile({
           <View style={styles.workoutViewTitle}>
             <Text _type="small">{workoutPlan.name}</Text>
             <View _type="background">
-              <Text _type="neutral" style={{ fontSize: 36, marginTop: -20, padding: 2 }}>
+              <Text
+                _type="neutral"
+                style={{ fontSize: 36, marginTop: -20, padding: 2 }}
+              >
                 ...
               </Text>
             </View>
@@ -88,6 +99,87 @@ export function WorkoutViewTile({ workout, onClick }: WorkoutViewTileProps) {
             totalDuration
           )}`}</Text>
         </View>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const newStyles = StyleSheet.create({
+  summary: {
+    display: "flex",
+    flexDirection: "row",
+    gap: 10,
+    paddingTop: "1%",
+  },
+  summaryMetric: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  view: {
+    display: "flex",
+    flexDirection: "column",
+    width: "90%",
+    padding: "3%",
+    borderWidth: 1,
+    borderRadius: 5,
+  },
+});
+
+type WorkoutSummaryProps = {
+  workout: Workout;
+};
+
+export function WorkoutSummary({ workout }: WorkoutSummaryProps) {
+  const { totalReps, totalWeightLifted, totalDuration } =
+    getWorkoutSummary(workout);
+
+  const color = useThemeColoring("lightText");
+
+  return (
+    <View style={newStyles.summary} _type="background">
+      <View _type="background" style={newStyles.summaryMetric}>
+        <MaterialCommunityIcon
+          name="weight"
+          color={color}
+          size={textTheme.neutral.fontSize}
+        />
+        <Text neutral light>{`${totalWeightLifted} lb`}</Text>
+      </View>
+      <View _type="background" style={newStyles.summaryMetric}>
+        <MaterialCommunityIcon
+          name="arm-flex"
+          color={color}
+          size={textTheme.neutral.fontSize}
+        />
+        <Text neutral light>{`${totalReps} reps`}</Text>
+      </View>
+      <View _type="background" style={newStyles.summaryMetric}>
+        <Ionicons name="time" color={color} size={textTheme.neutral.fontSize} />
+        <Text neutral light>
+          {getTimePeriodDisplay(totalDuration)}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+export function NewWorkoutViewTile({ workout, onClick }: WorkoutViewTileProps) {
+  return (
+    <View style={newStyles.view} _type="background">
+      <TouchableOpacity onPress={onClick}>
+        <Text large>{workout.name}</Text>
+        <View style={styles.workoutViewExerciseList} _type="background">
+          {workout.exercises.map((exercise, index) => (
+            <View key={index} _type="background">
+              <Text neutral light>
+                {exercise.name}
+              </Text>
+            </View>
+          ))}
+        </View>
+        <WorkoutSummary workout={workout} />
       </TouchableOpacity>
     </View>
   );

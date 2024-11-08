@@ -56,7 +56,6 @@ type Props = {
 };
 
 export function ExerciseFinder({ allExercises, onSelect, onCancel }: Props) {
-  const searchColorStyle = useThemeColoring("searchBackground");
 
   const [search, setSearch] = useState("");
 
@@ -73,7 +72,7 @@ export function ExerciseFinder({ allExercises, onSelect, onCancel }: Props) {
         />
       </View>
       <View style={styles.exerciseFinderContent}>
-        <View style={[styles.exerciseFinderSearch, searchColorStyle]}>
+        <View style={[styles.exerciseFinderSearch, {backgroundColor: useThemeColoring("search")}]}>
           <Icon name="search" color="darkgrey" size={14} />
           <TextInput
             _type="neutral"

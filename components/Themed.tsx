@@ -6,12 +6,11 @@ import {
   ViewStyle,
   TouchableOpacity,
 } from "react-native";
-
 import {
+  darkColors,
+  lightColors,
   textTheme,
   UIColor,
-  lightColorTheme,
-  darkColorTheme,
 } from "@/constants/Themes";
 import { useColorScheme } from "./useColorScheme";
 import {
@@ -24,12 +23,20 @@ import React from "react";
 
 type ViewThemeProps = {
   _type?: "background" | "foreground";
+  background?: boolean;
+  foreground?: boolean;
 };
 
 export type TextType = keyof typeof textTheme;
 
 type TextThemeProps = {
-  _type: TextType;
+  _type?: TextType;
+  small?: boolean;
+  neutral?: boolean;
+  large?: boolean;
+  extraLarge?: boolean;
+  emphasized?: boolean;
+  light?: boolean;
 };
 
 type ActionThemeProps = {
@@ -70,59 +77,121 @@ export type MaterialCommunityIconProps = {
   color?: string;
 };
 
+function getFontStyle({
+  small,
+  neutral,
+  large,
+  extraLarge,
+  emphasized,
+  light,
+}: TextProps) {
+  let style = textTheme.neutral;
+  if (small) {
+    style = textTheme.small;
+  } else if (neutral) {
+    style = textTheme.neutral;
+  } else if (large) {
+    style = textTheme.large;
+  } else if (extraLarge) {
+    style = textTheme.extraLarge;
+  }
+
+  if (emphasized) {
+    style = { ...style, ...textTheme.emphasized };
+  }
+
+  if (light) {
+    style = { ...style };
+  }
+
+  return style;
+}
+
 export function useThemeColoring(color: UIColor) {
   const theme = useColorScheme() ?? "light";
 
   if (theme === "dark") {
-    return darkColorTheme[color];
+    return darkColors[color];
   }
-  return lightColorTheme[color];
+  return lightColors[color];
 }
 
 export function Text(props: TextProps) {
-  const { style, _type, ...otherProps } = props;
-  const coloring = useThemeColoring("text") as TextStyle;
+  const { style, _type, light, ...otherProps } = props;
+  const color = useThemeColoring(light ? "lightText" : "primaryText");
 
-  return (
-    <DefaultText
-      style={[coloring, textTheme[_type] as TextStyle, style]}
-      {...otherProps}
-    />
-  );
+  //_type is deprecated
+  let fontStyle = {};
+  if (_type) {
+    fontStyle = textTheme[_type] as TextStyle;
+  } else {
+    fontStyle = getFontStyle(props);
+  }
+
+  return <DefaultText style={[{ color }, fontStyle, style]} {...otherProps} />;
 }
 
 export function View(props: ViewProps) {
-  const { style, _type, ...otherProps } = props;
+  const { style, _type, background, foreground, ...otherProps } = props;
 
-  const coloring = useThemeColoring(
-    _type !== undefined && _type === "background"
-      ? "viewBackground"
-      : "viewForeground"
-  ) as ViewStyle;
+  let defaultStyle: ViewStyle = {};
 
-  return <DefaultView style={[coloring, style]} {...otherProps} />;
-}
+  if (_type) {
+    const isBackground = _type === "background";
+    defaultStyle = {
+      backgroundColor: useThemeColoring(
+        isBackground ? "primaryViewBackground" : "secondaryViewBackground"
+      ),
+      borderColor: useThemeColoring(
+        isBackground ? "primaryViewBorder" : "secondaryViewBorder"
+      ),
+    };
+  }
 
-export function TextInput(props: TextInputProps) {
-  const { style, _type, ...otherProps } = props;
-  const coloring = useThemeColoring("text") as TextStyle;
+  if(background){
+    defaultStyle = {
+      backgroundColor: useThemeColoring("primaryViewBackground"),
+      borderColor: useThemeColoring("primaryViewBorder")
+    }
+  } else {
+    defaultStyle = {
+      backgroundColor: useThemeColoring("secondaryViewBackground"),
+      borderColor: useThemeColoring("secondaryViewBorder")
+    }
+  }
+
   return (
-    <DefaultTextInput
-      style={[coloring, textTheme[_type] as TextStyle, style]}
+    <DefaultView
+      style={[defaultStyle, style]}
       {...otherProps}
     />
   );
+}
+
+export function TextInput(props: TextInputProps) {
+  const { style, _type, light, ...otherProps } = props;
+  const color = useThemeColoring(light ? "lightText" : "primaryText");
+
+  //_type is deprecated
+  let fontStyle = {};
+  if (_type) {
+    fontStyle = textTheme[_type] as TextStyle;
+  } else {
+    fontStyle = getFontStyle(props);
+  }
+
+  return <DefaultTextInput style={[{ color }, fontStyle]} {...otherProps} />;
 }
 
 export function Action(props: ActionProps) {
   const { _action, ...otherProps } = props;
   const { type, style, name } = _action;
-  const coloring = useThemeColoring(
-    type === "danger" ? "actionDanger" : "actionNeutral"
+  const color = useThemeColoring(
+    type === "danger" ? "dangerAction" : "neutralAction"
   );
   return (
     <TouchableOpacity {...otherProps}>
-      <Text _type="neutral" style={[coloring, { padding: "3%" }, style]}>
+      <Text _type="neutral" style={[{ color }, { padding: "3%" }, style]}>
         {name}
       </Text>
     </TouchableOpacity>
@@ -131,22 +200,20 @@ export function Action(props: ActionProps) {
 
 // todo: clean this nasty ish up. Matter of fact, clean up the damn file
 export function Icon({ name, size, color }: IconProps) {
-  const coloring = useThemeColoring("text") as TextStyle;
+  const defaultColor = useThemeColoring("primaryText");
 
-  return (
-    <FontAwesome name={name} color={color || coloring.color} size={size} />
-  );
+  return <FontAwesome name={name} color={color || defaultColor} size={size} />;
 }
 
 export function FeatherIcon({ name, size, color }: FeatherIconProps) {
-  const coloring = useThemeColoring("text") as TextStyle;
+  const defaultColor = useThemeColoring("primaryText");
 
-  return <Feather name={name} color={color || coloring.color} size={size} />;
+  return <Feather name={name} color={color || defaultColor} size={size} />;
 }
 
 export function IoniconsIcon({ name, size, color }: IoniconsIconProps) {
-  const coloring = useThemeColoring("text") as TextStyle;
-  return <Ionicons name={name} color={color || coloring.color} size={size} />;
+  const defaultColor = useThemeColoring("primaryText");
+  return <Ionicons name={name} color={color || defaultColor} size={size} />;
 }
 
 export function MaterialCommunityIcon({
@@ -154,11 +221,11 @@ export function MaterialCommunityIcon({
   size,
   color,
 }: MaterialCommunityIconProps) {
-  const coloring = useThemeColoring("text") as TextStyle;
+  const defaultColor = useThemeColoring("primaryText");
   return (
     <MaterialCommunityIcons
       name={name}
-      color={color || coloring.color}
+      color={color || defaultColor}
       size={size}
     />
   );
