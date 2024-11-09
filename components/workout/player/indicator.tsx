@@ -114,7 +114,7 @@ export function WorkoutIndicator() {
   if (!isInWorkout) {
     return null;
   }
-
+  
   const { name } = metadata as WorkoutMetadata;
   const { workout } = editor;
   return (
@@ -139,8 +139,7 @@ export function WorkoutIndicator() {
           </View>
         </TouchableOpacity>
       </View>
-      
-      // replace with LivePlayer, if we can get that, we have made enormous progress and are seeing the light at the end of the tunnel
+
       <HistoricalEditorPopup
         show={isPlayerOpen}
         hide={() => setIsPlayerOpen(false)}

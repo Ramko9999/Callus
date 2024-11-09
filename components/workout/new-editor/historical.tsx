@@ -1,25 +1,28 @@
-import { Workout } from "@/interface";
-import { View } from "@/components/Themed";
+import { Exercise, ExerciseMeta, Workout } from "@/interface";
+import { View, Text } from "@/components/Themed";
 import { Dimensions, StyleSheet } from "react-native";
 import {
   AddExercise,
-  Close,
-  Edit,
   EditorExercise,
+  EditorSet,
   EditorTitleMeta,
-  Trash,
-} from "./common";
+  SetTitleMeta,
+} from "@/components/workout/new-editor/core";
 import { StyleUtils } from "@/util/styles";
 import { BottomSheet } from "@/components/bottom-sheet";
+import { ScrollView } from "react-native-gesture-handler";
+import { useState } from "react";
+import { DifficultyUpdate } from "../editor/update";
+import { NAME_TO_EXERCISE_META } from "@/constants";
+import { Back, Close, Edit, Trash } from "./core/icons";
+import { DifficultyInput } from "./core/inputs";
+import Animated, { FadeInLeft, FadeInRight } from "react-native-reanimated";
 
 const historicalEditorActionsStyles = StyleSheet.create({
   container: {
-    ...StyleUtils.flexColumn(10),
-    paddingTop: "3%",
-  },
-  allActions: {
     ...StyleUtils.flexRow(10),
     justifyContent: "space-between",
+    paddingTop: "3%",
   },
   rightActions: {
     ...StyleUtils.flexRow(10),
@@ -40,13 +43,78 @@ function HistoricalEditorActions({
 }: HistoricalEditorActionsProps) {
   return (
     <View style={historicalEditorActionsStyles.container}>
-      <View style={historicalEditorActionsStyles.allActions}>
-        <Close onClick={onExit} />
-        <View style={historicalEditorActionsStyles.rightActions}>
-          <Edit onClick={onEditClick} />
-          <Trash onClick={onTrash} />
-        </View>
+      <Close onClick={onExit} />
+      <View style={historicalEditorActionsStyles.rightActions}>
+        <Edit onClick={onEditClick} />
+        <Trash onClick={onTrash} />
       </View>
+    </View>
+  );
+}
+
+const historicalExerciseEditorActionsStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexRow(10),
+    paddingTop: "3%",
+  },
+});
+
+type HistoricalExerciseEditorActionsProps = {
+  onBack: () => void;
+};
+
+function HistoricalExerciseEditorActions({
+  onBack,
+}: HistoricalExerciseEditorActionsProps) {
+  return (
+    <View style={historicalExerciseEditorActionsStyles.container}>
+      <Back onClick={onBack} />
+    </View>
+  );
+}
+
+type HistoricalExercisesOverviewProps = {
+  workout: Workout;
+  onClickExercise: (exercise: Exercise) => void;
+};
+
+function HistoricalExercisesOverview({
+  workout,
+  onClickExercise,
+}: HistoricalExercisesOverviewProps) {
+  return (
+    <>
+      <EditorTitleMeta workout={workout} />
+      {workout.exercises.map((exercise, index) => (
+        <EditorExercise
+          key={index}
+          exercise={exercise}
+          onClick={() => onClickExercise(exercise)}
+        />
+      ))}
+      <AddExercise onClick={() => {}} />
+    </>
+  );
+}
+
+const historicalSetOverviewStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(10),
+    paddingLeft: "3%",
+  },
+});
+
+type HistoricalSetOverviewProps = {
+  exercise: Exercise;
+};
+
+function HistoricalSetOverview({ exercise }: HistoricalSetOverviewProps) {
+  return (
+    <View style={historicalSetOverviewStyles.container}>
+      <SetTitleMeta exercise={exercise} />
+      {exercise.sets.map((set, index) => (
+        <EditorSet key={index} set={set} exercise={exercise} />
+      ))}
     </View>
   );
 }
@@ -71,13 +139,22 @@ function HistoricalEditor({
   hide,
   onSaveWorkout,
 }: HistoricalEditorProps) {
+  const [exerciseToEdit, setExerciseToEdit] = useState<Exercise>();
+  const isEditingExercise = exerciseToEdit != undefined;
+
   return (
     <View background style={historicalEditorStyles.container}>
-      <HistoricalEditorActions
-        onEditClick={() => {}}
-        onExit={hide}
-        onTrash={() => {}}
-      />
+      {isEditingExercise ? (
+        <HistoricalExerciseEditorActions
+          onBack={() => setExerciseToEdit(undefined)}
+        />
+      ) : (
+        <HistoricalEditorActions
+          onEditClick={() => {}}
+          onExit={hide}
+          onTrash={() => {}}
+        />
+      )}
       <View
         style={[
           historicalEditorStyles.content,
@@ -85,15 +162,16 @@ function HistoricalEditor({
         ]}
       >
         <ScrollView>
-          <EditorTitleMeta workout={workout} />
-          {workout.exercises.map((exercise, index) => (
-            <EditorExercise
-              key={index}
-              exercise={exercise}
-              onClick={() => {}}
+          {isEditingExercise ? (
+            <Animated.View entering={FadeInLeft}>
+              <HistoricalSetOverview exercise={exerciseToEdit} />
+            </Animated.View>
+          ) : (
+            <HistoricalExercisesOverview
+              workout={workout}
+              onClickExercise={(exercise) => setExerciseToEdit(exercise)}
             />
-          ))}
-          <AddExercise onClick={() => {}} />
+          )}
         </ScrollView>
       </View>
     </View>

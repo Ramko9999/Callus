@@ -1,73 +1,14 @@
 import { useThemeColoring, View, Text } from "@/components/Themed";
 import { textTheme } from "@/constants/Themes";
-import { Exercise, SetStatus, Workout } from "@/interface";
+import { Exercise, ExerciseMeta, Set, SetStatus, Workout } from "@/interface";
 import { getLongDateDisplay } from "@/util";
 import { StyleUtils } from "@/util/styles";
 import { FontAwesome } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity, ViewStyle } from "react-native";
-import { WorkoutSummary } from "../view";
-
-const iconActionStyles = StyleSheet.create({
-  container: {
-    height: 45,
-    width: 45,
-    borderRadius: 22,
-    ...StyleUtils.flexRowCenterAll(),
-  },
-});
-
-type IconActionProps = {
-  onClick: () => void;
-  style?: ViewStyle;
-};
-
-export function Trash({ onClick, style }: IconActionProps) {
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <View
-        style={[
-          iconActionStyles.container,
-          { backgroundColor: useThemeColoring("dangerAction") },
-          style,
-        ]}
-      >
-        <FontAwesome
-          name="trash"
-          size={textTheme.large.fontSize}
-          color={"white"}
-        />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-export function Edit({ onClick, style }: IconActionProps) {
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <View style={[iconActionStyles.container, style]}>
-        <FontAwesome
-          name="pencil"
-          size={textTheme.large.fontSize}
-          color={useThemeColoring("lightText")}
-        />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-export function Close({ onClick, style }: IconActionProps) {
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <View style={[iconActionStyles.container, style]}>
-        <FontAwesome
-          name="close"
-          size={textTheme.large.fontSize}
-          color={useThemeColoring("lightText")}
-        />
-      </View>
-    </TouchableOpacity>
-  );
-}
+import { WorkoutSummary } from "@/components/workout/view";
+import { Add } from "./icons";
+import { DifficultyInput, ToggleInput } from "./inputs";
+import { NAME_TO_EXERCISE_META } from "@/constants";
 
 const editorTitleMetaStyles = StyleSheet.create({
   container: {
@@ -93,6 +34,24 @@ export function EditorTitleMeta({ workout }: EditorTitleMetaProps) {
   );
 }
 
+const setTitleMetaStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(5),
+  },
+});
+
+type SetTitleMetaProps = {
+  exercise: Exercise;
+};
+
+export function SetTitleMeta({ exercise }: SetTitleMetaProps) {
+  return (
+    <View style={setTitleMetaStyles.container}>
+      <Text extraLarge>{exercise.name}</Text>
+    </View>
+  );
+}
+
 const editorExerciseStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexRow(10),
@@ -109,33 +68,7 @@ const editorExerciseStyles = StyleSheet.create({
     marginLeft: "auto",
     paddingRight: "3%",
   },
-  statusOuterRing: {
-    ...StyleUtils.flexRowCenterAll(),
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    borderWidth: 1,
-  },
-  statusInnerRing: {
-    ...StyleUtils.flexRowCenterAll(),
-    width: 45,
-    height: 45,
-    borderRadius: 23,
-    borderWidth: 1,
-  },
 });
-
-function AddExerciseAction() {
-  return (
-    <View style={editorExerciseStyles.statusOuterRing}>
-      <FontAwesome
-        name="plus"
-        size={textTheme.large.fontSize}
-        color={useThemeColoring("lightText")}
-      />
-    </View>
-  );
-}
 
 type EditorExerciseProps = {
   exercise: Exercise;
@@ -204,11 +137,40 @@ export function AddExercise({ onClick }: AddExerciseProps) {
   return (
     <TouchableOpacity onPress={onClick}>
       <View style={addExerciseStyles.container}>
-        <AddExerciseAction />
+        <Add />
         <View style={addExerciseStyles.title}>
           <Text large>Add Exercise</Text>
         </View>
       </View>
     </TouchableOpacity>
+  );
+}
+
+const editorSetStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexRow(10),
+    alignItems: "center",
+  },
+});
+
+type EditorSetProps = {
+  set: Set;
+  exercise: Exercise;
+};
+
+export function EditorSet({ set, exercise }: EditorSetProps) {
+  const { difficultyType } = NAME_TO_EXERCISE_META.get(
+    exercise.name
+  ) as ExerciseMeta;
+
+  return (
+    <View style={editorSetStyles.container}>
+      <ToggleInput isOn={set.status === SetStatus.FINISHED} />
+      <DifficultyInput
+        id={set.id}
+        difficulty={set.difficulty}
+        type={difficultyType}
+      />
+    </View>
   );
 }
