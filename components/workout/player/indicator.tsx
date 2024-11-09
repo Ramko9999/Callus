@@ -1,9 +1,10 @@
 import { useWorkout } from "@/context/WorkoutContext";
-import { StyleSheet } from "react-native";
-import { View, Text } from "@/components/Themed";
+import { StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, useThemeColoring } from "@/components/Themed";
 import {
   ExercisingActivity,
   RestingActivity,
+  Workout,
   WorkoutActivity,
   WorkoutActivityType,
   WorkoutMetadata,
@@ -11,46 +12,50 @@ import {
 import { useStopwatch } from "@/components/hooks/use-stopwatch";
 import { getDurationDisplay, getTimePeriodDisplay } from "@/util";
 import { useTimer } from "@/components/hooks/use-timer";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useRouter } from "expo-router";
+import { StyleUtils } from "@/util/styles";
+import { HistoricalEditorPopup } from "../new-editor/historical";
 
-const styles = StyleSheet.create({
-  indicator: {
-    display: "flex",
-    flexDirection: "row",
+const indicatorStyles = StyleSheet.create({
+  expansive: {
+    ...StyleUtils.flexRow(),
+    justifyContent: "center",
+    position: "absolute",
+    bottom: 10,
+    width: "100%",
+  },
+  container: {
+    ...StyleUtils.flexRow(10),
     alignItems: "center",
-    gap: 10,
-    elevation: 20,
-    shadowRadius: 30,
-    shadowOpacity: 0.2,
-    shadowOffset: {
-      width: 0,
-      height: -2,
-    },
-    shadowColor: "black",
     paddingVertical: "4%",
-    justifyContent: "space-between",
-    marginTop: "auto",
-
+    paddingHorizontal: "3%",
+    borderWidth: 1,
+    borderRadius: 5,
+    width: "90%",
   },
-  indicatorContent: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    paddingLeft: "4%"
+  activity: {
+    ...StyleUtils.flexColumn(),
+    alignItems: "flex-start",
   },
-  indicatorTimer: {
-    paddingRight: "4%",
+  elapsed: {
+    marginLeft: "auto",
+    paddingHorizontal: "3%",
   },
 });
 
-function RestingActivityIndication({
-  setId,
+type RestingActivityIndicatorProps = {
+  onRestOver: () => void;
+  duration: number; //seconds
+  startedAt: number;
+};
+
+function RestingActivityIndicator({
   duration,
   startedAt,
-}: RestingActivity) {
-  const { actions } = useWorkout();
+  onRestOver,
+}: RestingActivityIndicatorProps) {
   const { remainingMs, isOver } = useTimer({
     startTimeMs: startedAt,
     durationMs: duration * 1000,
@@ -58,38 +63,43 @@ function RestingActivityIndication({
 
   useEffect(() => {
     if (isOver) {
-      actions.completeRest(setId);
+      onRestOver();
     }
-  }, [isOver]);
+  }, [isOver, onRestOver]);
 
   return (
-    <View>
-      <Text _type="small">{`Resting: ${getDurationDisplay(
-        Math.floor(remainingMs / 1000)
-      )}`}</Text>
-    </View>
+    <Text neutral light>{`Resting: ${getDurationDisplay(
+      Math.floor(remainingMs / 1000)
+    )}`}</Text>
   );
 }
 
-function ExercisingActivityIndication({ name }: ExercisingActivity) {
+function ExercisingActivityIndicator({ name }: ExercisingActivity) {
   return (
-    <View>
-      <Text _type="small">{name}</Text>
-    </View>
+    <Text neutral light>
+      {name}
+    </Text>
   );
 }
 
-function ActivityIndication({ type, activityData }: WorkoutActivity) {
+function CurrentActivityIndicator({ type, activityData }: WorkoutActivity) {
+  const { actions } = useWorkout();
+
   switch (type) {
     case WorkoutActivityType.EXERCISING:
       return (
-        <ExercisingActivityIndication
+        <ExercisingActivityIndicator
           {...(activityData as ExercisingActivity)}
         />
       );
     case WorkoutActivityType.RESTING:
       return (
-        <RestingActivityIndication {...(activityData as RestingActivity)} />
+        <RestingActivityIndicator
+          {...(activityData as RestingActivity)}
+          onRestOver={() => {
+            actions.completeRest((activityData as RestingActivity).setId);
+          }}
+        />
       );
     case WorkoutActivityType.FINISHED:
       return null;
@@ -97,9 +107,8 @@ function ActivityIndication({ type, activityData }: WorkoutActivity) {
 }
 
 export function WorkoutIndicator() {
-  // todo: add a better box shadow
-  const router = useRouter();
-  const { actions, isInWorkout, activity, metadata } = useWorkout();
+  const [isPlayerOpen, setIsPlayerOpen] = useState(false);
+  const { isInWorkout, activity, metadata, editor } = useWorkout();
   const { elapsedMs } = useStopwatch({ startTimeMs: metadata?.startedAt || 0 });
 
   if (!isInWorkout) {
@@ -107,17 +116,37 @@ export function WorkoutIndicator() {
   }
 
   const { name } = metadata as WorkoutMetadata;
+  const { workout } = editor;
   return (
-    <TouchableWithoutFeedback onPress={() => router.push("/workout-player")}>
-      <View style={styles.indicator}>
-        <View style={styles.indicatorContent}>
-          <Text _type="large">{name}</Text>
-          <ActivityIndication {...(activity as WorkoutActivity)} />
-        </View>
-        <View style={styles.indicatorTimer}>
-          <Text _type="large">{getTimePeriodDisplay(elapsedMs)}</Text>
-        </View>
+    <>
+      <View style={indicatorStyles.expansive}>
+        <TouchableOpacity
+          onPress={() => setIsPlayerOpen(true)}
+          style={[
+            indicatorStyles.container,
+            {
+              backgroundColor: useThemeColoring("primaryViewBackground"),
+              borderColor: useThemeColoring("primaryViewBorder"),
+            },
+          ]}
+        >
+          <View style={indicatorStyles.activity}>
+            <Text large>{name}</Text>
+            <CurrentActivityIndicator {...(activity as WorkoutActivity)} />
+          </View>
+          <View style={indicatorStyles.elapsed}>
+            <Text large>{getTimePeriodDisplay(elapsedMs)}</Text>
+          </View>
+        </TouchableOpacity>
       </View>
-    </TouchableWithoutFeedback>
+      
+      // replace with LivePlayer, if we can get that, we have made enormous progress and are seeing the light at the end of the tunnel
+      <HistoricalEditorPopup
+        show={isPlayerOpen}
+        hide={() => setIsPlayerOpen(false)}
+        workout={workout as Workout}
+        onSaveWorkout={(w) => {}}
+      />
+    </>
   );
 }

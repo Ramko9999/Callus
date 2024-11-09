@@ -1,6 +1,6 @@
 import { Workout } from "@/interface";
 import { View } from "@/components/Themed";
-import { Dimensions, ScrollView, StyleSheet } from "react-native";
+import { Dimensions, StyleSheet } from "react-native";
 import {
   AddExercise,
   Close,
@@ -72,7 +72,7 @@ function HistoricalEditor({
   onSaveWorkout,
 }: HistoricalEditorProps) {
   return (
-    <View style={historicalEditorStyles.container}>
+    <View background style={historicalEditorStyles.container}>
       <HistoricalEditorActions
         onEditClick={() => {}}
         onExit={hide}

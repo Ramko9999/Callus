@@ -14,13 +14,14 @@ const styles = StyleSheet.create({
   homeView: {
     display: "flex",
     flexDirection: "column",
-    height: "80%",
+    height: "100%",
   },
   expansiveCenterAlignedView: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
+    height: "100%"
   },
   workoutItineraryView: {
     flexDirection: "row",

@@ -153,7 +153,9 @@ export function View(props: ViewProps) {
       backgroundColor: useThemeColoring("primaryViewBackground"),
       borderColor: useThemeColoring("primaryViewBorder")
     }
-  } else {
+  }
+  
+  if(foreground){
     defaultStyle = {
       backgroundColor: useThemeColoring("secondaryViewBackground"),
       borderColor: useThemeColoring("secondaryViewBorder")

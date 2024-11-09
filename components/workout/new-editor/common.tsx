@@ -98,7 +98,7 @@ const editorExerciseStyles = StyleSheet.create({
     ...StyleUtils.flexRow(10),
     alignItems: "center",
     paddingVertical: "3%",
-    paddingLeft: "2%",
+    paddingLeft: "3%",
   },
   title: {
     ...StyleUtils.flexColumn(5),
@@ -125,38 +125,6 @@ const editorExerciseStyles = StyleSheet.create({
   },
 });
 
-type EditorExerciseStatus = {
-  isDone: boolean;
-};
-
-function EditorExerciseStatus({ isDone }: EditorExerciseStatus) {
-  let outerRingStyle: ViewStyle = isDone
-    ? {
-        borderWidth: 0,
-        backgroundColor: useThemeColoring("success"),
-      }
-    : {};
-
-  let innerRingStyle: ViewStyle = isDone
-    ? {
-        backgroundColor: useThemeColoring("success"),
-        borderColor: "white",
-      }
-    : {};
-
-  return (
-    <View style={[editorExerciseStyles.statusOuterRing, outerRingStyle]}>
-      <View style={[editorExerciseStyles.statusInnerRing, innerRingStyle]}>
-        <FontAwesome
-          name="check"
-          size={textTheme.large.fontSize}
-          color={isDone ? "white" : useThemeColoring("lightText")}
-        />
-      </View>
-    </View>
-  );
-}
-
 function AddExerciseAction() {
   return (
     <View style={editorExerciseStyles.statusOuterRing}>
@@ -175,21 +143,29 @@ type EditorExerciseProps = {
 };
 
 function getSubtitle(exercise: Exercise) {
+  const totalSets = exercise.sets.length;
   const completedSets = exercise.sets.filter(
     ({ status }) => status === SetStatus.FINISHED
   ).length;
-  return `${completedSets} completed`;
+  const allSetsAreUnstarted = exercise.sets.every(
+    ({ status }) => status === SetStatus.UNSTARTED
+  );
+
+  if (totalSets === completedSets) {
+    return "All sets completed!";
+  }
+
+  if (allSetsAreUnstarted) {
+    return `${totalSets} sets not yet started`;
+  }
+
+  return `${completedSets} of ${totalSets} sets completed`;
 }
 
 export function EditorExercise({ exercise, onClick }: EditorExerciseProps) {
-  const areAllSetsCompleted = exercise.sets.every(
-    ({ status }) => status === SetStatus.FINISHED
-  );
-
   return (
     <TouchableOpacity onPress={onClick}>
       <View style={editorExerciseStyles.container}>
-        <EditorExerciseStatus isDone={areAllSetsCompleted} />
         <View style={editorExerciseStyles.title}>
           <Text large>{exercise.name}</Text>
           <Text neutral light>
