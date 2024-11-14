@@ -39,7 +39,8 @@
     "react-native-web": "~0.19.6",
     "react-native-reanimated": "~3.10.1",
     "expo-sqlite": "~14.0.6",
-    "react-native-svg": "15.2.0"
+    "react-native-svg": "15.2.0",
+    "expo-haptics": "~13.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

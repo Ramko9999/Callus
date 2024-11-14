@@ -7,7 +7,7 @@ export const darkColors = {
   secondaryViewBorder: "#3F4147",
   primaryViewBackground: "#27272F",
   primaryViewBorder: "#48515D",
-  neutralAction: "#24A0ED",
+  primaryAction: "#24A0ED",
   dangerAction: "#FF6347",
   success: "#2ECD70",
   search: "#313035"
@@ -20,7 +20,7 @@ export const lightColors = {
   secondaryViewBorder: "#DADCE0",
   primaryViewBackground: "#rgb(242, 242, 242)",
   primaryViewBorder: "#48515D",
-  neutralAction: "#24A0ED",
+  primaryAction: "#24A0ED",
   dangerAction: "#DC143C",
   success: "#4FA94D",
   search: "#eeeef0"
@@ -36,6 +36,9 @@ export const textTheme = {
   },
   neutral: {
     fontSize: 16,
+  },
+  action: {
+    fontSize: 20,
   },
   emphasized: {
     fontWeight: "bold",

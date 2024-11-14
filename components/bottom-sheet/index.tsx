@@ -31,6 +31,7 @@ type Props = {
   hide: () => void;
   onBackdropPress: () => void;
   contentStyle?: ViewStyle;
+  backdropStyle?: ViewStyle;
   hideOffset?: number;
 };
 
@@ -44,6 +45,7 @@ export function BottomSheet({
   hide,
   onBackdropPress,
   contentStyle,
+  backdropStyle,
   hideOffset,
 }: Props) {
   const offset = hideOffset ?? DEFAULT_HIDE_OFFSET;

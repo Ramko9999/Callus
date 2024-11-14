@@ -35,6 +35,7 @@ type TextThemeProps = {
   neutral?: boolean;
   large?: boolean;
   extraLarge?: boolean;
+  action?: boolean;
   emphasized?: boolean;
   light?: boolean;
 };
@@ -81,6 +82,7 @@ function getFontStyle({
   small,
   neutral,
   large,
+  action,
   extraLarge,
   emphasized,
   light,
@@ -90,6 +92,8 @@ function getFontStyle({
     style = textTheme.small;
   } else if (neutral) {
     style = textTheme.neutral;
+  } else if (action) {
+    style = textTheme.action;
   } else if (large) {
     style = textTheme.large;
   } else if (extraLarge) {
@@ -148,26 +152,21 @@ export function View(props: ViewProps) {
     };
   }
 
-  if(background){
+  if (background) {
     defaultStyle = {
       backgroundColor: useThemeColoring("primaryViewBackground"),
-      borderColor: useThemeColoring("primaryViewBorder")
-    }
-  }
-  
-  if(foreground){
-    defaultStyle = {
-      backgroundColor: useThemeColoring("secondaryViewBackground"),
-      borderColor: useThemeColoring("secondaryViewBorder")
-    }
+      borderColor: useThemeColoring("primaryViewBorder"),
+    };
   }
 
-  return (
-    <DefaultView
-      style={[defaultStyle, style]}
-      {...otherProps}
-    />
-  );
+  if (foreground) {
+    defaultStyle = {
+      backgroundColor: useThemeColoring("secondaryViewBackground"),
+      borderColor: useThemeColoring("secondaryViewBorder"),
+    };
+  }
+
+  return <DefaultView style={[defaultStyle, style]} {...otherProps} />;
 }
 
 export function TextInput(props: TextInputProps) {
@@ -189,7 +188,7 @@ export function Action(props: ActionProps) {
   const { _action, ...otherProps } = props;
   const { type, style, name } = _action;
   const color = useThemeColoring(
-    type === "danger" ? "dangerAction" : "neutralAction"
+    type === "danger" ? "dangerAction" : "primaryAction"
   );
   return (
     <TouchableOpacity {...otherProps}>

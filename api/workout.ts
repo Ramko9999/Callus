@@ -20,6 +20,10 @@ export class WorkoutApi {
     await Store.instance().saveWorkout(workout);
   }
 
+  static async deleteWorkout(workoutId: string): Promise<void>{
+    await Store.instance().deleteWorkout(workoutId);
+  }
+
   static getWorkoutId(date: number, workoutPlan: WorkoutPlan) {
     return `${new Date(truncTime(date)).toISOString()}-${workoutPlan.name}`;
   }

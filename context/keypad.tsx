@@ -9,21 +9,21 @@ type KeypadActions = {
 };
 
 type KeypadContext = {
-  isOpen: boolean;
+  show: boolean;
   actions: KeypadActions;
   value?: string;
   callerId?: string;
 };
 
 type KeypadState = {
-  open: boolean;
+  show: boolean;
   type: KeypadType;
   value?: string;
   callerId?: string;
 };
 
 const context = createContext<KeypadContext>({
-  isOpen: false,
+  show: false,
   actions: {
     editWeight: (weight: string, callerId: string) => {},
     editReps: (reps: string, callerId: string) => {},
@@ -37,31 +37,31 @@ type Props = {
 
 export function KeypadProvider({ children }: Props) {
   const [state, setState] = useState<KeypadState>({
-    open: false,
+    show: false,
     type: KeypadType.WEIGHT,
   });
 
-  const { open, type, value, callerId } = state;
+  const { show, type, value, callerId } = state;
 
   const close = useCallback(() => {
-    setState({ open: false, type: KeypadType.WEIGHT });
+    setState({ show: false, type: KeypadType.WEIGHT });
   }, [setState]);
 
   return (
     <context.Provider
       value={{
-        isOpen: open,
+        show,
         actions: {
           editWeight: (weight: string, callerId: string) =>
             setState({
-              open: true,
+              show: true,
               value: weight,
               type: KeypadType.WEIGHT,
               callerId,
             }),
           editReps: (reps: string, callerId: string) =>
             setState({
-              open: true,
+              show: true,
               value: reps,
               type: KeypadType.REPS,
               callerId,
@@ -75,7 +75,7 @@ export function KeypadProvider({ children }: Props) {
       <>
         {children}
         <Keypad
-          shouldOpen={open}
+          show={show}
           close={close}
           value={value}
           type={type}

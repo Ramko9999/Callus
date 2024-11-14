@@ -1,14 +1,14 @@
-import { useNavigation, usePathname, useRouter } from "expo-router";
-import { Action, Icon, Text, View } from "@/components/Themed";
-import { StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import { usePathname, useRouter } from "expo-router";
+import { Text, View } from "@/components/Themed";
+import { StyleSheet, ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import { NewWorkoutViewTile } from "@/components/workout/view";
 import { truncTime, addDays, removeDays, getLongDateDisplay } from "@/util";
-import { WorkoutItinerary, WorkoutApi } from "@/api/workout";
-import { Workout, WorkoutPlan } from "@/interface";
+import { WorkoutApi } from "@/api/workout";
+import { Workout } from "@/interface";
 import { WorkoutIndicator } from "../workout/player/indicator";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { HistoricalEditorPopup } from "../workout/new-editor/historical";
+import { EditorPopup } from "../workout/editor/editor";
 
 const styles = StyleSheet.create({
   homeView: {
@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    height: "100%"
+    height: "100%",
   },
   workoutItineraryView: {
     flexDirection: "row",
@@ -137,6 +137,13 @@ export default function Home() {
   const [completedWorkouts, setCompletedWorkouts] = useState<Workout[]>([]);
   const [workoutToUpdate, setWorkoutToUpdate] = useState<Workout>();
 
+  const loadWorkouts = async () => {
+    setLoading(true);
+    WorkoutApi.getWorkouts(truncTime(workoutDate))
+      .then(setCompletedWorkouts)
+      .finally(() => setLoading(false));
+  };
+
   const panGesture = Gesture.Pan()
     .onEnd(({ translationX, velocityX }) => {
       const isPanRightRight = translationX > 0;
@@ -159,10 +166,7 @@ export default function Home() {
     .runOnJS(true);
 
   useEffect(() => {
-    setLoading(true);
-    WorkoutApi.getWorkouts(truncTime(workoutDate))
-      .then(setCompletedWorkouts)
-      .finally(() => setLoading(false));
+    loadWorkouts();
   }, [workoutDate, pathname]);
 
   return loading ? (
@@ -184,7 +188,25 @@ export default function Home() {
         </View>
       </GestureDetector>
       <WorkoutIndicator />
-      <HistoricalEditorPopup show={workoutToUpdate != undefined} hide={() => setWorkoutToUpdate(undefined)} onSaveWorkout={(workout) => {}} workout={workoutToUpdate as Workout}/>
+      <EditorPopup
+        show={workoutToUpdate != undefined}
+        hide={() => {
+          setWorkoutToUpdate(undefined);
+          loadWorkouts();
+        }}
+        onSaveWorkout={(workout) => {
+          WorkoutApi.saveWorkout(workout).then(() =>
+            setWorkoutToUpdate(workout)
+          );
+        }}
+        onDeleteWorkout={(workoutId) =>
+          WorkoutApi.deleteWorkout(workoutId).then(() => {
+            setWorkoutToUpdate(undefined);
+            loadWorkouts();
+          })
+        }
+        workout={workoutToUpdate as Workout}
+      />
     </>
   );
 }

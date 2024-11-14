@@ -1,4 +1,8 @@
-import { WorkoutPlan } from "@/interface";
+import { WorkoutPlan, SetPlan, Difficulty } from "@/interface";
+
+function repeat(difficulty: Difficulty, n: number): SetPlan[] {
+  return Array(n).fill({ difficulty });
+}
 
 export const PUSH: WorkoutPlan = {
   name: "Push Day",
@@ -146,6 +150,106 @@ export const PULL: WorkoutPlan = {
   ],
 };
 
+export const VOLUME_PULL: WorkoutPlan = {
+  name: "Volume Pull",
+  exercises: [
+    {
+      name: "Pull-Up",
+      rest: 90,
+      sets: Array(8).fill({ ...{ difficulty: { reps: 6 } } }),
+    },
+    {
+      name: "Chin-Up",
+      rest: 90,
+      sets: Array(8).fill({ ...{ difficulty: { reps: 6 } } }),
+    },
+    {
+      name: "Hammer Curl",
+      rest: 90,
+      sets: Array(3).fill({ ...{ difficulty: { weight: 15, reps: 8 } } }),
+    },
+    {
+      name: "Barbell Curl",
+      rest: 90,
+      sets: Array(4).fill({ ...{ difficulty: { weight: 50, reps: 6 } } }),
+    },
+    {
+      name: "Ring Row",
+      rest: 90,
+      sets: Array(4).fill({ ...{ difficulty: { reps: 8 } } }),
+    },
+    {
+      name: "Ring Arc Row",
+      rest: 120,
+      sets: [
+        { difficulty: { reps: 8 } },
+        { difficulty: { reps: 8 } },
+        { difficulty: { reps: 8 } },
+        { difficulty: { reps: 8 } },
+      ],
+    },
+    {
+      name: "Ring Face Pull",
+      rest: 90,
+      sets: [
+        { difficulty: { reps: 10 } },
+        { difficulty: { reps: 10 } },
+        { difficulty: { reps: 10 } },
+      ],
+    },
+  ],
+};
+
+export const VOLUME_PUSH: WorkoutPlan = {
+  name: "Volume Push",
+  exercises: [
+    {
+      name: "Ring Dip",
+      rest: 90,
+      sets: repeat({ reps: 5 }, 10),
+    },
+    {
+      name: "Pike Push-Up",
+      rest: 90,
+      sets: repeat({ reps: 6 }, 5),
+    },
+    {
+      name: "Ring Push-Up",
+      rest: 60,
+      sets: repeat({ reps: 6 }, 4),
+    },
+    {
+      name: "Dumbbell Shoulder Press",
+      rest: 60,
+      sets: [
+        { difficulty: { weight: 25, reps: 8 } },
+        { difficulty: { weight: 25, reps: 8 } },
+        { difficulty: { weight: 25, reps: 8 } },
+        { difficulty: { weight: 25, reps: 8 } },
+      ],
+    },
+    {
+      name: "Ring Overhead Extension",
+      rest: 90,
+      sets: [
+        { difficulty: { reps: 15 } },
+        { difficulty: { reps: 15 } },
+        { difficulty: { reps: 15 } },
+        { difficulty: { reps: 15 } },
+      ],
+    },
+    {
+      name: "Dumbbell Lateral Raise",
+      rest: 90,
+      sets: [
+        { difficulty: { weight: 7.5, reps: 15 } },
+        { difficulty: { weight: 7.5, reps: 15 } },
+        { difficulty: { weight: 7.5, reps: 15 } },
+      ],
+    },
+  ],
+};
+
 export const NORMAL_LEG: WorkoutPlan = {
   name: "Leg Day",
   exercises: [
@@ -287,6 +391,54 @@ export const PAUSE_LEG: WorkoutPlan = {
     },
   ],
 };
+
+export const FUNCTIONAL_LEG: WorkoutPlan = {
+  name: "Functional Leg",
+  exercises: [
+    {
+      name: "Zercher Squat",
+      rest: 90,
+      sets: repeat({weight: 95, reps: 8}, 4)
+    },
+    {
+      name: "Deadlift",
+      rest: 120,
+      sets: [
+        { difficulty: { weight: 185, reps: 6 } },
+        { difficulty: { weight: 205, reps: 6 } },
+        { difficulty: { weight: 225, reps: 6 } },
+        { difficulty: { weight: 245, reps: 4 } },
+      ]
+    },
+    {
+      name: "Hanging Knee Raise",
+      rest: 60,
+      sets: [
+        { difficulty: { reps: 15 } },
+        { difficulty: { reps: 15 } },
+        { difficulty: { reps: 15 } },
+      ],
+    },
+    {
+      name: "Hollow Body Hold",
+      rest: 60,
+      sets: [
+        { difficulty: { duration: 45 } },
+        { difficulty: { duration: 45 } },
+        { difficulty: { duration: 45 } },
+      ],
+    },
+    {
+      name: "Landmine 180",
+      rest: 60,
+      sets: [
+        { difficulty: { reps: 10, weight: 45 } },
+        { difficulty: { reps: 10, weight: 45 } },
+        { difficulty: { reps: 10, weight: 45 } },
+      ],
+    },
+  ]
+}
 
 export const NECK = {
   name: "Auxillary Neck Work",

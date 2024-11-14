@@ -1,18 +1,26 @@
 import { WorkoutPlan } from "@/interface";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { View, Text, Icon } from "@/components/Themed";
-import { PAUSE_LEG, PUSH, PULL, NORMAL_LEG } from "@/constants/SampleWorkouts";
+import {
+  PAUSE_LEG,
+  PUSH,
+  PULL,
+  NORMAL_LEG,
+  VOLUME_PULL,
+  VOLUME_PUSH,
+  FUNCTIONAL_LEG,
+} from "@/constants/SampleWorkouts";
 import { useWorkout } from "@/context/WorkoutContext";
 import { useRouter } from "expo-router";
 
-const PLANS = [PUSH, PULL, NORMAL_LEG, PAUSE_LEG];
+const PLANS = [PUSH, PULL, NORMAL_LEG, PAUSE_LEG, VOLUME_PULL, VOLUME_PUSH, FUNCTIONAL_LEG];
 
 const styles = StyleSheet.create({
   workoutViewTileContainer: {
     borderRadius: 2,
     borderWidth: 1,
     width: "80%",
-    paddingTop: "2%"
+    paddingTop: "2%",
   },
   workoutViewTile: {
     padding: 8,
@@ -35,7 +43,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "center",
     gap: 10,
-    padding: "2%"
+    padding: "2%",
   },
 });
 
@@ -56,7 +64,6 @@ function WorkoutPlanTile({ workoutPlan }: WorkoutPlanProps) {
             console.log("Cannot start as you are in workout...");
           } else {
             actions.startWorkout(workoutPlan);
-            router.push("/workout-player");
           }
         }}
       >

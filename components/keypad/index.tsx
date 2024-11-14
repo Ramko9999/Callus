@@ -4,23 +4,11 @@ import {
   MaterialCommunityIcon,
   IoniconsIcon,
 } from "@/components/Themed";
-import React, { useEffect, useState } from "react";
-import {
-  Dimensions,
-  findNodeHandle,
-  Platform,
-  StyleSheet,
-  UIManager,
-} from "react-native";
-import Animated, {
-  runOnJS,
-  useAnimatedRef,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
+import React, { useState } from "react";
+import { StyleSheet } from "react-native";
 import { NumberPad, PadTile, RepPad, WeightPad } from "./pads";
 import { KeypadType } from "@/interface";
+import { BottomSheet } from "../bottom-sheet";
 
 const styles = StyleSheet.create({
   keypad: {
@@ -33,6 +21,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 15,
     justifyContent: "center",
+    borderTopWidth: 1,
   },
   animationContainer: {
     position: "absolute",
@@ -45,7 +34,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     paddingRight: "2%",
     height: "100%",
-    borderTopWidth: 1
+    borderTopWidth: 1,
   },
   pad: {
     flex: 1,
@@ -57,82 +46,33 @@ const styles = StyleSheet.create({
   },
 });
 
+const keypadStyles = StyleSheet.create({
+  backdrop: {
+    backgroundColor: "transparent",
+  },
+});
+
 type KeypadProps = {
   onUpdate: (value: string) => void;
-  shouldOpen: boolean;
+  show: boolean;
   close: () => void;
   value?: string;
   type: KeypadType;
 };
 
-// todo: can we confirm if this actually works. What does pageY mean on Android vs IOS
-function computeTranslation(
-  screenHeight: number,
-  elementHeight: number,
-  pageY: number,
-  y: number
-) {
-  if (Platform.OS === "android") {
-    return screenHeight - elementHeight - (pageY - screenHeight);
-  } else {
-    return screenHeight - elementHeight - (pageY - y);
-  }
-}
-
-// todo: implement behavior of pushing up content hidden behind keyboard
-export function Keypad({
-  onUpdate,
-  shouldOpen,
-  close,
-  value,
-  type,
-}: KeypadProps) {
-  const translateY = useSharedValue(0);
-  const [hasLoaded, setHasLoaded] = useState(false);
+export function Keypad({ onUpdate, show, close, value, type }: KeypadProps) {
   const [showNumberPad, setShowNumberPad] = useState(true);
-  const ref = useAnimatedRef();
-
-  useEffect(() => {
-    const { height: screenHeight } = Dimensions.get("window");
-
-    if (shouldOpen) {
-      const nativeElement = findNodeHandle(ref.current) as number;
-      UIManager.measure(
-        nativeElement,
-        (x, y, width, elementHeight, pageX, pageY) => {
-          translateY.value = withTiming(
-            computeTranslation(screenHeight, elementHeight, pageY, y),
-            {},
-            (isDone) => {
-              if (isDone) {
-                runOnJS(setHasLoaded)(true);
-              }
-            }
-          );
-        }
-      );
-    } else {
-      translateY.value = withTiming(screenHeight, {}, (isDone) => {
-        if (isDone) {
-          runOnJS(setHasLoaded)(true);
-        }
-      });
-    }
-  }, [shouldOpen]);
-
-  const animatedStyle = useAnimatedStyle(
-    () => ({
-      transform: [{ translateY: translateY.value }],
-    }),
-    []
-  );
 
   const isRepPad = type === KeypadType.REPS;
-
-  return hasLoaded ? (
-    <Animated.View style={[styles.animationContainer, animatedStyle]} ref={ref}>
-      <View style={styles.keypadContainer}>
-        <View style={styles.pad}>
+  return (
+    <BottomSheet
+      show={show}
+      hide={close}
+      onBackdropPress={close}
+      backdropStyle={keypadStyles.backdrop}
+    >
+      <View background style={styles.keypadRow}>
+        <View background style={styles.pad}>
           {showNumberPad ? (
             <NumberPad
               value={value as string}
@@ -146,9 +86,6 @@ export function Keypad({
           )}
         </View>
         <View style={styles.keypadColumn}>
-          <PadTile onClick={close}>
-            <Icon name={"keyboard-o"} size={20} />
-          </PadTile>
           <PadTile
             onClick={() => {
               setShowNumberPad((showNumberPad) => !showNumberPad);
@@ -162,6 +99,6 @@ export function Keypad({
           </PadTile>
         </View>
       </View>
-    </Animated.View>
-  ) : null;
+    </BottomSheet>
+  );
 }

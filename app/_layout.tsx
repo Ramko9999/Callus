@@ -11,6 +11,7 @@ import { WorkoutProvider } from "@/context/WorkoutContext";
 import { ToastProvider } from "react-native-toast-notifications";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Preloader } from "@/components/preload";
+import { KeypadProvider } from "@/context/keypad";
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -60,10 +61,14 @@ function RootLayoutNav() {
         <ToastProvider>
           <WorkoutProvider>
             <Preloader>
-              <Stack>
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-                <Stack.Screen name="workout-editor" />         
-              </Stack>
+              <KeypadProvider>
+                <Stack>
+                  <Stack.Screen
+                    name="(tabs)"
+                    options={{ headerShown: false }}
+                  />
+                </Stack>
+              </KeypadProvider>
             </Preloader>
           </WorkoutProvider>
         </ToastProvider>

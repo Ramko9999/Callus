@@ -1,7 +1,7 @@
 import * as FileSystem from "expo-file-system";
 import { DB_NAME, STORAGE_NAMESPACE } from "@/constants";
 import { SQLiteDatabase, openDatabaseAsync } from "expo-sqlite";
-import { CLEAR_ALL_EXERCISES, EXERCISES_TABLE_CREATION, GET_IN_PROGRESS_WORKOUTS, GET_COMPLETED_WORKOUTS_BETWEEN_TIME, UPSERT_EXERCISE, UPSERT_WORKOUT, WORKOUTS_TABLE_CREATION } from "./sql";
+import { CLEAR_ALL_EXERCISES, EXERCISES_TABLE_CREATION, GET_IN_PROGRESS_WORKOUTS, GET_COMPLETED_WORKOUTS_BETWEEN_TIME, UPSERT_EXERCISE, UPSERT_WORKOUT, WORKOUTS_TABLE_CREATION, DELETE_WORKOUT } from "./sql";
 import { Exercise, Workout } from "@/interface";
 
 const APP_DATA_DIRECTORY = `${FileSystem.documentDirectory}${STORAGE_NAMESPACE}`;
@@ -128,5 +128,9 @@ export class Store {
     }
     const elapsed = Date.now() - start;
     console.log(`[STORE] saveWorkouts took ${elapsed}ms`);
+  }
+
+  async deleteWorkout(workoutId: string){
+      await this.db.runAsync(DELETE_WORKOUT, {$workout_id: workoutId});
   }
 }

@@ -24,3 +24,5 @@ from workouts join exercises on workouts.id = exercises.workout_id where ${predi
 export const GET_COMPLETED_WORKOUTS_BETWEEN_TIME = WORKOUT_SELECTION_SQL("started_at > $after and started_at <= $before and ended_at is not null");
 
 export const GET_IN_PROGRESS_WORKOUTS = WORKOUT_SELECTION_SQL("ended_at is null");
+
+export const DELETE_WORKOUT = "DELETE FROM workouts where id = $workout_id";

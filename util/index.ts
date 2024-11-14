@@ -55,7 +55,7 @@ export function getDateDisplay(timestamp: number) {
 }
 
 function getDateSuffix(day: number) {
-  switch (day % 10) {
+  switch (day) {
     case 1:
       return "st";
     case 2:
@@ -120,4 +120,13 @@ export function usingDateOf(t1: number, t2: number) {
 
 export function usingTimeOf(t1: number, t2: number) {
   return usingDateOf(t2, t1);
+}
+
+export function convertHexToRGBA(color: string, alpha: number = 1) {
+  const hexColor = color.replace("#", "");
+  const r = parseInt(hexColor.substring(0, 2), 16);
+  const g = parseInt(hexColor.substring(2, 4), 16);
+  const b = parseInt(hexColor.substring(4, 6), 16);
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }

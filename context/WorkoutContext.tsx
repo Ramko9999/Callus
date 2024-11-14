@@ -57,6 +57,19 @@ export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
   };
 }
 
+export function getCurrentSetAndExercise(workout: Workout){
+  const exerciseSets = workout.exercises.flatMap((exercise) =>
+    exercise.sets.map((set) => ({ set, exercise }))
+  );
+
+  for(const {set, exercise} of exerciseSets){
+    if(set.status === SetStatus.UNSTARTED || set.status === SetStatus.RESTING){
+      return {set, exercise};
+    }
+  }
+
+}
+
 // todo: adding a set at the end of the workout doesn't lead to the set being shown in the player
 export function getCurrentWorkoutActivity(workout: Workout) {
   const sets = workout.exercises.flatMap((exercise) =>

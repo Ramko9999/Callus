@@ -1,4 +1,5 @@
 import { View, Text, useThemeColoring } from "@/components/Themed";
+import { useKeypad } from "@/context/keypad";
 import {
   AssistedBodyWeightDifficulty,
   BodyWeightDifficulty,
@@ -7,9 +8,14 @@ import {
   TimeDifficulty,
   WeightDifficulty,
 } from "@/interface";
-import { getDurationDisplay } from "@/util";
+import { convertHexToRGBA, getDurationDisplay } from "@/util";
 import { StyleUtils } from "@/util/styles";
+import { useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity, ViewStyle } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 
 const inputStyles = StyleSheet.create({
   container: {
@@ -26,15 +32,32 @@ const inputStyles = StyleSheet.create({
 
 type InputProps = {
   value: string;
+  focused: boolean;
   onClick: () => void;
 };
 
-function Input({ value, onClick }: InputProps) {
+function Input({ value, focused, onClick }: InputProps) {
+  const focusProgress = useSharedValue(0);
+
+  useEffect(() => {
+    /*
+    todo: fix the animation on focused
+    focusProgress.value = withTiming(focused ? 1 : 0);
+    */
+  }, [focused]);
+
+  const focusStyle = useAnimatedStyle(
+    () => ({
+      borderWidth: focusProgress.value,
+    }),
+    []
+  );
+
   return (
     <TouchableOpacity onPress={onClick}>
-      <View background style={inputStyles.container}>
+      <Animated.View style={[inputStyles.container, focusStyle]}>
         <Text large>{value}</Text>
-      </View>
+      </Animated.View>
     </TouchableOpacity>
   );
 }
@@ -46,14 +69,24 @@ type WeightInputProps = {
 };
 
 function WeightInput({ id, weight, onStartUpdate }: WeightInputProps) {
-  const weightDisplay = `${weight.toString()} lbs`.padEnd(15, "");
+  const { value, actions, callerId } = useKeypad();
+  const isFocused = callerId === id;
+  const weightDisplay = `${
+    isFocused ? value?.toString() : weight.toString()
+  } lbs`.padEnd(15, "");
 
   return (
     <View style={inputStyles.label}>
       <Text light neutral>
         Weight
       </Text>
-      <Input value={weightDisplay} onClick={onStartUpdate} />
+      <Input
+        value={weightDisplay}
+        focused={isFocused}
+        onClick={() => {
+          actions.editWeight(weight.toString(), id);
+        }}
+      />
     </View>
   );
 }
@@ -72,7 +105,7 @@ function RepsInput({ id, reps, onStartUpdate }: RepsInputProps) {
       <Text light neutral>
         Reps
       </Text>
-      <Input value={repsDisplay} onClick={onStartUpdate} />
+      <Input focused={false} value={repsDisplay} onClick={onStartUpdate} />
     </View>
   );
 }
@@ -91,7 +124,7 @@ function TimeInput({ id, duration, onStartUpdate }: TimeInputProps) {
       <Text light neutral>
         Duration
       </Text>
-      <Input value={durationDisplay} onClick={onStartUpdate} />
+      <Input focused={false} value={durationDisplay} onClick={onStartUpdate} />
     </View>
   );
 }
@@ -110,7 +143,11 @@ function AssistBodyWeightInput({
       <Text light neutral>
         Assistance Weight
       </Text>
-      <Input value={assistWeightDisplay} onClick={onStartUpdate} />
+      <Input
+        focused={false}
+        value={assistWeightDisplay}
+        onClick={onStartUpdate}
+      />
     </View>
   );
 }
@@ -208,13 +245,17 @@ const toggleInputStyles = {
 
 type ToggleInput = {
   isOn: boolean;
+  onToggle: () => void;
 };
 
-export function ToggleInput({ isOn }: ToggleInput) {
+export function ToggleInput({ isOn, onToggle }: ToggleInput) {
   let backgroundStyle: ViewStyle = isOn
     ? { backgroundColor: useThemeColoring("lightText") }
     : { borderWidth: 1 };
+
   return (
-    <View background style={[toggleInputStyles.container, backgroundStyle]} />
+    <TouchableOpacity onPress={() => onToggle()}>
+      <View background style={[toggleInputStyles.container, backgroundStyle]} />
+    </TouchableOpacity>
   );
 }

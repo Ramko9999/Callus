@@ -33,7 +33,7 @@ export type ExerciseMeta = {
     muscles: string[]
 }
 
-type SetPlan = {
+export type SetPlan = {
     difficulty: Difficulty
 }
 

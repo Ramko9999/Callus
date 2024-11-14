@@ -13,10 +13,8 @@ import { useStopwatch } from "@/components/hooks/use-stopwatch";
 import { getDurationDisplay, getTimePeriodDisplay } from "@/util";
 import { useTimer } from "@/components/hooks/use-timer";
 import { useEffect, useState } from "react";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import { useRouter } from "expo-router";
 import { StyleUtils } from "@/util/styles";
-import { HistoricalEditorPopup } from "../new-editor/historical";
+import { LivePlayerPopup } from "./popup";
 
 const indicatorStyles = StyleSheet.create({
   expansive: {
@@ -106,18 +104,15 @@ function CurrentActivityIndicator({ type, activityData }: WorkoutActivity) {
   }
 }
 
+// todo: fix rendered fewer hooks than expected
 export function WorkoutIndicator() {
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const { isInWorkout, activity, metadata, editor } = useWorkout();
+  const backgroundColor = useThemeColoring("primaryViewBackground");
+  const borderColor = useThemeColoring("primaryViewBorder");
   const { elapsedMs } = useStopwatch({ startTimeMs: metadata?.startedAt || 0 });
 
-  if (!isInWorkout) {
-    return null;
-  }
-  
-  const { name } = metadata as WorkoutMetadata;
-  const { workout } = editor;
-  return (
+  return isInWorkout ? (
     <>
       <View style={indicatorStyles.expansive}>
         <TouchableOpacity
@@ -125,13 +120,13 @@ export function WorkoutIndicator() {
           style={[
             indicatorStyles.container,
             {
-              backgroundColor: useThemeColoring("primaryViewBackground"),
-              borderColor: useThemeColoring("primaryViewBorder"),
+              backgroundColor,
+              borderColor,
             },
           ]}
         >
           <View style={indicatorStyles.activity}>
-            <Text large>{name}</Text>
+            <Text large>{(metadata as WorkoutMetadata).name}</Text>
             <CurrentActivityIndicator {...(activity as WorkoutActivity)} />
           </View>
           <View style={indicatorStyles.elapsed}>
@@ -140,12 +135,10 @@ export function WorkoutIndicator() {
         </TouchableOpacity>
       </View>
 
-      <HistoricalEditorPopup
+      <LivePlayerPopup
         show={isPlayerOpen}
         hide={() => setIsPlayerOpen(false)}
-        workout={workout as Workout}
-        onSaveWorkout={(w) => {}}
       />
     </>
-  );
+  ) : null;
 }
