@@ -12,6 +12,16 @@ import { ToastProvider } from "react-native-toast-notifications";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { Preloader } from "@/components/preload";
 import { KeypadProvider } from "@/context/keypad";
+import {
+  configureReanimatedLogger,
+  ReanimatedLogLevel,
+} from 'react-native-reanimated';
+
+// This is the default configuration
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false
+});
 
 export {
   // Catch any errors thrown by the Layout component.
