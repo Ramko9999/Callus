@@ -8,8 +8,6 @@ import { ScrollView } from "react-native-gesture-handler";
 import Animated, {
   LightSpeedInLeft,
   LightSpeedOutLeft,
-  LinearTransition,
-  runOnJS,
 } from "react-native-reanimated";
 import { useCallback, useRef, useState } from "react";
 import * as Haptics from "expo-haptics";
@@ -109,11 +107,6 @@ export function SetsEditor({
               key={index}
               exiting={LightSpeedOutLeft}
               entering={LightSpeedInLeft}
-              layout={LinearTransition.withCallback((finished) => { // todo: fix the layout animation not working
-                if (finished) {
-                  runOnJS(console.log)("done");
-                }
-              })}
             >
               <EditorSet
                 key={index}

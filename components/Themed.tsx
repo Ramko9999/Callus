@@ -50,7 +50,9 @@ type ActionThemeProps = {
 
 export type ViewProps = DefaultView["props"] & ViewThemeProps;
 export type TextProps = DefaultText["props"] & TextThemeProps;
-export type TextInputProps = DefaultTextInput["props"] & TextThemeProps;
+export type TextInputProps = DefaultTextInput["props"] &
+  TextThemeProps &
+  React.RefAttributes<DefaultTextInput>;
 export type ActionProps = Omit<TouchableOpacity["props"], "children"> &
   ActionThemeProps;
 export type IconProps = {
@@ -169,20 +171,28 @@ export function View(props: ViewProps) {
   return <DefaultView style={[defaultStyle, style]} {...otherProps} />;
 }
 
-export function TextInput(props: TextInputProps) {
-  const { style, _type, light, ...otherProps } = props;
-  const color = useThemeColoring(light ? "lightText" : "primaryText");
+export const TextInput = React.forwardRef(
+  (props: TextInputProps, ref: React.ForwardedRef<DefaultTextInput>) => {
+    const { style, _type, light, ...otherProps } = props;
+    const color = useThemeColoring(light ? "lightText" : "primaryText");
 
-  //_type is deprecated
-  let fontStyle = {};
-  if (_type) {
-    fontStyle = textTheme[_type] as TextStyle;
-  } else {
-    fontStyle = getFontStyle(props);
+    //_type is deprecated
+    let fontStyle = {};
+    if (_type) {
+      fontStyle = textTheme[_type] as TextStyle;
+    } else {
+      fontStyle = getFontStyle(props);
+    }
+
+    return (
+      <DefaultTextInput
+        ref={ref}
+        style={[{ color }, fontStyle]}
+        {...otherProps}
+      />
+    );
   }
-
-  return <DefaultTextInput style={[{ color }, fontStyle]} {...otherProps} />;
-}
+);
 
 export function Action(props: ActionProps) {
   const { _action, ...otherProps } = props;

@@ -7,11 +7,21 @@ import { DangerAction, NeutralAction } from "../../core/actions";
 const confirmationStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(10),
-    paddingVertical: "5%",
+    paddingVertical: "3%",
+  },
+  title: {
+    ...StyleUtils.flexRow(),
+    flex: 1,
     alignItems: "center",
+    alignSelf: "center",
+  },
+  subtitle: {
+    alignSelf: "center",
   },
   actions: {
+    paddingTop: "3%",
     ...StyleUtils.flexRow(10),
+    alignSelf: "center",
   },
   action: {
     flex: 1,
@@ -30,14 +40,17 @@ export function WorkoutDeleteConfirmation({
   hide,
 }: WorkoutDeleteConfirmationProps) {
   return (
-    <BottomSheet show={show} hide={hide} onBackdropPress={hide} id='workout-delete'>
+    <BottomSheet show={show} hide={hide} onBackdropPress={hide}>
       <View background style={confirmationStyles.container}>
-        <Text large>Are you sure?</Text>
-        <Text neutral light>
-          This workout will permanently deleted.
-        </Text>
+        <View style={confirmationStyles.title}>
+          <Text large>Are you sure?</Text>
+        </View>
+        <View style={confirmationStyles.subtitle}>
+          <Text neutral light>
+            This workout will be permanently deleted.
+          </Text>
+        </View>
         <View style={confirmationStyles.actions}>
-          <NeutralAction text="No" onClick={hide} />
           <DangerAction text="Yes, delete it!" onClick={onDelete} />
         </View>
       </View>

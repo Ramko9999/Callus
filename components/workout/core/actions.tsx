@@ -1,7 +1,11 @@
 import { useThemeColoring, View, Text } from "@/components/Themed";
 import { textTheme } from "@/constants/Themes";
-import { ICON_ACTION_DIMENSION, StyleUtils, TEXT_ACTION_HEIGHT } from "@/util/styles";
-import { FontAwesome } from "@expo/vector-icons";
+import {
+  ICON_ACTION_DIMENSION,
+  StyleUtils,
+  TEXT_ACTION_HEIGHT,
+} from "@/util/styles";
+import { Entypo, FontAwesome } from "@expo/vector-icons";
 import { ViewStyle, StyleSheet, TouchableOpacity } from "react-native";
 
 const iconActionStyles = StyleSheet.create({
@@ -110,6 +114,34 @@ export function Search({ onClick, style }: ActionProps) {
       <View style={[iconActionStyles.container, style]}>
         <FontAwesome
           name="search"
+          size={textTheme.large.fontSize}
+          color={useThemeColoring("lightText")}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+export function Shuffle({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View style={[iconActionStyles.container, style]}>
+        <Entypo
+          name="shuffle"
+          size={textTheme.large.fontSize}
+          color={useThemeColoring("lightText")}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+export function Done({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View style={[iconActionStyles.container, style]}>
+        <FontAwesome
+          name="check"
           size={textTheme.large.fontSize}
           color={useThemeColoring("lightText")}
         />

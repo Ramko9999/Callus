@@ -39,6 +39,8 @@ const DEFAULT_HIDE_OFFSET = 200;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+// todo: fix animation
+// todo: fix bug with children bottom sheets not taking up full space
 export function BottomSheet({
   children,
   show,

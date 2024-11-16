@@ -159,7 +159,7 @@ export function LivePlayerPopup({ show, hide }: LivePlayerPopupProps) {
   const [isEditing, setIsEditing] = useState(false);
 
   return (
-    <BottomSheet show={show} hide={hide} onBackdropPress={hide} id="popup">
+    <BottomSheet show={show} hide={hide} onBackdropPress={hide}>
       {isEditing ? (
         <LiveEditor hide={() => setIsEditing(false)} />
       ) : (

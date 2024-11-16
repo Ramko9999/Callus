@@ -1,108 +1,21 @@
-import { TextInput, useThemeColoring, View } from "@/components/Themed";
+import { View } from "@/components/Themed";
 import { Exercise, ExerciseMeta, Workout } from "@/interface";
+import { WORKOUT_PLAYER_EDITOR_HEIGHT, StyleUtils } from "@/util/styles";
 import {
-  WORKOUT_PLAYER_EDITOR_HEIGHT,
-  StyleUtils,
-  EDITOR_EXERCISE_HEIGHT,
-} from "@/util/styles";
-import { StyleSheet, useWindowDimensions } from "react-native";
-import { Add, Back, Close, Edit, Search, Trash } from "../core/actions";
-import { EditorExercise, FinderExercise, WorkoutTitleMeta } from "../core";
-import { ScrollView } from "react-native";
-import { useCallback, useState } from "react";
+  findNodeHandle,
+  StyleSheet,
+  UIManager,
+  useWindowDimensions,
+} from "react-native";
+import { Add, Close, Done, Shuffle, Trash } from "../core/actions";
+import { EditorExercise, WorkoutTitleMeta } from "../core";
+import { useEffect, useRef, useState } from "react";
 import { WorkoutDeleteConfirmation } from "./confirmations";
-import { BottomSheet } from "@/components/bottom-sheet";
 import { EXERCISE_REPOSITORY } from "@/constants";
-
-const exerciseFinderStyle = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexColumn(),
-    paddingTop: "3%",
-  },
-  actions: {
-    ...StyleUtils.flexRow(10),
-    justifyContent: "space-between",
-  },
-  content: {
-    ...StyleUtils.flexColumn(10),
-    paddingHorizontal: "3%",
-  },
-  input: {
-    ...StyleUtils.flexRow(5),
-    borderWidth: 1,
-    borderRadius: 25,
-    alignSelf: "center",
-    width: "90%",
-  },
-  scroll: {
-    paddingBottom: "5%",
-  },
-  results: {
-    ...StyleUtils.flexColumn(5),
-  },
-});
-
-type ExerciseFinderProps = {
-  repository: ExerciseMeta[];
-  show: boolean;
-  hide: () => void;
-  onSelect: (exerciseMeta: ExerciseMeta) => void;
-};
-
-export function ExerciseFinder({
-  show,
-  repository,
-  hide,
-  onSelect,
-}: ExerciseFinderProps) {
-  const [search, setSearch] = useState("");
-  const { height } = useWindowDimensions();
-
-  return (
-    <BottomSheet show={show} onBackdropPress={hide} hide={hide}>
-      <View background style={exerciseFinderStyle.container}>
-        <View style={exerciseFinderStyle.actions}>
-          <Back onClick={hide} />
-        </View>
-        <View
-          style={[
-            exerciseFinderStyle.content,
-            { height: height * WORKOUT_PLAYER_EDITOR_HEIGHT },
-          ]}
-        >
-          <View
-            style={[
-              exerciseFinderStyle.input,
-              { borderColor: useThemeColoring("lightText") },
-            ]}
-          >
-            <Search />
-            <TextInput
-              action
-              value={search}
-              onChangeText={setSearch}
-              placeholderTextColor={useThemeColoring("lightText")}
-              placeholder="Search exercise"
-            />
-          </View>
-          <ScrollView contentContainerStyle={exerciseFinderStyle.scroll}>
-            <View style={exerciseFinderStyle.results}>
-              {repository
-                .filter((meta) => meta.name.includes(search))
-                .map((meta, index) => (
-                  <FinderExercise
-                    key={index}
-                    meta={meta}
-                    onClick={() => onSelect(meta)}
-                  />
-                ))}
-            </View>
-          </ScrollView>
-        </View>
-      </View>
-    </BottomSheet>
-  );
-}
+import { ExerciseFinder } from "./exercises/finder";
+import { ReorderableExercises } from "./exercises/reorder";
+import { ScrollView } from "react-native-gesture-handler";
+import * as Haptics from "expo-haptics";
 
 const exercisesEditorStyle = StyleSheet.create({
   container: {
@@ -129,7 +42,7 @@ const exercisesEditorStyle = StyleSheet.create({
 type ExercisesEditorProps = {
   onAdd: (meta: ExerciseMeta) => void;
   onRemove: (exercise: Exercise) => void;
-  onShuffle: () => void;
+  onReorder: (exercices: Exercise[]) => void;
   onEdit: (exercise: Exercise) => void;
   onEditMeta: () => void;
   hide: () => void;
@@ -137,9 +50,18 @@ type ExercisesEditorProps = {
   workout: Workout;
 };
 
+type ScrollState = {
+  top: number;
+  height: number;
+  offset: number;
+};
+
+const SCROLL_OFFSET = 80;
+
 export function ExercisesEditor({
   hide,
   onEditMeta,
+  onReorder,
   onEdit,
   onRemove,
   onAdd,
@@ -148,16 +70,52 @@ export function ExercisesEditor({
 }: ExercisesEditorProps) {
   const [showWorkoutDeleteConfirmation, setShowWorkoutDeleteConfirmation] =
     useState(false);
-
   const [showExerciseFinder, setShowExerciseFinder] = useState(false);
-
+  const [isReorderingExercises, setIsReorderingExercises] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const [scrollState, setScrollState] = useState<ScrollState>();
   const { height } = useWindowDimensions();
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      UIManager.measure(
+        findNodeHandle(scrollRef.current) as number,
+        (x, y, width, height, pageX, pageY) => {
+          setScrollState({ height, top: pageY, offset: 0 });
+        }
+      );
+    }
+  }, []);
+
+  // todo: the scrolling is kinda weird ngl, fix that
+  const scrollByOffset = (offset: number) => {
+    if (scrollRef.current && scrollState) {
+      scrollRef.current.scrollTo({
+        y: scrollState.offset + offset,
+      });
+    }
+  };
+
   return (
     <View background style={exercisesEditorStyle.container}>
       <View style={exercisesEditorStyle.actions}>
         <Close onClick={hide} />
         <View style={exercisesEditorStyle.rightActions}>
-          <Edit onClick={onEditMeta} />
+          {isReorderingExercises ? (
+            <Done
+              onClick={() => {
+                setIsReorderingExercises(false);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              }}
+            />
+          ) : (
+            <Shuffle
+              onClick={() => {
+                setIsReorderingExercises(true);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              }}
+            />
+          )}
           <Add onClick={() => setShowExerciseFinder(true)} />
           <Trash onClick={() => setShowWorkoutDeleteConfirmation(true)} />
         </View>
@@ -165,17 +123,39 @@ export function ExercisesEditor({
       <ScrollView
         contentContainerStyle={exercisesEditorStyle.scroll}
         style={{ height: height * WORKOUT_PLAYER_EDITOR_HEIGHT }}
+        ref={scrollRef}
+        onScroll={(event) => {
+          const offset = event.nativeEvent.contentOffset.y;
+          setScrollState((state) => ({
+            ...(state as ScrollState),
+            offset,
+          }));
+        }}
       >
         <View style={exercisesEditorStyle.content}>
           <WorkoutTitleMeta workout={workout} />
-          {workout.exercises.map((exercise, index) => (
-            <EditorExercise
-              key={index}
-              exercise={exercise}
-              onClick={() => onEdit(exercise)}
-              onTrash={() => onRemove(exercise)}
+          {isReorderingExercises ? (
+            <ReorderableExercises
+              scrollMeasurements={{
+                top: (scrollState as ScrollState).top,
+                height: (scrollState as ScrollState).height,
+              }}
+              scrollDown={() => scrollByOffset(SCROLL_OFFSET)}
+              scrollUp={() => scrollByOffset(-1 * SCROLL_OFFSET)}
+              exercises={workout.exercises}
+              onReorder={onReorder}
+              scrollRef={scrollRef}
             />
-          ))}
+          ) : (
+            workout.exercises.map((exercise, index) => (
+              <EditorExercise
+                key={index}
+                exercise={exercise}
+                onClick={() => onEdit(exercise)}
+                onTrash={() => onRemove(exercise)}
+              />
+            ))
+          )}
         </View>
       </ScrollView>
       <ExerciseFinder

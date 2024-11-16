@@ -1,6 +1,13 @@
-import { useThemeColoring, View, Text } from "@/components/Themed";
+import { useThemeColoring, View, Text, TextInput } from "@/components/Themed";
 import { textTheme } from "@/constants/Themes";
-import { Exercise, ExerciseMeta, Set, SetStatus, Workout } from "@/interface";
+import {
+  Difficulty,
+  Exercise,
+  ExerciseMeta,
+  Set,
+  SetStatus,
+  Workout,
+} from "@/interface";
 import { getLongDateDisplay } from "@/util";
 import {
   EDITOR_EXERCISE_HEIGHT,
@@ -29,7 +36,7 @@ export function WorkoutTitleMeta({ workout }: WorkoutTitleMeta) {
 
   return (
     <View style={workoutTitleMetaStyles.container}>
-      <Text extraLarge>{name}</Text>
+      <TextInput extraLarge value={name} />
       <Text neutral light>
         {getLongDateDisplay(startedAt, true)}
       </Text>
@@ -118,6 +125,47 @@ export function EditorExercise({
   );
 }
 
+type ReorderableExerciseProps = {
+  exercise: Exercise;
+  onClickDown: () => void;
+};
+
+export function ReorderableExercise({
+  exercise,
+  onClickDown,
+}: ReorderableExerciseProps) {
+  return (
+    <View background style={editorExerciseStyles.container}>
+      <View style={editorExerciseStyles.title}>
+        <Text large>{exercise.name}</Text>
+        <Text neutral light>
+          {getSubtitle(exercise)}
+        </Text>
+      </View>
+      <View style={editorExerciseStyles.rightActions}>
+        <TouchableOpacity onPressIn={onClickDown}>
+          <FontAwesome
+            name="reorder"
+            color={useThemeColoring("lightText")}
+            size={textTheme.large.fontSize}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+export function ExercisePlaceholder() {
+  return (
+    <View
+      style={[
+        editorExerciseStyles.container,
+        { backgroundColor: useThemeColoring("search") },
+      ]}
+    ></View>
+  );
+}
+
 const editorSetStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexRow(10),
@@ -175,6 +223,7 @@ export function EditorSet({
           id={set.id}
           difficulty={set.difficulty}
           type={difficultyType}
+          onUpdate={(difficulty: Difficulty) => onUpdate({ difficulty })}
         />
       </View>
     </Swipeable>

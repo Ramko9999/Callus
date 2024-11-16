@@ -1,15 +1,21 @@
-import { Exercise, Workout, Set, ExerciseMeta } from "@/interface";
+import {
+  Exercise,
+  Workout,
+  Set,
+  ExerciseMeta,
+  WorkoutMetadata,
+} from "@/interface";
 import { View } from "@/components/Themed";
 import { BottomSheet } from "@/components/bottom-sheet";
 import { useState } from "react";
 import Animated, { FadeInLeft } from "react-native-reanimated";
-import { useKeypad } from "@/context/keypad";
 import {
   addExercise,
   duplicateLastSet,
   removeExercise,
   removeSet,
   updateSet,
+  updateWorkout,
 } from "@/context/WorkoutContext";
 import { SetsEditor } from "./sets";
 import { ExercisesEditor } from "./exercises";
@@ -51,6 +57,14 @@ export function Editor({
     onSaveWorkout(addExercise(meta, workout));
   };
 
+  const onReorderExercises = (exercises: Exercise[]) => {
+    onSaveWorkout({ ...workout, exercises });
+  };
+
+  const onUpdateMeta = (meta: WorkoutMetadata) => {
+    onSaveWorkout(updateWorkout({ ...meta }, workout));
+  };
+
   return (
     <View background>
       {isEditingExercise ? (
@@ -70,7 +84,7 @@ export function Editor({
           onEdit={({ id }) => {
             setExerciseId(id);
           }}
-          onShuffle={() => {}}
+          onReorder={onReorderExercises}
           onRemove={onRemoveExercise}
           workout={workout}
           hide={hide}
@@ -97,7 +111,7 @@ export function EditorPopup({
   onDeleteWorkout,
 }: EditorPopupProps) {
   return (
-    <BottomSheet show={show} onBackdropPress={hide} hide={hide} id="editor">
+    <BottomSheet show={show} onBackdropPress={hide} hide={hide}>
       <Editor
         workout={workout}
         onSaveWorkout={onSaveWorkout}

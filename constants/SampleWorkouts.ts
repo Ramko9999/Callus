@@ -165,22 +165,22 @@ export const VOLUME_PULL: WorkoutPlan = {
     },
     {
       name: "Hammer Curl",
-      rest: 90,
-      sets: Array(3).fill({ ...{ difficulty: { weight: 15, reps: 8 } } }),
+      rest: 60,
+      sets: Array(3).fill({ ...{ difficulty: { weight: 15, reps: 10 } } }),
     },
     {
       name: "Barbell Curl",
-      rest: 90,
-      sets: Array(4).fill({ ...{ difficulty: { weight: 50, reps: 6 } } }),
+      rest: 75,
+      sets: Array(4).fill({ ...{ difficulty: { weight: 45, reps: 6 } } }),
     },
     {
       name: "Ring Row",
-      rest: 90,
+      rest: 60,
       sets: Array(4).fill({ ...{ difficulty: { reps: 8 } } }),
     },
     {
       name: "Ring Arc Row",
-      rest: 120,
+      rest: 75,
       sets: [
         { difficulty: { reps: 8 } },
         { difficulty: { reps: 8 } },
@@ -190,7 +190,7 @@ export const VOLUME_PULL: WorkoutPlan = {
     },
     {
       name: "Ring Face Pull",
-      rest: 90,
+      rest: 60,
       sets: [
         { difficulty: { reps: 10 } },
         { difficulty: { reps: 10 } },
@@ -204,9 +204,9 @@ export const VOLUME_PUSH: WorkoutPlan = {
   name: "Volume Push",
   exercises: [
     {
-      name: "Ring Dip",
+      name: "Dip",
       rest: 90,
-      sets: repeat({ reps: 5 }, 10),
+      sets: repeat({ reps: 6 }, 10),
     },
     {
       name: "Pike Push-Up",
@@ -214,23 +214,23 @@ export const VOLUME_PUSH: WorkoutPlan = {
       sets: repeat({ reps: 6 }, 5),
     },
     {
-      name: "Ring Push-Up",
+      name: "Push-Up",
       rest: 60,
-      sets: repeat({ reps: 6 }, 4),
+      sets: repeat({ reps: 12 }, 4),
     },
     {
       name: "Dumbbell Shoulder Press",
       rest: 60,
       sets: [
-        { difficulty: { weight: 25, reps: 8 } },
-        { difficulty: { weight: 25, reps: 8 } },
-        { difficulty: { weight: 25, reps: 8 } },
-        { difficulty: { weight: 25, reps: 8 } },
+        { difficulty: { weight: 22.5, reps: 8 } },
+        { difficulty: { weight: 22.5, reps: 8 } },
+        { difficulty: { weight: 22.5, reps: 8 } },
+        { difficulty: { weight: 22.5, reps: 8 } },
       ],
     },
     {
       name: "Ring Overhead Extension",
-      rest: 90,
+      rest: 60,
       sets: [
         { difficulty: { reps: 15 } },
         { difficulty: { reps: 15 } },
@@ -240,7 +240,7 @@ export const VOLUME_PUSH: WorkoutPlan = {
     },
     {
       name: "Dumbbell Lateral Raise",
-      rest: 90,
+      rest: 60,
       sets: [
         { difficulty: { weight: 7.5, reps: 15 } },
         { difficulty: { weight: 7.5, reps: 15 } },

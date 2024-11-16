@@ -204,7 +204,6 @@ export function addExercise(
     id: generateExerciseId(),
     sets: [createDefaultSet(exerciseMeta.difficultyType)],
   };
-  console.log(exerciseMeta, JSON.stringify(newExercise));
   const exercises: Exercise[] = [...workout.exercises, newExercise];
   return { ...workout, exercises };
 }

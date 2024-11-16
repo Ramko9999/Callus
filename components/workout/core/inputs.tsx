@@ -8,9 +8,10 @@ import {
   TimeDifficulty,
   WeightDifficulty,
 } from "@/interface";
-import { convertHexToRGBA, getDurationDisplay } from "@/util";
+import { getDurationDisplay } from "@/util";
+import { debounce } from "@/util/function";
 import { StyleUtils } from "@/util/styles";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, TouchableOpacity, ViewStyle } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -65,15 +66,20 @@ function Input({ value, focused, onClick }: InputProps) {
 type WeightInputProps = {
   id: string;
   weight: number;
-  onStartUpdate: () => void;
+  onUpdate: (weight: number) => void;
 };
 
-function WeightInput({ id, weight, onStartUpdate }: WeightInputProps) {
+function WeightInput({ id, weight, onUpdate }: WeightInputProps) {
   const { value, actions, callerId } = useKeypad();
   const isFocused = callerId === id;
-  const weightDisplay = `${
-    isFocused ? value?.toString() : weight.toString()
-  } lbs`.padEnd(15, "");
+  const weightDisplay = `${isFocused ? value : weight} lbs`.padEnd(15, "");
+
+  const updateWithDebounce = useCallback(debounce(onUpdate, 100), [onUpdate]);
+  useEffect(() => {
+    if (isFocused && value) {
+      updateWithDebounce(parseFloat(value));
+    }
+  }, [isFocused, value]);
 
   return (
     <View style={inputStyles.label}>
@@ -94,18 +100,33 @@ function WeightInput({ id, weight, onStartUpdate }: WeightInputProps) {
 type RepsInputProps = {
   id: string;
   reps: number;
-  onStartUpdate: () => void;
+  onUpdate: (reps: number) => void;
 };
 
-function RepsInput({ id, reps, onStartUpdate }: RepsInputProps) {
-  const repsDisplay = `${reps.toString()} reps`.padEnd(15, "");
+function RepsInput({ id, reps, onUpdate }: RepsInputProps) {
+  const { value, actions, callerId } = useKeypad();
+  const isFocused = callerId === id;
+  const repsDisplay = `${isFocused ? value : reps} reps`.padEnd(15, "");
+
+  const updateWithDebounce = useCallback(debounce(onUpdate, 100), [onUpdate]);
+  useEffect(() => {
+    if (isFocused && value) {
+      updateWithDebounce(parseFloat(value));
+    }
+  }, [isFocused, value]);
 
   return (
     <View style={inputStyles.label}>
       <Text light neutral>
         Reps
       </Text>
-      <Input focused={false} value={repsDisplay} onClick={onStartUpdate} />
+      <Input
+        focused={false}
+        value={repsDisplay}
+        onClick={() => {
+          actions.editReps(reps.toString(), id);
+        }}
+      />
     </View>
   );
 }
@@ -131,10 +152,11 @@ function TimeInput({ id, duration, onStartUpdate }: TimeInputProps) {
 
 type AssistBodyWeightInputProps = WeightInputProps;
 
+// todo: make this editable and the duration based exercises as well
 function AssistBodyWeightInput({
   id,
   weight,
-  onStartUpdate,
+  onUpdate,
 }: AssistBodyWeightInputProps) {
   const assistWeightDisplay = `${weight.toString()} lbs`.padEnd(15, "");
 
@@ -143,11 +165,7 @@ function AssistBodyWeightInput({
       <Text light neutral>
         Assistance Weight
       </Text>
-      <Input
-        focused={false}
-        value={assistWeightDisplay}
-        onClick={onStartUpdate}
-      />
+      <Input focused={false} value={assistWeightDisplay} onClick={() => {}} />
     </View>
   );
 }
@@ -156,12 +174,14 @@ type DifficultyInputProps = {
   id: string;
   type: DifficultyType;
   difficulty: Difficulty;
+  onUpdate: (difficulty: Difficulty) => void;
 };
 
 export function DifficultyInput({
   id,
   type,
   difficulty,
+  onUpdate,
 }: DifficultyInputProps) {
   switch (type) {
     case DifficultyType.ASSISTED_BODYWEIGHT:
@@ -172,12 +192,16 @@ export function DifficultyInput({
             weight={
               (difficulty as AssistedBodyWeightDifficulty).assistanceWeight
             }
-            onStartUpdate={() => {}}
+            onUpdate={(assistanceWeight: number) =>
+              onUpdate({ ...difficulty, assistanceWeight })
+            }
           />
           <RepsInput
             id={`${id}-reps`}
             reps={(difficulty as AssistedBodyWeightDifficulty).reps}
-            onStartUpdate={() => {}}
+            onUpdate={(reps: number) => {
+              onUpdate({ ...difficulty, reps });
+            }}
           />
         </View>
       );
@@ -187,12 +211,14 @@ export function DifficultyInput({
           <WeightInput
             id={`${id}-weight`}
             weight={(difficulty as WeightDifficulty).weight}
-            onStartUpdate={() => {}}
+            onUpdate={(weight: number) => onUpdate({ ...difficulty, weight })}
           />
           <RepsInput
             id={`${id}-reps`}
             reps={(difficulty as WeightDifficulty).reps}
-            onStartUpdate={() => {}}
+            onUpdate={(reps: number) => {
+              onUpdate({ ...difficulty, reps });
+            }}
           />
         </View>
       );
@@ -202,12 +228,14 @@ export function DifficultyInput({
           <WeightInput
             id={`${id}-weight`}
             weight={(difficulty as WeightDifficulty).weight}
-            onStartUpdate={() => {}}
+            onUpdate={(weight: number) => onUpdate({ ...difficulty, weight })}
           />
           <RepsInput
             id={`${id}-reps`}
             reps={(difficulty as WeightDifficulty).reps}
-            onStartUpdate={() => {}}
+            onUpdate={(reps: number) => {
+              onUpdate({ ...difficulty, reps });
+            }}
           />
         </View>
       );
@@ -217,7 +245,9 @@ export function DifficultyInput({
           <RepsInput
             id={`${id}-reps`}
             reps={(difficulty as BodyWeightDifficulty).reps}
-            onStartUpdate={() => {}}
+            onUpdate={(reps: number) => {
+              onUpdate({ ...difficulty, reps });
+            }}
           />
         </View>
       );
@@ -249,8 +279,10 @@ type ToggleInput = {
 };
 
 export function ToggleInput({ isOn, onToggle }: ToggleInput) {
+  const isOnColor = useThemeColoring("lightText");
+
   let backgroundStyle: ViewStyle = isOn
-    ? { backgroundColor: useThemeColoring("lightText") }
+    ? { backgroundColor: isOnColor }
     : { borderWidth: 1 };
 
   return (

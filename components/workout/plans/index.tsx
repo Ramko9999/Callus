@@ -9,11 +9,21 @@ import {
   VOLUME_PULL,
   VOLUME_PUSH,
   FUNCTIONAL_LEG,
+  NECK,
 } from "@/constants/SampleWorkouts";
 import { useWorkout } from "@/context/WorkoutContext";
 import { useRouter } from "expo-router";
 
-const PLANS = [PUSH, PULL, NORMAL_LEG, PAUSE_LEG, VOLUME_PULL, VOLUME_PUSH, FUNCTIONAL_LEG];
+const PLANS = [
+  PUSH,
+  PULL,
+  NORMAL_LEG,
+  PAUSE_LEG,
+  VOLUME_PULL,
+  VOLUME_PUSH,
+  FUNCTIONAL_LEG,
+  NECK,
+];
 
 const styles = StyleSheet.create({
   workoutViewTileContainer: {
