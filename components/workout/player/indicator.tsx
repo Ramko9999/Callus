@@ -10,7 +10,7 @@ import {
   WorkoutMetadata,
 } from "@/interface";
 import { useStopwatch } from "@/components/hooks/use-stopwatch";
-import { getDurationDisplay, getTimePeriodDisplay } from "@/util";
+import { getDurationDisplay, getTimePeriodDisplay } from "@/util/date";
 import { useTimer } from "@/components/hooks/use-timer";
 import { useEffect, useState } from "react";
 import { StyleUtils } from "@/util/styles";

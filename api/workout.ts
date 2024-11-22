@@ -1,5 +1,5 @@
 import { WorkoutPlan, Workout } from "@/interface";
-import {  addDays, truncTime } from "@/util";
+import { addDays, truncTime } from "@/util/date";
 import { ProgramApi } from "./program";
 import { Store } from "./store";
 
@@ -9,10 +9,7 @@ export type WorkoutItinerary = {
 };
 
 export class WorkoutApi {
-
-  static async getWorkouts(
-    localDate: number
-  ): Promise<Workout[]> {
+  static async getWorkouts(localDate: number): Promise<Workout[]> {
     return await Store.instance().getWorkouts(localDate, addDays(localDate, 1));
   }
 
@@ -20,7 +17,7 @@ export class WorkoutApi {
     await Store.instance().saveWorkout(workout);
   }
 
-  static async deleteWorkout(workoutId: string): Promise<void>{
+  static async deleteWorkout(workoutId: string): Promise<void> {
     await Store.instance().deleteWorkout(workoutId);
   }
 
@@ -38,5 +35,5 @@ export class WorkoutApi {
 
   static async importWorkouts(workouts: Workout[]): Promise<void> {
     await Store.instance().saveWorkouts(workouts);
-  } 
+  }
 }

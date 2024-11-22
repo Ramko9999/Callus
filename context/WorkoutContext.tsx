@@ -16,7 +16,7 @@ import {
   WeightDifficulty,
 } from "@/interface";
 import { createContext, useState, useContext, useEffect } from "react";
-import { generateRandomId } from "@/util";
+import { generateRandomId } from "@/util/misc";
 import { WorkoutApi } from "@/api/workout";
 import { Audio } from "expo-av";
 import { BW, NAME_TO_EXERCISE_META } from "@/constants";
@@ -38,7 +38,7 @@ export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
         status: SetStatus.UNSTARTED,
         restDuration: rest,
       }));
-      
+
       return {
         id: generateExerciseId(),
         name,
@@ -57,17 +57,19 @@ export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
   };
 }
 
-export function getCurrentSetAndExercise(workout: Workout){
+export function getCurrentSetAndExercise(workout: Workout) {
   const exerciseSets = workout.exercises.flatMap((exercise) =>
     exercise.sets.map((set) => ({ set, exercise }))
   );
 
-  for(const {set, exercise} of exerciseSets){
-    if(set.status === SetStatus.UNSTARTED || set.status === SetStatus.RESTING){
-      return {set, exercise};
+  for (const { set, exercise } of exerciseSets) {
+    if (
+      set.status === SetStatus.UNSTARTED ||
+      set.status === SetStatus.RESTING
+    ) {
+      return { set, exercise };
     }
   }
-
 }
 
 // todo: adding a set at the end of the workout doesn't lead to the set being shown in the player
@@ -145,8 +147,13 @@ export function duplicateLastSet(
 ): Workout {
   const exercises = workout.exercises.map((ep) => {
     if (ep.id === exerciseId) {
-      const {difficulty, restDuration} = ep.sets[ep.sets.length - 1];
-      const setToAdd: Set = {status: SetStatus.UNSTARTED, difficulty, restDuration:restDuration, id: generateSetId() }
+      const { difficulty, restDuration } = ep.sets[ep.sets.length - 1];
+      const setToAdd: Set = {
+        status: SetStatus.UNSTARTED,
+        difficulty,
+        restDuration: restDuration,
+        id: generateSetId(),
+      };
       return { ...ep, sets: [...ep.sets, setToAdd] };
     }
     return ep;
@@ -333,7 +340,10 @@ const context = createContext<WorkoutContext>({
     updateRestDuration: () => {},
   },
   editor: {
-    actions: { updateWorkout: (_: Partial<Workout>) => {}, stopCurrentWorkout: () => {}},
+    actions: {
+      updateWorkout: (_: Partial<Workout>) => {},
+      stopCurrentWorkout: () => {},
+    },
   },
   soundPlayer: {
     playRestCompleting: async () => {},

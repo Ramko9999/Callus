@@ -7,8 +7,9 @@ import {
   Set,
   SetStatus,
   Workout,
+  WorkoutMetadata,
 } from "@/interface";
-import { getLongDateDisplay } from "@/util";
+import { getLongDateDisplay } from "@/util/date";
 import {
   EDITOR_EXERCISE_HEIGHT,
   EDITOR_SET_HEIGHT,
@@ -21,6 +22,7 @@ import { DifficultyInput, ToggleInput } from "./inputs";
 import { NAME_TO_EXERCISE_META } from "@/constants";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { SwipeableDelete } from "./utils";
+import { useState } from "react";
 
 const workoutTitleMetaStyles = StyleSheet.create({
   container: {
@@ -30,16 +32,39 @@ const workoutTitleMetaStyles = StyleSheet.create({
 
 type WorkoutTitleMeta = {
   workout: Workout;
+  onUpdateMeta: (meta: Partial<WorkoutMetadata>) => void;
+  onDateClick: () => void;
 };
-export function WorkoutTitleMeta({ workout }: WorkoutTitleMeta) {
+export function WorkoutTitleMeta({
+  workout,
+  onUpdateMeta,
+  onDateClick,
+}: WorkoutTitleMeta) {
   const { name, startedAt } = workout;
+
+  const [workoutName, setWorkoutName] = useState(name);
 
   return (
     <View style={workoutTitleMetaStyles.container}>
-      <TextInput extraLarge value={name} />
-      <Text neutral light>
-        {getLongDateDisplay(startedAt, true)}
-      </Text>
+      <TextInput
+        extraLarge
+        value={workoutName}
+        onChangeText={(name) => {
+          setWorkoutName(name);
+        }}
+        onEndEditing={() => {
+          if (workoutName.trim().length > 0) {
+            onUpdateMeta({ name: workoutName.trim() });
+          } else {
+            setWorkoutName(name);
+          }
+        }}
+      />
+      <TouchableOpacity onPress={onDateClick}>
+        <Text neutral light>
+          {getLongDateDisplay(startedAt, true)}
+        </Text>
+      </TouchableOpacity>
       <WorkoutSummary workout={workout} />
     </View>
   );

@@ -28,3 +28,7 @@ export function popAndInsert(
     ...removed.slice(insertIndex, removed.length),
   ];
 }
+
+export function clamp(value: number, maxBoundary: number, minBoundary: number){
+  return Math.min(Math.max(value, minBoundary), maxBoundary);
+}

@@ -1,5 +1,5 @@
 import { View } from "@/components/Themed";
-import { Exercise, ExerciseMeta, Workout } from "@/interface";
+import { Exercise, ExerciseMeta, Workout, WorkoutMetadata } from "@/interface";
 import { WORKOUT_PLAYER_EDITOR_HEIGHT, StyleUtils } from "@/util/styles";
 import {
   findNodeHandle,
@@ -16,6 +16,7 @@ import { ExerciseFinder } from "./exercises/finder";
 import { ReorderableExercises } from "./exercises/reorder";
 import { ScrollView } from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics";
+import { TimestampRangeEdit } from "./exercises/timestamp-range-edit";
 
 const exercisesEditorStyle = StyleSheet.create({
   container: {
@@ -44,7 +45,7 @@ type ExercisesEditorProps = {
   onRemove: (exercise: Exercise) => void;
   onReorder: (exercices: Exercise[]) => void;
   onEdit: (exercise: Exercise) => void;
-  onEditMeta: () => void;
+  onEditMeta: (meta: Partial<WorkoutMetadata>) => void;
   hide: () => void;
   trash: () => void;
   workout: Workout;
@@ -72,6 +73,7 @@ export function ExercisesEditor({
     useState(false);
   const [showExerciseFinder, setShowExerciseFinder] = useState(false);
   const [isReorderingExercises, setIsReorderingExercises] = useState(false);
+  const [isEditingDates, setIsEditingDate] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
   const [scrollState, setScrollState] = useState<ScrollState>();
   const { height } = useWindowDimensions();
@@ -133,7 +135,11 @@ export function ExercisesEditor({
         }}
       >
         <View style={exercisesEditorStyle.content}>
-          <WorkoutTitleMeta workout={workout} />
+          <WorkoutTitleMeta
+            workout={workout}
+            onUpdateMeta={onEditMeta}
+            onDateClick={() => setIsEditingDate(true)}
+          />
           {isReorderingExercises ? (
             <ReorderableExercises
               scrollMeasurements={{
@@ -174,6 +180,12 @@ export function ExercisesEditor({
           setShowWorkoutDeleteConfirmation(false);
           trash();
         }}
+      />
+      <TimestampRangeEdit
+        show={isEditingDates}
+        hide={() => setIsEditingDate(false)}
+        range={{ startedAt: workout.startedAt, endedAt: workout.endedAt }}
+        onUpdate={(range) => onEditMeta(range)}
       />
     </View>
   );

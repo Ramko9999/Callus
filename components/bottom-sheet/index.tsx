@@ -39,8 +39,9 @@ const DEFAULT_HIDE_OFFSET = 200;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-// todo: fix animation
+// todo: fix animation, make it faster
 // todo: fix bug with children bottom sheets not taking up full space
+// todo: fix hide offset lol
 export function BottomSheet({
   children,
   show,

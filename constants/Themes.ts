@@ -10,7 +10,8 @@ export const darkColors = {
   primaryAction: "#24A0ED",
   dangerAction: "#FF6347",
   success: "#2ECD70",
-  search: "#313035"
+  search: "#313035",
+  rouletteSelection: "rgba(200, 200, 200, 0.1)"
 }
 
 export const lightColors = {
@@ -23,7 +24,8 @@ export const lightColors = {
   primaryAction: "#24A0ED",
   dangerAction: "#DC143C",
   success: "#4FA94D",
-  search: "#eeeef0"
+  search: "#eeeef0",
+  rouletteSelection: "rgba(100, 100, 100, 0.2)"
 }
 
 

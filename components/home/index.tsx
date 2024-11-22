@@ -3,7 +3,12 @@ import { Text, View } from "@/components/Themed";
 import { StyleSheet, ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import { NewWorkoutViewTile } from "@/components/workout/view";
-import { truncTime, addDays, removeDays, getLongDateDisplay } from "@/util";
+import {
+  truncTime,
+  addDays,
+  removeDays,
+  getLongDateDisplay,
+} from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
 import { WorkoutIndicator } from "../workout/player/indicator";

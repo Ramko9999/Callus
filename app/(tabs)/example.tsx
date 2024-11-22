@@ -1,9 +1,10 @@
 import { View, Text } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Gesture,
   GestureDetector,
+  Directions,
   TouchableOpacity,
 } from "react-native-gesture-handler";
 import Animated, {
@@ -13,6 +14,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { StyleSheet, Pressable } from "react-native";
 import * as Haptics from "expo-haptics";
+import { clamp } from "@/util/function";
+import { Roulette } from "@/components/workout/core/datetime-picker/roulette";
+import { DateTimePicker } from "@/components/workout/core/datetime-picker";
 
 // for testing things out quickly, remove before prod release
 export default function () {
@@ -34,164 +38,149 @@ function Example() {
         height: "100%",
       }}
     >
-      <PanShuffle items={items} />
+      <ScrollableLock values={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]} />
+      <DateTimePicker timestamp={Date.now()}/>
     </View>
   );
 }
 
-function BorderAnimation({
-  focus,
-  setFocus,
-}: {
-  focus: boolean;
-  setFocus: any;
-}) {
-  const focusProgress = useSharedValue(0);
+const ELEMENT_HEIGHT = 50;
+const ELEMENTS_HEIGHT = ELEMENT_HEIGHT * 5;
+const SELECTION_TOP = ELEMENT_HEIGHT * 2;
 
-  useEffect(() => {
-    focusProgress.value = focus ? withTiming(1) : withTiming(0);
-  }, [focus]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    borderWidth: focusProgress.value,
-  }));
-
-  return (
-    <TouchableOpacity onPress={() => setFocus((f: boolean) => !f)}>
-      <Animated.View style={[{ borderColor: "white" }, animatedStyle]}>
-        <Text>Border Animation</Text>
-      </Animated.View>
-    </TouchableOpacity>
-  );
-}
-
-const ITEM_HEIGHT = 50;
-
-const panShuffleStyles = StyleSheet.create({
-  item: {
-    ...StyleUtils.flexRowCenterAll(),
-    padding: "3%",
-    height: ITEM_HEIGHT,
-    borderWidth: 1,
-    borderColor: "white",
-  },
+const scrollableLockStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(10),
   },
-  placeholder: {
-    height: ITEM_HEIGHT,
-    padding: "3%",
-    backgroundColor: "red",
+  item: {
+    ...StyleUtils.flexRowCenterAll(),
+    width: "100%",
+    height: ELEMENT_HEIGHT,
+  },
+  selection: {
+    position: "absolute",
+    backgroundColor: "rgba(55, 56, 58, 0.2)",
+    height: ELEMENT_HEIGHT,
+    top: SELECTION_TOP,
+    width: "100%",
+  },
+  scroll: {
+    height: ELEMENTS_HEIGHT,
+    overflow: "hidden",
   },
 });
 
-type PanShuffleProps = {
-  items: string[];
+type ScrollableLockProps = {
+  values: number[];
 };
 
-type ShuffleState = {
-  item: string;
-  originalIndex: number;
-  newIndex: number;
-};
+function ScrollableLock({ values }: ScrollableLockProps) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const scrollOffset = useSharedValue(0);
+  const inScrollOffset = useSharedValue(0);
+  const contentRef = useRef<Animated.View>(null);
 
-function PanShuffle({ items }: PanShuffleProps) {
-  const [shuffleState, setShuffleState] = useState<ShuffleState>();
-
-  const gestureOrigin = useSharedValue(0);
-  const shuffleTranslation = useSharedValue(0);
+  useEffect(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  }, [selectedIndex]);
 
   const panGesture = Gesture.Pan()
-    .onBegin((event) => {
-      gestureOrigin.value = event.y;
-      shuffleTranslation.value = event.y;
+    .onStart((event) => {
+      inScrollOffset.value = 0;
     })
     .onUpdate((event) => {
-      if (shuffleState !== undefined) {
-        const newPosition = gestureOrigin.value + event.translationY;
-        shuffleTranslation.value = newPosition;
+      const oldInscrollOffset = inScrollOffset.value;
+      const newScrollOffset =
+        scrollOffset.value - oldInscrollOffset + event.translationY;
+      scrollOffset.value = newScrollOffset;
+      inScrollOffset.value = event.translationY;
 
-        const indexDelta = Math.round(event.translationY / ITEM_HEIGHT);
-        const newIndex = Math.min(
-          Math.max(shuffleState?.originalIndex + indexDelta, 0),
-          items.length - 1
-        );
-        setShuffleState((s) => ({
-          ...(s as ShuffleState),
-          newIndex,
-        }));
-      }
+      setSelectedIndex(
+        clamp(
+          Math.floor((-1 * newScrollOffset) / ELEMENT_HEIGHT),
+          values.length - 1,
+          0
+        )
+      );
     })
-    .onEnd(() => {
-      gestureOrigin.value = 0;
-      shuffleTranslation.value = 0;
-      setShuffleState(undefined);
+    .onEnd((event) => {
+      const oldInscrollOffset = inScrollOffset.value;
+      let newScrollOffset =
+        scrollOffset.value - oldInscrollOffset + event.translationY;
+      contentRef.current?.measure((x, y, width, height, pageX, pageY) => {
+        if (Math.abs(newScrollOffset) > height - ELEMENT_HEIGHT) {
+          newScrollOffset = -1 * (height - ELEMENT_HEIGHT);
+        } else if (newScrollOffset >= 0) {
+          newScrollOffset = 0;
+        } else {
+          const scrollOffsetTip = Math.abs(newScrollOffset) % ELEMENT_HEIGHT;
+          if (scrollOffsetTip > ELEMENT_HEIGHT / 2) {
+            newScrollOffset =
+              newScrollOffset - (ELEMENT_HEIGHT - scrollOffsetTip);
+          } else {
+            newScrollOffset = newScrollOffset + scrollOffsetTip;
+          }
+        }
+        scrollOffset.value = withTiming(newScrollOffset, { duration: 300 });
+        setSelectedIndex(
+          clamp(
+            Math.floor((-1 * newScrollOffset) / ELEMENT_HEIGHT),
+            values.length - 1,
+            0
+          )
+        );
+      });
     })
     .runOnJS(true);
 
-  const shuffleItemStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: shuffleTranslation.value }],
-    position: "absolute",
+  const scrollAnimationStyle = useAnimatedStyle(() => ({
+    top: scrollOffset.value,
   }));
 
-  const getNewItemOrder = (items: string[]) => {
-    if (shuffleState?.originalIndex !== undefined) {
-      const item = items[shuffleState?.originalIndex];
-      const removedItems = [
-        ...items.slice(0, shuffleState?.originalIndex),
-        ...items.slice(shuffleState?.originalIndex + 1, items.length),
-      ];
-      return [
-        ...removedItems.slice(0, shuffleState?.newIndex),
-        item,
-        ...removedItems.slice(shuffleState?.newIndex, removedItems.length),
-      ];
-    } else {
-      return items;
-    }
-  };
-
   return (
-    <GestureDetector gesture={panGesture}>
-      <View>
-        <View background style={panShuffleStyles.container}>
-          {getNewItemOrder(items).map((item, index) =>
-            index === shuffleState?.newIndex ? (
-              <ShufflePlaceholder key={index} />
-            ) : (
-              <TouchableOpacity
-                key={index}
-                onLongPress={() => {
-                  setShuffleState({
-                    item,
-                    originalIndex: index,
-                    newIndex: index,
-                  });
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-                }}
-              >
+    <View background>
+      <GestureDetector gesture={panGesture}>
+        <View style={scrollableLockStyles.scroll}>
+          <View style={{ height: ELEMENT_HEIGHT * 2 }} />
+          <Animated.View style={scrollAnimationStyle} ref={contentRef}>
+            {values.map((value, index) => {
+              const indexDelta = useSharedValue(0);
+              useEffect(() => {
+                indexDelta.value = withTiming(index - selectedIndex, {
+                  duration: 100,
+                });
+              }, [index, selectedIndex]);
+
+              const animatedItemStyle = useAnimatedStyle(() => ({
+                transform: [
+                  { perspective: 1000 },
+                  { rotateX: `${indexDelta.value * 20}deg` },
+                ],
+                opacity: 1 - Math.abs(indexDelta.value / items.length),
+              }));
+
+              return (
                 <Animated.View
+                  key={value}
                   style={[
-                    panShuffleStyles.item,
-                    item === shuffleState?.item ? shuffleItemStyle : {},
+                    scrollableLockStyles.item,
+                    index !== selectedIndex ? animatedItemStyle : {},
                   ]}
                 >
-                  <Text>{item}</Text>
+                  <Text large light>
+                    {value}
+                  </Text>
                 </Animated.View>
-              </TouchableOpacity>
-            )
-          )}
-          {shuffleState?.item && (
-            <Animated.View style={[panShuffleStyles.item, shuffleItemStyle]}>
-              <Text>{shuffleState.item}</Text>
-            </Animated.View>
-          )}
+              );
+            })}
+          </Animated.View>
+          <View style={scrollableLockStyles.selection}></View>
         </View>
-      </View>
-    </GestureDetector>
+      </GestureDetector>
+    </View>
   );
 }
 
-function ShufflePlaceholder() {
-  return <View background style={panShuffleStyles.placeholder}></View>;
-}
+type DateSelectorProps = {};
+
+function DateSelector() {}

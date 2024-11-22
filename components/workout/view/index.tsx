@@ -8,7 +8,7 @@ import {
   useThemeColoring,
 } from "@/components/Themed";
 import { getWorkoutSummary } from "@/context/WorkoutContext";
-import { getTimePeriodDisplay } from "@/util";
+import { getTimePeriodDisplay } from "@/util/date";
 import { textTheme } from "@/constants/Themes";
 import { Ionicons } from "@expo/vector-icons";
 

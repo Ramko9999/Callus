@@ -61,7 +61,7 @@ export function Editor({
     onSaveWorkout({ ...workout, exercises });
   };
 
-  const onUpdateMeta = (meta: WorkoutMetadata) => {
+  const onUpdateMeta = (meta: Partial<WorkoutMetadata>) => {
     onSaveWorkout(updateWorkout({ ...meta }, workout));
   };
 
@@ -79,7 +79,7 @@ export function Editor({
         </Animated.View>
       ) : (
         <ExercisesEditor
-          onEditMeta={() => {}}
+          onEditMeta={onUpdateMeta}
           onAdd={onAddExercise}
           onEdit={({ id }) => {
             setExerciseId(id);

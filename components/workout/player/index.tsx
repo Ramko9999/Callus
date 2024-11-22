@@ -14,7 +14,7 @@ import {
   RestingActivityTile,
 } from "./WorkoutActivityTile";
 import { useWorkout } from "@/context/WorkoutContext";
-import { getTimePeriodDisplay } from "@/util";
+import { getTimePeriodDisplay } from "@/util/date";
 
 const styles = StyleSheet.create({
   workoutPlayer: {
@@ -66,7 +66,9 @@ export function WorkoutPlayer() {
           <RestingActivityTile
             activityData={activityData as unknown as RestingActivity}
             onFinish={() => actions.completeRest(restingData.setId)}
-            onUpdateRestDuration={(duration) => actions.updateRestDuration(restingData.setId, duration)}
+            onUpdateRestDuration={(duration) =>
+              actions.updateRestDuration(restingData.setId, duration)
+            }
           />
         );
       case WorkoutActivityType.FINISHED:

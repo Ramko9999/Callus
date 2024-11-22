@@ -17,7 +17,7 @@ import {
   RestingActivityTile,
 } from "./WorkoutActivityTile";
 import { useStopwatch } from "@/components/hooks/use-stopwatch";
-import { getTimePeriodDisplay } from "@/util";
+import { getTimePeriodDisplay } from "@/util/date";
 import { Close, Edit, SignificantAction } from "../core/actions";
 import { useState } from "react";
 import { Editor } from "../editor/editor";

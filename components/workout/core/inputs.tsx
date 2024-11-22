@@ -8,7 +8,7 @@ import {
   TimeDifficulty,
   WeightDifficulty,
 } from "@/interface";
-import { getDurationDisplay } from "@/util";
+import { getDurationDisplay } from "@/util/date";
 import { debounce } from "@/util/function";
 import { StyleUtils } from "@/util/styles";
 import { useCallback, useEffect, useState } from "react";
@@ -278,6 +278,7 @@ type ToggleInput = {
   onToggle: () => void;
 };
 
+// todo: let's have another state for while we are resting and display rest duration
 export function ToggleInput({ isOn, onToggle }: ToggleInput) {
   const isOnColor = useThemeColoring("lightText");
 

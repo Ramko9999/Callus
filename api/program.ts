@@ -3,10 +3,10 @@ import {
   NORMAL_LEG,
   PAUSE_LEG,
   PUSH,
-  NECK
+  NECK,
 } from "@/constants/SampleWorkouts";
 import { WorkoutPlan } from "@/interface";
-import { truncTime, Period } from "@/util";
+import { truncTime, Period } from "@/util/date";
 
 let SINGLETON_STORE_API: ProgramStoreApi;
 
@@ -21,11 +21,8 @@ const PROGRAM = [
 const START_DATE = new Date("2024-10-18T00:00:00.000");
 
 class ProgramStoreApi {
-
   static instance(): ProgramStoreApi {
-    SINGLETON_STORE_API =
-      SINGLETON_STORE_API ??
-      new ProgramStoreApi();
+    SINGLETON_STORE_API = SINGLETON_STORE_API ?? new ProgramStoreApi();
     return SINGLETON_STORE_API;
   }
 

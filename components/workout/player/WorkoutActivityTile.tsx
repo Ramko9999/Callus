@@ -7,7 +7,7 @@ import {
 import { View, Text, Action } from "../../Themed";
 import { StyleSheet, Image } from "react-native";
 import { useState, useEffect } from "react";
-import { getDurationDisplay } from "@/util";
+import { getDurationDisplay } from "@/util/date";
 import { useRouter } from "expo-router";
 import { useWorkout } from "@/context/WorkoutContext";
 import { DifficultyTile } from "./difficulty-tile";
@@ -126,7 +126,7 @@ export function RestingActivityTile({
       </Text>
       <Text _type="large">{getDurationDisplay(restDuration)}</Text>
       <View style={styles.activityTileActions}>
-      <Action
+        <Action
           _action={{ name: "Subtract 15s", type: "neutral" }}
           onPress={() => onUpdateRestDuration(duration - 15)}
         />
