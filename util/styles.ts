@@ -32,7 +32,7 @@ export const StyleUtils = {
   flexColumn,
 };
 
-export const WORKOUT_PLAYER_EDITOR_HEIGHT = 0.7;
+export const WORKOUT_PLAYER_EDITOR_HEIGHT = 0.8;
 
 export const EDITOR_SET_HEIGHT = 60;
 export const EDITOR_EXERCISE_HEIGHT = 70;

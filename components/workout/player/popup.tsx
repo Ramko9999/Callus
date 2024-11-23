@@ -20,7 +20,7 @@ import { useStopwatch } from "@/components/hooks/use-stopwatch";
 import { getTimePeriodDisplay } from "@/util/date";
 import { Close, Edit, SignificantAction } from "../core/actions";
 import { useState } from "react";
-import { Editor } from "../editor/editor";
+import { HistoricalEditor } from "../editor/historical";
 
 const livePlayerActionsStyles = StyleSheet.create({
   container: {
@@ -141,11 +141,11 @@ function LiveEditor({ hide }: LiveEditorProps) {
   const { editor } = useWorkout();
   const { workout, actions } = editor;
   return (
-    <Editor
+    <HistoricalEditor
       workout={workout as Workout}
       hide={hide}
-      onSaveWorkout={actions.updateWorkout}
-      onDelete={() => {}}
+      onSave={actions.updateWorkout}
+      trash={() => {}}
     />
   );
 }

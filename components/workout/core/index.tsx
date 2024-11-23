@@ -2,6 +2,7 @@ import { useThemeColoring, View, Text, TextInput } from "@/components/Themed";
 import { textTheme } from "@/constants/Themes";
 import {
   Difficulty,
+  DifficultyType,
   Exercise,
   ExerciseMeta,
   Set,
@@ -18,8 +19,7 @@ import {
 import { FontAwesome } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { WorkoutSummary } from "@/components/workout/view";
-import { DifficultyInput, ToggleInput } from "./inputs";
-import { NAME_TO_EXERCISE_META } from "@/constants";
+import { DifficultyInput, SetStatusInput } from "./inputs";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { SwipeableDelete } from "./utils";
 import { useState } from "react";
@@ -30,16 +30,12 @@ const workoutTitleMetaStyles = StyleSheet.create({
   },
 });
 
-type WorkoutTitleMeta = {
+type MetaEditor = {
   workout: Workout;
   onUpdateMeta: (meta: Partial<WorkoutMetadata>) => void;
   onDateClick: () => void;
 };
-export function WorkoutTitleMeta({
-  workout,
-  onUpdateMeta,
-  onDateClick,
-}: WorkoutTitleMeta) {
+export function MetaEditor({ workout, onUpdateMeta, onDateClick }: MetaEditor) {
   const { name, startedAt } = workout;
 
   const [workoutName, setWorkoutName] = useState(name);
@@ -194,28 +190,24 @@ export function ExercisePlaceholder() {
 const editorSetStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexRow(10),
-    alignItems: "center",
+    alignItems: "flex-start",
     height: EDITOR_SET_HEIGHT,
   },
 });
 
 type EditorSetProps = {
   set: Set;
-  exercise: Exercise;
+  difficultyType: DifficultyType;
   onTrash: () => void;
   onUpdate: (update: Partial<Set>) => void;
 };
 
 export function EditorSet({
   set,
-  exercise,
+  difficultyType,
   onTrash,
   onUpdate,
 }: EditorSetProps) {
-  const { difficultyType } = NAME_TO_EXERCISE_META.get(
-    exercise.name
-  ) as ExerciseMeta;
-
   return (
     <Swipeable
       renderRightActions={(_, drag) => (
@@ -228,7 +220,8 @@ export function EditorSet({
       overshootRight={false}
     >
       <View style={editorSetStyles.container}>
-        <ToggleInput
+        <SetStatusInput
+          set={set}
           isOn={set.status === SetStatus.FINISHED}
           onToggle={() => {
             if (set.status === SetStatus.FINISHED) {

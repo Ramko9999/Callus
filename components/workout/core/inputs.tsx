@@ -7,6 +7,8 @@ import {
   DifficultyType,
   TimeDifficulty,
   WeightDifficulty,
+  Set,
+  SetStatus,
 } from "@/interface";
 import { getDurationDisplay } from "@/util/date";
 import { debounce } from "@/util/function";
@@ -22,6 +24,7 @@ const inputStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexRowCenterAll(),
     borderRadius: 10,
+    justifyContent: "flex-start",
   },
   label: {
     ...StyleUtils.flexColumn(3),
@@ -264,22 +267,35 @@ export function DifficultyInput({
   }
 }
 
-const toggleInputStyles = {
+const setStatusInputStyles = {
   container: {
     ...StyleUtils.flexRowCenterAll(),
-    borderRadius: 10,
-    height: 45,
-    width: 45,
+    borderRadius: 5,
+    height: 25,
+    width: 25,
   },
 };
 
-type ToggleInput = {
+type SetStatusInput = {
+  set: Set;
   isOn: boolean;
   onToggle: () => void;
 };
 
+function getSetStatusToDisplay(set: Set) {
+  if (set.status === SetStatus.UNSTARTED) {
+    return "Todo";
+  } else if (set.status === SetStatus.RESTING) {
+    return `Resting ${
+      (set.startedAt as number) + set.restDuration * 1000 - Date.now()
+    }`;
+  } else {
+    return "Done";
+  }
+}
+
 // todo: let's have another state for while we are resting and display rest duration
-export function ToggleInput({ isOn, onToggle }: ToggleInput) {
+export function SetStatusInput({ set, isOn, onToggle }: SetStatusInput) {
   const isOnColor = useThemeColoring("lightText");
 
   let backgroundStyle: ViewStyle = isOn
@@ -287,8 +303,16 @@ export function ToggleInput({ isOn, onToggle }: ToggleInput) {
     : { borderWidth: 1 };
 
   return (
-    <TouchableOpacity onPress={() => onToggle()}>
-      <View background style={[toggleInputStyles.container, backgroundStyle]} />
-    </TouchableOpacity>
+    <View style={inputStyles.label}>
+      <Text light neutral>
+        {getSetStatusToDisplay(set)}
+      </Text>
+      <TouchableOpacity onPress={() => onToggle()}>
+        <View
+          background
+          style={[setStatusInputStyles.container, backgroundStyle]}
+        />
+      </TouchableOpacity>
+    </View>
   );
 }

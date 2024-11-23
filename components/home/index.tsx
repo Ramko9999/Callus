@@ -13,7 +13,7 @@ import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
 import { WorkoutIndicator } from "../workout/player/indicator";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { EditorPopup } from "../workout/editor/editor";
+import { HistoricalEditorPopup } from "../workout/editor/historical";
 
 const styles = StyleSheet.create({
   homeView: {
@@ -193,23 +193,23 @@ export default function Home() {
         </View>
       </GestureDetector>
       <WorkoutIndicator />
-      <EditorPopup
+      <HistoricalEditorPopup
         show={workoutToUpdate != undefined}
         hide={() => {
-          setWorkoutToUpdate(undefined);
           loadWorkouts();
+          setWorkoutToUpdate(undefined);
         }}
-        onSaveWorkout={(workout) => {
+        onSave={(workout) => {
           WorkoutApi.saveWorkout(workout).then(() =>
             setWorkoutToUpdate(workout)
           );
         }}
-        onDeleteWorkout={(workoutId) =>
-          WorkoutApi.deleteWorkout(workoutId).then(() => {
+        trash={() => {
+          WorkoutApi.deleteWorkout((workoutToUpdate as Workout).id).then(() => {
             setWorkoutToUpdate(undefined);
             loadWorkouts();
-          })
-        }
+          });
+        }}
         workout={workoutToUpdate as Workout}
       />
     </>

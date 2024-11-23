@@ -1,6 +1,6 @@
 import { Exercise } from "@/interface";
 import { popAndInsert } from "@/util/function";
-import { EDITOR_EXERCISE_HEIGHT, StyleUtils } from "@/util/styles";
+import { EDITOR_EXERCISE_HEIGHT } from "@/util/styles";
 import { useState } from "react";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import {
@@ -17,7 +17,6 @@ import { View } from "@/components/Themed";
 
 const reorderableExercisesStyles = StyleSheet.create({
   container: {
-    ...StyleUtils.flexColumn(10),
   },
   placeholder: {
     width: "100%",
@@ -140,8 +139,7 @@ export function ReorderableExercises({
               exercise={exercise}
               onClickDown={() => {
                 setReorderableState({ originalIndex: index, newIndex: index });
-                }
-              }
+              }}
             />
           )
         )}
