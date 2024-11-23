@@ -72,30 +72,60 @@ export function getCurrentSetAndExercise(workout: Workout) {
   }
 }
 
+export function hasUnstartedSets(workout: Workout) {
+  return (
+    workout.exercises.filter(
+      (exercise) =>
+        exercise.sets.filter((set) => set.status === SetStatus.UNSTARTED)
+          .length > 0
+    ).length > 0
+  );
+}
+
+export function wrapUpSets(workout: Workout): Workout {
+  const exercises = workout.exercises.map((exercise) => {
+    const sets = exercise.sets.flatMap((set) => {
+      if (set.status !== SetStatus.UNSTARTED) {
+        if (set.status === SetStatus.FINISHED) {
+          return [set];
+        }
+        return [
+          { ...set, status: SetStatus.FINISHED, restEndedAt: Date.now() },
+        ];
+      }
+      return [];
+    });
+
+    return { ...exercise, sets };
+  });
+
+  return {
+    ...workout,
+    exercises: exercises.filter((exercise) => exercise.sets.length > 0),
+    endedAt: Date.now(),
+  };
+}
+
 // todo: adding a set at the end of the workout doesn't lead to the set being shown in the player
 export function getCurrentWorkoutActivity(workout: Workout) {
-  const sets = workout.exercises.flatMap((exercise) =>
-    exercise.sets.map((set) => ({ ...set, exercise }))
+  const exerciseSets = workout.exercises.flatMap((exercise) =>
+    exercise.sets.map((set) => ({ set, exercise }))
   );
-  for (const set of sets) {
+  for (const { set, exercise } of exerciseSets) {
     if (set.status === SetStatus.UNSTARTED) {
       return {
         type: WorkoutActivityType.EXERCISING,
         activityData: {
-          name: set.exercise.name,
-          difficultyType: NAME_TO_EXERCISE_META.get(set.exercise.name)
-            ?.difficultyType,
-          setId: set.id,
-          difficulty: set.difficulty,
+          set,
+          exercise,
         },
       };
     } else if (set.status === SetStatus.RESTING) {
       return {
         type: WorkoutActivityType.RESTING,
         activityData: {
-          duration: set.restDuration,
-          setId: set.id,
-          startedAt: set.restStartedAt,
+          set,
+          exercise,
         },
       };
     }
@@ -364,7 +394,7 @@ export function WorkoutProvider({ children }: Props) {
     const activity = getCurrentWorkoutActivity(newWorkout);
     if (activity.type !== WorkoutActivityType.FINISHED) {
       newWorkout = updateSet(
-        activity.activityData.setId as string,
+        (activity.activityData.set as Set).id,
         { startedAt: Date.now() },
         newWorkout as Workout
       );
@@ -394,7 +424,7 @@ export function WorkoutProvider({ children }: Props) {
     const activity = getCurrentWorkoutActivity(newWorkout);
     if (activity.type !== WorkoutActivityType.FINISHED) {
       newWorkout = updateSet(
-        activity.activityData.setId as string,
+        (activity.activityData.set as Set).id,
         { startedAt: Date.now() },
         newWorkout as Workout
       );

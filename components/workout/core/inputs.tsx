@@ -271,8 +271,8 @@ const setStatusInputStyles = {
   container: {
     ...StyleUtils.flexRowCenterAll(),
     borderRadius: 5,
-    height: 25,
-    width: 25,
+    height: 40,
+    width: 40,
   },
 };
 
@@ -282,20 +282,12 @@ type SetStatusInput = {
   onToggle: () => void;
 };
 
-function getSetStatusToDisplay(set: Set) {
-  if (set.status === SetStatus.UNSTARTED) {
-    return "Todo";
-  } else if (set.status === SetStatus.RESTING) {
-    return `Resting ${
-      (set.startedAt as number) + set.restDuration * 1000 - Date.now()
-    }`;
-  } else {
-    return "Done";
-  }
-}
-
 // todo: let's have another state for while we are resting and display rest duration
-export function SetStatusInput({ set, isOn, onToggle }: SetStatusInput) {
+export function SetStatusInput({
+  set,
+  isOn,
+  onToggle,
+}: SetStatusInput) {
   const isOnColor = useThemeColoring("lightText");
 
   let backgroundStyle: ViewStyle = isOn
@@ -303,16 +295,11 @@ export function SetStatusInput({ set, isOn, onToggle }: SetStatusInput) {
     : { borderWidth: 1 };
 
   return (
-    <View style={inputStyles.label}>
-      <Text light neutral>
-        {getSetStatusToDisplay(set)}
-      </Text>
-      <TouchableOpacity onPress={() => onToggle()}>
-        <View
-          background
-          style={[setStatusInputStyles.container, backgroundStyle]}
-        />
-      </TouchableOpacity>
-    </View>
+    <TouchableOpacity onPress={() => onToggle()}>
+      <View
+        background
+        style={[setStatusInputStyles.container, backgroundStyle]}
+      />
+    </TouchableOpacity>
   );
 }

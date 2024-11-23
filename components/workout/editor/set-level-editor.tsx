@@ -24,7 +24,7 @@ const setLevelEditorStyle = StyleSheet.create({
   },
   content: {
     ...StyleUtils.flexColumn(10),
-    paddingTop: "5%"
+    paddingTop: "5%",
   },
   scroll: {
     paddingBottom: "2%",
@@ -85,7 +85,7 @@ export function SetLevelEditor({
     <ScrollView
       ref={scrollRef}
       contentContainerStyle={setLevelEditorStyle.scroll}
-      style={{height: height * 0.7}}
+      style={{ height: height * 0.7 }}
       onContentSizeChange={handleScrollContentChange}
     >
       <View style={setLevelEditorStyle.content}>
@@ -98,6 +98,7 @@ export function SetLevelEditor({
             <EditorSet
               key={index}
               set={set}
+              animate={currentSet?.id === set.id}
               difficultyType={difficultyType}
               onUpdate={(update) => {
                 onEdit(set.id, update);

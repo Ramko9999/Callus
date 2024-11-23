@@ -20,8 +20,8 @@ const iconActionStyles = StyleSheet.create({
 const textActionStyles = StyleSheet.create({
   container: {
     borderRadius: 5,
-    paddingHorizontal: "6%",
-    paddingVertical: "4%",
+    paddingHorizontal: 5,
+    paddingVertical: 5,
     height: TEXT_ACTION_HEIGHT,
     ...StyleUtils.flexRowCenterAll(),
   },

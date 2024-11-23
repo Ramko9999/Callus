@@ -1,17 +1,13 @@
 import { View } from "@/components/Themed";
-import {
-  Exercise,
-  WorkoutActivity,
-  WorkoutActivityType,
-} from "@/interface";
-import { WORKOUT_PLAYER_EDITOR_HEIGHT, StyleUtils } from "@/util/styles";
+import { Exercise, WorkoutActivity, WorkoutActivityType } from "@/interface";
+import { StyleUtils } from "@/util/styles";
 import {
   findNodeHandle,
   StyleSheet,
   UIManager,
   useWindowDimensions,
 } from "react-native";
-import { EditorExercise} from "@/components/workout/core";
+import { EditorExercise } from "@/components/workout/core";
 import { useEffect, useRef, useState } from "react";
 import { ReorderableExercises } from "@/components/workout/editor/util/reorder";
 import { ScrollView } from "react-native-gesture-handler";
@@ -26,21 +22,9 @@ const exerciseLevelEditorStyles = StyleSheet.create({
   },
 });
 
-type InProgressActions = {
-  isReordering?: boolean;
-  isSearching?: boolean;
-  isFinishing?: boolean;
-  isDeleting?: boolean;
-};
-
-type CurrentWorkoutActivity = {
-  type: WorkoutActivityType;
-  activity: WorkoutActivity;
-};
-
 type ExerciseLevelEditorProps = {
-  inProgressActions: InProgressActions;
-  currentWorkoutActivity?: CurrentWorkoutActivity;
+  isReordering: boolean;
+  currentExerciseId?: string;
   exercises: Exercise[];
   onRemove: (exerciseId: string) => void;
   onReorder: (exercises: Exercise[]) => void;
@@ -56,8 +40,8 @@ type ScrollState = {
 const SCROLL_OFFSET = 80;
 
 export function ExerciseLevelEditor({
-  inProgressActions,
-  currentWorkoutActivity,
+  isReordering,
+  currentExerciseId,
   exercises,
   onRemove,
   onReorder,
@@ -66,7 +50,6 @@ export function ExerciseLevelEditor({
   const scrollRef = useRef<ScrollView>(null);
   const [scrollState, setScrollState] = useState<ScrollState>();
   const { height } = useWindowDimensions();
-  const { isReordering } = inProgressActions;
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -121,6 +104,7 @@ export function ExerciseLevelEditor({
               exercise={exercise}
               onClick={() => onEdit(exercise)}
               onTrash={() => onRemove(exercise.id)}
+              animate={exercise.id === currentExerciseId}
             />
           ))
         )}

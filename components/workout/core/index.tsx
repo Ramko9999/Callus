@@ -22,11 +22,20 @@ import { WorkoutSummary } from "@/components/workout/view";
 import { DifficultyInput, SetStatusInput } from "./inputs";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { SwipeableDelete } from "./utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 
 const workoutTitleMetaStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(5),
+    paddingLeft: "3%",
   },
 });
 
@@ -69,6 +78,7 @@ const editorExerciseStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexRow(10),
     alignItems: "center",
+    paddingLeft: "3%",
     paddingVertical: "3%",
     height: EDITOR_EXERCISE_HEIGHT,
   },
@@ -87,6 +97,7 @@ type EditorExerciseProps = {
   exercise: Exercise;
   onClick: () => void;
   onTrash: () => void;
+  animate?: boolean;
 };
 
 function getSubtitle(exercise: Exercise) {
@@ -113,7 +124,29 @@ export function EditorExercise({
   exercise,
   onClick,
   onTrash,
+  animate,
 }: EditorExerciseProps) {
+  const animationBackgroundColor = useSharedValue(0);
+  const animationColor = useThemeColoring("highlightedAnimationColor");
+
+  useEffect(() => {
+    animationBackgroundColor.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 1000 }),
+        withTiming(0, { duration: 1000 })
+      ),
+      -1
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      animationBackgroundColor.value,
+      [0, 1],
+      ["transparent", animationColor]
+    ),
+  }));
+
   return (
     <Swipeable
       overshootRight={false}
@@ -126,7 +159,9 @@ export function EditorExercise({
       )}
     >
       <TouchableOpacity onPress={onClick}>
-        <View style={editorExerciseStyles.container}>
+        <Animated.View
+          style={[editorExerciseStyles.container, animate ? animatedStyle : {}]}
+        >
           <View style={editorExerciseStyles.title}>
             <Text large>{exercise.name}</Text>
             <Text neutral light>
@@ -140,7 +175,7 @@ export function EditorExercise({
               size={textTheme.large.fontSize}
             />
           </View>
-        </View>
+        </Animated.View>
       </TouchableOpacity>
     </Swipeable>
   );
@@ -190,7 +225,7 @@ export function ExercisePlaceholder() {
 const editorSetStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexRow(10),
-    alignItems: "flex-start",
+    alignItems: "center",
     height: EDITOR_SET_HEIGHT,
   },
 });
@@ -200,6 +235,7 @@ type EditorSetProps = {
   difficultyType: DifficultyType;
   onTrash: () => void;
   onUpdate: (update: Partial<Set>) => void;
+  animate?: boolean;
 };
 
 export function EditorSet({
@@ -207,7 +243,29 @@ export function EditorSet({
   difficultyType,
   onTrash,
   onUpdate,
+  animate,
 }: EditorSetProps) {
+  const animationBackgroundColor = useSharedValue(0);
+  const animationColor = useThemeColoring("highlightedAnimationColor");
+
+  useEffect(() => {
+    animationBackgroundColor.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 1000 }),
+        withTiming(0, { duration: 1000 })
+      ),
+      -1
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      animationBackgroundColor.value,
+      [0, 1],
+      ["transparent", animationColor]
+    ),
+  }));
+
   return (
     <Swipeable
       renderRightActions={(_, drag) => (
@@ -219,7 +277,9 @@ export function EditorSet({
       )}
       overshootRight={false}
     >
-      <View style={editorSetStyles.container}>
+      <Animated.View
+        style={[editorSetStyles.container, animate ? animatedStyle : {}]}
+      >
         <SetStatusInput
           set={set}
           isOn={set.status === SetStatus.FINISHED}
@@ -243,7 +303,7 @@ export function EditorSet({
           type={difficultyType}
           onUpdate={(difficulty: Difficulty) => onUpdate({ difficulty })}
         />
-      </View>
+      </Animated.View>
     </Swipeable>
   );
 }

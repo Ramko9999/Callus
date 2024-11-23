@@ -1,6 +1,10 @@
 import { BottomSheet } from "@/components/bottom-sheet";
 import { View, Text } from "@/components/Themed";
-import { useWorkout } from "@/context/WorkoutContext";
+import {
+  hasUnstartedSets,
+  useWorkout,
+  wrapUpSets,
+} from "@/context/WorkoutContext";
 import {
   ExercisingActivity,
   RestingActivity,
@@ -10,7 +14,7 @@ import {
   WorkoutMetadata,
 } from "@/interface";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
-import { Dimensions, StyleSheet } from "react-native";
+import { StyleSheet, useWindowDimensions } from "react-native";
 import {
   ExercisingActivityTile,
   FinishWorkoutActivityTile,
@@ -20,7 +24,8 @@ import { useStopwatch } from "@/components/hooks/use-stopwatch";
 import { getTimePeriodDisplay } from "@/util/date";
 import { Close, Edit, SignificantAction } from "../core/actions";
 import { useState } from "react";
-import { HistoricalEditor } from "../editor/historical";
+import { LiveEditor } from "../editor/live";
+import { DiscardUnstartedSetsConfirmation } from "../editor/confirmations";
 
 const livePlayerActionsStyles = StyleSheet.create({
   container: {
@@ -33,6 +38,7 @@ const livePlayerActionsStyles = StyleSheet.create({
     ...StyleUtils.flexRow(10),
     justifyContent: "center",
     alignItems: "center",
+    paddingRight: "3%",
   },
 });
 
@@ -76,13 +82,19 @@ type LivePlayerProps = {
 };
 
 function LivePlayer({ hide, onEdit }: LivePlayerProps) {
-  const { activity, actions, metadata } = useWorkout();
+  const { activity, actions, metadata, editor } = useWorkout();
   const { elapsedMs } = useStopwatch({
     startTimeMs: (metadata as WorkoutMetadata).startedAt,
   });
 
+  const { workout, actions: editorActions } = editor;
+  const { updateWorkout } = editorActions;
+
+  const [isFinishing, setIsFinishing] = useState(false);
+
   const { type, activityData } = activity as WorkoutActivity;
 
+  const { height } = useWindowDimensions();
   const getWorkoutActivityTile = () => {
     switch (type) {
       case WorkoutActivityType.EXERCISING:
@@ -90,7 +102,7 @@ function LivePlayer({ hide, onEdit }: LivePlayerProps) {
         return (
           <ExercisingActivityTile
             activityData={exercisingData}
-            onFinish={() => actions.completeSet(exercisingData.setId)}
+            onFinish={() => actions.completeSet(exercisingData.set.id)}
           />
         );
       case WorkoutActivityType.RESTING:
@@ -98,9 +110,9 @@ function LivePlayer({ hide, onEdit }: LivePlayerProps) {
         return (
           <RestingActivityTile
             activityData={activityData as unknown as RestingActivity}
-            onFinish={() => actions.completeRest(restingData.setId)}
+            onFinish={() => actions.completeRest(restingData.set.id)}
             onUpdateRestDuration={(duration) =>
-              actions.updateRestDuration(restingData.setId, duration)
+              actions.updateRestDuration(restingData.set.id, duration)
             }
           />
         );
@@ -112,41 +124,42 @@ function LivePlayer({ hide, onEdit }: LivePlayerProps) {
   };
 
   return (
-    <View background style={livePlayerStyles.container}>
-      <LivePlayerActions onEdit={onEdit} onExit={hide} onFinish={() => {}} />
+    <>
       <View
         background
         style={[
-          livePlayerStyles.content,
-          {
-            height:
-              Dimensions.get("screen").height * WORKOUT_PLAYER_EDITOR_HEIGHT,
-          },
+          livePlayerStyles.container,
+          { height: height * WORKOUT_PLAYER_EDITOR_HEIGHT },
         ]}
       >
-        {getWorkoutActivityTile()}
-        <View style={livePlayerStyles.timer}>
-          <Text large>{getTimePeriodDisplay(elapsedMs)}</Text>
+        <LivePlayerActions
+          onEdit={onEdit}
+          onExit={hide}
+          onFinish={() => {
+            
+            if (hasUnstartedSets(workout as Workout)) {
+              setIsFinishing(true);
+            } else {
+              updateWorkout(wrapUpSets(workout as Workout));
+            }
+          }}
+        />
+        <View background style={livePlayerStyles.content}>
+          {getWorkoutActivityTile()}
+          <View style={livePlayerStyles.timer}>
+            <Text large>{getTimePeriodDisplay(elapsedMs)}</Text>
+          </View>
         </View>
       </View>
-    </View>
-  );
-}
-
-type LiveEditorProps = {
-  hide: () => void;
-};
-
-function LiveEditor({ hide }: LiveEditorProps) {
-  const { editor } = useWorkout();
-  const { workout, actions } = editor;
-  return (
-    <HistoricalEditor
-      workout={workout as Workout}
-      hide={hide}
-      onSave={actions.updateWorkout}
-      trash={() => {}}
-    />
+      <DiscardUnstartedSetsConfirmation
+        show={isFinishing}
+        hide={() => setIsFinishing(false)}
+        onDiscard={() => {
+          updateWorkout(wrapUpSets(workout as Workout));
+          setIsFinishing(false);
+        }}
+      />
+    </>
   );
 }
 
@@ -161,7 +174,7 @@ export function LivePlayerPopup({ show, hide }: LivePlayerPopupProps) {
   return (
     <BottomSheet show={show} hide={hide} onBackdropPress={hide}>
       {isEditing ? (
-        <LiveEditor hide={() => setIsEditing(false)} />
+        <LiveEditor back={() => setIsEditing(false)} />
       ) : (
         <LivePlayer hide={hide} onEdit={() => setIsEditing(true)} />
       )}

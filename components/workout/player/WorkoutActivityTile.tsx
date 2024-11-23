@@ -1,6 +1,7 @@
 import {
   Difficulty,
   DifficultyType,
+  ExerciseMeta,
   ExercisingActivity,
   RestingActivity,
 } from "@/interface";
@@ -12,6 +13,7 @@ import { useRouter } from "expo-router";
 import { useWorkout } from "@/context/WorkoutContext";
 import { DifficultyTile } from "./difficulty-tile";
 import { NAME_TO_EXERCISE_META } from "@/constants";
+import { useTimer } from "@/components/hooks/use-timer";
 
 const styles = StyleSheet.create({
   activityTile: {
@@ -51,20 +53,23 @@ export function ExercisingActivityTile({
   activityData,
   onFinish,
 }: ExercisingActivityTileProps) {
-  const { name, difficulty, difficultyType } = activityData;
-  const uri = NAME_TO_EXERCISE_META.get(name)?.demoUrl || "";
+  const { exercise, set } = activityData;
+  const meta = NAME_TO_EXERCISE_META.get(exercise.name) as ExerciseMeta;
 
   // todo: load the image quick
   return (
     <View style={styles.activityTile}>
       <Text _type="emphasized" style={styles.activityTileTitle}>
-        {name}
+        {exercise.name}
       </Text>
       <DifficultyTile
-        difficulty={difficulty as Difficulty}
-        type={difficultyType as DifficultyType}
+        difficulty={set.difficulty as Difficulty}
+        type={meta.difficultyType as DifficultyType}
       />
-      <Image source={{ uri }} style={styles.exercisingActivityTileDemo} />
+      <Image
+        source={{ uri: meta.demoUrl || "" }}
+        style={styles.exercisingActivityTileDemo}
+      />
       <View style={styles.activityTileActions}>
         <Action
           _action={{ name: "Done", type: "neutral" }}
@@ -87,48 +92,39 @@ export function RestingActivityTile({
   onUpdateRestDuration,
 }: RestingActivityTileProps) {
   // todo: use stopwatch and use timer and create a hook called useRestTimer to sound the rings
-  const { duration, startedAt } = activityData;
-  const [restDuration, setRestDuration] = useState<number>(
-    duration + Math.ceil((startedAt - Date.now()) / 1000.0)
-  );
+  const { set } = activityData;
+  const { restDuration, restStartedAt } = set;
+  const { isOver, remainingMs } = useTimer({
+    startTimeMs: restStartedAt as number,
+    durationMs: restDuration * 1000,
+  });
+
   const { soundPlayer } = useWorkout();
 
-  useEffect(() => {
-    if (restDuration >= 0) {
-      const interval = setInterval(() => {
-        setRestDuration(
-          duration + Math.ceil((startedAt - Date.now()) / 1000.0)
-        );
-      }, 1000);
-      return () => {
-        clearInterval(interval);
-      };
-    }
-  }, [duration]);
+  console.log({isOver, remainingMs});
 
   useEffect(() => {
-    if (restDuration < 0) {
+    if (isOver) {
       onFinish();
-    }
-    if (restDuration == 0) {
-      soundPlayer.playNextSetBegin().then(onFinish);
+    } else if (remainingMs <= 1000) {
+      soundPlayer.playNextSetBegin();
     } else {
-      if (restDuration <= 6 && restDuration % 2 === 0) {
+      if (remainingMs <= 6000 && restDuration % 2 === 0) {
         soundPlayer.playRestCompleting();
       }
     }
-  }, [restDuration]);
+  }, [isOver, remainingMs]);
 
   return (
     <View style={styles.activityTile}>
       <Text _type="emphasized" style={styles.activityTileTitle}>
         Rest
       </Text>
-      <Text _type="large">{getDurationDisplay(restDuration)}</Text>
+      <Text _type="large">{getDurationDisplay(Math.floor(remainingMs / 1000))}</Text>
       <View style={styles.activityTileActions}>
         <Action
           _action={{ name: "Subtract 15s", type: "neutral" }}
-          onPress={() => onUpdateRestDuration(duration - 15)}
+          onPress={() => onUpdateRestDuration(restDuration - 15)}
         />
         <Action
           _action={{ name: "Skip", type: "neutral" }}
@@ -136,7 +132,7 @@ export function RestingActivityTile({
         />
         <Action
           _action={{ name: "Add 15s", type: "neutral" }}
-          onPress={() => onUpdateRestDuration(duration + 15)}
+          onPress={() => onUpdateRestDuration(restDuration + 15)}
         />
       </View>
     </View>

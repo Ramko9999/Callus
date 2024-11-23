@@ -72,10 +72,10 @@ function RestingActivityIndicator({
   );
 }
 
-function ExercisingActivityIndicator({ name }: ExercisingActivity) {
+function ExercisingActivityIndicator({ exercise }: ExercisingActivity) {
   return (
     <Text neutral light>
-      {name}
+      {exercise.name}
     </Text>
   );
 }
@@ -93,9 +93,10 @@ function CurrentActivityIndicator({ type, activityData }: WorkoutActivity) {
     case WorkoutActivityType.RESTING:
       return (
         <RestingActivityIndicator
-          {...(activityData as RestingActivity)}
+          duration={(activityData as RestingActivity).set.restDuration}
+          startedAt={(activityData as RestingActivity).set.startedAt as number}
           onRestOver={() => {
-            actions.completeRest((activityData as RestingActivity).setId);
+            actions.completeRest((activityData as RestingActivity).set.id);
           }}
         />
       );
@@ -104,7 +105,6 @@ function CurrentActivityIndicator({ type, activityData }: WorkoutActivity) {
   }
 }
 
-// todo: fix rendered fewer hooks than expected
 export function WorkoutIndicator() {
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const { isInWorkout, activity, metadata, editor } = useWorkout();

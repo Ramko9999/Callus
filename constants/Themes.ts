@@ -11,7 +11,8 @@ export const darkColors = {
   dangerAction: "#FF6347",
   success: "#2ECD70",
   search: "#313035",
-  rouletteSelection: "rgba(200, 200, 200, 0.1)"
+  rouletteSelection: "rgba(200, 200, 200, 0.1)",
+  highlightedAnimationColor: "rgba(14, 63, 93, 0.2)"
 }
 
 export const lightColors = {
@@ -25,7 +26,8 @@ export const lightColors = {
   dangerAction: "#DC143C",
   success: "#4FA94D",
   search: "#eeeef0",
-  rouletteSelection: "rgba(100, 100, 100, 0.2)"
+  rouletteSelection: "rgba(100, 100, 100, 0.2)",
+  highlightedAnimationColor: "rgba(14, 63, 93, 0.2)"
 }
 
 

@@ -102,15 +102,6 @@ function CompletedWorkouts({
 
   const isRestDay = workouts.length === 0;
 
-  const onEditCompletedWorkout = (workout: Workout) => {
-    router.push({
-      pathname: "/offline-workout-tracker",
-      params: {
-        serializedWorkout: JSON.stringify(workout),
-      },
-    });
-  };
-
   return isRestDay ? (
     <View _type="background" style={styles.expansiveCenterAlignedView}>
       <Text _type="neutral">It's a rest day. Take it easy :)</Text>

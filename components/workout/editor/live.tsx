@@ -6,6 +6,10 @@ import {
   duplicateLastSet,
   removeSet,
   updateSet,
+  useWorkout,
+  wrapUpSets,
+  hasUnstartedSets,
+  getCurrentWorkoutActivity,
 } from "@/context/WorkoutContext";
 import {
   Workout,
@@ -15,64 +19,66 @@ import {
   Set,
 } from "@/interface";
 import { useState } from "react";
-import { Close, Done, Shuffle, Add, Trash, Back } from "../core/actions";
+import { Done, Shuffle, Add, Back, SignificantAction } from "../core/actions";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
 import { MetaEditor } from "../core";
 import { ExerciseLevelEditor } from "./exercise-level-editor";
-import { BottomSheet } from "@/components/bottom-sheet";
 import * as Haptics from "expo-haptics";
 import { SetLevelEditor } from "./set-level-editor";
 import { EXERCISE_REPOSITORY, NAME_TO_EXERCISE_META } from "@/constants";
 import { ExerciseFinder } from "./util/finder";
-import { WorkoutDeleteConfirmation } from "./confirmations";
 import { TimestampRangeEdit } from "./util/timestamp-range-edit";
+import { DiscardUnstartedSetsConfirmation } from "./confirmations";
 
-const historicalEditorTopActionsStyles = StyleSheet.create({
+const liveEditorTopActionsStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexRow(10),
+    alignItems: "center",
     justifyContent: "space-between",
   },
   rightActions: {
     ...StyleUtils.flexRow(10),
+    justifyContent: "center",
+    alignItems: "center",
     paddingRight: "3%",
   },
 });
 
-type HistoricalEditorTopActionsProps = {
+type LiveEditorTopActionsProps = {
   isReordering: boolean;
   onClose: () => void;
   onStartReordering: () => void;
   onDoneReordering: () => void;
   onAdd: () => void;
-  onTrash: () => void;
+  onFinish: () => void;
 };
 
-function HistoricalEditorTopActions({
+function LiveEditorTopActions({
   isReordering,
   onClose,
   onStartReordering,
   onDoneReordering,
   onAdd,
-  onTrash,
-}: HistoricalEditorTopActionsProps) {
+  onFinish,
+}: LiveEditorTopActionsProps) {
   return (
-    <View style={historicalEditorTopActionsStyles.container}>
-      <Close onClick={onClose} />
-      <View style={historicalEditorTopActionsStyles.rightActions}>
+    <View style={liveEditorTopActionsStyles.container}>
+      <Back onClick={onClose} />
+      <View style={liveEditorTopActionsStyles.rightActions}>
         {isReordering ? (
           <Done onClick={onDoneReordering} />
         ) : (
           <Shuffle onClick={onStartReordering} />
         )}
         <Add onClick={onAdd} />
-        <Trash onClick={onTrash} />
+        <SignificantAction onClick={onFinish} text="Finish" />
       </View>
     </View>
   );
 }
 
-const historicalSetEditorTopActionsStyles = StyleSheet.create({
+const liveSetEditorTopActionsStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexRow(10),
     justifyContent: "space-between",
@@ -83,26 +89,26 @@ const historicalSetEditorTopActionsStyles = StyleSheet.create({
   },
 });
 
-type HistoricalSetEditorTopActionsProps = {
+type LiveSetEditorTopActionsProps = {
   onClose: () => void;
   onAdd: () => void;
 };
 
-function HistoricalSetEditorTopActions({
+function LiveSetEditorTopActions({
   onClose,
   onAdd,
-}: HistoricalSetEditorTopActionsProps) {
+}: LiveSetEditorTopActionsProps) {
   return (
-    <View style={historicalSetEditorTopActionsStyles.container}>
+    <View style={liveSetEditorTopActionsStyles.container}>
       <Back onClick={onClose} />
-      <View style={historicalSetEditorTopActionsStyles.rightActions}>
+      <View style={liveSetEditorTopActionsStyles.rightActions}>
         <Add onClick={onAdd} />
       </View>
     </View>
   );
 }
 
-const historicalEditorStyles = StyleSheet.create({
+const liveEditorStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
     paddingTop: "3%",
@@ -112,22 +118,17 @@ const historicalEditorStyles = StyleSheet.create({
   },
 });
 
-type HistoricalEditorProps = {
-  workout: Workout;
-  hide: () => void;
-  trash: () => void;
-  onSave: (workout: Workout) => void;
+type LiveEditorProps = {
+  back: () => void;
 };
 
-export function HistoricalEditor({
-  workout,
-  hide,
-  onSave,
-  trash,
-}: HistoricalEditorProps) {
-  const [exerciseId, setExerciseId] = useState<string>();
+export function LiveEditor({ back }: LiveEditorProps) {
+  const { editor } = useWorkout();
+  const { updateWorkout: onSave } = editor.actions;
+  const workout = editor.workout as Workout;
 
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [exerciseId, setExerciseId] = useState<string>();
+  const [isFinishing, setIsFinishing] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isEditingDates, setIsEditingDate] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
@@ -171,22 +172,21 @@ export function HistoricalEditor({
       <View
         background
         style={[
-          historicalEditorStyles.container,
+          liveEditorStyles.container,
           { height: height * WORKOUT_PLAYER_EDITOR_HEIGHT },
         ]}
       >
         {isEditingExercise ? (
           <>
-            <HistoricalSetEditorTopActions
+            <LiveSetEditorTopActions
               onAdd={onAddSet}
               onClose={() => setExerciseId(undefined)}
             />
-            <View
-              style={[historicalEditorStyles.content, { paddingLeft: "3%" }]}
-            >
+            <View style={[liveEditorStyles.content, { paddingLeft: "3%" }]}>
               <Text extraLarge>{(exerciseInEdit as Exercise).name}</Text>
               <SetLevelEditor
                 sets={(exerciseInEdit as Exercise).sets}
+                currentSet={getCurrentWorkoutActivity(workout).activityData.set}
                 difficultyType={
                   (
                     NAME_TO_EXERCISE_META.get(
@@ -202,9 +202,9 @@ export function HistoricalEditor({
           </>
         ) : (
           <>
-            <HistoricalEditorTopActions
+            <LiveEditorTopActions
               isReordering={isReordering}
-              onClose={hide}
+              onClose={back}
               onStartReordering={() => {
                 setIsReordering(true);
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -216,17 +216,24 @@ export function HistoricalEditor({
               onAdd={() => {
                 setIsSearching(true);
               }}
-              onTrash={() => {
-                setIsDeleting(true);
+              onFinish={() => {
+                if (hasUnstartedSets(workout)) {
+                  setIsFinishing(true);
+                } else {
+                  onSave(wrapUpSets(workout));
+                }
               }}
             />
-            <View style={historicalEditorStyles.content}>
+            <View style={liveEditorStyles.content}>
               <MetaEditor
                 workout={workout}
                 onUpdateMeta={onUpdateMeta}
                 onDateClick={() => setIsEditingDate(true)}
               />
               <ExerciseLevelEditor
+                currentExerciseId={
+                  getCurrentWorkoutActivity(workout).activityData.exercise?.id
+                }
                 isReordering={isReordering}
                 exercises={workout.exercises}
                 onRemove={(exerciseId) => {
@@ -247,12 +254,12 @@ export function HistoricalEditor({
                 setIsSearching(false);
               }}
             />
-            <WorkoutDeleteConfirmation
-              show={isDeleting}
-              hide={() => setIsDeleting(false)}
-              onDelete={() => {
-                setIsDeleting(false);
-                trash();
+            <DiscardUnstartedSetsConfirmation
+              show={isFinishing}
+              hide={() => setIsFinishing(false)}
+              onDiscard={() => {
+                onSave(wrapUpSets(workout));
+                setIsFinishing(false);
               }}
             />
             <TimestampRangeEdit
@@ -265,32 +272,5 @@ export function HistoricalEditor({
         )}
       </View>
     </>
-  );
-}
-
-type HistoricalEditorPopupProps = {
-  show: boolean;
-  hide: () => void;
-  workout: Workout;
-  onSave: (workout: Workout) => void;
-  trash: () => void;
-};
-
-export function HistoricalEditorPopup({
-  show,
-  hide,
-  workout,
-  onSave,
-  trash,
-}: HistoricalEditorPopupProps) {
-  return (
-    <BottomSheet show={show} onBackdropPress={hide} hide={hide}>
-      <HistoricalEditor
-        workout={workout}
-        trash={trash}
-        onSave={onSave}
-        hide={hide}
-      />
-    </BottomSheet>
   );
 }
