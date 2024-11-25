@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, FeatherIcon, FeatherIconProps } from "../Themed";
+import { View, Text, FeatherIcon, FeatherIconProps } from "../../Themed";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
 const styles = StyleSheet.create({
@@ -87,7 +87,7 @@ function updateNumberValueFromKey(value: string, key: NumberPadKey) {
     }
     return value.concat(".");
   } else {
-    if(value === '0'){
+    if (value === "0") {
       return key;
     }
     return value.concat(key).toString();

@@ -3,9 +3,9 @@ import Animated, {
   SharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
-import { Trash } from "./actions";
 import { StyleSheet } from "react-native";
 import { StyleUtils } from "@/util/styles";
+import { Trash } from "@/components/theme/actions";
 
 const swipeableDeleteStyles = StyleSheet.create({
   container: {

@@ -1,4 +1,4 @@
-import { BottomSheet } from "@/components/bottom-sheet";
+import { BottomSheet } from "@/components/util/sheets";
 import { View, Text } from "@/components/Themed";
 import { getDateEditDisplay } from "@/util/date";
 import { StyleUtils } from "@/util/styles";
@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from "react-native";
-import { DateTimePicker } from "../../core/datetime-picker";
+import { DateTimePicker } from "../datetime-picker";
 
 const timestampEditStyles = StyleSheet.create({
   container: {

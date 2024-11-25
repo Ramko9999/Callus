@@ -283,11 +283,7 @@ type SetStatusInput = {
 };
 
 // todo: let's have another state for while we are resting and display rest duration
-export function SetStatusInput({
-  set,
-  isOn,
-  onToggle,
-}: SetStatusInput) {
+export function SetStatusInput({ set, isOn, onToggle }: SetStatusInput) {
   const isOnColor = useThemeColoring("lightText");
 
   let backgroundStyle: ViewStyle = isOn

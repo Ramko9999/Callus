@@ -1,4 +1,4 @@
-import { BottomSheet } from "@/components/bottom-sheet";
+import { BottomSheet } from "@/components/util/sheets";
 import { View, Text } from "@/components/Themed";
 import {
   hasUnstartedSets,
@@ -22,7 +22,7 @@ import {
 } from "./WorkoutActivityTile";
 import { useStopwatch } from "@/components/hooks/use-stopwatch";
 import { getTimePeriodDisplay } from "@/util/date";
-import { Close, Edit, SignificantAction } from "../core/actions";
+import { Close, Edit, SignificantAction } from "@/components/theme/actions";
 import { useState } from "react";
 import { LiveEditor } from "../editor/live";
 import { DiscardUnstartedSetsConfirmation } from "../editor/confirmations";
@@ -136,7 +136,6 @@ function LivePlayer({ hide, onEdit }: LivePlayerProps) {
           onEdit={onEdit}
           onExit={hide}
           onFinish={() => {
-            
             if (hasUnstartedSets(workout as Workout)) {
               setIsFinishing(true);
             } else {
@@ -163,21 +162,16 @@ function LivePlayer({ hide, onEdit }: LivePlayerProps) {
   );
 }
 
-type LivePlayerPopupProps = {
-  show: boolean;
+type LiveProps = {
   hide: () => void;
 };
 
-export function LivePlayerPopup({ show, hide }: LivePlayerPopupProps) {
+export function Live({ hide }: LiveProps) {
   const [isEditing, setIsEditing] = useState(false);
 
-  return (
-    <BottomSheet show={show} hide={hide} onBackdropPress={hide}>
-      {isEditing ? (
-        <LiveEditor back={() => setIsEditing(false)} />
-      ) : (
-        <LivePlayer hide={hide} onEdit={() => setIsEditing(true)} />
-      )}
-    </BottomSheet>
+  return isEditing ? (
+    <LiveEditor back={() => setIsEditing(false)} />
+  ) : (
+    <LivePlayer hide={hide} onEdit={() => setIsEditing(true)} />
   );
 }

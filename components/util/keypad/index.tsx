@@ -8,7 +8,7 @@ import React, { useState } from "react";
 import { StyleSheet } from "react-native";
 import { NumberPad, PadTile, RepPad, WeightPad } from "./pads";
 import { KeypadType } from "@/interface";
-import { BottomSheet } from "../bottom-sheet";
+import { BottomSheet } from "../sheets";
 
 const styles = StyleSheet.create({
   keypad: {

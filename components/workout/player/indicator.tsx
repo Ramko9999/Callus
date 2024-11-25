@@ -14,7 +14,6 @@ import { getDurationDisplay, getTimePeriodDisplay } from "@/util/date";
 import { useTimer } from "@/components/hooks/use-timer";
 import { useEffect, useState } from "react";
 import { StyleUtils } from "@/util/styles";
-import { LivePlayerPopup } from "./popup";
 
 const indicatorStyles = StyleSheet.create({
   expansive: {
@@ -94,8 +93,9 @@ function CurrentActivityIndicator({ type, activityData }: WorkoutActivity) {
       return (
         <RestingActivityIndicator
           duration={(activityData as RestingActivity).set.restDuration}
-          startedAt={(activityData as RestingActivity).set.startedAt as number}
+          startedAt={(activityData as RestingActivity).set.restStartedAt as number}
           onRestOver={() => {
+            console.log("Rest Over");
             actions.completeRest((activityData as RestingActivity).set.id);
           }}
         />
@@ -134,11 +134,6 @@ export function WorkoutIndicator() {
           </View>
         </TouchableOpacity>
       </View>
-
-      <LivePlayerPopup
-        show={isPlayerOpen}
-        hide={() => setIsPlayerOpen(false)}
-      />
     </>
   ) : null;
 }

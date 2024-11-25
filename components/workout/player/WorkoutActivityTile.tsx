@@ -101,7 +101,6 @@ export function RestingActivityTile({
 
   const { soundPlayer } = useWorkout();
 
-  console.log({isOver, remainingMs});
 
   useEffect(() => {
     if (isOver) {

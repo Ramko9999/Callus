@@ -19,17 +19,17 @@ import {
   Set,
 } from "@/interface";
 import { useState } from "react";
-import { Done, Shuffle, Add, Back, SignificantAction } from "../core/actions";
+import { Done, Shuffle, Add, Back, SignificantAction } from "@/components/theme/actions";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
-import { MetaEditor } from "../core";
-import { ExerciseLevelEditor } from "./exercise-level-editor";
 import * as Haptics from "expo-haptics";
-import { SetLevelEditor } from "./set-level-editor";
-import { EXERCISE_REPOSITORY, NAME_TO_EXERCISE_META } from "@/constants";
-import { ExerciseFinder } from "./util/finder";
-import { TimestampRangeEdit } from "./util/timestamp-range-edit";
 import { DiscardUnstartedSetsConfirmation } from "./confirmations";
+import { TimestampRangeEdit } from "@/components/util/daterange-picker";
+import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/constants";
+import { ExerciseLevelEditor } from "./common/exercise";
+import { ExerciseFinder } from "./common/exercise/finder";
+import { SetLevelEditor } from "./common/set";
+import { MetaEditor } from "./common/meta";
 
 const liveEditorTopActionsStyles = StyleSheet.create({
   container: {

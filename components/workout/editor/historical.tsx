@@ -15,18 +15,25 @@ import {
   Set,
 } from "@/interface";
 import { useState } from "react";
-import { Close, Done, Shuffle, Add, Trash, Back } from "../core/actions";
+import {
+  Close,
+  Done,
+  Shuffle,
+  Add,
+  Trash,
+  Back,
+} from "@/components/theme/actions";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
-import { MetaEditor } from "../core";
-import { ExerciseLevelEditor } from "./exercise-level-editor";
-import { BottomSheet } from "@/components/bottom-sheet";
-import * as Haptics from "expo-haptics";
-import { SetLevelEditor } from "./set-level-editor";
-import { EXERCISE_REPOSITORY, NAME_TO_EXERCISE_META } from "@/constants";
-import { ExerciseFinder } from "./util/finder";
+import { BottomSheet } from "@/components/util/sheets";
+import { TimestampRangeEdit } from "@/components/util/daterange-picker";
+import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/constants";
+import { ExerciseLevelEditor } from "./common/exercise";
+import { ExerciseFinder } from "./common/exercise/finder";
+import { SetLevelEditor } from "./common/set";
 import { WorkoutDeleteConfirmation } from "./confirmations";
-import { TimestampRangeEdit } from "./util/timestamp-range-edit";
+import * as Haptics from "expo-haptics";
+import { MetaEditor } from "./common/meta";
 
 const historicalEditorTopActionsStyles = StyleSheet.create({
   container: {

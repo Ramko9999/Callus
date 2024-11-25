@@ -57,7 +57,7 @@ export function WorkoutPlayer() {
         return (
           <ExercisingActivityTile
             activityData={exercisingData}
-            onFinish={() => actions.completeSet(exercisingData.setId)}
+            onFinish={() => actions.completeSet(exercisingData.set.id)}
           />
         );
       case WorkoutActivityType.RESTING:
@@ -65,9 +65,9 @@ export function WorkoutPlayer() {
         return (
           <RestingActivityTile
             activityData={activityData as unknown as RestingActivity}
-            onFinish={() => actions.completeRest(restingData.setId)}
+            onFinish={() => actions.completeRest(restingData.set.id)}
             onUpdateRestDuration={(duration) =>
-              actions.updateRestDuration(restingData.setId, duration)
+              actions.updateRestDuration(restingData.set.id, duration)
             }
           />
         );

@@ -1,12 +1,51 @@
-import { BottomSheet } from "@/components/bottom-sheet";
+import { BottomSheet } from "@/components/util/sheets";
 import { useThemeColoring } from "@/components/Themed";
 import { ExerciseMeta } from "@/interface";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
 import { useState, useRef, useCallback } from "react";
-import { useWindowDimensions, TouchableOpacity, TextInput as DefaultTextInput, ScrollView, StyleSheet } from "react-native";
-import {View, TextInput} from "@/components/Themed";
-import { FinderExercise } from "../../core";
-import { Back, Search } from "../../core/actions";
+import {
+  useWindowDimensions,
+  TouchableOpacity,
+  TextInput as DefaultTextInput,
+  ScrollView,
+  StyleSheet,
+} from "react-native";
+import { View, TextInput, Text } from "@/components/Themed";
+import { Back, Search } from "@/components/theme/actions";
+
+const finderExerciseStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(10),
+    paddingVertical: "3%",
+  },
+  tags: {
+    ...StyleUtils.flexRow(5),
+    flexWrap: "wrap",
+  },
+  tag: {
+    borderRadius: 5,
+    borderWidth: 1,
+    paddingHorizontal: "2%",
+    paddingVertical: "1%",
+  },
+});
+
+type FinderExerciseProps = {
+  meta: ExerciseMeta;
+  onClick: () => void;
+};
+
+export function FinderExercise({ meta, onClick }: FinderExerciseProps) {
+  const { name } = meta;
+
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View style={finderExerciseStyles.container}>
+        <Text large>{name}</Text>
+      </View>
+    </TouchableOpacity>
+  );
+}
 
 const exerciseFinderStyle = StyleSheet.create({
   container: {
@@ -43,6 +82,7 @@ type ExerciseFinderProps = {
   onSelect: (exerciseMeta: ExerciseMeta) => void;
 };
 
+// todo: make this a flat list
 export function ExerciseFinder({
   show,
   repository,

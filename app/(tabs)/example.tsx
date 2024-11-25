@@ -11,22 +11,30 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  FadeIn,
+  FadeOut,
+  runOnJS,
+  SlideInDown,
+  SlideOutDown,
+  withSpring,
+  interpolate,
+  interpolateColor,
+  clamp,
 } from "react-native-reanimated";
-import { StyleSheet, Pressable } from "react-native";
+import { StyleSheet, Pressable, useWindowDimensions } from "react-native";
 import * as Haptics from "expo-haptics";
-import { clamp } from "@/util/function";
-import { Roulette } from "@/components/workout/core/datetime-picker/roulette";
-import { DateTimePicker } from "@/components/workout/core/datetime-picker";
+import { Roulette } from "@/components/util/datetime-picker/roulette";
+import { DateTimePicker } from "@/components/util/datetime-picker";
+import { SignificantAction } from "@/components/theme/actions";
 
 // for testing things out quickly, remove before prod release
 export default function () {
   return <Example />;
 }
 
-const items = ["Ramki", "Rohan", "Tanush", "Raghava", "Rahul", "Vikram"];
-
 function Example() {
   const [focus, setFocus] = useState(false);
+  const { height } = useWindowDimensions();
 
   return (
     <View
@@ -38,148 +46,218 @@ function Example() {
         height: "100%",
       }}
     >
-      <ScrollableLock values={[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]} />
+      <View>
+        <SignificantAction
+          onClick={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
+          }}
+          text="Click me"
+        ></SignificantAction>
+      </View>
+      <DraggableSheet
+        renderPreview={() => <Preview />}
+        show={true}
+        hide={() => {}}
+        onBackdropPress={() => {}}
+        contentHeight={height * 0.5}
+        previewHeight={100}
+      >
+        <Content />
+      </DraggableSheet>
     </View>
   );
 }
 
-const ELEMENT_HEIGHT = 50;
-const ELEMENTS_HEIGHT = ELEMENT_HEIGHT * 5;
-const SELECTION_TOP = ELEMENT_HEIGHT * 2;
-
-const scrollableLockStyles = StyleSheet.create({
+const previewStyles = StyleSheet.create({
   container: {
-    ...StyleUtils.flexColumn(10),
-  },
-  item: {
+    paddingVertical: "5%",
+    borderWidth: 1,
     ...StyleUtils.flexRowCenterAll(),
-    width: "100%",
-    height: ELEMENT_HEIGHT,
-  },
-  selection: {
-    position: "absolute",
-    backgroundColor: "rgba(55, 56, 58, 0.2)",
-    height: ELEMENT_HEIGHT,
-    top: SELECTION_TOP,
-    width: "100%",
-  },
-  scroll: {
-    height: ELEMENTS_HEIGHT,
-    overflow: "hidden",
+    height: 100,
   },
 });
 
-type ScrollableLockProps = {
-  values: number[];
-};
-
-function ScrollableLock({ values }: ScrollableLockProps) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const scrollOffset = useSharedValue(0);
-  const inScrollOffset = useSharedValue(0);
-  const contentRef = useRef<Animated.View>(null);
-
-  useEffect(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-  }, [selectedIndex]);
-
-  const panGesture = Gesture.Pan()
-    .onStart((event) => {
-      inScrollOffset.value = 0;
-    })
-    .onUpdate((event) => {
-      const oldInscrollOffset = inScrollOffset.value;
-      const newScrollOffset =
-        scrollOffset.value - oldInscrollOffset + event.translationY;
-      scrollOffset.value = newScrollOffset;
-      inScrollOffset.value = event.translationY;
-
-      setSelectedIndex(
-        clamp(
-          Math.floor((-1 * newScrollOffset) / ELEMENT_HEIGHT),
-          values.length - 1,
-          0
-        )
-      );
-    })
-    .onEnd((event) => {
-      const oldInscrollOffset = inScrollOffset.value;
-      let newScrollOffset =
-        scrollOffset.value - oldInscrollOffset + event.translationY;
-      contentRef.current?.measure((x, y, width, height, pageX, pageY) => {
-        if (Math.abs(newScrollOffset) > height - ELEMENT_HEIGHT) {
-          newScrollOffset = -1 * (height - ELEMENT_HEIGHT);
-        } else if (newScrollOffset >= 0) {
-          newScrollOffset = 0;
-        } else {
-          const scrollOffsetTip = Math.abs(newScrollOffset) % ELEMENT_HEIGHT;
-          if (scrollOffsetTip > ELEMENT_HEIGHT / 2) {
-            newScrollOffset =
-              newScrollOffset - (ELEMENT_HEIGHT - scrollOffsetTip);
-          } else {
-            newScrollOffset = newScrollOffset + scrollOffsetTip;
-          }
-        }
-        scrollOffset.value = withTiming(newScrollOffset, { duration: 300 });
-        setSelectedIndex(
-          clamp(
-            Math.floor((-1 * newScrollOffset) / ELEMENT_HEIGHT),
-            values.length - 1,
-            0
-          )
-        );
-      });
-    })
-    .runOnJS(true);
-
-  const scrollAnimationStyle = useAnimatedStyle(() => ({
-    top: scrollOffset.value,
-  }));
-
+function Preview() {
   return (
-    <View background>
-      <GestureDetector gesture={panGesture}>
-        <View style={scrollableLockStyles.scroll}>
-          <View style={{ height: ELEMENT_HEIGHT * 2 }} />
-          <Animated.View style={scrollAnimationStyle} ref={contentRef}>
-            {values.map((value, index) => {
-              const indexDelta = useSharedValue(0);
-              useEffect(() => {
-                indexDelta.value = withTiming(index - selectedIndex, {
-                  duration: 100,
-                });
-              }, [index, selectedIndex]);
-
-              const animatedItemStyle = useAnimatedStyle(() => ({
-                transform: [
-                  { perspective: 1000 },
-                  { rotateX: `${indexDelta.value * 20}deg` },
-                ],
-                opacity: 1 - Math.abs(indexDelta.value / items.length),
-              }));
-
-              return (
-                <Animated.View
-                  key={value}
-                  style={[
-                    scrollableLockStyles.item,
-                    index !== selectedIndex ? animatedItemStyle : {},
-                  ]}
-                >
-                  <Text large light>
-                    {value}
-                  </Text>
-                </Animated.View>
-              );
-            })}
-          </Animated.View>
-          <View style={scrollableLockStyles.selection}></View>
-        </View>
-      </GestureDetector>
+    <View background style={previewStyles.container}>
+      <Text neutral>Preview</Text>
     </View>
   );
 }
 
-type DateSelectorProps = {};
+const contentStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(10),
+    alignItems: "center",
+    justifyContent: "center",
+  },
+});
 
-function DateSelector() {}
+function Content() {
+  const { height } = useWindowDimensions();
+
+  return (
+    <View
+      background
+      style={[contentStyles.container, { height: height * 0.5 }]}
+    >
+      <Text neutral light>
+        Top Actions
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  backdrop: {
+    backgroundColor: "red",
+  },
+  content: {
+    zIndex: 1,
+    position: "absolute",
+    width: "100%",
+    bottom: 0,
+  },
+});
+
+type Props = {
+  renderPreview: () => React.ReactNode;
+  children: React.ReactNode;
+  show: boolean;
+  hide: () => void;
+  onBackdropPress: () => void;
+  contentHeight: number;
+  previewHeight: number;
+  hideOffset?: number;
+};
+
+const DEFAULT_HIDE_OFFSET = 200;
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+const draggableSheetStyles = StyleSheet.create({
+  container: {
+    zIndex: 2,
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 1,
+  },
+});
+
+export function DraggableSheet({
+  renderPreview,
+  children,
+  show,
+  hide,
+  onBackdropPress,
+  contentHeight,
+  previewHeight,
+  hideOffset,
+}: Props) {
+  const initialTranslationOffset = useSharedValue(
+    contentHeight - previewHeight
+  );
+  const lastTranslation = useSharedValue(0);
+  const totalTranslation = useSharedValue(0);
+
+  const transitionOffset = Math.floor((contentHeight - previewHeight) / 2);
+
+  const panGesture = Gesture.Pan()
+    .onStart(() => {
+      lastTranslation.value = 0;
+    })
+    .onUpdate(({ translationY }) => {
+      const newTotalTranslation =
+        totalTranslation.value - lastTranslation.value + translationY;
+      const isOnlyRevealingContent =
+        newTotalTranslation + initialTranslationOffset.value >= 0;
+      if (isOnlyRevealingContent) {
+        totalTranslation.value = newTotalTranslation;
+        lastTranslation.value = translationY;
+      }
+    })
+    .onEnd(() => {
+      if (Math.abs(totalTranslation.value) > transitionOffset) {
+        totalTranslation.value = withSpring(
+          -1 * (contentHeight - previewHeight),
+          {
+            damping: 25,
+          }
+        );
+      } else {
+        totalTranslation.value = withSpring(0, {
+          damping: 25,
+        });
+      }
+    });
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateY: totalTranslation.value + initialTranslationOffset.value },
+    ],
+  }));
+
+  const previewAnimatedStyle = useAnimatedStyle(
+    () => ({
+      opacity: interpolate(
+        clamp(Math.abs(totalTranslation.value), 0, transitionOffset),
+        [0, transitionOffset],
+        [1, 0]
+      ),
+    }),
+    [contentHeight, previewHeight]
+  );
+
+  const contentAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(
+      clamp(Math.abs(totalTranslation.value), 0, transitionOffset),
+      [0, transitionOffset],
+      [0, 1]
+    ),
+  }));
+
+  const backdropAnimatedStyle = useAnimatedStyle(() => ({
+    display:
+      Math.abs(totalTranslation.value) < transitionOffset ? "none" : "flex",
+    backgroundColor: interpolateColor(
+      clamp(
+        Math.abs(totalTranslation.value),
+        transitionOffset,
+        contentHeight - previewHeight
+      ),
+      [transitionOffset, contentHeight - previewHeight],
+      ["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.7)"]
+    ),
+  }));
+
+  return (
+    <>
+      <AnimatedPressable
+        style={[
+          {
+            ...StyleSheet.absoluteFillObject,
+            zIndex: 1,
+          },
+          backdropAnimatedStyle,
+        ]}
+      />
+      <GestureDetector gesture={panGesture}>
+        <Animated.View style={[draggableSheetStyles.container, animatedStyle]}>
+          <Animated.View
+            style={[
+              { position: "absolute", width: "100%" },
+              previewAnimatedStyle,
+            ]}
+          >
+            {renderPreview()}
+          </Animated.View>
+          <Animated.View style={contentAnimatedStyle}>{children}</Animated.View>
+        </Animated.View>
+      </GestureDetector>
+    </>
+  );
+}

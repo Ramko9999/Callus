@@ -321,6 +321,13 @@ export function areWorkoutsSame(a: Workout, b: Workout): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
+export function getRemainingRest(set: Set): number {
+  return Math.floor(
+    ((set.restStartedAt as number) + set.restDuration * 1000 - Date.now()) /
+      1000
+  );
+}
+
 type WorkoutActions = {
   startWorkout: (_: WorkoutPlan) => void;
   completeSet: (_: string) => void;

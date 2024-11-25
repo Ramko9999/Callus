@@ -14,6 +14,7 @@ import { Workout } from "@/interface";
 import { WorkoutIndicator } from "../workout/player/indicator";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { HistoricalEditorPopup } from "../workout/editor/historical";
+import { LiveIndicatorProvider, useLiveIndicator } from "../live";
 
 const styles = StyleSheet.create({
   homeView: {
@@ -133,6 +134,8 @@ export default function Home() {
   const [completedWorkouts, setCompletedWorkouts] = useState<Workout[]>([]);
   const [workoutToUpdate, setWorkoutToUpdate] = useState<Workout>();
 
+  const liveIndicatorActions = useLiveIndicator();
+
   const loadWorkouts = async () => {
     setLoading(true);
     WorkoutApi.getWorkouts(truncTime(workoutDate))
@@ -179,14 +182,17 @@ export default function Home() {
 
           <CompletedWorkouts
             workouts={completedWorkouts}
-            onClickWorkout={(workout: Workout) => setWorkoutToUpdate(workout)}
+            onClickWorkout={(workout: Workout) => {
+              liveIndicatorActions.hide();
+              setWorkoutToUpdate(workout);
+            }}
           />
         </View>
       </GestureDetector>
-      <WorkoutIndicator />
       <HistoricalEditorPopup
         show={workoutToUpdate != undefined}
         hide={() => {
+          liveIndicatorActions.show();
           loadWorkouts();
           setWorkoutToUpdate(undefined);
         }}

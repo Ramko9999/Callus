@@ -1,8 +1,8 @@
-import { BottomSheet } from "@/components/bottom-sheet";
+import { BottomSheet } from "@/components/util/sheets";
 import { View, Text } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
 import { StyleSheet } from "react-native";
-import { DangerAction, SignificantAction } from "../../core/actions";
+import { DangerAction, SignificantAction } from "@/components/theme/actions";
 
 const confirmationStyles = StyleSheet.create({
   container: {
@@ -81,7 +81,10 @@ export function DiscardUnstartedSetsConfirmation({
           </Text>
         </View>
         <View style={confirmationStyles.actions}>
-          <SignificantAction text="Yes, discard them and finish!" onClick={onDiscard} />
+          <SignificantAction
+            text="Yes, discard them and finish!"
+            onClick={onDiscard}
+          />
         </View>
       </View>
     </BottomSheet>

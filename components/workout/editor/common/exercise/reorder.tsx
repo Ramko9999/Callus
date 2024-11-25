@@ -1,8 +1,12 @@
 import { Exercise } from "@/interface";
 import { popAndInsert } from "@/util/function";
-import { EDITOR_EXERCISE_HEIGHT } from "@/util/styles";
+import { EDITOR_EXERCISE_HEIGHT, StyleUtils } from "@/util/styles";
 import { useState } from "react";
-import { StyleSheet, useWindowDimensions } from "react-native";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  useWindowDimensions,
+} from "react-native";
 import {
   Gesture,
   GestureDetector,
@@ -12,12 +16,69 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { ExercisePlaceholder, ReorderableExercise } from "../../core";
-import { View } from "@/components/Themed";
+import { View, Text, useThemeColoring } from "@/components/Themed";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { textTheme } from "@/constants/Themes";
+
+const reorderableExerciseStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexRow(10),
+    alignItems: "center",
+    paddingLeft: "3%",
+    paddingVertical: "3%",
+    height: EDITOR_EXERCISE_HEIGHT,
+  },
+  title: {
+    ...StyleUtils.flexColumn(5),
+  },
+  rightActions: {
+    ...StyleUtils.flexRowCenterAll(),
+    justifyContent: "flex-end",
+    marginLeft: "auto",
+    paddingRight: "3%",
+  },
+});
+
+type ReorderableExerciseProps = {
+  exercise: Exercise;
+  onClickDown: () => void;
+};
+
+export function ReorderableExercise({
+  exercise,
+  onClickDown,
+}: ReorderableExerciseProps) {
+  return (
+    <View background style={reorderableExerciseStyles.container}>
+      <View style={reorderableExerciseStyles.title}>
+        <Text large>{exercise.name}</Text>
+      </View>
+      <View style={reorderableExerciseStyles.rightActions}>
+        <TouchableOpacity onPressIn={onClickDown}>
+          <FontAwesome
+            name="reorder"
+            color={useThemeColoring("lightText")}
+            size={textTheme.large.fontSize}
+          />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+export function ExercisePlaceholder() {
+  return (
+    <View
+      style={[
+        reorderableExerciseStyles.container,
+        { backgroundColor: useThemeColoring("search") },
+      ]}
+    ></View>
+  );
+}
 
 const reorderableExercisesStyles = StyleSheet.create({
-  container: {
-  },
+  container: {},
   placeholder: {
     width: "100%",
   },
