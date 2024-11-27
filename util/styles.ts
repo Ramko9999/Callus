@@ -26,10 +26,18 @@ function flexColumn(gap?: number): ViewStyle {
   };
 }
 
+function expansive(): ViewStyle {
+  return {
+    width: "100%",
+    height: "100%"
+  }
+}
+
 export const StyleUtils = {
   flexRowCenterAll,
   flexRow,
   flexColumn,
+  expansive
 };
 
 export const WORKOUT_PLAYER_EDITOR_HEIGHT = 0.8;

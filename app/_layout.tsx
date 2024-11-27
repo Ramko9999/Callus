@@ -15,12 +15,13 @@ import { KeypadProvider } from "@/context/keypad";
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
-} from 'react-native-reanimated';
+} from "react-native-reanimated";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 // This is the default configuration
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
-  strict: false
+  strict: false,
 });
 
 export {
@@ -68,20 +69,22 @@ function RootLayoutNav() {
       <ThemeProvider
         value={colorScheme === "dark" ? darkNavigationColorTheme : DefaultTheme}
       >
-        <ToastProvider>
-          <WorkoutProvider>
-            <Preloader>
-              <KeypadProvider>
-                <Stack>
-                  <Stack.Screen
-                    name="(tabs)"
-                    options={{ headerShown: false }}
-                  />
-                </Stack>
-              </KeypadProvider>
-            </Preloader>
-          </WorkoutProvider>
-        </ToastProvider>
+        <SafeAreaProvider>
+          <ToastProvider>
+            <WorkoutProvider>
+              <Preloader>
+                <KeypadProvider>
+                  <Stack>
+                    <Stack.Screen
+                      name="(tabs)"
+                      options={{ headerShown: false }}
+                    />
+                  </Stack>
+                </KeypadProvider>
+              </Preloader>
+            </WorkoutProvider>
+          </ToastProvider>
+        </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
   );

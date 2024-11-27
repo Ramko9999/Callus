@@ -11,10 +11,12 @@ import {
 } from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
-import { WorkoutIndicator } from "../workout/player/indicator";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { Gesture} from "react-native-gesture-handler";
 import { HistoricalEditorPopup } from "../workout/editor/historical";
-import { LiveIndicatorProvider, useLiveIndicator } from "../live";
+import { useLiveIndicator } from "../live";
+import { DynamicHeaderPage } from "../util/dynamic-header-page";
+import { StyleUtils } from "@/util/styles";
+import { NeutralAction } from "../theme/actions";
 
 const styles = StyleSheet.create({
   homeView: {
@@ -104,12 +106,16 @@ function CompletedWorkouts({
   const isRestDay = workouts.length === 0;
 
   return isRestDay ? (
-    <View _type="background" style={styles.expansiveCenterAlignedView}>
+    <View
+      _type="background"
+      style={styles.expansiveCenterAlignedView}
+      collapsable={false}
+    >
       <Text _type="neutral">It's a rest day. Take it easy :)</Text>
     </View>
   ) : (
     <ScrollView>
-      <View _type="background" style={styles.workoutView}>
+      <View _type="background" style={styles.workoutView} collapsable={false}>
         <View style={styles.workoutViewTiles}>
           {workouts.map((workout, index) => (
             <NewWorkoutViewTile
@@ -168,27 +174,33 @@ export default function Home() {
     loadWorkouts();
   }, [workoutDate, pathname]);
 
-  return loading ? (
-    <WorkoutItineraryLoading />
-  ) : (
+  return (
     <>
-      <GestureDetector gesture={panGesture}>
-        <View _type="background" style={styles.homeView}>
-          <View _type="background" style={styles.header}>
-            <Text extraLarge emphasized>
-              {getLongDateDisplay(workoutDate)}
-            </Text>
-          </View>
-
-          <CompletedWorkouts
-            workouts={completedWorkouts}
-            onClickWorkout={(workout: Workout) => {
-              liveIndicatorActions.hide();
-              setWorkoutToUpdate(workout);
-            }}
-          />
-        </View>
-      </GestureDetector>
+      <DynamicHeaderPage title={getLongDateDisplay(workoutDate)}>
+        {loading ? (
+          <WorkoutItineraryLoading />
+        ) : (
+          <>
+            <View style={{ ...StyleUtils.flexRow(10) }}>
+              <NeutralAction
+                onClick={() => setWorkoutDate((d) => removeDays(d, 1))}
+                text="Back a day"
+              />
+              <NeutralAction
+                onClick={() => setWorkoutDate((d) => addDays(d, 1))}
+                text="Forward a day"
+              />
+            </View>
+            <CompletedWorkouts
+              workouts={completedWorkouts}
+              onClickWorkout={(workout: Workout) => {
+                liveIndicatorActions.hide();
+                setWorkoutToUpdate(workout);
+              }}
+            />
+          </>
+        )}
+      </DynamicHeaderPage>
       <HistoricalEditorPopup
         show={workoutToUpdate != undefined}
         hide={() => {

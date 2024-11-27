@@ -6,14 +6,14 @@ import * as DocumentPicker from "expo-document-picker";
 import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
 import { useToast } from "react-native-toast-notifications";
+import { DynamicHeaderPage } from "../util/dynamic-header-page";
+import { StyleUtils } from "@/util/styles";
 
-const styles = StyleSheet.create({
-  settingsContainer: {
-    display: "flex",
-    flexDirection: "column",
+const settingsStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(20),
     alignItems: "center",
     justifyContent: "center",
-    gap: 20,
   },
 });
 
@@ -59,15 +59,17 @@ export function Settings() {
   };
 
   return (
-    <View _type="background" style={styles.settingsContainer}>
-      <Action
-        _action={{ type: "neutral", name: "Export" }}
-        onPress={exportWorkouts}
-      />
-      <Action
-        _action={{ type: "neutral", name: "Import" }}
-        onPress={importWorkouts}
-      />
-    </View>
+    <DynamicHeaderPage title={"Settings"}>
+      <View style={settingsStyles.container}>
+        <Action
+          _action={{ type: "neutral", name: "Export" }}
+          onPress={exportWorkouts}
+        />
+        <Action
+          _action={{ type: "neutral", name: "Import" }}
+          onPress={importWorkouts}
+        />
+      </View>
+    </DynamicHeaderPage>
   );
 }

@@ -5,6 +5,7 @@ import { useColorScheme } from "@/components/useColorScheme";
 import { useClientOnlyValue } from "@/components/useClientOnlyValue";
 import { getTabActiveTintColor } from "@/constants/Themes";
 import { Icon } from "@/components/Themed";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -31,7 +32,12 @@ export default function TabLayout() {
         options={{
           title: "Example",
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="question" color={color} />
+            <FontAwesome
+              size={28}
+              style={{ marginBottom: -3 }}
+              name="question"
+              color={color}
+            />
           ),
         }}
       />
@@ -40,7 +46,26 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
-            <TabBarIcon name="calendar" color={color} />
+            <FontAwesome
+              size={28}
+              style={{ marginBottom: -3 }}
+              name="history"
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="routines"
+        options={{
+          title: "Routines",
+          tabBarIcon: ({ color }) => (
+            <FontAwesome6
+              size={28}
+              style={{ marginBottom: -3 }}
+              name="dumbbell"
+              color={color}
+            />
           ),
         }}
       />

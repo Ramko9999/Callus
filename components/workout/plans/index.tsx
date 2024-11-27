@@ -13,6 +13,7 @@ import {
 } from "@/constants/SampleWorkouts";
 import { useWorkout } from "@/context/WorkoutContext";
 import { useRouter } from "expo-router";
+import { DynamicHeaderPage } from "@/components/util/dynamic-header-page";
 
 const PLANS = [
   PUSH,
@@ -99,12 +100,12 @@ function WorkoutPlanTile({ workoutPlan }: WorkoutPlanProps) {
 
 export function WorkoutPlans() {
   return (
-    <ScrollView>
+    <DynamicHeaderPage title="Plans">
       <View _type="background" style={styles.workoutPlans}>
         {PLANS.map((plan, index) => (
           <WorkoutPlanTile key={index} workoutPlan={plan} />
         ))}
       </View>
-    </ScrollView>
+    </DynamicHeaderPage>
   );
 }

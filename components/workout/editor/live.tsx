@@ -19,7 +19,13 @@ import {
   Set,
 } from "@/interface";
 import { useState } from "react";
-import { Done, Shuffle, Add, Back, SignificantAction } from "@/components/theme/actions";
+import {
+  Done,
+  Shuffle,
+  Add,
+  Back,
+  SignificantAction,
+} from "@/components/theme/actions";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
 import * as Haptics from "expo-haptics";
@@ -254,6 +260,16 @@ export function LiveEditor({ back }: LiveEditorProps) {
                 setIsSearching(false);
               }}
             />
+            <ExerciseFinder
+              show={isSearching}
+              hide={() => setIsSearching(false)}
+              repository={EXERCISE_REPOSITORY}
+              onSelect={(meta) => {
+                onAddExercise(meta);
+                setIsSearching(false);
+              }}
+            />
+
             <DiscardUnstartedSetsConfirmation
               show={isFinishing}
               hide={() => setIsFinishing(false)}

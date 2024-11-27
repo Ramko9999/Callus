@@ -12,12 +12,13 @@ export const darkColors = {
   success: "#2ECD70",
   search: "#313035",
   rouletteSelection: "rgba(200, 200, 200, 0.1)",
-  highlightedAnimationColor: "rgba(14, 63, 93, 0.2)"
-}
+  highlightedAnimationColor: "rgba(14, 63, 93, 0.2)",
+  dynamicHeaderBorder: "rgba(100, 100, 100, 1)",
+};
 
 export const lightColors = {
   primaryText: "#000",
-  lightText:  "#48515D",
+  lightText: "#48515D",
   secondaryViewBackground: "#fff",
   secondaryViewBorder: "#DADCE0",
   primaryViewBackground: "#rgb(242, 242, 242)",
@@ -27,12 +28,11 @@ export const lightColors = {
   success: "#4FA94D",
   search: "#eeeef0",
   rouletteSelection: "rgba(100, 100, 100, 0.2)",
-  highlightedAnimationColor: "rgba(14, 63, 93, 0.2)"
-}
+  highlightedAnimationColor: "rgba(14, 63, 93, 0.2)",
+  dynamicHeaderBorder: "#C4C4C4",
+};
 
-
-export type UIColor = keyof typeof darkColors &
-  keyof typeof lightColors;
+export type UIColor = keyof typeof darkColors & keyof typeof lightColors;
 
 export const textTheme = {
   small: {
@@ -51,11 +51,14 @@ export const textTheme = {
     fontSize: 24,
   },
   extraLarge: {
-    fontSize: 32
-  }
+    fontSize: 32,
+  },
+  dynamicHeader: {
+    fontSize: 16,
+  },
 };
 
-export function getTabActiveTintColor(theme: "light" | "dark"){
+export function getTabActiveTintColor(theme: "light" | "dark") {
   return theme === "light" ? "#2f95dc" : "#fff";
 }
 
