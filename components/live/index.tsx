@@ -29,6 +29,7 @@ type LiveIndicatorProviderProps = {
 
 const REST_COMPLETING_THRESHOLD = 6000;
 
+// todo: fix the indicator not coming up when a workout is started
 export function LiveIndicatorProvider({
   children,
 }: LiveIndicatorProviderProps) {
@@ -48,6 +49,7 @@ export function LiveIndicatorProvider({
     };
   }, []);
 
+  // todo: if someone adds rest quickly while the workout is running, we need to clear the sounds and the ref
   useEffect(() => {
     if (activity?.type === WorkoutActivityType.RESTING) {
       const { set } = activity.activityData as RestingActivity;

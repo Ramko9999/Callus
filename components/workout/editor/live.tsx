@@ -17,6 +17,7 @@ import {
   ExerciseMeta,
   WorkoutMetadata,
   Set,
+  SetStatus,
 } from "@/interface";
 import { useState } from "react";
 import {
@@ -25,17 +26,19 @@ import {
   Add,
   Back,
   SignificantAction,
+  Time,
 } from "@/components/theme/actions";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
 import * as Haptics from "expo-haptics";
-import { DiscardUnstartedSetsConfirmation } from "./confirmations";
+import { DiscardUnstartedSetsConfirmation, EditRestDuration } from "./popup";
 import { TimestampRangeEdit } from "@/components/util/daterange-picker";
 import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/constants";
 import { ExerciseLevelEditor } from "./common/exercise";
 import { ExerciseFinder } from "./common/exercise/finder";
 import { SetLevelEditor } from "./common/set";
 import { MetaEditor } from "./common/meta";
+import { ExpoRootProps } from "expo-router/build/ExpoRoot";
 
 const liveEditorTopActionsStyles = StyleSheet.create({
   container: {
@@ -90,7 +93,7 @@ const liveSetEditorTopActionsStyles = StyleSheet.create({
     justifyContent: "space-between",
   },
   rightActions: {
-    ...StyleUtils.flexRow(10),
+    ...StyleUtils.flexRow(),
     paddingRight: "3%",
   },
 });
@@ -98,16 +101,19 @@ const liveSetEditorTopActionsStyles = StyleSheet.create({
 type LiveSetEditorTopActionsProps = {
   onClose: () => void;
   onAdd: () => void;
+  onOpenRest: () => void;
 };
 
 function LiveSetEditorTopActions({
   onClose,
   onAdd,
+  onOpenRest,
 }: LiveSetEditorTopActionsProps) {
   return (
     <View style={liveSetEditorTopActionsStyles.container}>
       <Back onClick={onClose} />
       <View style={liveSetEditorTopActionsStyles.rightActions}>
+        <Time onClick={onOpenRest} />
         <Add onClick={onAdd} />
       </View>
     </View>
@@ -138,6 +144,7 @@ export function LiveEditor({ back }: LiveEditorProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [isEditingDates, setIsEditingDate] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
+  const [isEditingRest, setIsEditingRest] = useState(false);
 
   const isEditingExercise = exerciseId != undefined;
   const exerciseInEdit = workout.exercises.find(({ id }) => id === exerciseId);
@@ -173,6 +180,38 @@ export function LiveEditor({ back }: LiveEditorProps) {
     onSave(updateSet(setId, update, workout));
   };
 
+  const getCurrentRestDuration = () => {
+    if (!exerciseInEdit) {
+      return 0;
+    }
+    const areAllSetsUnstarted = exerciseInEdit.sets.filter(
+      (set) => set.status === SetStatus.UNSTARTED
+    );
+    if (areAllSetsUnstarted) {
+      return exerciseInEdit.sets[0].restDuration;
+    }
+    const completedSets = exerciseInEdit.sets.filter(
+      (set) => set.status !== SetStatus.UNSTARTED
+    );
+    return completedSets[completedSets.length - 1].restDuration;
+  };
+
+  // todo: move to centralized place
+  const updateSetRests = (duration: number) => {
+    if (!exerciseInEdit) {
+      return;
+    }
+    let updatedWorkout = workout;
+    for (const set of exerciseInEdit.sets) {
+      updatedWorkout = updateSet(
+        set.id,
+        { restDuration: duration },
+        updatedWorkout
+      );
+    }
+    onSave(updatedWorkout);
+  };
+
   return (
     <>
       <View
@@ -186,6 +225,7 @@ export function LiveEditor({ back }: LiveEditorProps) {
           <>
             <LiveSetEditorTopActions
               onAdd={onAddSet}
+              onOpenRest={() => setIsEditingRest(true)}
               onClose={() => setExerciseId(undefined)}
             />
             <View style={[liveEditorStyles.content, { paddingLeft: "3%" }]}>
@@ -205,6 +245,14 @@ export function LiveEditor({ back }: LiveEditorProps) {
                 back={() => setExerciseId(undefined)}
               />
             </View>
+            <EditRestDuration
+            show={isEditingRest}
+            hide={() => setIsEditingRest(false)}
+              duration={
+                getCurrentRestDuration()
+              }
+              onUpdateDuration={updateSetRests}
+            />
           </>
         ) : (
           <>
@@ -260,16 +308,6 @@ export function LiveEditor({ back }: LiveEditorProps) {
                 setIsSearching(false);
               }}
             />
-            <ExerciseFinder
-              show={isSearching}
-              hide={() => setIsSearching(false)}
-              repository={EXERCISE_REPOSITORY}
-              onSelect={(meta) => {
-                onAddExercise(meta);
-                setIsSearching(false);
-              }}
-            />
-
             <DiscardUnstartedSetsConfirmation
               show={isFinishing}
               hide={() => setIsFinishing(false)}

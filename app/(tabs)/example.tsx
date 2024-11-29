@@ -8,6 +8,7 @@ import { useTimer } from "@/components/hooks/use-timer";
 import { Audio } from "expo-av";
 import { SignificantAction } from "@/components/theme/actions";
 import { timeout } from "@/util/misc";
+import { Modal } from "@/components/util/modal";
 
 // for testing things out quickly, remove before prod release
 export default function () {
@@ -20,34 +21,21 @@ type WorkoutSounds = {
 };
 
 function Example() {
-  const [sounds, setSounds] = useState<WorkoutSounds>();
-
-  const playRef = useRef(false);
-
-  Promise.all([
-    Audio.Sound.createAsync(require("@/assets/audio/short-beep.mp3")),
-    Audio.Sound.createAsync(require("@/assets/audio/long-beep.mp3")),
-  ]).then(([{ sound: shortBeep }, { sound: longBeep }]) => {
-    setSounds({ shortBeep, longBeep });
-  });
-
-  const playRestCompleting = async () => {
-    if (!playRef.current) {
-      playRef.current = true;
-      await sounds?.shortBeep.replayAsync();
-      await timeout(2000);
-      await sounds?.shortBeep.replayAsync();
-      await timeout(2000);
-      await sounds?.longBeep.replayAsync();
-      playRef.current = false;
-    }
-  };
+  const [isModalOpen, setisModalOpen] = useState(false);
 
   return (
-    <DynamicHeaderPage title="Playground">
-      <View style={{ ...StyleUtils.flexColumn(), height: "100%" }}>
-        <SignificantAction text="Click" onClick={playRestCompleting} />
-      </View>
-    </DynamicHeaderPage>
+    <>
+      <DynamicHeaderPage title="Playground">
+        <View style={{ ...StyleUtils.flexColumn(), height: "100%" }}>
+          <SignificantAction
+            text="Open Modal"
+            onClick={() => setisModalOpen(true)}
+          />
+        </View>
+      </DynamicHeaderPage>
+      <Modal show={isModalOpen} hide={() => setisModalOpen(false)}>
+        {null}
+      </Modal>
+    </>
   );
 }

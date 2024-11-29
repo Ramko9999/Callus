@@ -150,6 +150,20 @@ export function Done({ onClick, style }: ActionProps) {
   );
 }
 
+export function Time({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View style={[iconActionStyles.container, style]}>
+        <FontAwesome
+          name="clock-o"
+          size={textTheme.large.fontSize}
+          color={useThemeColoring("lightText")}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
 type TextActionProps = ActionProps & { text: string };
 
 export function SignificantAction({ onClick, style, text }: TextActionProps) {

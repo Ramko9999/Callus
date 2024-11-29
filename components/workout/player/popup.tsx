@@ -24,7 +24,7 @@ import { getTimePeriodDisplay } from "@/util/date";
 import { Close, Edit, SignificantAction } from "@/components/theme/actions";
 import { useState } from "react";
 import { LiveEditor } from "../editor/live";
-import { DiscardUnstartedSetsConfirmation } from "../editor/confirmations";
+import { DiscardUnstartedSetsConfirmation } from "../editor/popup";
 import { RestingActivity as RestingActivityView } from "../../live/activity";
 
 const livePlayerActionsStyles = StyleSheet.create({

@@ -37,6 +37,7 @@ type DynamicHeaderPageProps = {
   children: React.ReactNode;
 };
 
+// todo(android): use safe area
 export function DynamicHeaderPage({ title, children }: DynamicHeaderPageProps) {
   const pageHeaderRef = useRef<DefaultView>(null);
   const pageHeaderHeight = useRef(0);

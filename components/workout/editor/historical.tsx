@@ -31,7 +31,7 @@ import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/constants";
 import { ExerciseLevelEditor } from "./common/exercise";
 import { ExerciseFinder } from "./common/exercise/finder";
 import { SetLevelEditor } from "./common/set";
-import { WorkoutDeleteConfirmation } from "./confirmations";
+import { WorkoutDeleteConfirmation } from "./popup";
 import * as Haptics from "expo-haptics";
 import { MetaEditor } from "./common/meta";
 
