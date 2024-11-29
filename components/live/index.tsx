@@ -4,7 +4,7 @@ import {
   PreviewableBottomSheetRef,
 } from "../util/sheets";
 import { LivePreview } from "./preview";
-import { Workout } from "@/interface";
+import { RestingActivity, Workout, WorkoutActivityType } from "@/interface";
 import { PREVIEW_HEIGHT } from "./constants";
 import { useWindowDimensions } from "react-native";
 import { WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
@@ -27,14 +27,17 @@ type LiveIndicatorProviderProps = {
   children: React.ReactNode;
 };
 
+const REST_COMPLETING_THRESHOLD = 6000;
+
 export function LiveIndicatorProvider({
   children,
 }: LiveIndicatorProviderProps) {
-  const { isInWorkout, editor } = useWorkout();
+  const { isInWorkout, editor, activity, actions, soundPlayer } = useWorkout();
   const { height } = useWindowDimensions();
   const [now, setNow] = useState(Date.now());
   const [showPreview, setShowPreview] = useState(true);
   const previewableBottomSheetRef = useRef<PreviewableBottomSheetRef>(null);
+  const restEndingAudioAlertsRef = useRef<string>();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,6 +47,25 @@ export function LiveIndicatorProvider({
       clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    if (activity?.type === WorkoutActivityType.RESTING) {
+      const { set } = activity.activityData as RestingActivity;
+      const restFinished =
+        (set.restStartedAt as number) + set.restDuration * 1000;
+      if (restFinished < Date.now()) {
+        actions.completeRest(set.id);
+      } else {
+        const isRestEnding =
+          restFinished - Date.now() < REST_COMPLETING_THRESHOLD &&
+          restFinished - Date.now() > REST_COMPLETING_THRESHOLD - 1000;
+        if (isRestEnding && restEndingAudioAlertsRef.current !== set.id) {
+          restEndingAudioAlertsRef.current = set.id;
+          soundPlayer.playRestCompleting();
+        }
+      }
+    }
+  }, [now, activity]);
 
   return (
     <context.Provider

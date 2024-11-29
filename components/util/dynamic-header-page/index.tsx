@@ -6,7 +6,6 @@ import Animated, {
   useSharedValue,
 } from "react-native-reanimated";
 import { useEffect, useRef } from "react";
-import { textTheme } from "@/constants/Themes";
 
 const DYNAMIC_HEADER_HEIGHT = 90;
 
@@ -26,7 +25,7 @@ const dynamicHeaderPageStyles = StyleSheet.create({
     zIndex: 1,
   },
   content: {
-    paddingLeft: "3%",
+    paddingHorizontal: "3%",
   },
   scroll: {
     marginTop: DYNAMIC_HEADER_HEIGHT,
@@ -65,7 +64,7 @@ export function DynamicHeaderPage({ title, children }: DynamicHeaderPageProps) {
             { borderColor: useThemeColoring("dynamicHeaderBorder") },
           ]}
         >
-          <Text style={textTheme.dynamicHeader}>{title}</Text>
+          <Text neutral>{title}</Text>
         </Animated.View>
         <ScrollView
           style={dynamicHeaderPageStyles.scroll}

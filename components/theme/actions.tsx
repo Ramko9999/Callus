@@ -175,11 +175,13 @@ export function NeutralAction({ onClick, style, text }: TextActionProps) {
     <TouchableOpacity onPress={onClick}>
       <View
         background
-        style={[textActionStyles.container, { borderWidth: 1 }, style]}
+        style={[
+          textActionStyles.container,
+          { backgroundColor: useThemeColoring("neutralAction") },
+          style,
+        ]}
       >
-        <Text action light>
-          {text}
-        </Text>
+        <Text action>{text}</Text>
       </View>
     </TouchableOpacity>
   );

@@ -1,3 +1,4 @@
+import { convertHexToRGBA } from "@/util/color";
 import { Theme } from "@react-navigation/native";
 
 export const darkColors = {
@@ -9,10 +10,11 @@ export const darkColors = {
   primaryViewBorder: "#48515D",
   primaryAction: "#24A0ED",
   dangerAction: "#FF6347",
+  neutralAction: "#48515D",
   success: "#2ECD70",
   search: "#313035",
   rouletteSelection: "rgba(200, 200, 200, 0.1)",
-  highlightedAnimationColor: "rgba(14, 63, 93, 0.2)",
+  highlightedAnimationColor: convertHexToRGBA("#24A0ED", 0.6),
   dynamicHeaderBorder: "rgba(100, 100, 100, 1)",
 };
 
@@ -25,10 +27,11 @@ export const lightColors = {
   primaryViewBorder: "#48515D",
   primaryAction: "#24A0ED",
   dangerAction: "#DC143C",
+  neutralAction: "#C4C4C4",
   success: "#4FA94D",
   search: "#eeeef0",
   rouletteSelection: "rgba(100, 100, 100, 0.2)",
-  highlightedAnimationColor: "rgba(14, 63, 93, 0.2)",
+  highlightedAnimationColor: convertHexToRGBA("#24A0ED", 0.2),
   dynamicHeaderBorder: "#C4C4C4",
 };
 
@@ -53,8 +56,8 @@ export const textTheme = {
   extraLarge: {
     fontSize: 32,
   },
-  dynamicHeader: {
-    fontSize: 16,
+  timer: {
+    fontSize: 48,
   },
 };
 

@@ -18,7 +18,6 @@ import { StyleSheet, useWindowDimensions } from "react-native";
 import {
   ExercisingActivityTile,
   FinishWorkoutActivityTile,
-  RestingActivityTile,
 } from "./WorkoutActivityTile";
 import { useStopwatch } from "@/components/hooks/use-stopwatch";
 import { getTimePeriodDisplay } from "@/util/date";
@@ -26,6 +25,7 @@ import { Close, Edit, SignificantAction } from "@/components/theme/actions";
 import { useState } from "react";
 import { LiveEditor } from "../editor/live";
 import { DiscardUnstartedSetsConfirmation } from "../editor/confirmations";
+import { RestingActivity as RestingActivityView } from "../../live/activity";
 
 const livePlayerActionsStyles = StyleSheet.create({
   container: {
@@ -106,14 +106,15 @@ function LivePlayer({ hide, onEdit }: LivePlayerProps) {
           />
         );
       case WorkoutActivityType.RESTING:
-        const restingData = activityData as unknown as RestingActivity;
+        const { set } = activityData as unknown as RestingActivity;
         return (
-          <RestingActivityTile
-            activityData={activityData as unknown as RestingActivity}
-            onFinish={() => actions.completeRest(restingData.set.id)}
-            onUpdateRestDuration={(duration) =>
-              actions.updateRestDuration(restingData.set.id, duration)
-            }
+          <RestingActivityView
+            startedAt={set.restStartedAt as number}
+            duration={set.restDuration}
+            onUpdateDuration={(duration) => {
+              actions.updateRestDuration(set.id, duration);
+            }}
+            onSkip={() => actions.completeRest(set.id)}
           />
         );
       case WorkoutActivityType.FINISHED:

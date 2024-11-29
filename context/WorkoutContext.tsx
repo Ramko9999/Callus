@@ -16,7 +16,7 @@ import {
   WeightDifficulty,
 } from "@/interface";
 import { createContext, useState, useContext, useEffect } from "react";
-import { generateRandomId } from "@/util/misc";
+import { generateRandomId, timeout } from "@/util/misc";
 import { WorkoutApi } from "@/api/workout";
 import { Audio } from "expo-av";
 import { BW, NAME_TO_EXERCISE_META } from "@/constants";
@@ -332,7 +332,7 @@ type WorkoutActions = {
   startWorkout: (_: WorkoutPlan) => void;
   completeSet: (_: string) => void;
   updateRestDuration: (_: string, u: number) => void;
-  completeRest: (_: string) => void;
+  completeRest: (setId: string) => void;
   finishWorkout: () => void;
   resumeInProgressWorkout: (_: Workout) => void;
 };
@@ -348,13 +348,12 @@ type WorkoutEditor = {
 };
 
 type WorkoutSounds = {
-  restCompleting: Audio.Sound;
-  nextSetBegin: Audio.Sound;
+  shortBeep: Audio.Sound;
+  longBeep: Audio.Sound;
 };
 
 type WorkoutSoundPlayer = {
   playRestCompleting: () => Promise<void>;
-  playNextSetBegin: () => Promise<void>;
 };
 
 type WorkoutContext = {
@@ -384,7 +383,6 @@ const context = createContext<WorkoutContext>({
   },
   soundPlayer: {
     playRestCompleting: async () => {},
-    playNextSetBegin: async () => {},
   },
 });
 
@@ -479,7 +477,7 @@ export function WorkoutProvider({ children }: Props) {
       Audio.Sound.createAsync(require("@/assets/audio/short-beep.mp3")),
       Audio.Sound.createAsync(require("@/assets/audio/long-beep.mp3")),
     ]).then(([{ sound: shortBeep }, { sound: longBeep }]) => {
-      setSounds({ restCompleting: shortBeep, nextSetBegin: longBeep });
+      setSounds({ shortBeep, longBeep });
     });
   }, []);
 
@@ -505,11 +503,15 @@ export function WorkoutProvider({ children }: Props) {
           actions: { updateWorkout, stopCurrentWorkout },
         },
         soundPlayer: {
+          // todo: move to sound api
           playRestCompleting: async () => {
-            await sounds?.restCompleting.playFromPositionAsync(0);
-          },
-          playNextSetBegin: async () => {
-            await sounds?.nextSetBegin.playFromPositionAsync(0);
+            await sounds?.shortBeep.replayAsync();
+            await timeout(1500);
+            await sounds?.shortBeep.replayAsync();
+            await timeout(1500);
+            await sounds?.shortBeep.replayAsync();
+            await timeout(1500);
+            await sounds?.longBeep.replayAsync();
           },
         },
       }}

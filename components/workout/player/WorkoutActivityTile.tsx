@@ -80,64 +80,6 @@ export function ExercisingActivityTile({
   );
 }
 
-type RestingActivityTileProps = {
-  activityData: RestingActivity;
-  onFinish: () => void;
-  onUpdateRestDuration: (updatedDuration: number) => void;
-};
-
-export function RestingActivityTile({
-  activityData,
-  onFinish,
-  onUpdateRestDuration,
-}: RestingActivityTileProps) {
-  // todo: use stopwatch and use timer and create a hook called useRestTimer to sound the rings
-  const { set } = activityData;
-  const { restDuration, restStartedAt } = set;
-  const { isOver, remainingMs } = useTimer({
-    startTimeMs: restStartedAt as number,
-    durationMs: restDuration * 1000,
-  });
-
-  const { soundPlayer } = useWorkout();
-
-
-  useEffect(() => {
-    if (isOver) {
-      onFinish();
-    } else if (remainingMs <= 1000) {
-      soundPlayer.playNextSetBegin();
-    } else {
-      if (remainingMs <= 6000 && restDuration % 2 === 0) {
-        soundPlayer.playRestCompleting();
-      }
-    }
-  }, [isOver, remainingMs]);
-
-  return (
-    <View style={styles.activityTile}>
-      <Text _type="emphasized" style={styles.activityTileTitle}>
-        Rest
-      </Text>
-      <Text _type="large">{getDurationDisplay(Math.floor(remainingMs / 1000))}</Text>
-      <View style={styles.activityTileActions}>
-        <Action
-          _action={{ name: "Subtract 15s", type: "neutral" }}
-          onPress={() => onUpdateRestDuration(restDuration - 15)}
-        />
-        <Action
-          _action={{ name: "Skip", type: "neutral" }}
-          onPress={onFinish}
-        />
-        <Action
-          _action={{ name: "Add 15s", type: "neutral" }}
-          onPress={() => onUpdateRestDuration(restDuration + 15)}
-        />
-      </View>
-    </View>
-  );
-}
-
 type FinishWorkoutActivityTileProps = {
   onFinish: () => void;
 };
