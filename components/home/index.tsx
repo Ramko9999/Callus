@@ -1,22 +1,17 @@
 import { usePathname, useRouter } from "expo-router";
 import { Text, View } from "@/components/Themed";
-import { StyleSheet, ScrollView } from "react-native";
-import { useEffect, useState } from "react";
+import { StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import React, { useEffect, useState } from "react";
 import { NewWorkoutViewTile } from "@/components/workout/view";
-import {
-  truncTime,
-  addDays,
-  removeDays,
-  getLongDateDisplay,
-} from "@/util/date";
+import { truncTime, getLongDateDisplay } from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
-import { Gesture} from "react-native-gesture-handler";
 import { HistoricalEditorPopup } from "../workout/editor/historical";
 import { useLiveIndicator } from "../live";
-import { DynamicHeaderPage } from "../util/dynamic-header-page";
+import { WorkoutCalendar } from "./calendar";
+import * as Haptics from "expo-haptics";
 import { StyleUtils } from "@/util/styles";
-import { NeutralAction } from "../theme/actions";
+import { DYNAMIC_HEADER_HEIGHT } from "../util/dynamic-header-page";
 
 const styles = StyleSheet.create({
   homeView: {
@@ -130,12 +125,20 @@ function CompletedWorkouts({
   );
 }
 
-const TRANSLATION_THRESHOLD = 20;
-const VELOCITY_TRHESHOLD = 100;
+const homeStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(10),
+    ...StyleUtils.expansive(),
+    marginTop: DYNAMIC_HEADER_HEIGHT,
+  },
+  header: {
+    paddingLeft: "3%",
+  },
+});
 
 export default function Home() {
   const pathname = usePathname();
-  const [workoutDate, setWorkoutDate] = useState<number>(Date.now());
+  const [workoutDate, setWorkoutDate] = useState<number>(truncTime(Date.now()));
   const [loading, setLoading] = useState<boolean>(true);
   const [completedWorkouts, setCompletedWorkouts] = useState<Workout[]>([]);
   const [workoutToUpdate, setWorkoutToUpdate] = useState<Workout>();
@@ -149,58 +152,43 @@ export default function Home() {
       .finally(() => setLoading(false));
   };
 
-  const panGesture = Gesture.Pan()
-    .onEnd(({ translationX, velocityX }) => {
-      const isPanRightRight = translationX > 0;
-      if (isPanRightRight) {
-        if (
-          translationX > TRANSLATION_THRESHOLD &&
-          velocityX > VELOCITY_TRHESHOLD
-        ) {
-          setWorkoutDate((d) => removeDays(d, 1));
-        }
-      } else {
-        if (
-          translationX < -1 * TRANSLATION_THRESHOLD &&
-          velocityX < -1 * VELOCITY_TRHESHOLD
-        ) {
-          setWorkoutDate((d) => addDays(d, 1));
-        }
-      }
-    })
-    .runOnJS(true);
-
   useEffect(() => {
     loadWorkouts();
   }, [workoutDate, pathname]);
 
   return (
     <>
-      <DynamicHeaderPage title={getLongDateDisplay(workoutDate)}>
-        {loading ? (
-          <WorkoutItineraryLoading />
-        ) : (
-          <>
-            <View style={{ ...StyleUtils.flexRow(10) }}>
-              <NeutralAction
-                onClick={() => setWorkoutDate((d) => removeDays(d, 1))}
-                text="Back a day"
-              />
-              <NeutralAction
-                onClick={() => setWorkoutDate((d) => addDays(d, 1))}
-                text="Forward a day"
-              />
-            </View>
-            <CompletedWorkouts
-              workouts={completedWorkouts}
-              onClickWorkout={(workout: Workout) => {
-                liveIndicatorActions.hide();
-                setWorkoutToUpdate(workout);
-              }}
-            />
-          </>
-        )}
-      </DynamicHeaderPage>
+      <SafeAreaView>
+        <View style={homeStyles.container}>
+          <View style={homeStyles.header}>
+            <Text emphasized extraLarge>
+              {getLongDateDisplay(workoutDate)}
+            </Text>
+          </View>
+          <WorkoutCalendar
+            currentDate={workoutDate}
+            onSelectDate={(date) => {
+              setWorkoutDate(date);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            }}
+          />
+          <ScrollView>
+            {loading ? (
+              <WorkoutItineraryLoading />
+            ) : (
+              <>
+                <CompletedWorkouts
+                  workouts={completedWorkouts}
+                  onClickWorkout={(workout: Workout) => {
+                    liveIndicatorActions.hide();
+                    setWorkoutToUpdate(workout);
+                  }}
+                />
+              </>
+            )}
+          </ScrollView>
+        </View>
+      </SafeAreaView>
       <HistoricalEditorPopup
         show={workoutToUpdate != undefined}
         hide={() => {

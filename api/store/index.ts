@@ -1,8 +1,19 @@
 import * as FileSystem from "expo-file-system";
 import { DB_NAME, STORAGE_NAMESPACE } from "@/constants";
 import { SQLiteDatabase, openDatabaseAsync } from "expo-sqlite";
-import { CLEAR_ALL_EXERCISES, EXERCISES_TABLE_CREATION, GET_IN_PROGRESS_WORKOUTS, GET_COMPLETED_WORKOUTS_BETWEEN_TIME, UPSERT_EXERCISE, UPSERT_WORKOUT, WORKOUTS_TABLE_CREATION, DELETE_WORKOUT } from "./sql";
+import {
+  CLEAR_ALL_EXERCISES,
+  EXERCISES_TABLE_CREATION,
+  GET_IN_PROGRESS_WORKOUTS,
+  GET_COMPLETED_WORKOUTS_BETWEEN_TIME,
+  UPSERT_EXERCISE,
+  UPSERT_WORKOUT,
+  WORKOUTS_TABLE_CREATION,
+  DELETE_WORKOUT,
+  GET_WORKED_OUT_DAYS,
+} from "./sql";
 import { Exercise, Workout } from "@/interface";
+import { truncTime } from "@/util/date";
 
 const APP_DATA_DIRECTORY = `${FileSystem.documentDirectory}${STORAGE_NAMESPACE}`;
 
@@ -95,16 +106,14 @@ export class Store {
     });
   }
 
-  async getWorkouts(
-    after: number,
-    before: number
-  ): Promise<Workout[]> {
-    return (
-      (await this.db.getAllAsync(GET_COMPLETED_WORKOUTS_BETWEEN_TIME, {
+  async getWorkouts(after: number, before: number): Promise<Workout[]> {
+    return ((await this.db.getAllAsync(
+      GET_COMPLETED_WORKOUTS_BETWEEN_TIME,
+      {
         $after: after,
         $before: before,
-      })) as any[]
-    ).map(this.toWorkout);
+      }
+    )) as any[]).map(this.toWorkout);
   }
 
   async getAllWorkouts() {
@@ -130,7 +139,19 @@ export class Store {
     console.log(`[STORE] saveWorkouts took ${elapsed}ms`);
   }
 
-  async deleteWorkout(workoutId: string){
-      await this.db.runAsync(DELETE_WORKOUT, {$workout_id: workoutId});
+  async deleteWorkout(workoutId: string) {
+    await this.db.runAsync(DELETE_WORKOUT, { $workout_id: workoutId });
+  }
+
+  async getWorkedOutDays(before: number, after: number): Promise<Set<number>> {
+    const workoutStartTimes = await this.db.getAllAsync(GET_WORKED_OUT_DAYS, {
+      $before: before,
+      $after: after,
+    });
+    return new Set(
+      workoutStartTimes.map(({ timestamp }: any) =>
+        truncTime(timestamp as number)
+      )
+    );
   }
 }

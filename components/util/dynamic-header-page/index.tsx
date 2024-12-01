@@ -1,13 +1,18 @@
-import { ScrollView, StyleSheet, View as DefaultView } from "react-native";
+import { StyleSheet, View as DefaultView } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import { Text, useThemeColoring, View } from "@/components/Themed";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { useEffect, useRef } from "react";
+import { createContext, RefObject, useContext, useEffect, useRef } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const DYNAMIC_HEADER_HEIGHT = 90;
+export const DYNAMIC_HEADER_HEIGHT = 40;
+
+const DynamicHeaderContext = createContext<RefObject<Animated.ScrollView>>({
+  current: null,
+});
 
 const dynamicHeaderPageStyles = StyleSheet.create({
   container: {
@@ -40,6 +45,7 @@ type DynamicHeaderPageProps = {
 // todo(android): use safe area
 export function DynamicHeaderPage({ title, children }: DynamicHeaderPageProps) {
   const pageHeaderRef = useRef<DefaultView>(null);
+  const scrollRef = useRef<Animated.ScrollView>(null);
   const pageHeaderHeight = useRef(0);
   const scrollOffset = useSharedValue(0);
 
@@ -57,32 +63,41 @@ export function DynamicHeaderPage({ title, children }: DynamicHeaderPageProps) {
 
   return (
     <View background>
-      <View background style={dynamicHeaderPageStyles.container}>
-        <Animated.View
-          style={[
-            dynamicHeaderPageStyles.header,
-            dynamicHeaderAnimatedStyle,
-            { borderColor: useThemeColoring("dynamicHeaderBorder") },
-          ]}
-        >
-          <Text neutral>{title}</Text>
-        </Animated.View>
-        <ScrollView
-          style={dynamicHeaderPageStyles.scroll}
-          onScroll={({ nativeEvent }) => {
-            scrollOffset.value = nativeEvent.contentOffset.y;
-          }}
-        >
-          <View style={dynamicHeaderPageStyles.content}>
-            <DefaultView ref={pageHeaderRef}>
-              <Text emphasized extraLarge>
-                {title}
-              </Text>
-            </DefaultView>
-            {children}
-          </View>
-        </ScrollView>
-      </View>
+      <SafeAreaView>
+        <View style={dynamicHeaderPageStyles.container}>
+          <Animated.View
+            style={[
+              dynamicHeaderPageStyles.header,
+              dynamicHeaderAnimatedStyle,
+              { borderColor: useThemeColoring("dynamicHeaderBorder") },
+            ]}
+          >
+            <Text neutral>{title}</Text>
+          </Animated.View>
+          <Animated.ScrollView
+            ref={scrollRef}
+            style={dynamicHeaderPageStyles.scroll}
+            onScroll={({ nativeEvent }) => {
+              scrollOffset.value = nativeEvent.contentOffset.y;
+            }}
+          >
+            <View style={dynamicHeaderPageStyles.content}>
+              <DefaultView ref={pageHeaderRef}>
+                <Text emphasized extraLarge>
+                  {title}
+                </Text>
+              </DefaultView>
+              <DynamicHeaderContext.Provider value={scrollRef}>
+                {children}
+              </DynamicHeaderContext.Provider>
+            </View>
+          </Animated.ScrollView>
+        </View>
+      </SafeAreaView>
     </View>
   );
+}
+
+export function useDynamicHeaderScroll() {
+  return useContext(DynamicHeaderContext);
 }

@@ -36,4 +36,8 @@ export class WorkoutApi {
   static async importWorkouts(workouts: Workout[]): Promise<void> {
     await Store.instance().saveWorkouts(workouts);
   }
+
+  static async getWorkedOutDays(before: number, after: number) {
+    return await Store.instance().getWorkedOutDays(before, after);
+  }
 }

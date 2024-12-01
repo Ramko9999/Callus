@@ -20,14 +20,24 @@ const MONTHS = [
   "Dec",
 ];
 
-const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const MONTH_TO_DAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
+export const DAYS_OF_WEEK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-export const MINUTES = Array.from({length: 60}, (_, index) => index);
+export const MINUTES = Array.from({ length: 60 }, (_, index) => index);
 
-export const HOURS = Array.from({length: 12}, (_, index) => index);
+export const HOURS = Array.from({ length: 12 }, (_, index) => index);
 
 export const AM_OR_PM = ["AM", "PM"];
+
+function getDaysInMonth(month: number, year: number) {
+  if (month === 1) {
+    if (year % 4 === 0) {
+      return MONTH_TO_DAYS[month] + 1;
+    }
+  }
+  return MONTH_TO_DAYS[month];
+}
 
 export function getDurationDisplay(durationinSeconds: number) {
   const minutes = Math.floor(durationinSeconds / 60);
@@ -48,11 +58,13 @@ export function truncTimeUtc(timestamp: number) {
 }
 
 export function addDays(timestamp: number, days: number) {
-  return timestamp + days * Period.DAY;
+  const date = new Date(timestamp);
+  date.setDate(date.getDate() + days);
+  return date.valueOf();
 }
 
 export function removeDays(timestamp: number, days: number) {
-  return timestamp - days * Period.DAY;
+  return addDays(timestamp, -1 * days);
 }
 
 export function getHumanReadableDateDisplay(timestamp: number) {
@@ -98,7 +110,10 @@ export function getLongDateDisplay(
   if (withTime) {
     return `${month} ${date.getDate()}${getDateSuffix(
       date.getDate()
-    )} ${getHour(timestamp)}:${date.getMinutes().toString().padStart(2, "0")} ${getAmOrPm(timestamp)}`;
+    )} ${getHour(timestamp)}:${date
+      .getMinutes()
+      .toString()
+      .padStart(2, "0")} ${getAmOrPm(timestamp)}`;
   }
   return `${month} ${date.getDate()}${getDateSuffix(date.getDate())}`;
 }
@@ -160,7 +175,7 @@ export function getAmOrPm(timestamp: number) {
   return new Date(timestamp).getHours() >= 12 ? "PM" : "AM";
 }
 
-export function getHour(timestamp: number){
+export function getHour(timestamp: number) {
   const date = new Date(timestamp);
   return date.getHours() % 12 === 0 ? 12 : date.getHours() % 12;
 }
@@ -174,5 +189,50 @@ export function getDateEditDisplay(timestamp: number) {
   ].join(" ");
   const minutes = date.getMinutes().toString().padStart(2, "0");
 
-  return `${monthDay}, ${getHour(timestamp)}:${minutes} ${getAmOrPm(timestamp)}`;
+  return `${monthDay}, ${getHour(timestamp)}:${minutes} ${getAmOrPm(
+    timestamp
+  )}`;
+}
+
+export function generateEnclosingWeek(timestamp: number) {
+  const date = new Date(timestamp);
+  let week = [];
+  for (let i = 0; i < 7; i++) {
+    week.push(addDays(timestamp, i - date.getDay()));
+  }
+  return week;
+}
+
+export function generateEnclosingMonth(timestamp: number) {
+  const date = new Date(timestamp);
+  const month = date.getMonth();
+  const firstDay = new Date(date.getFullYear(), month, 1, 0, 0, 0, 0);
+
+  const weeks = [];
+  for (
+    let week = generateEnclosingWeek(firstDay.valueOf());
+    week.some((date) => new Date(date).getMonth() === month);
+    week = generateEnclosingWeek(addDays(week[6], 1))
+  ) {
+    weeks.push([...week]);
+  }
+  return weeks;
+}
+
+export function getPreviousMonth(timestamp: number) {
+  const date = new Date(timestamp);
+  date.setDate(0);
+  return date.valueOf();
+}
+
+export function getNextMonth(timestamp: number) {
+  const date = new Date(timestamp);
+  date.setDate(getDaysInMonth(date.getMonth(), date.getFullYear()) + 1);
+  return date.valueOf();
+}
+
+export function getMonthFirstDay(timestamp: number){
+  const lastMonthLastDay = new Date(getPreviousMonth(timestamp));
+  lastMonthLastDay.setDate(lastMonthLastDay.getDate() + 1);
+  return lastMonthLastDay.valueOf();
 }

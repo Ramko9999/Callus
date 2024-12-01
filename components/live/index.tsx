@@ -41,13 +41,16 @@ export function LiveIndicatorProvider({
   const restEndingAudioAlertsRef = useRef<string>();
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(Date.now());
-    }, 1000);
+    let interval: NodeJS.Timeout;
+    if (isInWorkout) {
+      interval = setInterval(() => setNow(Date.now()), 1000);
+    }
     return () => {
-      clearInterval(interval);
+      if (interval) {
+        clearInterval(interval);
+      }
     };
-  }, []);
+  }, [isInWorkout]);
 
   // todo: if someone adds rest quickly while the workout is running, we need to clear the sounds and the ref
   useEffect(() => {

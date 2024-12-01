@@ -1,41 +1,50 @@
 import { useEffect, useRef, useState } from "react";
 import { DynamicHeaderPage } from "@/components/util/dynamic-header-page";
-import { ProgressRing } from "@/components/util/progress-ring";
-import { View } from "@/components/Themed";
+import {
+  addDays,
+  getLongDateDisplay,
+  generateEnclosingWeek,
+  removeDays,
+  truncTime,
+  getNextMonth,
+  getMonthFirstDay,
+  getDurationDisplay,
+} from "@/util/date";
+import { View, Text, useThemeColoring } from "@/components/Themed";
+import { StyleSheet } from "react-native";
 import { StyleUtils } from "@/util/styles";
-import { RestingActivity } from "@/components/live/activity";
-import { useTimer } from "@/components/hooks/use-timer";
-import { Audio } from "expo-av";
-import { SignificantAction } from "@/components/theme/actions";
-import { timeout } from "@/util/misc";
-import { Modal } from "@/components/util/modal";
+import Animated, {
+  clamp,
+  interpolate,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import { WorkoutApi } from "@/api/workout";
+import { MonthCalendar, WeekCalendar, WorkoutCalendar } from "@/components/home/calendar";
+import * as Haptics from "expo-haptics";
+import { DragIndicator } from "@/components/theme/icons";
 
 // for testing things out quickly, remove before prod release
 export default function () {
   return <Example />;
 }
 
-type WorkoutSounds = {
-  shortBeep: Audio.Sound;
-  longBeep: Audio.Sound;
-};
 
 function Example() {
-  const [isModalOpen, setisModalOpen] = useState(false);
-
+  const [date, setDate] = useState(Date.now());
   return (
-    <>
-      <DynamicHeaderPage title="Playground">
-        <View style={{ ...StyleUtils.flexColumn(), height: "100%" }}>
-          <SignificantAction
-            text="Open Modal"
-            onClick={() => setisModalOpen(true)}
-          />
-        </View>
-      </DynamicHeaderPage>
-      <Modal show={isModalOpen} hide={() => setisModalOpen(false)}>
-        {null}
-      </Modal>
-    </>
+    <DynamicHeaderPage title={getLongDateDisplay(date)}>
+      <WorkoutCalendar
+        currentDate={truncTime(date)}
+        onSelectDate={(date) => {
+          setDate(date);
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }}
+      />
+    </DynamicHeaderPage>
   );
 }
+
