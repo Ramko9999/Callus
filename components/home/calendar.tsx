@@ -456,9 +456,9 @@ export function MonthCalendar({
 
 const workoutCalendarStyles = StyleSheet.create({
   container: {
+    marginLeft: "-3%",
     ...StyleUtils.flexColumn(),
     borderRadius: 5,
-    shadowColor: "#000",
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
@@ -480,6 +480,7 @@ type WorkoutCalendarProps = {
   onSelectDate: (date: number) => void;
 };
 
+// todo: fix box shadow
 export function WorkoutCalendar({
   currentDate,
   onSelectDate,
@@ -539,7 +540,13 @@ export function WorkoutCalendar({
 
   return (
     <>
-      <View background style={workoutCalendarStyles.container}>
+      <View
+        background
+        style={[
+          workoutCalendarStyles.container,
+          { shadowColor: useThemeColoring("dynamicHeaderBorder") },
+        ]}
+      >
         <Animated.View
           style={[workoutCalendarStyles.content, calendarAnimatedStyle]}
         >

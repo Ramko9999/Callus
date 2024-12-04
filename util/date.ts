@@ -104,18 +104,24 @@ export function getLongDateDisplay(
   withTime: boolean = false
 ) {
   const date = new Date(timestamp);
-  const month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(
+  let month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(
     date
   );
+
+  let formatted = `${month} ${date.getDate()}${getDateSuffix(date.getDate())}`;
   if (withTime) {
-    return `${month} ${date.getDate()}${getDateSuffix(
+    formatted = `${month} ${date.getDate()}${getDateSuffix(
       date.getDate()
     )} ${getHour(timestamp)}:${date
       .getMinutes()
       .toString()
       .padStart(2, "0")} ${getAmOrPm(timestamp)}`;
   }
-  return `${month} ${date.getDate()}${getDateSuffix(date.getDate())}`;
+
+  if(date.getFullYear() !== new Date().getFullYear()){
+    formatted = `${formatted}, ${date.getFullYear()}`
+  }
+  return formatted;
 }
 
 export function getTimeDisplay(timestamp: number) {
@@ -231,7 +237,7 @@ export function getNextMonth(timestamp: number) {
   return date.valueOf();
 }
 
-export function getMonthFirstDay(timestamp: number){
+export function getMonthFirstDay(timestamp: number) {
   const lastMonthLastDay = new Date(getPreviousMonth(timestamp));
   lastMonthLastDay.setDate(lastMonthLastDay.getDate() + 1);
   return lastMonthLastDay.valueOf();

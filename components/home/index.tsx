@@ -1,6 +1,6 @@
 import { usePathname, useRouter } from "expo-router";
 import { Text, View } from "@/components/Themed";
-import { StyleSheet, ScrollView, SafeAreaView } from "react-native";
+import { StyleSheet, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
 import { NewWorkoutViewTile } from "@/components/workout/view";
 import { truncTime, getLongDateDisplay } from "@/util/date";
@@ -11,7 +11,10 @@ import { useLiveIndicator } from "../live";
 import { WorkoutCalendar } from "./calendar";
 import * as Haptics from "expo-haptics";
 import { StyleUtils } from "@/util/styles";
-import { DYNAMIC_HEADER_HEIGHT } from "../util/dynamic-header-page";
+import {
+  DYNAMIC_HEADER_HEIGHT,
+  DynamicHeaderPage,
+} from "../util/dynamic-header-page";
 
 const styles = StyleSheet.create({
   homeView: {
@@ -158,37 +161,28 @@ export default function Home() {
 
   return (
     <>
-      <SafeAreaView>
-        <View style={homeStyles.container}>
-          <View style={homeStyles.header}>
-            <Text emphasized extraLarge>
-              {getLongDateDisplay(workoutDate)}
-            </Text>
-          </View>
-          <WorkoutCalendar
-            currentDate={workoutDate}
-            onSelectDate={(date) => {
-              setWorkoutDate(date);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            }}
-          />
-          <ScrollView>
-            {loading ? (
-              <WorkoutItineraryLoading />
-            ) : (
-              <>
-                <CompletedWorkouts
-                  workouts={completedWorkouts}
-                  onClickWorkout={(workout: Workout) => {
-                    liveIndicatorActions.hide();
-                    setWorkoutToUpdate(workout);
-                  }}
-                />
-              </>
-            )}
-          </ScrollView>
-        </View>
-      </SafeAreaView>
+      <DynamicHeaderPage title={getLongDateDisplay(workoutDate)}>
+        <WorkoutCalendar
+          currentDate={workoutDate}
+          onSelectDate={(date) => {
+            setWorkoutDate(date);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          }}
+        />
+        {loading ? (
+          <WorkoutItineraryLoading />
+        ) : (
+          <>
+            <CompletedWorkouts
+              workouts={completedWorkouts}
+              onClickWorkout={(workout: Workout) => {
+                liveIndicatorActions.hide();
+                setWorkoutToUpdate(workout);
+              }}
+            />
+          </>
+        )}
+      </DynamicHeaderPage>
       <HistoricalEditorPopup
         show={workoutToUpdate != undefined}
         hide={() => {
