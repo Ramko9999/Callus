@@ -11,33 +11,17 @@ import { WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
 import { Live } from "../workout/player/popup";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
-type LiveIndicatorProviderContext = {
-  showContent: () => void;
-  hide: () => void;
-  show: () => void;
-};
-
-const context = createContext<LiveIndicatorProviderContext>({
-  showContent: () => {},
-  hide: () => {},
-  show: () => {},
-});
-
-type LiveIndicatorProviderProps = {
-  children: React.ReactNode;
+type LiveIndicatorProps = {
+  showPreview: boolean;
 };
 
 const REST_COMPLETING_THRESHOLD = 6000;
 
-// todo: fix the indicator not coming up when a workout is started
-export function LiveIndicatorProvider({
-  children,
-}: LiveIndicatorProviderProps) {
-  const { isInWorkout, editor, activity, actions, soundPlayer } = useWorkout();
-  const { height } = useWindowDimensions();
+function LiveIndicator({ showPreview }: LiveIndicatorProps) {
   const [now, setNow] = useState(Date.now());
-  const [showPreview, setShowPreview] = useState(true);
+  const { isInWorkout, editor, soundPlayer, activity, actions } = useWorkout();
   const previewableBottomSheetRef = useRef<PreviewableBottomSheetRef>(null);
+  const { height } = useWindowDimensions();
   const restEndingAudioAlertsRef = useRef<string>();
 
   useEffect(() => {
@@ -72,6 +56,54 @@ export function LiveIndicatorProvider({
     }
   }, [now, activity]);
 
+  const shouldShowIndicator = isInWorkout && showPreview;
+
+  return (
+    shouldShowIndicator && (
+      <PreviewableBottomSheet
+        ref={previewableBottomSheetRef}
+        renderPreview={() => (
+          <LivePreview
+            workout={editor.workout as Workout}
+            onClick={() => {
+              previewableBottomSheetRef.current?.openContent();
+            }}
+          />
+        )}
+        previewHeight={PREVIEW_HEIGHT}
+        contentHeight={height * WORKOUT_PLAYER_EDITOR_HEIGHT}
+      >
+        <Live
+          hide={() => {
+            previewableBottomSheetRef.current?.hideContent();
+          }}
+        />
+      </PreviewableBottomSheet>
+    )
+  );
+}
+
+type LiveIndicatorProviderContext = {
+  showContent: () => void;
+  hide: () => void;
+  show: () => void;
+};
+
+const context = createContext<LiveIndicatorProviderContext>({
+  showContent: () => {},
+  hide: () => {},
+  show: () => {},
+});
+
+type LiveIndicatorProviderProps = {
+  children: React.ReactNode;
+};
+
+// todo: fix the indicator not coming up when a workout is started
+export function LiveIndicatorProvider({
+  children,
+}: LiveIndicatorProviderProps) {
+  const [showPreview, setShowPreview] = useState(true);
   return (
     <context.Provider
       value={{
@@ -86,27 +118,7 @@ export function LiveIndicatorProvider({
     >
       <>
         {children}
-        {isInWorkout && showPreview && (
-          <PreviewableBottomSheet
-            ref={previewableBottomSheetRef}
-            renderPreview={() => (
-              <LivePreview
-                workout={editor.workout as Workout}
-                onClick={() => {
-                  previewableBottomSheetRef.current?.openContent();
-                }}
-              />
-            )}
-            previewHeight={PREVIEW_HEIGHT}
-            contentHeight={height * WORKOUT_PLAYER_EDITOR_HEIGHT}
-          >
-            <Live
-              hide={() => {
-                previewableBottomSheetRef.current?.hideContent();
-              }}
-            />
-          </PreviewableBottomSheet>
-        )}
+        {<LiveIndicator showPreview={showPreview} />}
       </>
     </context.Provider>
   );
