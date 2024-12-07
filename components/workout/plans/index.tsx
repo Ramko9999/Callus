@@ -11,7 +11,7 @@ import {
   FUNCTIONAL_LEG,
   NECK,
 } from "@/constants/SampleWorkouts";
-import { useWorkout } from "@/context/WorkoutContext";
+import { createWorkoutFromPlan, useWorkout } from "@/context/WorkoutContext";
 import { useRouter } from "expo-router";
 import { DynamicHeaderPage } from "@/components/util/dynamic-header-page";
 
@@ -74,7 +74,7 @@ function WorkoutPlanTile({ workoutPlan }: WorkoutPlanProps) {
           if (isInWorkout) {
             console.log("Cannot start as you are in workout...");
           } else {
-            actions.startWorkout(workoutPlan);
+            actions.startWorkout(createWorkoutFromPlan(workoutPlan));
           }
         }}
       >

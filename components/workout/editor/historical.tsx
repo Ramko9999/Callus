@@ -22,6 +22,7 @@ import {
   Add,
   Trash,
   Back,
+  Repeat,
 } from "@/components/theme/actions";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
@@ -31,7 +32,7 @@ import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/constants";
 import { ExerciseLevelEditor } from "./common/exercise";
 import { ExerciseFinder } from "./common/exercise/finder";
 import { SetLevelEditor } from "./common/set";
-import { WorkoutDeleteConfirmation } from "./popup";
+import { RepeatWorkoutConfirmation, WorkoutDeleteConfirmation } from "./popup";
 import * as Haptics from "expo-haptics";
 import { MetaEditor } from "./common/meta";
 
@@ -51,6 +52,7 @@ type HistoricalEditorTopActionsProps = {
   onClose: () => void;
   onStartReordering: () => void;
   onDoneReordering: () => void;
+  onRepeat: () => void;
   onAdd: () => void;
   onTrash: () => void;
 };
@@ -60,6 +62,7 @@ function HistoricalEditorTopActions({
   onClose,
   onStartReordering,
   onDoneReordering,
+  onRepeat,
   onAdd,
   onTrash,
 }: HistoricalEditorTopActionsProps) {
@@ -67,6 +70,7 @@ function HistoricalEditorTopActions({
     <View style={historicalEditorTopActionsStyles.container}>
       <Close onClick={onClose} />
       <View style={historicalEditorTopActionsStyles.rightActions}>
+        <Repeat onClick={onRepeat} />
         {isReordering ? (
           <Done onClick={onDoneReordering} />
         ) : (
@@ -124,12 +128,14 @@ type HistoricalEditorProps = {
   hide: () => void;
   trash: () => void;
   onSave: (workout: Workout) => void;
+  onRepeat: (workout: Workout) => void;
 };
 
 export function HistoricalEditor({
   workout,
   hide,
   onSave,
+  onRepeat,
   trash,
 }: HistoricalEditorProps) {
   const [exerciseId, setExerciseId] = useState<string>();
@@ -138,6 +144,7 @@ export function HistoricalEditor({
   const [isSearching, setIsSearching] = useState(false);
   const [isEditingDates, setIsEditingDate] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
+  const [isRepeating, setIsRepeating] = useState(false);
 
   const isEditingExercise = exerciseId != undefined;
   const exerciseInEdit = workout.exercises.find(({ id }) => id === exerciseId);
@@ -226,6 +233,9 @@ export function HistoricalEditor({
               onTrash={() => {
                 setIsDeleting(true);
               }}
+              onRepeat={() => {
+                setIsRepeating(true);
+              }}
             />
             <View style={historicalEditorStyles.content}>
               <MetaEditor
@@ -268,6 +278,11 @@ export function HistoricalEditor({
               range={{ startedAt: workout.startedAt, endedAt: workout.endedAt }}
               onUpdate={(range) => onUpdateMeta(range)}
             />
+            <RepeatWorkoutConfirmation
+              show={isRepeating}
+              hide={() => setIsRepeating(false)}
+              onRepeat={() => onRepeat(workout)}
+            />
           </>
         )}
       </View>
@@ -280,6 +295,7 @@ type HistoricalEditorPopupProps = {
   hide: () => void;
   workout: Workout;
   onSave: (workout: Workout) => void;
+  onRepeat: (workout: Workout) => void;
   trash: () => void;
 };
 
@@ -288,6 +304,7 @@ export function HistoricalEditorPopup({
   hide,
   workout,
   onSave,
+  onRepeat,
   trash,
 }: HistoricalEditorPopupProps) {
   return (
@@ -296,6 +313,7 @@ export function HistoricalEditorPopup({
         workout={workout}
         trash={trash}
         onSave={onSave}
+        onRepeat={onRepeat}
         hide={hide}
       />
     </BottomSheet>

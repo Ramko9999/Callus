@@ -164,6 +164,20 @@ export function Time({ onClick, style }: ActionProps) {
   );
 }
 
+export function Repeat({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View style={[iconActionStyles.container, style]}>
+        <FontAwesome
+          name="repeat"
+          size={textTheme.large.fontSize}
+          color={useThemeColoring("lightText")}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
 type TextActionProps = ActionProps & { text: string };
 
 export function SignificantAction({ onClick, style, text }: TextActionProps) {

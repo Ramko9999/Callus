@@ -35,6 +35,7 @@ const popupStyles = StyleSheet.create({
   },
 });
 
+// todo: use a modal here
 type WorkoutDeleteConfirmationProps = {
   show: boolean;
   onDelete: () => void;
@@ -58,7 +59,7 @@ export function WorkoutDeleteConfirmation({
           </Text>
         </View>
         <View style={popupStyles.actions}>
-          <DangerAction text="Yes, delete it!" onClick={onDelete} />
+          <DangerAction text="Yes" onClick={onDelete} />
         </View>
       </View>
     </BottomSheet>
@@ -89,9 +90,34 @@ export function DiscardUnstartedSetsConfirmation({
         </View>
         <View style={popupStyles.actions}>
           <SignificantAction
-            text="Yes, discard them and finish!"
+            text="Yes"
             onClick={onDiscard}
           />
+        </View>
+      </View>
+    </BottomSheet>
+  );
+}
+
+type RepeatWorkoutConfirmationProps = {
+  show: boolean;
+  hide: () => void;
+  onRepeat: () => void;
+};
+
+export function RepeatWorkoutConfirmation({
+  show,
+  hide,
+  onRepeat,
+}: RepeatWorkoutConfirmationProps) {
+  return (
+    <BottomSheet show={show} hide={hide} onBackdropPress={hide}>
+      <View background style={popupStyles.container}>
+        <View style={popupStyles.title}>
+          <Text large>Do you want to repeat this workout?</Text>
+        </View>
+        <View style={popupStyles.actions}>
+          <SignificantAction text="Yes" onClick={onRepeat} />
         </View>
       </View>
     </BottomSheet>

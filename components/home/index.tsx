@@ -15,6 +15,7 @@ import {
   DYNAMIC_HEADER_HEIGHT,
   DynamicHeaderPage,
 } from "../util/dynamic-header-page";
+import { createWorkoutFromWorkout, useWorkout } from "@/context/WorkoutContext";
 
 const styles = StyleSheet.create({
   homeView: {
@@ -145,6 +146,7 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(true);
   const [completedWorkouts, setCompletedWorkouts] = useState<Workout[]>([]);
   const [workoutToUpdate, setWorkoutToUpdate] = useState<Workout>();
+  const {isInWorkout, actions} = useWorkout();
 
   const liveIndicatorActions = useLiveIndicator();
 
@@ -194,6 +196,17 @@ export default function Home() {
           WorkoutApi.saveWorkout(workout).then(() =>
             setWorkoutToUpdate(workout)
           );
+        }}
+        onRepeat={(workout) => {
+         // todo: send an alert for why you can't start a workout if you are already in one
+         if(isInWorkout){
+          console.log("Cannot start a workout as you are already in one")
+         } else {
+          const repeatedWorkout = createWorkoutFromWorkout(workout);
+          setWorkoutToUpdate(undefined);
+          actions.startWorkout(repeatedWorkout);
+          liveIndicatorActions.showContent();
+         }
         }}
         trash={() => {
           WorkoutApi.deleteWorkout((workoutToUpdate as Workout).id).then(() => {

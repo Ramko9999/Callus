@@ -29,6 +29,10 @@ function generateExerciseId() {
   return generateRandomId("ex", 8);
 }
 
+function generateWorkoutId() {
+  return generateRandomId("wrk", 8);
+}
+
 export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
   const exercises: Exercise[] = workoutPlan.exercises.map(
     ({ name, sets: setPlans, rest }) => {
@@ -47,13 +51,31 @@ export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
     }
   );
 
-  const startedAt = Date.now();
-
   return {
     name: workoutPlan.name,
-    exercises: exercises,
-    startedAt: startedAt,
-    id: WorkoutApi.getWorkoutId(startedAt, workoutPlan),
+    exercises,
+    startedAt: Date.now(),
+    id: generateWorkoutId(),
+  };
+}
+
+export function createWorkoutFromWorkout(workout: Workout): Workout {
+  const exercises = workout.exercises.map((exercise) => {
+    const sets = exercise.sets.map(({ difficulty, restDuration }) => ({
+      difficulty,
+      restDuration,
+      id: generateSetId(),
+      status: SetStatus.UNSTARTED,
+    }));
+
+    return { id: generateExerciseId(), name: exercise.name, sets };
+  });
+
+  return {
+    name: workout.name,
+    exercises,
+    startedAt: Date.now(),
+    id: generateWorkoutId(),
   };
 }
 
@@ -329,7 +351,7 @@ export function getRemainingRest(set: Set): number {
 }
 
 type WorkoutActions = {
-  startWorkout: (_: WorkoutPlan) => void;
+  startWorkout: (_: Workout) => void;
   completeSet: (_: string) => void;
   updateRestDuration: (_: string, u: number) => void;
   completeRest: (setId: string) => void;
@@ -394,18 +416,17 @@ export function WorkoutProvider({ children }: Props) {
   const [workout, setWorkout] = useState<Workout>();
   const [sounds, setSounds] = useState<WorkoutSounds>();
 
-  const startWorkout = (workoutPlan: WorkoutPlan) => {
-    let newWorkout = createWorkoutFromPlan(workoutPlan);
-    const activity = getCurrentWorkoutActivity(newWorkout);
+  const startWorkout = (workout: Workout) => {
+    const activity = getCurrentWorkoutActivity(workout);
     if (activity.type !== WorkoutActivityType.FINISHED) {
-      newWorkout = updateSet(
+      workout = updateSet(
         (activity.activityData.set as Set).id,
         { startedAt: Date.now() },
-        newWorkout as Workout
+        workout as Workout
       );
     }
-    WorkoutApi.saveWorkout(newWorkout).then(() => {
-      setWorkout(newWorkout);
+    WorkoutApi.saveWorkout(workout).then(() => {
+      setWorkout(workout);
     });
   };
 
