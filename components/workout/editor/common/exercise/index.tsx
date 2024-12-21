@@ -47,47 +47,33 @@ type EditorExerciseProps = {
   exercise: Exercise;
   onClick: () => void;
   onTrash: () => void;
+  description?: string;
   animate?: boolean;
 };
-
-function getSubtitle(exercise: Exercise) {
-  const totalSets = exercise.sets.length;
-  const completedSets = exercise.sets.filter(
-    ({ status }) => status === SetStatus.FINISHED
-  ).length;
-  const allSetsAreUnstarted = exercise.sets.every(
-    ({ status }) => status === SetStatus.UNSTARTED
-  );
-
-  if (totalSets === completedSets) {
-    return "All sets completed!";
-  }
-
-  if (allSetsAreUnstarted) {
-    return `${totalSets} sets not yet started`;
-  }
-
-  return `${completedSets} of ${totalSets} sets completed`;
-}
 
 export function EditorExercise({
   exercise,
   onClick,
   onTrash,
   animate,
+  description,
 }: EditorExerciseProps) {
   const animationBackgroundColor = useSharedValue(0);
   const animationColor = useThemeColoring("highlightedAnimationColor");
 
   useEffect(() => {
-    animationBackgroundColor.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 1000 }),
-        withTiming(0, { duration: 1000 })
-      ),
-      -1
-    );
-  }, []);
+    if(animate){
+      animationBackgroundColor.value = withRepeat(
+        withSequence(
+          withTiming(1, { duration: 1000 }),
+          withTiming(0, { duration: 1000 })
+        ),
+        -1
+      );
+    } else {
+      animationBackgroundColor.value = 0;
+    }
+  }, [animate]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(
@@ -110,12 +96,12 @@ export function EditorExercise({
     >
       <TouchableOpacity onPress={onClick}>
         <Animated.View
-          style={[editorExerciseStyles.container, animate ? animatedStyle : {}]}
+          style={[editorExerciseStyles.container, animatedStyle]}
         >
           <View style={editorExerciseStyles.title}>
             <Text large>{exercise.name}</Text>
             <Text neutral light>
-              {getSubtitle(exercise)}
+              {description}
             </Text>
           </View>
           <View style={editorExerciseStyles.rightActions}>
@@ -145,6 +131,7 @@ type ExerciseLevelEditorProps = {
   isReordering: boolean;
   currentExerciseId?: string;
   exercises: Exercise[];
+  getDescription: (exercise: Exercise) => string;
   onRemove: (exerciseId: string) => void;
   onReorder: (exercises: Exercise[]) => void;
   onEdit: (exercise: Exercise) => void;
@@ -162,6 +149,7 @@ export function ExerciseLevelEditor({
   isReordering,
   currentExerciseId,
   exercises,
+  getDescription,
   onRemove,
   onReorder,
   onEdit,
@@ -224,6 +212,7 @@ export function ExerciseLevelEditor({
               onClick={() => onEdit(exercise)}
               onTrash={() => onRemove(exercise.id)}
               animate={exercise.id === currentExerciseId}
+              description={getDescription(exercise)}
             />
           ))
         )}

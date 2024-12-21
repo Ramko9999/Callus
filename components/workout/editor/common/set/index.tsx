@@ -45,14 +45,18 @@ export function EditorSet({
   const animationColor = useThemeColoring("highlightedAnimationColor");
 
   useEffect(() => {
-    animationBackgroundColor.value = withRepeat(
-      withSequence(
-        withTiming(1, { duration: 1000 }),
-        withTiming(0, { duration: 1000 })
-      ),
-      -1
-    );
-  }, []);
+    if (animate) {
+      animationBackgroundColor.value = withRepeat(
+        withSequence(
+          withTiming(1, { duration: 1000 }),
+          withTiming(0, { duration: 1000 })
+        ),
+        -1
+      );
+    } else {
+      animationBackgroundColor.value = 0;
+    }
+  }, [animate]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     backgroundColor: interpolateColor(
@@ -73,9 +77,7 @@ export function EditorSet({
       )}
       overshootRight={false}
     >
-      <Animated.View
-        style={[editorSetStyles.container, animate ? animatedStyle : {}]}
-      >
+      <Animated.View style={[editorSetStyles.container, animatedStyle]}>
         <SetStatusInput
           set={set}
           isOn={set.status === SetStatus.FINISHED}

@@ -36,6 +36,7 @@ import { RepeatWorkoutConfirmation, WorkoutDeleteConfirmation } from "./popup";
 import * as Haptics from "expo-haptics";
 import { MetaEditor } from "./common/meta";
 import React from "react";
+import { getHistoricalExerciseDescription } from "@/util/workout/display";
 
 const historicalEditorTopActionsStyles = StyleSheet.create({
   container: {
@@ -254,6 +255,7 @@ export function HistoricalEditor({
                   setExerciseId(exercise.id);
                 }}
                 onReorder={(exercises) => onReorderExercises(exercises)}
+                getDescription={getHistoricalExerciseDescription}
               />
             </View>
             <ExerciseFinder

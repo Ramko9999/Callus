@@ -38,7 +38,8 @@ import { ExerciseLevelEditor } from "./common/exercise";
 import { ExerciseFinder } from "./common/exercise/finder";
 import { SetLevelEditor } from "./common/set";
 import { MetaEditor } from "./common/meta";
-import { ExpoRootProps } from "expo-router/build/ExpoRoot";
+import { getLiveExerciseDescription } from "@/util/workout/display";
+import React from "react";
 
 const liveEditorTopActionsStyles = StyleSheet.create({
   container: {
@@ -297,6 +298,7 @@ export function LiveEditor({ back }: LiveEditorProps) {
                   setExerciseId(exercise.id);
                 }}
                 onReorder={(exercises) => onReorderExercises(exercises)}
+                getDescription={getLiveExerciseDescription}
               />
             </View>
             <ExerciseFinder
