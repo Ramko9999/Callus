@@ -49,7 +49,7 @@ type DynamicHeaderPageProps = {
   renderLargeHeader?: React.ReactNode;
 };
 
-// todo(android): use safe area
+// todo: weird bug where header is initially at a position and then moved down
 export function DynamicHeaderPage({
   title,
   children,

@@ -6,6 +6,8 @@ import { WorkoutStreakGrid } from "./streak-grid";
 import { LifetimeStats } from "./lifetime-stats";
 import { Settings } from "../theme/actions";
 import { textTheme } from "@/constants/Themes";
+import { SettingsPopup } from "./settings";
+import React, { useState } from "react";
 
 const profileStyles = StyleSheet.create({
   container: {
@@ -19,23 +21,35 @@ const profileStyles = StyleSheet.create({
   },
 });
 
+// todo: figure out how to re-render the stats after settings change
 export function Profile() {
+  const [isOpeningSettings, setIsOpeningSettings] = useState(false);
+
   return (
-    <DynamicHeaderPage
-      title={"Hello Ramki!"}
-      renderLargeHeader={
-        <View style={profileStyles.header}>
-          <Text emphasized extraLarge>
-            Hello Ramki!
-          </Text>
-          <Settings iconSize={textTheme.extraLarge.fontSize} />
+    <>
+      <DynamicHeaderPage
+        title={"Hello Ramki!"}
+        renderLargeHeader={
+          <View style={profileStyles.header}>
+            <Text emphasized extraLarge>
+              Hello Ramki!
+            </Text>
+            <Settings
+              iconSize={textTheme.extraLarge.fontSize}
+              onClick={() => setIsOpeningSettings(true)}
+            />
+          </View>
+        }
+      >
+        <View style={profileStyles.container}>
+          <WorkoutStreakGrid />
+          <LifetimeStats />
         </View>
-      }
-    >
-      <View style={profileStyles.container}>
-        <WorkoutStreakGrid />
-        <LifetimeStats />
-      </View>
-    </DynamicHeaderPage>
+      </DynamicHeaderPage>
+      <SettingsPopup
+        show={isOpeningSettings}
+        hide={() => setIsOpeningSettings(false)}
+      />
+    </>
   );
 }

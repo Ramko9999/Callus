@@ -35,6 +35,7 @@ import { SetLevelEditor } from "./common/set";
 import { RepeatWorkoutConfirmation, WorkoutDeleteConfirmation } from "./popup";
 import * as Haptics from "expo-haptics";
 import { MetaEditor } from "./common/meta";
+import React from "react";
 
 const historicalEditorTopActionsStyles = StyleSheet.create({
   container: {

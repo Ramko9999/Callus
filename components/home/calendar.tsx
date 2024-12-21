@@ -33,7 +33,7 @@ import { DragIndicator } from "../theme/icons";
 
 const DISPLAY_WIDTH_MULTIPLER = 1;
 const WEEK_HEIGHT = 75;
-const MONTH_HEIGHT = WEEK_HEIGHT * 5;
+const MONTH_HEIGHT = WEEK_HEIGHT * 6;
 const OVERLAY_DIMENSION = 35;
 
 const dayStyles = StyleSheet.create({
