@@ -40,4 +40,8 @@ export class WorkoutApi {
   static async getWorkedOutDays(before: number, after: number) {
     return await Store.instance().getWorkedOutDays(before, after);
   }
+
+  static async getLifetimeStats(){
+    return await Store.instance().getLifetimeStats();
+  }
 }

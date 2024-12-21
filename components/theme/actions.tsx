@@ -29,6 +29,7 @@ const textActionStyles = StyleSheet.create({
 
 type ActionProps = {
   onClick?: () => void;
+  iconSize?: number;
   style?: ViewStyle;
 };
 
@@ -176,6 +177,20 @@ export function Repeat({ onClick, style }: ActionProps) {
       </View>
     </TouchableOpacity>
   );
+}
+
+export function Settings({onClick, iconSize, style}: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View style={[iconActionStyles.container, style]}>
+        <FontAwesome
+          name="gear"
+          size={iconSize ?? textTheme.large.fontSize}
+          color={useThemeColoring("lightText")}
+        />
+      </View>
+    </TouchableOpacity>
+  )
 }
 
 type TextActionProps = ActionProps & { text: string };

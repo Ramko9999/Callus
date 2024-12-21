@@ -1,5 +1,6 @@
 {
   "expo": {
+    "newArchEnabled": true,
     "name": "WorkoutLog",
     "slug": "workoutlog",
     "version": "1.0.0",

@@ -36,15 +36,10 @@ export default function () {
 function Example() {
   const [date, setDate] = useState(Date.now());
   return (
-    <DynamicHeaderPage title={getLongDateDisplay(date)}>
-      <WorkoutCalendar
-        currentDate={truncTime(date)}
-        onSelectDate={(date) => {
-          setDate(date);
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        }}
-      />
+    <DynamicHeaderPage title={"Example"}>
+      <Text>Hi</Text>
     </DynamicHeaderPage>
   );
 }
+
 

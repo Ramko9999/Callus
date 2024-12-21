@@ -11,8 +11,9 @@ import {
   WORKOUTS_TABLE_CREATION,
   DELETE_WORKOUT,
   GET_WORKED_OUT_DAYS,
+  GET_LIFETIME_STATS,
 } from "./sql";
-import { Exercise, Workout } from "@/interface";
+import { Exercise, Workout, WorkoutLifetimeStats } from "@/interface";
 import { truncTime } from "@/util/date";
 
 const APP_DATA_DIRECTORY = `${FileSystem.documentDirectory}${STORAGE_NAMESPACE}`;
@@ -107,13 +108,12 @@ export class Store {
   }
 
   async getWorkouts(after: number, before: number): Promise<Workout[]> {
-    return ((await this.db.getAllAsync(
-      GET_COMPLETED_WORKOUTS_BETWEEN_TIME,
-      {
+    return (
+      (await this.db.getAllAsync(GET_COMPLETED_WORKOUTS_BETWEEN_TIME, {
         $after: after,
         $before: before,
-      }
-    )) as any[]).map(this.toWorkout);
+      })) as any[]
+    ).map(this.toWorkout);
   }
 
   async getAllWorkouts() {
@@ -153,5 +153,15 @@ export class Store {
         truncTime(timestamp as number)
       )
     );
+  }
+
+  async getLifetimeStats(): Promise<WorkoutLifetimeStats> {
+    const lifetimeStats: any = (
+      await this.db.getAllAsync(GET_LIFETIME_STATS)
+    )[0];
+    return {
+      totalWorkouts: lifetimeStats.workouts,
+      totalWorkoutDuration: lifetimeStats.workout_duration,
+    };
   }
 }

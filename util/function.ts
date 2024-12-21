@@ -29,6 +29,21 @@ export function popAndInsert(
   ];
 }
 
+
+export function batch(arr: any[], batchSize: number) {
+  const newArr = [];
+  let currentBatch = [];
+  for (let i = 0; i < arr.length; i++) {
+    currentBatch.push(arr[i]);
+    if (i % batchSize === batchSize - 1 || i === arr.length - 1) {
+      newArr.push([...currentBatch]);
+      currentBatch = [];
+    }
+  }
+  return newArr;
+}
+
+
 export function clamp(value: number, maxBoundary: number, minBoundary: number){
   return Math.min(Math.max(value, minBoundary), maxBoundary);
 }

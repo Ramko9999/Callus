@@ -36,6 +36,7 @@ type TextThemeProps = {
   large?: boolean;
   extraLarge?: boolean;
   action?: boolean;
+  stat?: boolean;
   emphasized?: boolean;
   light?: boolean;
 };
@@ -87,6 +88,7 @@ function getFontStyle({
   action,
   extraLarge,
   emphasized,
+  stat,
   light,
 }: TextProps) {
   let style = textTheme.neutral;
@@ -100,6 +102,8 @@ function getFontStyle({
     style = textTheme.large;
   } else if (extraLarge) {
     style = textTheme.extraLarge;
+  } else if (stat) {
+    style = textTheme.stat;
   }
 
   if (emphasized) {

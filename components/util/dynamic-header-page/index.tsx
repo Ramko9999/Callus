@@ -5,7 +5,13 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { createContext, RefObject, useContext, useEffect, useRef } from "react";
+import React, {
+  createContext,
+  RefObject,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export const DYNAMIC_HEADER_HEIGHT = 40;
@@ -30,7 +36,7 @@ const dynamicHeaderPageStyles = StyleSheet.create({
     zIndex: 1,
   },
   content: {
-    paddingHorizontal: "3%",
+    paddingHorizontal: "2%",
   },
   scroll: {
     marginTop: DYNAMIC_HEADER_HEIGHT,
@@ -40,10 +46,15 @@ const dynamicHeaderPageStyles = StyleSheet.create({
 type DynamicHeaderPageProps = {
   title: string;
   children: React.ReactNode;
+  renderLargeHeader?: React.ReactNode;
 };
 
 // todo(android): use safe area
-export function DynamicHeaderPage({ title, children }: DynamicHeaderPageProps) {
+export function DynamicHeaderPage({
+  title,
+  children,
+  renderLargeHeader,
+}: DynamicHeaderPageProps) {
   const pageHeaderRef = useRef<DefaultView>(null);
   const scrollRef = useRef<Animated.ScrollView>(null);
   const pageHeaderHeight = useRef(0);
@@ -62,7 +73,7 @@ export function DynamicHeaderPage({ title, children }: DynamicHeaderPageProps) {
   }));
 
   return (
-    <View background>
+    <View style={{ backgroundColor: useThemeColoring("appBackground") }}>
       <SafeAreaView>
         <View style={dynamicHeaderPageStyles.container}>
           <Animated.View
@@ -83,9 +94,13 @@ export function DynamicHeaderPage({ title, children }: DynamicHeaderPageProps) {
           >
             <View style={dynamicHeaderPageStyles.content}>
               <DefaultView ref={pageHeaderRef}>
-                <Text emphasized extraLarge>
-                  {title}
-                </Text>
+                {renderLargeHeader ? (
+                  renderLargeHeader
+                ) : (
+                  <Text emphasized extraLarge>
+                    {title}
+                  </Text>
+                )}
               </DefaultView>
               <DynamicHeaderContext.Provider value={scrollRef}>
                 {children}

@@ -30,6 +30,12 @@ export const HOURS = Array.from({ length: 12 }, (_, index) => index);
 
 export const AM_OR_PM = ["AM", "PM"];
 
+export type Duration = {
+  hours: number;
+  minutes: number;
+  seconds: number;
+};
+
 function getDaysInMonth(month: number, year: number) {
   if (month === 1) {
     if (year % 4 === 0) {
@@ -37,6 +43,16 @@ function getDaysInMonth(month: number, year: number) {
     }
   }
   return MONTH_TO_DAYS[month];
+}
+
+
+// todo: dry
+export function getDuration(durationInMillis: number): Duration {
+  const seconds = Math.floor(durationInMillis / Period.SECOND) % 60;
+  const minutes = Math.floor(durationInMillis / Period.MINUTE) % 60;
+  const hours = Math.floor(durationInMillis / Period.HOUR);
+
+  return { hours, minutes, seconds };
 }
 
 export function getDurationDisplay(durationinSeconds: number) {
@@ -104,9 +120,7 @@ export function getLongDateDisplay(
   withTime: boolean = false
 ) {
   const date = new Date(timestamp);
-  let month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(
-    date
-  );
+  let month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(date);
 
   let formatted = `${month} ${date.getDate()}${getDateSuffix(date.getDate())}`;
   if (withTime) {
@@ -118,15 +132,15 @@ export function getLongDateDisplay(
       .padStart(2, "0")} ${getAmOrPm(timestamp)}`;
   }
 
-  if(date.getFullYear() !== new Date().getFullYear()){
-    formatted = `${formatted}, ${date.getFullYear()}`
+  if (date.getFullYear() !== new Date().getFullYear()) {
+    formatted = `${formatted}, ${date.getFullYear()}`;
   }
   return formatted;
 }
 
 export function getTimeDisplay(timestamp: number) {
   const date = new Date(timestamp);
-  return `${date.getHours()}:${date.getMinutes()}`;
+  return `${date.getHours()}:${date.getMinutes().toString().padStart(2, "0")}`;
 }
 
 export function getTimePeriodDisplay(period: number) {

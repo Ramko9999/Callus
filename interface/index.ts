@@ -134,3 +134,8 @@ export enum KeypadType {
   DURATION,
   ASSISTANCE_WEIGHT,
 }
+
+export type WorkoutLifetimeStats = {
+  totalWorkouts: number;
+  totalWorkoutDuration: number
+}
