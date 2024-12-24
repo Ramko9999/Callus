@@ -1,5 +1,5 @@
 import { Exercise } from "@/interface";
-import { popAndInsert } from "@/util/function";
+import { popAndInsert } from "@/util/misc";
 import { EDITOR_EXERCISE_HEIGHT, StyleUtils } from "@/util/styles";
 import { useState } from "react";
 import {

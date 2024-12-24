@@ -1,5 +1,8 @@
+import React from "react";
 import { Difficulty, DifficultyType, Set, SetStatus } from "@/interface";
-import { StyleSheet, useWindowDimensions } from "react-native";
+import {
+  StyleSheet,
+} from "react-native";
 import { EDITOR_SET_HEIGHT, StyleUtils } from "@/util/styles";
 import { ScrollView } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
@@ -23,6 +26,7 @@ const editorSetStyles = StyleSheet.create({
     ...StyleUtils.flexRow(10),
     alignItems: "center",
     height: EDITOR_SET_HEIGHT,
+    paddingLeft: "3%",
   },
 });
 
@@ -77,30 +81,35 @@ export function EditorSet({
       )}
       overshootRight={false}
     >
-      <Animated.View style={[editorSetStyles.container, animatedStyle]}>
-        <SetStatusInput
-          set={set}
-          isOn={set.status === SetStatus.FINISHED}
-          onToggle={() => {
-            if (set.status === SetStatus.FINISHED) {
-              onUpdate({
-                status: SetStatus.UNSTARTED,
-                restStartedAt: undefined,
-                restEndedAt: undefined,
-              });
-            } else if (set.status === SetStatus.RESTING) {
-              onUpdate({ status: SetStatus.FINISHED, restEndedAt: Date.now() });
-            } else {
-              onUpdate({ status: SetStatus.FINISHED });
-            }
-          }}
-        />
-        <DifficultyInput
-          id={set.id}
-          difficulty={set.difficulty}
-          type={difficultyType}
-          onUpdate={(difficulty: Difficulty) => onUpdate({ difficulty })}
-        />
+      <Animated.View style={animatedStyle}>
+        <View style={editorSetStyles.container}>
+          <SetStatusInput
+            set={set}
+            isOn={set.status === SetStatus.FINISHED}
+            onToggle={() => {
+              if (set.status === SetStatus.FINISHED) {
+                onUpdate({
+                  status: SetStatus.UNSTARTED,
+                  restStartedAt: undefined,
+                  restEndedAt: undefined,
+                });
+              } else if (set.status === SetStatus.RESTING) {
+                onUpdate({
+                  status: SetStatus.FINISHED,
+                  restEndedAt: Date.now(),
+                });
+              } else {
+                onUpdate({ status: SetStatus.FINISHED });
+              }
+            }}
+          />
+          <DifficultyInput
+            id={set.id}
+            difficulty={set.difficulty}
+            type={difficultyType}
+            onUpdate={(difficulty: Difficulty) => onUpdate({ difficulty })}
+          />
+        </View>
       </Animated.View>
     </Swipeable>
   );
@@ -120,7 +129,7 @@ const setLevelEditorStyle = StyleSheet.create({
   },
   content: {
     ...StyleUtils.flexColumn(10),
-    paddingTop: "5%",
+    paddingBottom: "3%",
   },
   scroll: {
     paddingBottom: "2%",
@@ -175,13 +184,10 @@ export function SetLevelEditor({
     [sets, back]
   );
 
-  const { height } = useWindowDimensions();
-
   return (
     <ScrollView
       ref={scrollRef}
       contentContainerStyle={setLevelEditorStyle.scroll}
-      style={{ height: height * 0.7 }}
       onContentSizeChange={handleScrollContentChange}
     >
       <View style={setLevelEditorStyle.content}>

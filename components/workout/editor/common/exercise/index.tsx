@@ -1,6 +1,10 @@
 import { useThemeColoring, View, Text } from "@/components/Themed";
-import { Exercise, SetStatus } from "@/interface";
-import { EDITOR_EXERCISE_HEIGHT, StyleUtils } from "@/util/styles";
+import { Exercise } from "@/interface";
+import {
+  EDITOR_EXERCISE_HEIGHT,
+  EDITOR_EXERCISE_WITH_NOTE_HEIGHT,
+  StyleUtils,
+} from "@/util/styles";
 import {
   findNodeHandle,
   StyleSheet,
@@ -30,9 +34,9 @@ const editorExerciseStyles = StyleSheet.create({
     alignItems: "center",
     paddingLeft: "3%",
     paddingVertical: "3%",
-    height: EDITOR_EXERCISE_HEIGHT,
   },
   title: {
+    width: "90%",
     ...StyleUtils.flexColumn(5),
   },
   rightActions: {
@@ -62,7 +66,7 @@ export function EditorExercise({
   const animationColor = useThemeColoring("highlightedAnimationColor");
 
   useEffect(() => {
-    if(animate){
+    if (animate) {
       animationBackgroundColor.value = withRepeat(
         withSequence(
           withTiming(1, { duration: 1000 }),
@@ -83,6 +87,10 @@ export function EditorExercise({
     ),
   }));
 
+  const editorExerciseHeight = exercise.note
+    ? EDITOR_EXERCISE_WITH_NOTE_HEIGHT
+    : EDITOR_EXERCISE_HEIGHT;
+
   return (
     <Swipeable
       overshootRight={false}
@@ -90,19 +98,33 @@ export function EditorExercise({
         <SwipeableDelete
           drag={drag}
           onDelete={onTrash}
-          dimension={EDITOR_EXERCISE_HEIGHT}
+          dimension={editorExerciseHeight}
         />
       )}
     >
       <TouchableOpacity onPress={onClick}>
         <Animated.View
-          style={[editorExerciseStyles.container, animatedStyle]}
+          style={[
+            editorExerciseStyles.container,
+            animatedStyle,
+            { height: editorExerciseHeight },
+          ]}
         >
           <View style={editorExerciseStyles.title}>
             <Text large>{exercise.name}</Text>
             <Text neutral light>
               {description}
             </Text>
+            {exercise.note && (
+              <Text
+                neutral
+                light
+                italic
+                numberOfLines={1}
+              >
+                {exercise.note}
+              </Text>
+            )}
           </View>
           <View style={editorExerciseStyles.rightActions}>
             <FontAwesome
@@ -145,6 +167,7 @@ type ScrollState = {
 
 const SCROLL_OFFSET = 80;
 
+// todo: complete rest whenever a exercise is in the midst of being shuffled
 export function ExerciseLevelEditor({
   isReordering,
   currentExerciseId,

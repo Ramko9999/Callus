@@ -10,6 +10,7 @@ import {
   wrapUpSets,
   hasUnstartedSets,
   getCurrentWorkoutActivity,
+  updateExercise,
 } from "@/context/WorkoutContext";
 import {
   Workout,
@@ -17,7 +18,6 @@ import {
   ExerciseMeta,
   WorkoutMetadata,
   Set,
-  SetStatus,
 } from "@/interface";
 import { useState } from "react";
 import {
@@ -37,9 +37,10 @@ import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/constants";
 import { ExerciseLevelEditor } from "./common/exercise";
 import { ExerciseFinder } from "./common/exercise/finder";
 import { SetLevelEditor } from "./common/set";
-import { MetaEditor } from "./common/meta";
+import { MetaEditor, NoteEditor } from "./common/meta";
 import { getLiveExerciseDescription } from "@/util/workout/display";
 import React from "react";
+import * as WorkoutUpdateUtils from "@/util/workout/update";
 
 const liveEditorTopActionsStyles = StyleSheet.create({
   container: {
@@ -128,6 +129,7 @@ const liveEditorStyles = StyleSheet.create({
   },
   content: {
     ...StyleUtils.flexColumn(),
+    flex: 1
   },
 });
 
@@ -181,36 +183,8 @@ export function LiveEditor({ back }: LiveEditorProps) {
     onSave(updateSet(setId, update, workout));
   };
 
-  const getCurrentRestDuration = () => {
-    if (!exerciseInEdit) {
-      return 0;
-    }
-    const areAllSetsUnstarted = exerciseInEdit.sets.filter(
-      (set) => set.status === SetStatus.UNSTARTED
-    );
-    if (areAllSetsUnstarted) {
-      return exerciseInEdit.sets[0].restDuration;
-    }
-    const completedSets = exerciseInEdit.sets.filter(
-      (set) => set.status !== SetStatus.UNSTARTED
-    );
-    return completedSets[completedSets.length - 1].restDuration;
-  };
-
-  // todo: move to centralized place
-  const updateSetRests = (duration: number) => {
-    if (!exerciseInEdit) {
-      return;
-    }
-    let updatedWorkout = workout;
-    for (const set of exerciseInEdit.sets) {
-      updatedWorkout = updateSet(
-        set.id,
-        { restDuration: duration },
-        updatedWorkout
-      );
-    }
-    onSave(updatedWorkout);
+  const onNote = (note?: string) => {
+    onSave(updateExercise(exerciseId as string, { note }, workout));
   };
 
   return (
@@ -229,8 +203,14 @@ export function LiveEditor({ back }: LiveEditorProps) {
               onOpenRest={() => setIsEditingRest(true)}
               onClose={() => setExerciseId(undefined)}
             />
-            <View style={[liveEditorStyles.content, { paddingLeft: "3%" }]}>
-              <Text extraLarge>{(exerciseInEdit as Exercise).name}</Text>
+            <View style={liveEditorStyles.content}>
+              <View style={{ paddingLeft: "3%" }}>
+                <Text extraLarge>{(exerciseInEdit as Exercise).name}</Text>
+              </View>
+              <NoteEditor
+                note={(exerciseInEdit as Exercise).note}
+                onUpdateNote={onNote}
+              />
               <SetLevelEditor
                 sets={(exerciseInEdit as Exercise).sets}
                 currentSet={getCurrentWorkoutActivity(workout).activityData.set}
@@ -247,12 +227,18 @@ export function LiveEditor({ back }: LiveEditorProps) {
               />
             </View>
             <EditRestDuration
-            show={isEditingRest}
-            hide={() => setIsEditingRest(false)}
-              duration={
-                getCurrentRestDuration()
+              show={isEditingRest}
+              hide={() => setIsEditingRest(false)}
+              duration={(exerciseInEdit as Exercise).restDuration}
+              onUpdateDuration={(duration) =>
+                onSave(
+                  WorkoutUpdateUtils.updateExerciseRest(
+                    exerciseId,
+                    duration,
+                    workout
+                  )
+                )
               }
-              onUpdateDuration={updateSetRests}
             />
           </>
         ) : (

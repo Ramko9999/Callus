@@ -8,7 +8,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { clamp } from "@/util/function";
+import { clamp } from "@/util/misc";
 import { StyleUtils } from "@/util/styles";
 
 const VISIBLE_ELEMENTS = 5;

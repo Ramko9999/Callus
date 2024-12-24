@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { WorkoutApi } from "@/api/workout";
 import { addDays, getDateDisplay, removeDays, truncTime } from "@/util/date";
 import { convertHexToRGBA } from "@/util/color";
-import { batch } from "@/util/function";
+import { batch } from "@/util/misc";
 import { usePathname } from "expo-router";
 
 const STREAK_COLUMN_GROUP_SIZE = 6;

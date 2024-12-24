@@ -6,6 +6,7 @@ import {
   duplicateLastSet,
   removeSet,
   updateSet,
+  updateExercise,
 } from "@/context/WorkoutContext";
 import {
   Workout,
@@ -34,7 +35,7 @@ import { ExerciseFinder } from "./common/exercise/finder";
 import { SetLevelEditor } from "./common/set";
 import { RepeatWorkoutConfirmation, WorkoutDeleteConfirmation } from "./popup";
 import * as Haptics from "expo-haptics";
-import { MetaEditor } from "./common/meta";
+import { MetaEditor, NoteEditor } from "./common/meta";
 import React from "react";
 import { getHistoricalExerciseDescription } from "@/util/workout/display";
 
@@ -122,6 +123,7 @@ const historicalEditorStyles = StyleSheet.create({
   },
   content: {
     ...StyleUtils.flexColumn(),
+    flex: 1
   },
 });
 
@@ -182,6 +184,10 @@ export function HistoricalEditor({
     onSave(updateSet(setId, update, workout));
   };
 
+  const onNote = (note?: string) => {
+    onSave(updateExercise(exerciseId as string, { note }, workout));
+  };
+
   return (
     <>
       <View
@@ -197,10 +203,14 @@ export function HistoricalEditor({
               onAdd={onAddSet}
               onClose={() => setExerciseId(undefined)}
             />
-            <View
-              style={[historicalEditorStyles.content, { paddingLeft: "3%" }]}
-            >
-              <Text extraLarge>{(exerciseInEdit as Exercise).name}</Text>
+            <View style={historicalEditorStyles.content}>
+              <View style={{ paddingLeft: "3%" }}>
+                <Text extraLarge>{(exerciseInEdit as Exercise).name}</Text>
+              </View>
+              <NoteEditor
+                note={(exerciseInEdit as Exercise).note}
+                onUpdateNote={onNote}
+              />
               <SetLevelEditor
                 sets={(exerciseInEdit as Exercise).sets}
                 difficultyType={

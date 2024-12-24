@@ -80,12 +80,15 @@ export type Exercise = {
   id: string;
   name: string;
   sets: Set[];
+  restDuration: number;
+  note?: string;
 };
 
 export type Workout = {
   id: string;
   startedAt: number;
   endedAt?: number;
+  routineId?: string;
   name: string;
   exercises: Exercise[];
 };

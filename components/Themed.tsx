@@ -39,6 +39,7 @@ type TextThemeProps = {
   stat?: boolean;
   emphasized?: boolean;
   light?: boolean;
+  italic?: boolean;
 };
 
 type ActionThemeProps = {
@@ -90,6 +91,7 @@ function getFontStyle({
   emphasized,
   stat,
   light,
+  italic,
 }: TextProps) {
   let style = textTheme.neutral;
   if (small) {
@@ -108,6 +110,10 @@ function getFontStyle({
 
   if (emphasized) {
     style = { ...style, ...textTheme.emphasized };
+  }
+
+  if (italic) {
+    style = { ...style, ...textTheme.italic };
   }
 
   if (light) {

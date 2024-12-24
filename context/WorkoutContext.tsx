@@ -1,6 +1,5 @@
 import {
   WorkoutActivity,
-  WorkoutPlan,
   Workout,
   SetStatus,
   Set,
@@ -27,56 +26,6 @@ function generateSetId() {
 
 function generateExerciseId() {
   return generateRandomId("ex", 8);
-}
-
-function generateWorkoutId() {
-  return generateRandomId("wrk", 8);
-}
-
-export function createWorkoutFromPlan(workoutPlan: WorkoutPlan): Workout {
-  const exercises: Exercise[] = workoutPlan.exercises.map(
-    ({ name, sets: setPlans, rest }) => {
-      const sets: Set[] = setPlans.map((set) => ({
-        ...set,
-        id: generateSetId(),
-        status: SetStatus.UNSTARTED,
-        restDuration: rest,
-      }));
-
-      return {
-        id: generateExerciseId(),
-        name,
-        sets,
-      };
-    }
-  );
-
-  return {
-    name: workoutPlan.name,
-    exercises,
-    startedAt: Date.now(),
-    id: generateWorkoutId(),
-  };
-}
-
-export function createWorkoutFromWorkout(workout: Workout): Workout {
-  const exercises = workout.exercises.map((exercise) => {
-    const sets = exercise.sets.map(({ difficulty, restDuration }) => ({
-      difficulty,
-      restDuration,
-      id: generateSetId(),
-      status: SetStatus.UNSTARTED,
-    }));
-
-    return { id: generateExerciseId(), name: exercise.name, sets };
-  });
-
-  return {
-    name: workout.name,
-    exercises,
-    startedAt: Date.now(),
-    id: generateWorkoutId(),
-  };
 }
 
 export function getCurrentSetAndExercise(workout: Workout) {
@@ -197,18 +146,18 @@ export function duplicateLastSet(
   exerciseId: string,
   workout: Workout
 ): Workout {
-  const exercises = workout.exercises.map((ep) => {
-    if (ep.id === exerciseId) {
-      const { difficulty, restDuration } = ep.sets[ep.sets.length - 1];
+  const exercises = workout.exercises.map((exercise) => {
+    if (exercise.id === exerciseId) {
+      const { difficulty } = exercise.sets[exercise.sets.length - 1];
       const setToAdd: Set = {
         status: SetStatus.UNSTARTED,
         difficulty,
-        restDuration: restDuration,
+        restDuration: exercise.restDuration,
         id: generateSetId(),
       };
-      return { ...ep, sets: [...ep.sets, setToAdd] };
+      return { ...exercise, sets: [...exercise.sets, setToAdd] };
     }
-    return ep;
+    return exercise;
   });
   return { ...workout, exercises };
 }
@@ -232,7 +181,7 @@ export function removeExercise(exerciseId: string, workout: Workout): Workout {
   return { ...workout, exercises };
 }
 
-function createDefaultSet(type: DifficultyType): Set {
+function createDefaultSet(type: DifficultyType, restDuration: number): Set {
   let difficulty: Difficulty;
   if (type === DifficultyType.ASSISTED_BODYWEIGHT) {
     difficulty = { assistanceWeight: 0, reps: 0 };
@@ -249,7 +198,7 @@ function createDefaultSet(type: DifficultyType): Set {
   return {
     id: generateSetId(),
     status: SetStatus.UNSTARTED,
-    restDuration: 60,
+    restDuration,
     difficulty: difficulty,
   };
 }
@@ -258,10 +207,12 @@ export function addExercise(
   exerciseMeta: ExerciseMeta,
   workout: Workout
 ): Workout {
-  const newExercise = {
+  const restDuration = 60;
+  const newExercise: Exercise = {
     ...exerciseMeta,
     id: generateExerciseId(),
-    sets: [createDefaultSet(exerciseMeta.difficultyType)],
+    sets: [createDefaultSet(exerciseMeta.difficultyType, restDuration)],
+    restDuration,
   };
   const exercises: Exercise[] = [...workout.exercises, newExercise];
   return { ...workout, exercises };

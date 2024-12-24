@@ -10,12 +10,11 @@ import { HistoricalEditorPopup } from "../workout/editor/historical";
 import { useLiveIndicator } from "../live";
 import { WorkoutCalendar } from "./calendar";
 import * as Haptics from "expo-haptics";
-import { StyleUtils } from "@/util/styles";
 import {
-  DYNAMIC_HEADER_HEIGHT,
   DynamicHeaderPage,
 } from "../util/dynamic-header-page";
-import { createWorkoutFromWorkout, useWorkout } from "@/context/WorkoutContext";
+import { useWorkout } from "@/context/WorkoutContext";
+import { createWorkoutFromWorkout } from "@/util/workout";
 
 const styles = StyleSheet.create({
   homeView: {
@@ -128,17 +127,6 @@ function CompletedWorkouts({
     </ScrollView>
   );
 }
-
-const homeStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexColumn(10),
-    ...StyleUtils.expansive(),
-    marginTop: DYNAMIC_HEADER_HEIGHT,
-  },
-  header: {
-    paddingLeft: "3%",
-  },
-});
 
 export default function Home() {
   const pathname = usePathname();

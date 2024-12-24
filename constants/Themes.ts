@@ -65,6 +65,9 @@ export const textTheme = {
   },
   stat: {
     fontSize: 42
+  },
+  italic: {
+    fontStyle: "italic"
   }
 };
 

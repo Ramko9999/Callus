@@ -64,6 +64,8 @@ export class Store {
         name: sqlExercise.name,
         id: sqlExercise.id,
         sets: JSON.parse(sqlExercise.sets),
+        restDuration: sqlExercise.rest_duration,
+        note: sqlExercise.note
       }));
 
     return {
@@ -72,18 +74,20 @@ export class Store {
       startedAt: rawSqlRecord.started_at,
       id: rawSqlRecord.id,
       endedAt: rawSqlRecord.ended_at,
+      routineId: rawSqlRecord.routine_id
     };
   }
 
   async saveWorkout(workout: Workout) {
     const start = Date.now();
-    const { id: workoutId, name, startedAt, endedAt, exercises } = workout;
+    const { id: workoutId, name, startedAt, endedAt, exercises, routineId } = workout;
     await this.db.withExclusiveTransactionAsync(async (txn) => {
       await txn.runAsync(UPSERT_WORKOUT, {
         $id: workoutId,
         $name: name,
         $started_at: startedAt,
         $ended_at: endedAt ? endedAt : null,
+        $routine_id: routineId ? routineId : null
       });
 
       await txn.runAsync(CLEAR_ALL_EXERCISES, { $workout_id: workoutId });
@@ -92,13 +96,15 @@ export class Store {
         exercise,
         order: index,
       }))) {
-        const { id, name, sets } = exercise;
+        const { id, name, sets, restDuration, note } = exercise;
         await txn.runAsync(UPSERT_EXERCISE, {
           $id: id,
           $name: name,
           $sets: JSON.stringify(sets),
           $workout_id: workoutId,
           $exercise_order: order,
+          $rest_duration: restDuration,
+          $note: note ? note : null
         });
       }
 

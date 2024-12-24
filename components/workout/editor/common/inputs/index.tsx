@@ -8,12 +8,11 @@ import {
   TimeDifficulty,
   WeightDifficulty,
   Set,
-  SetStatus,
 } from "@/interface";
 import { getDurationDisplay } from "@/util/date";
-import { debounce } from "@/util/function";
+import { debounce } from "@/util/misc";
 import { StyleUtils } from "@/util/styles";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { StyleSheet, TouchableOpacity, ViewStyle } from "react-native";
 import Animated, {
   useAnimatedStyle,
