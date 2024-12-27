@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { View, Text } from "../Themed";
 import { WorkoutApi } from "@/api/workout";
-import { Duration, getDuration } from "@/util/date";
+import { Duration, getDuration, roundToNearestMinute } from "@/util/date";
 import React from "react";
 import { usePathname } from "expo-router";
 
@@ -17,11 +17,8 @@ const lifetimeStatStyles = StyleSheet.create({
   content: {
     height: "90%",
     marginLeft: "8%",
-    marginVertical: "5%",
+    marginVertical: "3%",
     ...StyleUtils.flexColumn(),
-  },
-  stat: {
-    marginTop: "5%",
   },
 });
 
@@ -37,7 +34,7 @@ function LifetimeStat({ title, children }: LifetimeStatProps) {
         <Text neutral light>
           {title}
         </Text>
-        <View style={lifetimeStatStyles.stat}>{children}</View>
+        {children}
       </View>
     </View>
   );
@@ -63,7 +60,7 @@ function TotalWorkoutDurationDisplay({
       <View style={totalWorkoutDurationDisplayStyles.container}>
         <Text stat>00</Text>
         <Text large light emphasized>
-          m
+          {"m"}
         </Text>
       </View>
     );
@@ -75,17 +72,17 @@ function TotalWorkoutDurationDisplay({
         <>
           <Text stat>{hours}</Text>
           <Text large light emphasized>
-            h
+            {"h"}
           </Text>
         </>
       )}
       {minutes > 0 && (
         <>
           <Text stat>
-            {(seconds > 0 ? minutes + 1 : minutes).toString().padStart(2, "0")}
+            {minutes.toString().padStart(2, "0")}
           </Text>
           <Text large light emphasized>
-            m
+            {"m"}
           </Text>
         </>
       )}
@@ -122,10 +119,9 @@ const lifetimeStatsStyles = StyleSheet.create({
     flex: 1,
     ...StyleUtils.flexRow(10),
     justifyContent: "space-around",
-    marginTop: "3%",
   },
   container: {
-    ...StyleUtils.flexColumn(),
+    ...StyleUtils.flexColumn(10),
   },
 });
 
@@ -142,14 +138,14 @@ export function LifetimeStats() {
 
   return (
     <View style={lifetimeStatsStyles.container}>
-      <Text action>Lifetime Stats</Text>
+      <Text action>Lifetime</Text>
       <View style={lifetimeStatsStyles.content}>
         <LifetimeStat title="Completed Workouts">
           <TotalWorkoutCountDisplay workoutCount={totalWorkouts} />
         </LifetimeStat>
         <LifetimeStat title="Time Worked Out">
           <TotalWorkoutDurationDisplay
-            duration={getDuration(totalWorkoutDuration)}
+            duration={getDuration(roundToNearestMinute(totalWorkoutDuration))}
           />
         </LifetimeStat>
       </View>

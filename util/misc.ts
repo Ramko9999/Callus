@@ -41,7 +41,6 @@ export function popAndInsert(
   ];
 }
 
-
 export function batch(arr: any[], batchSize: number) {
   const newArr = [];
   let currentBatch = [];
@@ -55,7 +54,65 @@ export function batch(arr: any[], batchSize: number) {
   return newArr;
 }
 
-
-export function clamp(value: number, maxBoundary: number, minBoundary: number){
+export function clamp(value: number, maxBoundary: number, minBoundary: number) {
   return Math.min(Math.max(value, minBoundary), maxBoundary);
 }
+
+export function saveDiv(x: number, y: number) {
+  if(y === 0){
+    return x > 0 ? Number.MAX_SAFE_INTEGER : Number.MIN_SAFE_INTEGER
+  }
+  return x / y;
+}
+
+function minBy<T>(arr: T[], valueExtractor: (item: T) => number) {
+  return arr.reduce((minimumItem, currentItem) => {
+    if (valueExtractor(minimumItem) > valueExtractor(currentItem)) {
+      return currentItem;
+    }
+    return minimumItem;
+  });
+}
+
+function maxBy<T>(arr: T[], valueExtractor: (item: T) => number) {
+  return arr.reduce((maximumItem, currentItem) => {
+    if (valueExtractor(maximumItem) < valueExtractor(currentItem)) {
+      return currentItem;
+    }
+    return maximumItem;
+  });
+}
+
+function last<T>(arr: T[]) {
+  return arr[arr.length - 1];
+}
+
+type Group<K, T> = {
+  key: K;
+  items: T[];
+};
+
+function groupBy<K, T>(arr: T[], keyExtractor: (item: T) => K): Group<K, T>[] {
+  const map = new Map<K, T[]>();
+  arr.forEach((item) => {
+    const key = keyExtractor(item);
+    if (!map.has(key)) {
+      map.set(key, []);
+    }
+    (map.get(key) as T[]).push(item);
+  });
+
+  return Array.from(map.entries()).map(([key, items]) => ({ key, items }));
+}
+
+function sortBy<K, T>(
+  arr: T[],
+  sortKeyExtractor: (item: T) => K,
+  comparator: (a: K, b: K) => number
+) {
+  return [...arr].sort((a, b) =>
+    comparator(sortKeyExtractor(a), sortKeyExtractor(b))
+  );
+}
+
+export const ArrayUtils = { minBy, maxBy, groupBy, sortBy, last };

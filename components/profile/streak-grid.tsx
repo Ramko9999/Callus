@@ -123,11 +123,10 @@ const workoutMonthStreakGridStyles = StyleSheet.create({
   grid: {
     ...StyleUtils.flexRow(10),
     borderRadius: 10,
-    marginTop: "3%",
     padding: "2%",
   },
   container: {
-    ...StyleUtils.flexColumn(),
+    ...StyleUtils.flexColumn(10),
   },
 });
 

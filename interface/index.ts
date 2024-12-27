@@ -142,3 +142,18 @@ export type WorkoutLifetimeStats = {
   totalWorkouts: number;
   totalWorkoutDuration: number
 }
+
+export type TrendPoint = {
+  progress: number;
+  timestamp: number;
+}
+
+export type Trend = {
+  title: string;
+  delta: number;
+  high: number;
+  low: number;
+  data: TrendPoint[];
+  isImprovement: boolean;
+  format: (value: number) => string;
+}

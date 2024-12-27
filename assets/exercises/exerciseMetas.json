@@ -1512,19 +1512,19 @@
     "name": "Landmine 180"
   },
   {
-    "difficultyType": "WEIGHT",
+    "difficultyType": "BODYWEIGHT",
     "demoUrl": "https://i.pinimg.com/originals/89/26/a7/8926a7a5a9a148016ae027715f7690df.gif",
     "muscles": ["Neck Flexors"],
     "name": "Neck Flexion"
   },
   {
-    "difficultyType": "WEIGHT",
+    "difficultyType": "BODYWEIGHT",
     "demoUrl": "https://i.pinimg.com/originals/17/90/5d/17905dc2fda2f75d7099e41f12695541.gif",
     "muscles": ["Neck Extensors"],
     "name": "Neck Extension"
   },
   {
-    "difficultyType": "WEIGHT",
+    "difficultyType": "BODYWEIGHT",
     "demoUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRo27DMMIwVVBPCEY4zAEMF55Rr4DzR7Bp8-g&s",
     "muscles": ["Neck Flexors", "Neck Extensors"],
     "name": "Neck Side Flexion"

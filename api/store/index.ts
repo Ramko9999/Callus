@@ -12,6 +12,7 @@ import {
   DELETE_WORKOUT,
   GET_WORKED_OUT_DAYS,
   GET_LIFETIME_STATS,
+  GET_COMPLETED_EXERCISES,
 } from "./sql";
 import { Exercise, Workout, WorkoutLifetimeStats } from "@/interface";
 import { truncTime } from "@/util/date";
@@ -39,6 +40,16 @@ export async function migrateTables(db: SQLiteDatabase) {
   await db.execAsync(TABLE_CREATIONS);
 }
 
+function toExercise({ name, id, sets, rest_duration, note }: any): Exercise {
+  return {
+    name,
+    id,
+    sets: JSON.parse(sets),
+    restDuration: rest_duration,
+    note,
+  };
+}
+
 let STORE: Store;
 
 export class Store {
@@ -60,13 +71,7 @@ export class Store {
     const sqlExercises: any[] = JSON.parse(rawSqlRecord.exercises);
     const exercises: Exercise[] = sqlExercises
       .sort((a, b) => a.order - b.order)
-      .map((sqlExercise) => ({
-        name: sqlExercise.name,
-        id: sqlExercise.id,
-        sets: JSON.parse(sqlExercise.sets),
-        restDuration: sqlExercise.rest_duration,
-        note: sqlExercise.note
-      }));
+      .map(toExercise);
 
     return {
       name: rawSqlRecord.name,
@@ -74,20 +79,27 @@ export class Store {
       startedAt: rawSqlRecord.started_at,
       id: rawSqlRecord.id,
       endedAt: rawSqlRecord.ended_at,
-      routineId: rawSqlRecord.routine_id
+      routineId: rawSqlRecord.routine_id,
     };
   }
 
   async saveWorkout(workout: Workout) {
     const start = Date.now();
-    const { id: workoutId, name, startedAt, endedAt, exercises, routineId } = workout;
+    const {
+      id: workoutId,
+      name,
+      startedAt,
+      endedAt,
+      exercises,
+      routineId,
+    } = workout;
     await this.db.withExclusiveTransactionAsync(async (txn) => {
       await txn.runAsync(UPSERT_WORKOUT, {
         $id: workoutId,
         $name: name,
         $started_at: startedAt,
         $ended_at: endedAt ? endedAt : null,
-        $routine_id: routineId ? routineId : null
+        $routine_id: routineId ? routineId : null,
       });
 
       await txn.runAsync(CLEAR_ALL_EXERCISES, { $workout_id: workoutId });
@@ -104,7 +116,7 @@ export class Store {
           $workout_id: workoutId,
           $exercise_order: order,
           $rest_duration: restDuration,
-          $note: note ? note : null
+          $note: note ? note : null,
         });
       }
 
@@ -169,5 +181,24 @@ export class Store {
       totalWorkouts: lifetimeStats.workouts,
       totalWorkoutDuration: lifetimeStats.workout_duration,
     };
+  }
+
+  async getAllCompletedExercises(after: number): Promise<Exercise[]> {
+    const completedExercises: any[] = await this.db.getAllAsync(
+      GET_COMPLETED_EXERCISES,
+      {
+        $after: after,
+        $before: Date.now(),
+      }
+    );
+    return completedExercises
+      .map(toExercise)
+      .map((exercise) => ({
+        ...exercise,
+        sets: exercise.sets.filter(
+          ({ restEndedAt }) => restEndedAt != undefined
+        ),
+      }))
+      .filter((exercise) => exercise.sets.length > 0);
   }
 }

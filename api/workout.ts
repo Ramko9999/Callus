@@ -1,7 +1,7 @@
-import { WorkoutPlan, Workout } from "@/interface";
+import { WorkoutPlan, Workout, Trend } from "@/interface";
 import { addDays, truncTime } from "@/util/date";
-import { ProgramApi } from "./program";
 import { Store } from "./store";
+import * as TrendApi from "./trend/trend";
 
 export type WorkoutItinerary = {
   workouts: Workout[];
@@ -41,7 +41,13 @@ export class WorkoutApi {
     return await Store.instance().getWorkedOutDays(before, after);
   }
 
-  static async getLifetimeStats(){
+  static async getLifetimeStats() {
     return await Store.instance().getLifetimeStats();
+  }
+
+  static async getTrends(after: number): Promise<Trend[]> {
+    const completedExercises =
+      await Store.instance().getAllCompletedExercises(after);
+    return TrendApi.getTrends(completedExercises);
   }
 }

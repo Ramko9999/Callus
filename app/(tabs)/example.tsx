@@ -1,45 +1,21 @@
-import { useEffect, useRef, useState } from "react";
 import { DynamicHeaderPage } from "@/components/util/dynamic-header-page";
-import {
-  addDays,
-  getLongDateDisplay,
-  generateEnclosingWeek,
-  removeDays,
-  truncTime,
-  getNextMonth,
-  getMonthFirstDay,
-  getDurationDisplay,
-} from "@/util/date";
-import { View, Text, useThemeColoring } from "@/components/Themed";
-import { StyleSheet } from "react-native";
+import { View, Text } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
-import Animated, {
-  clamp,
-  interpolate,
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from "react-native-reanimated";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
-import { WorkoutApi } from "@/api/workout";
-import { MonthCalendar, WeekCalendar, WorkoutCalendar } from "@/components/home/calendar";
-import * as Haptics from "expo-haptics";
-import { DragIndicator } from "@/components/theme/icons";
+import { Trends } from "@/components/profile/trends";
+import { FlatList, useWindowDimensions } from "react-native";
 
 // for testing things out quickly, remove before prod release
 export default function () {
   return <Example />;
 }
 
-
 function Example() {
-  const [date, setDate] = useState(Date.now());
   return (
     <DynamicHeaderPage title={"Example"}>
-      <Text>Hi</Text>
+      <View style={{ ...StyleUtils.flexColumn(), alignItems: "center" }}>
+        <Text>Hi</Text>
+        <Trends/>
+      </View>
     </DynamicHeaderPage>
   );
 }
-
-

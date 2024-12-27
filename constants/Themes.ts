@@ -1,7 +1,6 @@
 import { convertHexToRGBA } from "@/util/color";
 import { Theme } from "@react-navigation/native";
 
-
 // todo: figure out colors for tiles
 export const darkColors = {
   primaryText: "#fff",
@@ -18,7 +17,9 @@ export const darkColors = {
   rouletteSelection: "rgba(200, 200, 200, 0.1)",
   highlightedAnimationColor: convertHexToRGBA("#24A0ED", 0.6),
   dynamicHeaderBorder: "rgba(100, 100, 100, 1)",
-  appBackground: "black"
+  appBackground: "black",
+  improvement: "#13EBA0",
+  degradation: "#FF6347"
 };
 
 export const lightColors = {
@@ -36,7 +37,9 @@ export const lightColors = {
   rouletteSelection: "rgba(100, 100, 100, 0.2)",
   highlightedAnimationColor: convertHexToRGBA("#24A0ED", 0.2),
   dynamicHeaderBorder: "#C4C4C4",
-  appBackground: "black" // todo: edit me
+  appBackground: "black", // todo: edit me,
+  improvement: "#13EBA0",
+  degradation: "#DC143C"
 };
 
 export type UIColor = keyof typeof darkColors & keyof typeof lightColors;
@@ -64,11 +67,11 @@ export const textTheme = {
     fontSize: 48,
   },
   stat: {
-    fontSize: 42
+    fontSize: 42,
   },
   italic: {
-    fontStyle: "italic"
-  }
+    fontStyle: "italic",
+  },
 };
 
 export function getTabActiveTintColor(theme: "light" | "dark") {

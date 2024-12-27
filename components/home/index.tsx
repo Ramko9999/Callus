@@ -142,6 +142,7 @@ export default function Home() {
     setLoading(true);
     WorkoutApi.getWorkouts(truncTime(workoutDate))
       .then(setCompletedWorkouts)
+      .catch((error) => console.log(error))
       .finally(() => setLoading(false));
   };
 

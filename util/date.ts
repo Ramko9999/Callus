@@ -45,7 +45,6 @@ function getDaysInMonth(month: number, year: number) {
   return MONTH_TO_DAYS[month];
 }
 
-
 // todo: dry
 export function getDuration(durationInMillis: number): Duration {
   const seconds = Math.floor(durationInMillis / Period.SECOND) % 60;
@@ -55,10 +54,35 @@ export function getDuration(durationInMillis: number): Duration {
   return { hours, minutes, seconds };
 }
 
+export function getDaysBetween(from: number, to: number): number {
+  return Math.ceil((to - from) / Period.DAY);
+}
+
 export function getDurationDisplay(durationinSeconds: number) {
   const minutes = Math.floor(durationinSeconds / 60);
   const seconds = new String(durationinSeconds % 60).padStart(2, "0");
   return `${minutes}:${seconds}`;
+}
+
+export function roundToNearestMinute(durationInMillis: number) {
+  const millis = durationInMillis % 60_000;
+  if (millis > 0) {
+    return durationInMillis + (60_000 - millis);
+  }
+  return durationInMillis;
+}
+
+export function getTrendDatePeriod(from: Date, to: Date) {
+  const days = getDaysBetween(from, to);
+  if (days >= 60) {
+    return "3 months";
+  } else if (days >= 30) {
+    return "2 months";
+  } else if (days >= 14) {
+    return "1 month";
+  } else {
+    return "2 weeks";
+  }
 }
 
 export function truncTime(timestamp: number) {
@@ -255,4 +279,12 @@ export function getMonthFirstDay(timestamp: number) {
   const lastMonthLastDay = new Date(getPreviousMonth(timestamp));
   lastMonthLastDay.setDate(lastMonthLastDay.getDate() + 1);
   return lastMonthLastDay.valueOf();
+}
+
+export function goBackMonths(timestamp: number, monthsToGoBack: number) {
+  let newTimestamp = timestamp;
+  for (let i = 0; i < monthsToGoBack; i++) {
+    newTimestamp = getPreviousMonth(newTimestamp);
+  }
+  return newTimestamp;
 }

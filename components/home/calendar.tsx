@@ -5,7 +5,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { View, Text, useThemeColoring } from "../Themed";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   addDays,
   DAYS_OF_WEEK,

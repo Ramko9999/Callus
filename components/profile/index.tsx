@@ -8,10 +8,10 @@ import { Settings } from "../theme/actions";
 import { textTheme } from "@/constants/Themes";
 import { SettingsPopup } from "./settings";
 import React, { useState } from "react";
+import { Trends } from "./trends";
 
 const profileStyles = StyleSheet.create({
   container: {
-    marginTop: "5%",
     ...StyleUtils.flexColumn(15),
   },
   header: {
@@ -22,6 +22,7 @@ const profileStyles = StyleSheet.create({
 });
 
 // todo: figure out how to re-render the stats after settings change
+// todo: add loading skeletons and show trends will be enabled only after 2 weeks of logging the exercise
 export function Profile() {
   const [isOpeningSettings, setIsOpeningSettings] = useState(false);
 
@@ -44,6 +45,7 @@ export function Profile() {
         <View style={profileStyles.container}>
           <WorkoutStreakGrid />
           <LifetimeStats />
+          <Trends/>
         </View>
       </DynamicHeaderPage>
       <SettingsPopup

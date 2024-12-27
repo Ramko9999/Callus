@@ -14,6 +14,10 @@ export const NAME_TO_EXERCISE_META: Map<string, ExerciseMeta> = new Map(
   EXERCISE_REPOSITORY.map((meta) => [meta.name, meta])
 );
 
+export function getMeta(exercise: string) {
+  return (NAME_TO_EXERCISE_META.get(exercise) as ExerciseMeta).difficultyType;
+}
+
 // todo: store this in the settings
 export const BW = 150;
 
