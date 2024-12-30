@@ -15,7 +15,7 @@ export default function () {
 function Example() {
   return (
     <DynamicHeaderPage title={"Example"}>
-      <ExerciseInsights onClose={() => {}} exerciseName="Weighted Pull-Up" />
+      <Text large>Hi</Text>
     </DynamicHeaderPage>
   );
 }

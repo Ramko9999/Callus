@@ -139,7 +139,7 @@ function generateTrends(exerciseCompletions: ExerciseCompletions[]): Trend[] {
     .splice(0, MAX_TRENDS);
 }
 
-function generateTrend(
+export function generateTrend(
   exerciseCompletion: ExerciseCompletions,
   type: DifficultyType
 ): Trend {

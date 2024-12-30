@@ -108,6 +108,13 @@ function ExerciseInsightsLifetimeSummary({
   );
 }
 
+const exerciseInsightStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: "2%",
+  },
+});
+
 type ExerciseInsightProps = {
   completions: Exercise[];
   type: DifficultyType;
@@ -119,10 +126,15 @@ function ExerciseInsight({
   type,
   currentTab,
 }: ExerciseInsightProps) {
-  if (currentTab === "History") {
-    return <HistoryInsight completions={completions} type={type} />;
-  }
-  return <ChartInsight completions={completions} type={type} />;
+  return (
+    <View style={exerciseInsightStyles.container}>
+      {currentTab === "History" ? (
+        <HistoryInsight completions={completions} type={type} />
+      ) : (
+        <ChartInsight completions={completions} type={type} />
+      )}
+    </View>
+  );
 }
 
 const exerciseInsightsStyles = StyleSheet.create({

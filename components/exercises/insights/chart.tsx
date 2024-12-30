@@ -13,11 +13,7 @@ import React, { useRef, useState } from "react";
 import * as MetricApi from "@/api/metric";
 import { BW } from "@/constants";
 import { ArrayUtils } from "@/util/misc";
-import {
-  addDays,
-  getDaysBetween,
-  getLongDateDisplay,
-} from "@/util/date";
+import { addDays, getDaysBetween, getLongDateDisplay } from "@/util/date";
 import {
   useWindowDimensions,
   StyleSheet,
@@ -27,11 +23,17 @@ import {
 } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import * as Haptics from "expo-haptics";
+import { getMockCompletions, MOCK_EXERCISE } from "@/api/exercise/mock";
+import { getDifficultyType } from "@/api/exercise";
+import { BlurView } from "expo-blur";
 
 const TIME_STEP_DAYS = 7;
 const DAY_WIDTH = 14;
-const CHART_HEIGHT_MULTIPLIER = 0.4;
+const CHART_HEIGHT_MULTIPLIER = 0.45;
 const MIN_CHART_WIDTH_MULTIPLER = 0.94;
+
+const CHART_PLACEHOLDER_MESSAGE =
+  "Log this exercise in a workout to chart your progress";
 
 const CHART_MARGIN = {
   left: 0,
@@ -104,7 +106,7 @@ function generateXTicks(minDate: Date, maxDate: Date) {
   return ticks;
 }
 
-const chartInsightStyles = StyleSheet.create({
+const chartStyles = StyleSheet.create({
   yAxis: {
     position: "absolute",
     right: "2%",
@@ -114,7 +116,9 @@ const chartInsightStyles = StyleSheet.create({
   },
   container: {
     paddingRight: "3%",
+    paddingBottom: "3%",
     ...StyleUtils.flexColumn(10),
+    flex: 1
   },
   head: {
     ...StyleUtils.flexColumn(5),
@@ -122,7 +126,7 @@ const chartInsightStyles = StyleSheet.create({
   },
 });
 
-type ChartInsightProps = {
+type ChartProps = {
   completions: Exercise[];
   type: DifficultyType;
 };
@@ -142,7 +146,7 @@ function findMostRecentPointIndex(metric: Metric, date: Date) {
   );
 }
 
-export function ChartInsight({ completions, type }: ChartInsightProps) {
+function Chart({ completions, type }: ChartProps) {
   const [metricConfigIndex, setMetricConfigIndex] = useState<number>(0);
   const [yAxisOffset, setYAxisOffset] = useState<number>(0);
   const [pointIndex, setPointIndex] = useState<number>();
@@ -207,9 +211,9 @@ export function ChartInsight({ completions, type }: ChartInsightProps) {
     metric.points[pointIndex ?? metric.points.length - 1].timestamp;
 
   return (
-    <View style={chartInsightStyles.container}>
+    <View style={chartStyles.container}>
       <View
-        style={chartInsightStyles.head}
+        style={chartStyles.head}
         onLayout={(event) => {
           if (!yAxisOffset) {
             setYAxisOffset(event.nativeEvent.layout.height);
@@ -225,7 +229,7 @@ export function ChartInsight({ completions, type }: ChartInsightProps) {
         horizontal
         ref={scrollRef}
         bounces={false}
-        style={chartInsightStyles.scroll}
+        style={chartStyles.scroll}
         onContentSizeChange={() => {
           if (!hasInitiallyScrolledToEndRef.current) {
             hasInitiallyScrolledToEndRef.current = true;
@@ -314,10 +318,7 @@ export function ChartInsight({ completions, type }: ChartInsightProps) {
         ? yTicks.slice(1).map((tick, index) => (
             <View
               key={index}
-              style={[
-                chartInsightStyles.yAxis,
-                { top: yScale(tick) + yAxisOffset },
-              ]}
+              style={[chartStyles.yAxis, { top: yScale(tick) + yAxisOffset }]}
             >
               <Text small light>
                 {metric.format(tick)}
@@ -327,4 +328,48 @@ export function ChartInsight({ completions, type }: ChartInsightProps) {
         : null}
     </View>
   );
+}
+
+const chartPlaceholderStyles = StyleSheet.create({
+  placeholder: {
+    width: "100%",
+    height: "100%",
+    ...StyleUtils.flexRow(),
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+  },
+  mock: {
+    paddingVertical: "2%",
+    flex: 1
+  },
+  container: {
+    flex: 1
+  }
+});
+
+function ChartPlaceholder() {
+  return (
+    <View style={chartPlaceholderStyles.container}>
+      <View style={chartPlaceholderStyles.mock}>
+        <Chart
+          completions={getMockCompletions(10)}
+          type={getDifficultyType(MOCK_EXERCISE)}
+        />
+      </View>
+      <BlurView style={chartPlaceholderStyles.placeholder}>
+        <Text>{CHART_PLACEHOLDER_MESSAGE}</Text>
+      </BlurView>
+    </View>
+  );
+}
+
+type ChartInsightsProps = ChartProps;
+
+export function ChartInsight({ completions, type }: ChartInsightsProps) {
+  if (completions.length === 0) {
+    return <ChartPlaceholder />;
+  }
+
+  return <Chart completions={completions} type={type} />;
 }

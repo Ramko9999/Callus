@@ -10,11 +10,6 @@ import { Store } from "./store";
 import * as TrendApi from "./metric/trend";
 import { ArrayUtils } from "@/util/misc";
 
-export type WorkoutItinerary = {
-  workouts: Workout[];
-  workoutPlans: WorkoutPlan[];
-};
-
 export class WorkoutApi {
   static async getWorkouts(localDate: number): Promise<Workout[]> {
     return await Store.instance().getWorkouts(localDate, addDays(localDate, 1));

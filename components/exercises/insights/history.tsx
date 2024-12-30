@@ -5,6 +5,12 @@ import { getDurationDisplay, getLongDateDisplay, truncTime } from "@/util/date";
 import { ScrollView, StyleSheet } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import { useRef } from "react";
+import { getMockCompletions, MOCK_EXERCISE } from "@/api/exercise/mock";
+import { getDifficultyType } from "@/api/exercise";
+import { BlurView } from "expo-blur";
+
+const HISTORY_PLACEHOLDER_MESSAGE =
+  "Log this exercise in a workout to view your history";
 
 type SetSummary = {
   sets: number;
@@ -50,7 +56,6 @@ function getSetSummaryDisplay({
 const historyItemStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(5),
-    paddingBottom: "3%",
   },
   content: {
     paddingLeft: "2%",
@@ -146,8 +151,10 @@ function computeHistory(
   });
 }
 
-const historyInsightStyles = StyleSheet.create({
+const historyStyles = StyleSheet.create({
   container: {
+    ...StyleUtils.flexColumn(30),
+    paddingBottom: "3%",
     paddingHorizontal: "3%",
   },
   scroll: {
@@ -155,32 +162,72 @@ const historyInsightStyles = StyleSheet.create({
   },
 });
 
-type HistoryInsightProps = {
+type HistoryProps = {
   completions: Exercise[];
   type: DifficultyType;
 };
 
-export function HistoryInsight({ completions, type }: HistoryInsightProps) {
+function History({ completions, type }: HistoryProps) {
   const scrollRef = useRef<ScrollView>(null);
   const hasInitiallyScrolledToEndRef = useRef<boolean>(false);
 
   return (
-    <ScrollView
-      ref={scrollRef}
-      style={historyInsightStyles.scroll}
-      contentContainerStyle={historyInsightStyles.container}
-      onContentSizeChange={(w, h) => {
-        if (h > 0 && !hasInitiallyScrolledToEndRef.current) {
-          hasInitiallyScrolledToEndRef.current = true;
-          scrollRef.current?.scrollToEnd({ animated: false });
-        }
-      }}
-    >
-      <View>
+    <ScrollView ref={scrollRef} style={historyStyles.scroll}>
+      <View
+        style={historyStyles.container}
+        onLayout={() => {
+          if (!hasInitiallyScrolledToEndRef.current) {
+            hasInitiallyScrolledToEndRef.current = true;
+            scrollRef.current?.scrollToEnd({ animated: false });
+          }
+        }}
+      >
         {computeHistory(completions, type).map((item, index) => (
           <HistoryItem key={index} {...item} />
         ))}
       </View>
     </ScrollView>
   );
+}
+
+const historyPlaceholderStyles = StyleSheet.create({
+  placeholder: {
+    width: "100%",
+    height: "100%",
+    ...StyleUtils.flexRow(),
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+  },
+  mock: {
+    flex: 1,
+  },
+  container: {
+    flex: 1,
+  },
+});
+
+function HistoryPlaceholder() {
+  return (
+    <View style={historyPlaceholderStyles.container}>
+      <View style={historyPlaceholderStyles.mock}>
+        <History
+          completions={getMockCompletions(10)}
+          type={getDifficultyType(MOCK_EXERCISE)}
+        />
+      </View>
+      <BlurView style={historyPlaceholderStyles.placeholder}>
+        <Text>{HISTORY_PLACEHOLDER_MESSAGE}</Text>
+      </BlurView>
+    </View>
+  );
+}
+
+type HistoryInsightProps = HistoryProps;
+
+export function HistoryInsight({ completions, type }: HistoryInsightProps) {
+  if (completions.length === 0) {
+    return <HistoryPlaceholder />;
+  }
+  return <History completions={completions} type={type} />;
 }

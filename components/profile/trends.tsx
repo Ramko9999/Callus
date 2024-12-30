@@ -28,9 +28,13 @@ import { textTheme } from "@/constants/Themes";
 import { Pagination } from "../util/pagination";
 import { useCallback, useEffect, useState } from "react";
 import { WorkoutApi } from "@/api/workout";
+import * as TrendsApi from "@/api/metric/trend";
 import { usePathname } from "expo-router";
 import { Trend, MetricPoint } from "@/interface";
 import { ArrayUtils } from "@/util/misc";
+import { getMockCompletions, MOCK_EXERCISE } from "@/api/exercise/mock";
+import { getDifficultyType } from "@/api/exercise";
+import { BlurView } from "expo-blur";
 
 const TREND_CHART_MARGIN = {
   top: 20,
@@ -43,6 +47,11 @@ const TREND_CHART_HEIGHT = 150;
 const MONTHS_TO_LOOKBACK = 3;
 
 const TRENDS_GAP = 10;
+
+const TREND_CHART_WIDTH_MULTIPLER = 0.9;
+const TREND_ITEM_WIDTH_MULTIPLIER = 0.96;
+const TREND_PLACEHOLDER_MESSAGE =
+  "You need to log exercises at least 4 times in the span of 2 weeks to view your trends.";
 
 const trendDeltaStyles = StyleSheet.create({
   container: {
@@ -119,7 +128,7 @@ export type TrendChartProps = {
 
 export function TrendChart({ width, height, trend }: TrendChartProps) {
   const dimensions = { width, height };
-  const {title, metric} = trend;
+  const { title, metric } = trend;
   const { points, high, format, delta, hasImproved } = metric;
 
   const minDate = new Date(points[0].timestamp);
@@ -171,11 +180,7 @@ export function TrendChart({ width, height, trend }: TrendChartProps) {
         </Text>
         <View style={trendChartStyles.scalar}>
           <Text stat>{format(ArrayUtils.last(points).value)}</Text>
-          <TrendDelta
-            delta={delta}
-            format={format}
-            hasImproved={hasImproved}
-          />
+          <TrendDelta delta={delta} format={format} hasImproved={hasImproved} />
           <Text action>in {getTrendDatePeriod(minDate, maxDate)}</Text>
         </View>
         <Svg width={dimensions.width} height={dimensions.height}>
@@ -221,7 +226,43 @@ export function TrendChart({ width, height, trend }: TrendChartProps) {
   );
 }
 
-const trendsStyles = StyleSheet.create({
+const trendsPlaceholderStyles = StyleSheet.create({
+  placeholder: {
+    width: "100%",
+    height: "100%",
+    ...StyleUtils.flexRow(),
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute",
+    borderRadius: 10,
+    paddingHorizontal: "3%",
+  },
+  container: {
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+});
+
+function TrendsPlaceholder() {
+  const { width } = useWindowDimensions();
+  return (
+    <View style={trendsPlaceholderStyles.container}>
+      <TrendChart
+        width={width * TREND_CHART_WIDTH_MULTIPLER}
+        height={TREND_CHART_HEIGHT}
+        trend={TrendsApi.generateTrend(
+          { completions: getMockCompletions(20), name: MOCK_EXERCISE },
+          getDifficultyType(MOCK_EXERCISE)
+        )}
+      />
+      <BlurView style={trendsPlaceholderStyles.placeholder}>
+        <Text>{TREND_PLACEHOLDER_MESSAGE}</Text>
+      </BlurView>
+    </View>
+  );
+}
+
+const trendsCarouselStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(10),
   },
@@ -230,10 +271,12 @@ const trendsStyles = StyleSheet.create({
   },
 });
 
-export function Trends() {
-  const [trends, setTrends] = useState<Trend[]>();
+type TrendsCarouselProps = {
+  trends: Trend[];
+};
+
+function TrendsCarousel({ trends }: TrendsCarouselProps) {
   const [paginationIndex, setPaginationIndex] = useState(0);
-  const pathname = usePathname();
   const { width } = useWindowDimensions();
 
   const viewabilityConfig: ViewabilityConfig = {
@@ -246,20 +289,10 @@ export function Trends() {
     }
   }, []);
 
-  useEffect(() => {
-    WorkoutApi.getTrends(goBackMonths(truncTime(Date.now()), MONTHS_TO_LOOKBACK))
-      .then(setTrends)
-      .catch((error) => {
-        console.error(error.stack);
-      });
-  }, [pathname]);
-
-  const TREND_CHART_WIDTH = width * 0.9;
-  const FLAT_LIST_ITEM_WIDTH = width * 0.96;
+  const trendItemWidth = TREND_ITEM_WIDTH_MULTIPLIER * width;
 
   return (
-    <View style={trendsStyles.container}>
-      <Text action>Trends</Text>
+    <View style={trendsCarouselStyles.container}>
       <FlatList
         horizontal
         pagingEnabled
@@ -270,26 +303,60 @@ export function Trends() {
           (trend) =>
             ({
               height: TREND_CHART_HEIGHT,
-              width: TREND_CHART_WIDTH,
+              width: width * TREND_CHART_WIDTH_MULTIPLER,
               trend,
             } as TrendChartProps)
         )}
         contentContainerStyle={{ gap: TRENDS_GAP }}
-        snapToInterval={FLAT_LIST_ITEM_WIDTH + TRENDS_GAP}
+        snapToInterval={trendItemWidth + TRENDS_GAP}
         decelerationRate="fast"
         snapToAlignment="start"
         renderItem={({ item, index }) => (
-          <View key={index} style={{ width: FLAT_LIST_ITEM_WIDTH }}>
+          <View key={index} style={{ width: trendItemWidth }}>
             <TrendChart {...item} />
           </View>
         )}
       />
-      <View style={trendsStyles.pagination}>
+      <View style={trendsCarouselStyles.pagination}>
         <Pagination
           totalItemsCount={trends?.length || 0}
           currentIndex={paginationIndex}
         />
       </View>
+    </View>
+  );
+}
+
+const trendsStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(10),
+  },
+});
+
+export function Trends() {
+  const [trends, setTrends] = useState<Trend[]>();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    WorkoutApi.getTrends(
+      goBackMonths(truncTime(Date.now()), MONTHS_TO_LOOKBACK)
+    )
+      .then(setTrends)
+      .catch((error) => {
+        console.error(error.stack);
+      });
+  }, [pathname]);
+
+  const shouldShowPlaceholder = trends && trends.length === 0;
+
+  return (
+    <View style={trendsStyles.container}>
+      <Text action>Trends</Text>
+      {shouldShowPlaceholder ? (
+        <TrendsPlaceholder />
+      ) : (
+        <TrendsCarousel trends={trends ?? []} />
+      )}
     </View>
   );
 }
