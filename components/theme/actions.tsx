@@ -109,13 +109,13 @@ export function Add({ onClick, style }: ActionProps) {
   );
 }
 
-export function Search({ onClick, style }: ActionProps) {
+export function Search({ onClick, style, iconSize }: ActionProps) {
   return (
     <TouchableOpacity onPress={onClick}>
       <View style={[iconActionStyles.container, style]}>
         <FontAwesome
           name="search"
-          size={textTheme.large.fontSize}
+          size={iconSize ?? textTheme.large.fontSize}
           color={useThemeColoring("lightText")}
         />
       </View>

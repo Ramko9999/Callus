@@ -1,4 +1,4 @@
-import { NAME_TO_EXERCISE_META } from "@/constants";
+import { NAME_TO_EXERCISE_META } from "@/api/exercise";
 import {
   AssistedBodyWeightDifficulty,
   BodyWeightDifficulty,
@@ -9,6 +9,7 @@ import {
   TimeDifficulty,
   WeightDifficulty,
 } from "@/interface";
+import { getDurationDisplay } from "../date";
 
 export function getLiveExerciseDescription(exercise: Exercise) {
   const totalSets = exercise.sets.length;
@@ -31,14 +32,19 @@ export function getLiveExerciseDescription(exercise: Exercise) {
 }
 
 export function getHistoricalExerciseDescription(exercise: Exercise) {
-  function getDifficultyRange(values: number[]) {
+  function getDifficultyRange(
+    values: number[],
+    format?: (value: number) => string
+  ) {
+    const formatValue = format ? format : (value: number) => value.toString();
+
     const min = Math.min(...values);
     const max = Math.max(...values);
 
     if (min === max) {
-      return `${min}`;
+      return `${formatValue(min)}`;
     }
-    return `${min}-${max}`;
+    return `${formatValue(min)}-${formatValue(max)}`;
   }
 
   const description = [`${exercise.sets.length} sets`];
@@ -78,7 +84,7 @@ export function getHistoricalExerciseDescription(exercise: Exercise) {
     const duration = exercise.sets.map(
       ({ difficulty }) => (difficulty as TimeDifficulty).duration
     );
-    description.push(`for ${getDifficultyRange(duration)}s`);
+    description.push(`for ${getDifficultyRange(duration, getDurationDisplay)}`);
   }
 
   return description.join(" ");

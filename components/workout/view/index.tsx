@@ -11,6 +11,12 @@ import { getWorkoutSummary } from "@/context/WorkoutContext";
 import { getTimePeriodDisplay } from "@/util/date";
 import { textTheme } from "@/constants/Themes";
 import { Ionicons } from "@expo/vector-icons";
+import { StyleUtils } from "@/util/styles";
+import {
+  DurationMetaIconProps,
+  RepsMetaIcon,
+  WeightMetaIcon,
+} from "@/components/theme/icons";
 
 const styles = StyleSheet.create({
   workoutViewTileContainer: {
@@ -127,6 +133,12 @@ const newStyles = StyleSheet.create({
   },
 });
 
+const workoutSummaryStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexRow(10),
+  },
+});
+
 type WorkoutSummaryProps = {
   workout: Workout;
 };
@@ -135,32 +147,11 @@ export function WorkoutSummary({ workout }: WorkoutSummaryProps) {
   const { totalReps, totalWeightLifted, totalDuration } =
     getWorkoutSummary(workout);
 
-  const color = useThemeColoring("lightText");
-
   return (
-    <View style={newStyles.summary} _type="background">
-      <View _type="background" style={newStyles.summaryMetric}>
-        <MaterialCommunityIcon
-          name="weight"
-          color={color}
-          size={textTheme.neutral.fontSize}
-        />
-        <Text neutral light>{`${totalWeightLifted} lb`}</Text>
-      </View>
-      <View _type="background" style={newStyles.summaryMetric}>
-        <MaterialCommunityIcon
-          name="arm-flex"
-          color={color}
-          size={textTheme.neutral.fontSize}
-        />
-        <Text neutral light>{`${totalReps} reps`}</Text>
-      </View>
-      <View _type="background" style={newStyles.summaryMetric}>
-        <Ionicons name="time" color={color} size={textTheme.neutral.fontSize} />
-        <Text neutral light>
-          {getTimePeriodDisplay(totalDuration)}
-        </Text>
-      </View>
+    <View style={workoutSummaryStyles.container}>
+      <WeightMetaIcon weight={totalWeightLifted} />
+      <RepsMetaIcon reps={totalReps} />
+      <DurationMetaIconProps durationInMillis={totalDuration} />
     </View>
   );
 }

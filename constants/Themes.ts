@@ -19,7 +19,12 @@ export const darkColors = {
   dynamicHeaderBorder: "rgba(100, 100, 100, 1)",
   appBackground: "black",
   improvement: "#13EBA0",
-  degradation: "#FF6347"
+  degradation: "#FF6347",
+  weightLineStroke: "#24A0ED",
+  repsLineStroke: "#FF6347",
+  oneRepEstimateLineStroke: "#FFFF00",
+  durationLineStroke: "#90EE90",
+  restDurationLineStroke: "#FF00FF",
 };
 
 export const lightColors = {
@@ -39,7 +44,12 @@ export const lightColors = {
   dynamicHeaderBorder: "#C4C4C4",
   appBackground: "black", // todo: edit me,
   improvement: "#13EBA0",
-  degradation: "#DC143C"
+  degradation: "#DC143C",
+  weightLineStroke: "#24A0ED",
+  repsLineStroke: "#DC143C",
+  oneRepEstimateLineStroke: "#FFFF00",
+  durationLineStroke: "#90EE90",
+  restDurationLineStroke: "#FF00FF",
 };
 
 export type UIColor = keyof typeof darkColors & keyof typeof lightColors;

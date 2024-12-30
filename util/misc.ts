@@ -58,9 +58,9 @@ export function clamp(value: number, maxBoundary: number, minBoundary: number) {
   return Math.min(Math.max(value, minBoundary), maxBoundary);
 }
 
-export function saveDiv(x: number, y: number) {
-  if(y === 0){
-    return x > 0 ? Number.MAX_SAFE_INTEGER : Number.MIN_SAFE_INTEGER
+export function safeDiv(x: number, y: number) {
+  if (y === 0) {
+    return x > 0 ? Number.MAX_SAFE_INTEGER : Number.MIN_SAFE_INTEGER;
   }
   return x / y;
 }
@@ -108,11 +108,28 @@ function groupBy<K, T>(arr: T[], keyExtractor: (item: T) => K): Group<K, T>[] {
 function sortBy<K, T>(
   arr: T[],
   sortKeyExtractor: (item: T) => K,
-  comparator: (a: K, b: K) => number
+  comparator?: (a: K, b: K) => number
 ) {
+  const defaultSortComparator = (a: K, b: K) => {
+    if (a <= b) {
+      return -1;
+    }
+    return 1;
+  };
+
   return [...arr].sort((a, b) =>
-    comparator(sortKeyExtractor(a), sortKeyExtractor(b))
+    (comparator || defaultSortComparator)(
+      sortKeyExtractor(a),
+      sortKeyExtractor(b)
+    )
   );
 }
 
-export const ArrayUtils = { minBy, maxBy, groupBy, sortBy, last };
+function sumBy<T>(arr: T[], valueExtractor: (item: T) => number) {
+  if (arr.length === 0) {
+    return 0;
+  }
+  return arr.map(valueExtractor).reduce((total, current) => total + current);
+}
+
+export const ArrayUtils = { minBy, maxBy, groupBy, sortBy, sumBy, last };

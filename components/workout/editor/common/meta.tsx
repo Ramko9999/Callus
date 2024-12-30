@@ -1,4 +1,10 @@
+import {
+  DurationMetaIconProps,
+  RepsMetaIcon,
+  WeightMetaIcon,
+} from "@/components/theme/icons";
 import { TextInput, View, Text } from "@/components/Themed";
+import { getWorkoutSummary } from "@/context/WorkoutContext";
 import { Workout, WorkoutMetadata } from "@/interface";
 import { getLongDateDisplay } from "@/util/date";
 import { StyleUtils } from "@/util/styles";
@@ -7,14 +13,17 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput as DefaultTextInput,
-  Keyboard
+  Keyboard,
 } from "react-native";
-import { WorkoutSummary } from "../../view";
 
 const workoutTitleMetaStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(5),
     paddingLeft: "3%",
+  },
+  summary: {
+    ...StyleUtils.flexRow(10),
+    paddingTop: "1%",
   },
 });
 
@@ -25,6 +34,8 @@ type MetaEditor = {
 };
 export function MetaEditor({ workout, onUpdateMeta, onDateClick }: MetaEditor) {
   const { name, startedAt } = workout;
+  const { totalWeightLifted, totalReps, totalDuration } =
+    getWorkoutSummary(workout);
 
   const [workoutName, setWorkoutName] = useState(name);
 
@@ -49,7 +60,11 @@ export function MetaEditor({ workout, onUpdateMeta, onDateClick }: MetaEditor) {
           {getLongDateDisplay(startedAt, true)}
         </Text>
       </TouchableOpacity>
-      <WorkoutSummary workout={workout} />
+      <View style={workoutTitleMetaStyles.summary}>
+        <WeightMetaIcon weight={totalWeightLifted} />
+        <RepsMetaIcon reps={totalReps} />
+        <DurationMetaIconProps durationInMillis={totalDuration} />
+      </View>
     </View>
   );
 }
@@ -58,7 +73,7 @@ const noteEditorStyles = StyleSheet.create({
   container: {
     width: "100%",
     paddingHorizontal: "3%",
-    paddingBottom: "3%"
+    paddingBottom: "3%",
   },
 });
 

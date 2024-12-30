@@ -1,7 +1,14 @@
-import { WorkoutPlan, Workout, Trend } from "@/interface";
+import {
+  WorkoutPlan,
+  Workout,
+  Trend,
+  SearchExerciseSummary,
+  Exercise,
+} from "@/interface";
 import { addDays, truncTime } from "@/util/date";
 import { Store } from "./store";
-import * as TrendApi from "./trend/trend";
+import * as TrendApi from "./metric/trend";
+import { ArrayUtils } from "@/util/misc";
 
 export type WorkoutItinerary = {
   workouts: Workout[];
@@ -46,8 +53,29 @@ export class WorkoutApi {
   }
 
   static async getTrends(after: number): Promise<Trend[]> {
-    const completedExercises =
-      await Store.instance().getAllCompletedExercises(after);
+    const completedExercises = await Store.instance().getAllCompletedExercises(
+      after
+    );
     return TrendApi.getTrends(completedExercises);
+  }
+
+  static async getExerciseSummaries(): Promise<SearchExerciseSummary[]> {
+    const completedExercises = await Store.instance().getAllCompletedExercises(
+      0
+    );
+    return ArrayUtils.groupBy(completedExercises, ({ name }) => name).map(
+      ({ key, items }) => ({
+        name: key,
+        totalSetsCompleted: items
+          .flatMap((item) => item.sets.length)
+          .reduce((total, current) => current + total),
+      })
+    );
+  }
+
+  static async getExerciseCompletions(
+    exerciseName: string
+  ): Promise<Exercise[]> {
+    return await Store.instance().getAllCompletedExercise(0, exerciseName);
   }
 }

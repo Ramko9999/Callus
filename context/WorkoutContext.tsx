@@ -18,7 +18,8 @@ import { createContext, useState, useContext, useEffect } from "react";
 import { generateRandomId, timeout } from "@/util/misc";
 import { WorkoutApi } from "@/api/workout";
 import { Audio } from "expo-av";
-import { BW, NAME_TO_EXERCISE_META } from "@/constants";
+import { BW } from "@/constants";
+import { NAME_TO_EXERCISE_META } from "@/api/exercise";
 
 function generateSetId() {
   return generateRandomId("st", 8);

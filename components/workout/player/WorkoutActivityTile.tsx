@@ -12,7 +12,7 @@ import { getDurationDisplay } from "@/util/date";
 import { useRouter } from "expo-router";
 import { useWorkout } from "@/context/WorkoutContext";
 import { DifficultyTile } from "./difficulty-tile";
-import { NAME_TO_EXERCISE_META } from "@/constants";
+import { NAME_TO_EXERCISE_META } from "@/api/exercise";
 import { useTimer } from "@/components/hooks/use-timer";
 
 const styles = StyleSheet.create({

@@ -13,6 +13,7 @@ import {
   GET_WORKED_OUT_DAYS,
   GET_LIFETIME_STATS,
   GET_COMPLETED_EXERCISES,
+  GET_COMPLETED_EXERCISE,
 } from "./sql";
 import { Exercise, Workout, WorkoutLifetimeStats } from "@/interface";
 import { truncTime } from "@/util/date";
@@ -192,6 +193,29 @@ export class Store {
       }
     );
     return completedExercises
+      .map(toExercise)
+      .map((exercise) => ({
+        ...exercise,
+        sets: exercise.sets.filter(
+          ({ restEndedAt }) => restEndedAt != undefined
+        ),
+      }))
+      .filter((exercise) => exercise.sets.length > 0);
+  }
+
+  async getAllCompletedExercise(
+    after: number,
+    exerciseName: string
+  ): Promise<Exercise[]> {
+    const completions: any[] = await this.db.getAllAsync(
+      GET_COMPLETED_EXERCISE,
+      {
+        $after: after,
+        $before: Date.now(),
+        $exercise_name: exerciseName,
+      }
+    );
+    return completions
       .map(toExercise)
       .map((exercise) => ({
         ...exercise,

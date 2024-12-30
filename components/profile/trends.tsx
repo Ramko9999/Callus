@@ -29,7 +29,7 @@ import { Pagination } from "../util/pagination";
 import { useCallback, useEffect, useState } from "react";
 import { WorkoutApi } from "@/api/workout";
 import { usePathname } from "expo-router";
-import { Trend, TrendPoint } from "@/interface";
+import { Trend, MetricPoint } from "@/interface";
 import { ArrayUtils } from "@/util/misc";
 
 const TREND_CHART_MARGIN = {
@@ -58,10 +58,10 @@ const trendDeltaStyles = StyleSheet.create({
 type TrendDeltaProps = {
   delta: number;
   format: (delta: number) => string;
-  isImprovement: boolean;
+  hasImproved: boolean;
 };
 
-function TrendDelta({ delta, format, isImprovement }: TrendDeltaProps) {
+function TrendDelta({ delta, format, hasImproved }: TrendDeltaProps) {
   const improvementColor = useThemeColoring("improvement");
   const degradationColor = useThemeColoring("degradation");
   const maintainColor = useThemeColoring("lightText");
@@ -69,7 +69,7 @@ function TrendDelta({ delta, format, isImprovement }: TrendDeltaProps) {
   const color =
     delta === 0
       ? maintainColor
-      : isImprovement
+      : hasImproved
       ? improvementColor
       : degradationColor;
   const deltaSign = delta !== 0 ? (delta > 0 ? "+" : "-") : "";
@@ -119,11 +119,11 @@ export type TrendChartProps = {
 
 export function TrendChart({ width, height, trend }: TrendChartProps) {
   const dimensions = { width, height };
+  const {title, metric} = trend;
+  const { points, high, format, delta, hasImproved } = metric;
 
-  const minDate = new Date(trend.data[0].timestamp);
-  const maxDate = new Date(ArrayUtils.last(trend.data).timestamp);
-
-  const { data, high, title, format, delta, isImprovement } = trend;
+  const minDate = new Date(points[0].timestamp);
+  const maxDate = new Date(ArrayUtils.last(points).timestamp);
 
   const xScale = d3
     .scaleTime()
@@ -139,18 +139,18 @@ export function TrendChart({ width, height, trend }: TrendChartProps) {
     ]);
 
   const lineGenerator = d3
-    .line<TrendPoint>()
+    .line<MetricPoint>()
     .x((d) => xScale(new Date(d.timestamp)))
-    .y((d) => yScale(d.progress));
+    .y((d) => yScale(d.value));
 
   const areaGenerator = d3
-    .area<TrendPoint>()
+    .area<MetricPoint>()
     .x((d) => xScale(new Date(d.timestamp)))
     .y0((d) => dimensions.height - TREND_CHART_MARGIN.bottom)
-    .y1((d) => yScale(d.progress));
+    .y1((d) => yScale(d.value));
 
-  const linePath = lineGenerator(data);
-  const areaPath = areaGenerator(data);
+  const linePath = lineGenerator(points);
+  const areaPath = areaGenerator(points);
 
   const lineStrokeColor = useThemeColoring("primaryAction");
   const textColor = useThemeColoring("lightText");
@@ -170,11 +170,11 @@ export function TrendChart({ width, height, trend }: TrendChartProps) {
           {title}
         </Text>
         <View style={trendChartStyles.scalar}>
-          <Text stat>{format(ArrayUtils.last(data).progress)}</Text>
+          <Text stat>{format(ArrayUtils.last(points).value)}</Text>
           <TrendDelta
             delta={delta}
             format={format}
-            isImprovement={isImprovement}
+            hasImproved={hasImproved}
           />
           <Text action>in {getTrendDatePeriod(minDate, maxDate)}</Text>
         </View>

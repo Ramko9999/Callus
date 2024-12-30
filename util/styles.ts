@@ -41,6 +41,7 @@ export const StyleUtils = {
 };
 
 export const WORKOUT_PLAYER_EDITOR_HEIGHT = 0.8;
+export const EXERCISE_INSIGHTS_HEIGHT = 0.8
 export const SETTINGS_HEIGHT = 0.8;
 
 export const EDITOR_SET_HEIGHT = 60;
@@ -48,5 +49,6 @@ export const EDITOR_EXERCISE_HEIGHT = 70;
 export const EDITOR_EXERCISE_WITH_NOTE_HEIGHT = EDITOR_EXERCISE_HEIGHT + 15;
 export const TEXT_ACTION_HEIGHT = 40;
 export const SETTING_HEIGHT = 70;
+export const SEARCH_EXERCISE_HEIGHT = 70;
 
 export const ICON_ACTION_DIMENSION = 45;

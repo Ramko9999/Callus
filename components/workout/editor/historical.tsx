@@ -29,7 +29,7 @@ import { StyleSheet, useWindowDimensions } from "react-native";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
 import { BottomSheet } from "@/components/util/sheets";
 import { TimestampRangeEdit } from "@/components/util/daterange-picker";
-import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/constants";
+import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/api/exercise";
 import { ExerciseLevelEditor } from "./common/exercise";
 import { ExerciseFinder } from "./common/exercise/finder";
 import { SetLevelEditor } from "./common/set";

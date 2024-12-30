@@ -73,7 +73,7 @@ export function roundToNearestMinute(durationInMillis: number) {
 }
 
 export function getTrendDatePeriod(from: Date, to: Date) {
-  const days = getDaysBetween(from, to);
+  const days = getDaysBetween(from.valueOf(), to.valueOf());
   if (days >= 60) {
     return "3 months";
   } else if (days >= 30) {

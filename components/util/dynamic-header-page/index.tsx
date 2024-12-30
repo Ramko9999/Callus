@@ -12,9 +12,16 @@ import React, {
   useEffect,
   useRef,
 } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
+import { BlurView } from "expo-blur";
+import { convertHexToRGBA } from "@/util/color";
 
 export const DYNAMIC_HEADER_HEIGHT = 40;
+
+const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
 const DynamicHeaderContext = createContext<RefObject<Animated.ScrollView>>({
   current: null,
@@ -27,7 +34,6 @@ const dynamicHeaderPageStyles = StyleSheet.create({
   },
   header: {
     ...StyleUtils.flexColumn(),
-    height: DYNAMIC_HEADER_HEIGHT,
     width: "100%",
     position: "absolute",
     alignItems: "center",
@@ -38,27 +44,32 @@ const dynamicHeaderPageStyles = StyleSheet.create({
   content: {
     paddingHorizontal: "2%",
   },
-  scroll: {
-    marginTop: DYNAMIC_HEADER_HEIGHT,
-  },
 });
 
 type DynamicHeaderPageProps = {
   title: string;
   children: React.ReactNode;
   renderLargeHeader?: React.ReactNode;
+  scrollViewRef?: React.RefObject<Animated.ScrollView>;
 };
 
-// todo: weird bug where header is initially at a position and then moved down
+// todo: fix weird bug with home screen not getting blur effect
 export function DynamicHeaderPage({
   title,
   children,
   renderLargeHeader,
+  scrollViewRef
 }: DynamicHeaderPageProps) {
+  const safeAreaInsets = useSafeAreaInsets();
   const pageHeaderRef = useRef<DefaultView>(null);
-  const scrollRef = useRef<Animated.ScrollView>(null);
+  const scrollRef = scrollViewRef ?? useRef<Animated.ScrollView>(null);
   const pageHeaderHeight = useRef(0);
   const scrollOffset = useSharedValue(0);
+
+  const dynamicHeaderBackground = convertHexToRGBA(
+    useThemeColoring("primaryViewBackground"),
+    0.5
+  );
 
   useEffect(() => {
     pageHeaderRef.current?.measure((x, y, width, height, pageX, pageY) => {
@@ -68,26 +79,23 @@ export function DynamicHeaderPage({
 
   const dynamicHeaderAnimatedStyle = useAnimatedStyle(() => ({
     opacity: scrollOffset.value >= pageHeaderHeight.current ? 1 : 0,
-    borderBottomWidth:
-      scrollOffset.value > pageHeaderHeight.current * 1.2 ? 1 : 0,
+    backgroundColor:
+      scrollOffset.value >= pageHeaderHeight.current
+        ? dynamicHeaderBackground
+        : "transparent",
   }));
 
   return (
     <View style={{ backgroundColor: useThemeColoring("appBackground") }}>
       <SafeAreaView>
-        <View style={dynamicHeaderPageStyles.container}>
-          <Animated.View
-            style={[
-              dynamicHeaderPageStyles.header,
-              dynamicHeaderAnimatedStyle,
-              { borderColor: useThemeColoring("dynamicHeaderBorder") },
-            ]}
-          >
-            <Text neutral>{title}</Text>
-          </Animated.View>
+        <View
+          style={[
+            dynamicHeaderPageStyles.container,
+            { paddingTop: safeAreaInsets.top },
+          ]}
+        >
           <Animated.ScrollView
             ref={scrollRef}
-            style={dynamicHeaderPageStyles.scroll}
             onScroll={({ nativeEvent }) => {
               scrollOffset.value = nativeEvent.contentOffset.y;
             }}
@@ -109,6 +117,18 @@ export function DynamicHeaderPage({
           </Animated.ScrollView>
         </View>
       </SafeAreaView>
+      <AnimatedBlurView
+        experimentalBlurMethod="dimezisBlurView"
+        style={[
+          dynamicHeaderPageStyles.header,
+          dynamicHeaderAnimatedStyle,
+          {
+            height: DYNAMIC_HEADER_HEIGHT + safeAreaInsets.top,
+          },
+        ]}
+      >
+        <Text neutral>{title}</Text>
+      </AnimatedBlurView>
     </View>
   );
 }

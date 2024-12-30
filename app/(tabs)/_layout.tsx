@@ -54,9 +54,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="routines"
+        name="exercises"
         options={{
-          title: "Routines",
+          title: "Exercises",
           tabBarIcon: ({ color }) => (
             <FontAwesome6
               size={28}

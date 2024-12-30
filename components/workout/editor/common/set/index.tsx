@@ -1,8 +1,6 @@
 import React from "react";
 import { Difficulty, DifficultyType, Set, SetStatus } from "@/interface";
-import {
-  StyleSheet,
-} from "react-native";
+import { StyleSheet } from "react-native";
 import { EDITOR_SET_HEIGHT, StyleUtils } from "@/util/styles";
 import { ScrollView } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
@@ -83,6 +81,7 @@ export function EditorSet({
     >
       <Animated.View style={animatedStyle}>
         <View style={editorSetStyles.container}>
+          {/* todo: use the functions in WorkoutContext to update set status */}
           <SetStatusInput
             set={set}
             isOn={set.status === SetStatus.FINISHED}

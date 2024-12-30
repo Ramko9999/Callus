@@ -140,20 +140,48 @@ export enum KeypadType {
 
 export type WorkoutLifetimeStats = {
   totalWorkouts: number;
-  totalWorkoutDuration: number
-}
+  totalWorkoutDuration: number;
+};
 
-export type TrendPoint = {
-  progress: number;
+export type MetricGenerationFunc = (completion: Exercise) => number;
+
+export type MetricType =
+  | "Average Weight"
+  | "Average Reps"
+  | "Estimated 1 Rep Max"
+  | "Average Duration"
+  | "Average Rest Duration";
+
+export type MetricConfig = {
+  metricType: MetricType;
+  metricGeneration: MetricGenerationFunc;
+  format: (value: number) => string;
+  determineHasImproved: (first: number, last: number) => boolean;
+};
+
+export type MetricPoint = {
+  value: number;
   timestamp: number;
-}
+};
+
+export type Metric = {
+  metricType: MetricType;
+  format: (value: number) => string;
+  points: MetricPoint[];
+  low: number;
+  high: number;
+  first: number;
+  last: number;
+  hasImproved: boolean;
+  delta: number;
+};
 
 export type Trend = {
   title: string;
-  delta: number;
-  high: number;
-  low: number;
-  data: TrendPoint[];
-  isImprovement: boolean;
-  format: (value: number) => string;
-}
+  metric: Metric;
+};
+
+export type SearchExerciseSummary = {
+  name: string;
+  totalSetsCompleted: number;
+};

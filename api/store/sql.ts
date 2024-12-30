@@ -16,6 +16,8 @@ export const CLEAR_ALL_EXERCISES =
 const COMPLETED_WORKOUTS_PREDICATE =
   "started_at >= $after and started_at < $before and ended_at is not null";
 
+const EXERCISE_FILTER_PREDICATE = "exercises.name = $exercise_name";
+
 const WORKOUT_SELECTION_SQL = (predicate: string) =>
   `
 select workouts.id as id, workouts.name as name, workouts.started_at as started_at, workouts.ended_at as ended_at, workouts.routine_id as routine_id,
@@ -37,6 +39,14 @@ export const GET_WORKED_OUT_DAYS = `select started_at as timestamp from workouts
 export const GET_LIFETIME_STATS =
   "select count(*) as workouts, coalesce(sum(ended_at - started_at), 0) as workout_duration from workouts where ended_at is not null";
 
-export const GET_COMPLETED_EXERCISES = `
-  select exercises.id as id, exercises.name as name, exercises.sets as sets, exercises.rest_duration as rest_duration, exercises.note as note from workouts join exercises on workouts.id = exercises.workout_id where ${COMPLETED_WORKOUTS_PREDICATE}
+const COMPLETED_EXERCISES_SQL = (predicate: string) => `
+  select exercises.id as id, exercises.name as name, exercises.sets as sets, exercises.rest_duration as rest_duration, exercises.note as note from workouts join exercises on workouts.id = exercises.workout_id where ${predicate}
 `;
+
+export const GET_COMPLETED_EXERCISES = COMPLETED_EXERCISES_SQL(
+  COMPLETED_WORKOUTS_PREDICATE
+);
+
+export const GET_COMPLETED_EXERCISE = COMPLETED_EXERCISES_SQL(
+  `${COMPLETED_WORKOUTS_PREDICATE} and ${EXERCISE_FILTER_PREDICATE}`
+);

@@ -99,8 +99,6 @@ function CompletedWorkouts({
   workouts,
   onClickWorkout,
 }: CompletedWorkoutsProps) {
-  const router = useRouter();
-
   const isRestDay = workouts.length === 0;
 
   return isRestDay ? (
