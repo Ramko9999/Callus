@@ -1,5 +1,5 @@
 import { StyleSheet, View as DefaultView } from "react-native";
-import { StyleUtils } from "@/util/styles";
+import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
 import { Text, useThemeColoring, View } from "@/components/Themed";
 import Animated, {
   useAnimatedStyle,
@@ -43,6 +43,7 @@ const dynamicHeaderPageStyles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: "2%",
+    paddingBottom: TAB_BAR_HEIGHT,
   },
 });
 
@@ -58,7 +59,7 @@ export function DynamicHeaderPage({
   title,
   children,
   renderLargeHeader,
-  scrollViewRef
+  scrollViewRef,
 }: DynamicHeaderPageProps) {
   const safeAreaInsets = useSafeAreaInsets();
   const pageHeaderRef = useRef<DefaultView>(null);

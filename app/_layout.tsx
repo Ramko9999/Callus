@@ -17,6 +17,7 @@ import {
   ReanimatedLogLevel,
 } from "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { TabBarProvider } from "@/components/util/tab-bar/context";
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -70,20 +71,22 @@ function RootLayoutNav() {
         value={colorScheme === "dark" ? darkNavigationColorTheme : DefaultTheme}
       >
         <SafeAreaProvider>
-          <ToastProvider>
-            <WorkoutProvider>
-              <Preloader>
-                <KeypadProvider>
-                  <Stack>
-                    <Stack.Screen
-                      name="(tabs)"
-                      options={{ headerShown: false }}
-                    />
-                  </Stack>
-                </KeypadProvider>
-              </Preloader>
-            </WorkoutProvider>
-          </ToastProvider>
+          <TabBarProvider>
+            <ToastProvider>
+              <WorkoutProvider>
+                <Preloader>
+                  <KeypadProvider>
+                    <Stack>
+                      <Stack.Screen
+                        name="(tabs)"
+                        options={{ headerShown: false }}
+                      />
+                    </Stack>
+                  </KeypadProvider>
+                </Preloader>
+              </WorkoutProvider>
+            </ToastProvider>
+          </TabBarProvider>
         </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

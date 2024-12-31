@@ -15,6 +15,8 @@ import Animated, {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useThemeColoring } from "@/components/Themed";
 import { forwardRef, useImperativeHandle } from "react";
+import React from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -60,6 +62,7 @@ export function BottomSheet({
 }: BottomSheetProps) {
   const offset = hideOffset ?? DEFAULT_HIDE_OFFSET;
   const translation = useSharedValue(0);
+  const insets = useSafeAreaInsets();
 
   const panGesture = Gesture.Pan()
     .onUpdate(({ translationY }) => {
@@ -82,6 +85,8 @@ export function BottomSheet({
     transform: [{ translateY: translation.value }],
   }));
 
+  const primaryBackgroundColor = useThemeColoring("primaryViewBackground");
+
   return (
     show && (
       <>
@@ -93,7 +98,15 @@ export function BottomSheet({
         />
         <GestureDetector gesture={panGesture}>
           <Animated.View
-            style={[styles.content, animatedStyle, contentStyle]}
+            style={[
+              styles.content,
+              animatedStyle,
+              contentStyle,
+              {
+                backgroundColor: primaryBackgroundColor,
+                paddingBottom: insets.bottom,
+              },
+            ]}
             entering={SlideInDown.springify().damping(25)}
             exiting={SlideOutDown}
           >
@@ -109,7 +122,7 @@ const previewableBottomSheetStyles = StyleSheet.create({
   container: {
     zIndex: 2,
     position: "absolute",
-    bottom: 0,
+    bottom: 100,
     width: "100%",
   },
   backdrop: {
@@ -124,6 +137,8 @@ type PreviewableBottomSheetProps = {
   children: React.ReactNode;
   contentHeight: number;
   previewHeight: number;
+  onOpenContent: () => void;
+  onCloseContent: () => void;
 };
 
 export type PreviewableBottomSheetRef = {
@@ -141,6 +156,8 @@ export const PreviewableBottomSheet = forwardRef<
       children,
       contentHeight,
       previewHeight,
+      onOpenContent,
+      onCloseContent,
     }: PreviewableBottomSheetProps,
     ref
   ) => {
@@ -157,10 +174,12 @@ export const PreviewableBottomSheet = forwardRef<
         -1 * (contentHeight - previewHeight),
         { damping: 25 }
       );
+      onOpenContent();
     };
 
     const hideContent = () => {
       totalTranslation.value = withSpring(0, { damping: 25 });
+      onCloseContent();
     };
 
     useImperativeHandle(ref, () => ({
@@ -184,18 +203,12 @@ export const PreviewableBottomSheet = forwardRef<
       })
       .onEnd(() => {
         if (Math.abs(totalTranslation.value) > transitionOffset) {
-          totalTranslation.value = withSpring(
-            -1 * (contentHeight - previewHeight),
-            {
-              damping: 25,
-            }
-          );
+          openContent();
         } else {
-          totalTranslation.value = withSpring(0, {
-            damping: 25,
-          });
+          hideContent();
         }
-      });
+      })
+      .runOnJS(true);
 
     const containerAnimatedStyle = useAnimatedStyle(() => ({
       transform: [

@@ -9,7 +9,7 @@ import {
 import { View, Text, TextInput, useThemeColoring } from "../Themed";
 import { DynamicHeaderPage } from "../util/dynamic-header-page";
 import { Search } from "../theme/actions";
-import { StyleUtils } from "@/util/styles";
+import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ExerciseMeta, SearchExerciseSummary } from "@/interface";
 import { usePathname } from "expo-router";
@@ -22,7 +22,12 @@ import { textTheme } from "@/constants/Themes";
 import { Popover, PopoverAnchor } from "../util/popover";
 import { SEARCH_EXERCISE_HEIGHT } from "@/util/styles";
 import { ExerciseInsightsPopup } from "./insights";
-import { DISPLAY_EXERCISE_TYPE_TO_TYPE, EXERCISE_REPOSITORY, MUSCLE_GROUPS, DISPLAY_EXERCISE_TYPES } from "@/api/exercise";
+import {
+  DISPLAY_EXERCISE_TYPE_TO_TYPE,
+  EXERCISE_REPOSITORY,
+  MUSCLE_GROUPS,
+  DISPLAY_EXERCISE_TYPES,
+} from "@/api/exercise";
 
 const ALL_EXERCISE_GROUPS = Array.from({ length: 26 }).map((_, index) =>
   String.fromCharCode(index + "A".charCodeAt(0))
@@ -392,7 +397,7 @@ const exercisesStyles = StyleSheet.create({
   groupNavigation: {
     position: "absolute",
     left: "97%",
-    bottom: "2%",
+    bottom: TAB_BAR_HEIGHT + 20,
   },
   filters: {
     ...StyleUtils.flexRow(5),

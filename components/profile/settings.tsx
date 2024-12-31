@@ -4,11 +4,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { BottomSheet } from "../util/sheets";
-import {
-  SETTING_HEIGHT,
-  StyleUtils,
-  SETTINGS_HEIGHT,
-} from "@/util/styles";
+import { SETTING_HEIGHT, StyleUtils, SETTINGS_HEIGHT } from "@/util/styles";
 import { View, Text, useThemeColoring } from "../Themed";
 import { Close } from "../theme/actions";
 import * as FileSystem from "expo-file-system";
@@ -17,6 +13,8 @@ import * as DocumentPicker from "expo-document-picker";
 import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
 import { useToast } from "react-native-toast-notifications";
+import { useTabBar } from "../util/tab-bar/context";
+import { useEffect } from "react";
 
 const settingsActionsStyle = StyleSheet.create({
   container: {
@@ -153,10 +151,7 @@ function Settings({ hide }: SettingsProps) {
   return (
     <View
       background
-      style={[
-        settingsStyle.container,
-        { height: height * SETTINGS_HEIGHT },
-      ]}
+      style={[settingsStyle.container, { height: height * SETTINGS_HEIGHT }]}
     >
       <SettingsActions hide={hide} />
       <View style={settingsStyle.content}>
@@ -177,6 +172,16 @@ type SettingsPopupProps = {
 };
 
 export function SettingsPopup({ show, hide }: SettingsPopupProps) {
+  const tabBarActions = useTabBar();
+
+  useEffect(() => {
+    if (show) {
+      tabBarActions.close();
+    } else {
+      tabBarActions.open();
+    }
+  }, [show]);
+
   return (
     <BottomSheet show={show} onBackdropPress={hide} hide={hide}>
       <Settings hide={hide} />

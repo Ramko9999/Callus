@@ -87,11 +87,9 @@ type FinishWorkoutActivityTileProps = {
 export function FinishWorkoutActivityTile({
   onFinish,
 }: FinishWorkoutActivityTileProps) {
-  const router = useRouter();
 
   const onFinishWorkout = () => {
     onFinish();
-    router.back();
   };
 
   return (

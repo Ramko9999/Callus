@@ -15,7 +15,7 @@ import {
   WorkoutMetadata,
   Set,
 } from "@/interface";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Close,
   Done,
@@ -38,6 +38,7 @@ import * as Haptics from "expo-haptics";
 import { MetaEditor, NoteEditor } from "./common/meta";
 import React from "react";
 import { getHistoricalExerciseDescription } from "@/util/workout/display";
+import { useTabBar } from "@/components/util/tab-bar/context";
 
 const historicalEditorTopActionsStyles = StyleSheet.create({
   container: {
@@ -123,7 +124,7 @@ const historicalEditorStyles = StyleSheet.create({
   },
   content: {
     ...StyleUtils.flexColumn(),
-    flex: 1
+    flex: 1,
   },
 });
 
@@ -320,6 +321,16 @@ export function HistoricalEditorPopup({
   onRepeat,
   trash,
 }: HistoricalEditorPopupProps) {
+  const tabBarActions = useTabBar();
+
+  useEffect(() => {
+    if (show) {
+      tabBarActions.close();
+    } else {
+      tabBarActions.open();
+    }
+  }, [show]);
+
   return (
     <BottomSheet show={show} onBackdropPress={hide} hide={hide}>
       <HistoricalEditor

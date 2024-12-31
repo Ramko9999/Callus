@@ -3,7 +3,7 @@ import { Theme } from "@react-navigation/native";
 
 // todo: figure out colors for tiles
 export const darkColors = {
-  primaryText: "#fff",
+  primaryText: "#ffffff",
   lightText: "#999EA0",
   secondaryViewBackground: "#27272F",
   secondaryViewBorder: "#3F4147",
@@ -28,7 +28,7 @@ export const darkColors = {
 };
 
 export const lightColors = {
-  primaryText: "#000",
+  primaryText: "#000000",
   lightText: "#48515D",
   secondaryViewBackground: "#fff",
   secondaryViewBorder: "#DADCE0",

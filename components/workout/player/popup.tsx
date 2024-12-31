@@ -118,7 +118,14 @@ function LivePlayer({ hide, onEdit }: LivePlayerProps) {
           />
         );
       case WorkoutActivityType.FINISHED:
-        return <FinishWorkoutActivityTile onFinish={actions.finishWorkout} />;
+        return (
+          <FinishWorkoutActivityTile
+            onFinish={() => {
+              actions.finishWorkout();
+              hide();
+            }}
+          />
+        );
       default:
         null;
     }

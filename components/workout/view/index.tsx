@@ -3,14 +3,9 @@ import { Pressable, StyleSheet, TouchableOpacity } from "react-native";
 import {
   View,
   Text,
-  Icon,
-  MaterialCommunityIcon,
-  useThemeColoring,
 } from "@/components/Themed";
 import { getWorkoutSummary } from "@/context/WorkoutContext";
 import { getTimePeriodDisplay } from "@/util/date";
-import { textTheme } from "@/constants/Themes";
-import { Ionicons } from "@expo/vector-icons";
 import { StyleUtils } from "@/util/styles";
 import {
   DurationMetaIconProps,

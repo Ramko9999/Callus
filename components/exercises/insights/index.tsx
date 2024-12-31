@@ -1,7 +1,10 @@
 import { View, Text } from "../../Themed";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { BottomSheet } from "../../util/sheets";
-import { StyleUtils, EXERCISE_INSIGHTS_HEIGHT } from "@/util/styles";
+import {
+  StyleUtils,
+  EXERCISE_INSIGHTS_HEIGHT,
+} from "@/util/styles";
 import { Close } from "../../theme/actions";
 import { useEffect, useState } from "react";
 import {
@@ -24,6 +27,7 @@ import { TabsNavigation } from "../../util/tabs-navigation";
 import { ChartInsight } from "./chart";
 import { HistoryInsight } from "./history";
 import { getDifficultyType } from "@/api/exercise";
+import { useTabBar } from "@/components/util/tab-bar/context";
 
 type InsightTab = "History" | "Chart";
 const INSIGHT_TABS = ["History", "Chart"] as InsightTab[];
@@ -213,6 +217,16 @@ export function ExerciseInsightsPopup({
   hide,
   exerciseName,
 }: ExerciseInsightsPopupProps) {
+  const tabBarActions = useTabBar();
+
+  useEffect(() => {
+    if (show) {
+      tabBarActions.close();
+    } else {
+      tabBarActions.open();
+    }
+  }, [show]);
+
   return (
     <BottomSheet show={show} hide={hide} onBackdropPress={hide}>
       <ExerciseInsights onClose={hide} exerciseName={exerciseName} />

@@ -10,6 +10,7 @@ import { useWindowDimensions } from "react-native";
 import { WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
 import { Live } from "../workout/player/popup";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useTabBar } from "../util/tab-bar/context";
 
 type LiveIndicatorProps = {
   showPreview: boolean;
@@ -20,6 +21,7 @@ const REST_COMPLETING_THRESHOLD = 6000;
 function LiveIndicator({ showPreview }: LiveIndicatorProps) {
   const [now, setNow] = useState(Date.now());
   const { isInWorkout, editor, soundPlayer, activity, actions } = useWorkout();
+  const tabBarActions = useTabBar();
   const previewableBottomSheetRef = useRef<PreviewableBottomSheetRef>(null);
   const { height } = useWindowDimensions();
   const restEndingAudioAlertsRef = useRef<string>();
@@ -62,6 +64,8 @@ function LiveIndicator({ showPreview }: LiveIndicatorProps) {
     shouldShowIndicator && (
       <PreviewableBottomSheet
         ref={previewableBottomSheetRef}
+        onOpenContent={tabBarActions.close}
+        onCloseContent={tabBarActions.open}
         renderPreview={() => (
           <LivePreview
             workout={editor.workout as Workout}

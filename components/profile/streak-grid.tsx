@@ -32,6 +32,7 @@ type StreakTileProps = {
   intensity: number; // todo: see if we need to have an intensity in addition to if a workout was done
 };
 
+// todo: fix the coloring
 function StreakTile({ intensity }: StreakTileProps) {
   return (
     <View>
@@ -47,7 +48,7 @@ function StreakTile({ intensity }: StreakTileProps) {
           {
             backgroundColor: convertHexToRGBA(
               useThemeColoring("primaryAction"),
-              intensity > 0 ? 0.7 : 0
+              intensity > 0 ? 1 : 0
             ),
           },
         ]}

@@ -52,3 +52,5 @@ export const SETTING_HEIGHT = 70;
 export const SEARCH_EXERCISE_HEIGHT = 70;
 
 export const ICON_ACTION_DIMENSION = 45;
+
+export const TAB_BAR_HEIGHT = 100;

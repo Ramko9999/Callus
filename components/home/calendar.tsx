@@ -541,7 +541,6 @@ export function WorkoutCalendar({
   return (
     <>
       <View
-        background
         style={[
           workoutCalendarStyles.container,
           { shadowColor: useThemeColoring("dynamicHeaderBorder") },

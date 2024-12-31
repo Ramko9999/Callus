@@ -1,6 +1,8 @@
 import { StyleSheet } from "react-native";
 import { useThemeColoring, View, Text } from "../Themed";
 import {
+  FontAwesome6,
+  FontAwesome5,
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
@@ -152,5 +154,49 @@ export function DurationMetaIconProps({
         {getTimePeriodDisplay(durationInMillis)}
       </Text>
     </View>
+  );
+}
+
+type TabBarIconProps = {
+  color: string;
+};
+
+export function ProfileTabIcon({ color }: TabBarIconProps) {
+  return (
+    <FontAwesome5
+      name="user-alt"
+      size={textTheme.action.fontSize}
+      color={color}
+    />
+  );
+}
+
+export function HomeTabIcon({ color }: TabBarIconProps) {
+  return (
+    <FontAwesome5
+      name="home"
+      size={textTheme.action.fontSize}
+      color={color}
+    />
+  );
+}
+
+export function ExerciseTabIcon({ color }: TabBarIconProps) {
+  return (
+    <FontAwesome6
+      name="dumbbell"
+      size={textTheme.action.fontSize}
+      color={color}
+    />
+  );
+}
+
+export function ExampleTabIcon({ color }: TabBarIconProps) {
+  return (
+    <Ionicons
+      name="browsers-outline"
+      size={textTheme.action.fontSize}
+      color={color}
+    />
   );
 }

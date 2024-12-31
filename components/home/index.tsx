@@ -10,9 +10,7 @@ import { HistoricalEditorPopup } from "../workout/editor/historical";
 import { useLiveIndicator } from "../live";
 import { WorkoutCalendar } from "./calendar";
 import * as Haptics from "expo-haptics";
-import {
-  DynamicHeaderPage,
-} from "../util/dynamic-header-page";
+import { DynamicHeaderPage } from "../util/dynamic-header-page";
 import { useWorkout } from "@/context/WorkoutContext";
 import { createWorkoutFromWorkout } from "@/util/workout";
 
@@ -102,16 +100,12 @@ function CompletedWorkouts({
   const isRestDay = workouts.length === 0;
 
   return isRestDay ? (
-    <View
-      _type="background"
-      style={styles.expansiveCenterAlignedView}
-      collapsable={false}
-    >
+    <View style={styles.expansiveCenterAlignedView} collapsable={false}>
       <Text _type="neutral">It's a rest day. Take it easy :)</Text>
     </View>
   ) : (
     <ScrollView>
-      <View _type="background" style={styles.workoutView} collapsable={false}>
+      <View style={styles.workoutView} collapsable={false}>
         <View style={styles.workoutViewTiles}>
           {workouts.map((workout, index) => (
             <NewWorkoutViewTile
@@ -132,7 +126,7 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(true);
   const [completedWorkouts, setCompletedWorkouts] = useState<Workout[]>([]);
   const [workoutToUpdate, setWorkoutToUpdate] = useState<Workout>();
-  const {isInWorkout, actions} = useWorkout();
+  const { isInWorkout, actions } = useWorkout();
 
   const liveIndicatorActions = useLiveIndicator();
 
@@ -185,15 +179,15 @@ export default function Home() {
           );
         }}
         onRepeat={(workout) => {
-         // todo: send an alert for why you can't start a workout if you are already in one
-         if(isInWorkout){
-          console.log("Cannot start a workout as you are already in one")
-         } else {
-          const repeatedWorkout = createWorkoutFromWorkout(workout);
-          setWorkoutToUpdate(undefined);
-          actions.startWorkout(repeatedWorkout);
-          liveIndicatorActions.showContent();
-         }
+          // todo: send an alert for why you can't start a workout if you are already in one
+          if (isInWorkout) {
+            console.log("Cannot start a workout as you are already in one");
+          } else {
+            const repeatedWorkout = createWorkoutFromWorkout(workout);
+            setWorkoutToUpdate(undefined);
+            actions.startWorkout(repeatedWorkout);
+            liveIndicatorActions.showContent();
+          }
         }}
         trash={() => {
           WorkoutApi.deleteWorkout((workoutToUpdate as Workout).id).then(() => {

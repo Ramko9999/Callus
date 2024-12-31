@@ -1,11 +1,7 @@
 import { DynamicHeaderPage } from "@/components/util/dynamic-header-page";
-import { View, Text } from "@/components/Themed";
-import { StyleUtils } from "@/util/styles";
-import { Trends } from "@/components/profile/trends";
-import { FlatList, Pressable, StyleSheet } from "react-native";
-import { Popover } from "@/components/util/popover";
-import { useState } from "react";
-import { ExerciseInsights } from "@/components/exercises/insights";
+import { Text } from "@/components/Themed";
+import { TouchableOpacity } from "react-native";
+import { useTabBar } from "@/components/util/tab-bar/context";
 
 // for testing things out quickly, remove before prod release
 export default function () {
@@ -13,9 +9,15 @@ export default function () {
 }
 
 function Example() {
+  const tabBarActions = useTabBar();
   return (
     <DynamicHeaderPage title={"Example"}>
-      <Text large>Hi</Text>
+      <TouchableOpacity onPress={() => tabBarActions.open()}>
+        <Text>Open Tab Bar</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={() => tabBarActions.close()}>
+        <Text>Close Tab Bar</Text>
+      </TouchableOpacity>
     </DynamicHeaderPage>
   );
 }
