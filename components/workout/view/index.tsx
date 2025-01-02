@@ -123,7 +123,6 @@ const newStyles = StyleSheet.create({
     flexDirection: "column",
     width: "90%",
     padding: "3%",
-    borderWidth: 1,
     borderRadius: 5,
   },
 });

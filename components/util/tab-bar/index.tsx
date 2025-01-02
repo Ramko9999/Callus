@@ -47,7 +47,7 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
   const colors = {
     focused: useThemeColoring("primaryText"),
-    notFocused: convertHexToRGBA(useThemeColoring("primaryText"), 0.1),
+    notFocused: convertHexToRGBA(useThemeColoring("primaryText"), 0.2),
   };
 
   const { width } = useWindowDimensions();

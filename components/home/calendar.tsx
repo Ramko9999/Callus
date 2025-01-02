@@ -494,7 +494,7 @@ export function WorkoutCalendar({
   useEffect(() => {
     WorkoutApi.getWorkedOutDays(
       getNextMonth(currentDate),
-      getMonthFirstDay(currentDate)
+      getPreviousMonth(currentDate)
     ).then(setWorkedOutDays);
   }, [currentDate]);
 

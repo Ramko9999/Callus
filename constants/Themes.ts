@@ -7,24 +7,26 @@ export const darkColors = {
   lightText: "#999EA0",
   secondaryViewBackground: "#27272F",
   secondaryViewBorder: "#3F4147",
-  primaryViewBackground: "#27272F",
+  primaryViewBackground: "#161515",
   primaryViewBorder: "#48515D",
-  primaryAction: "#24A0ED",
+  primaryAction: "#28A0ED",
   dangerAction: "#FF6347",
   neutralAction: "#48515D",
   success: "#2ECD70",
   search: "#313035",
   rouletteSelection: "rgba(200, 200, 200, 0.1)",
-  highlightedAnimationColor: convertHexToRGBA("#24A0ED", 0.6),
+  highlightedAnimationColor: convertHexToRGBA("#28A0ED", 0.6),
   dynamicHeaderBorder: "rgba(100, 100, 100, 1)",
   appBackground: "black",
   improvement: "#13EBA0",
   degradation: "#FF6347",
-  weightLineStroke: "#24A0ED",
+  weightLineStroke: "#28A0ED",
   repsLineStroke: "#FF6347",
   oneRepEstimateLineStroke: "#FFFF00",
   durationLineStroke: "#90EE90",
   restDurationLineStroke: "#FF00FF",
+  inactiveTileColor: "#4A4A4C",
+  bottomSheetBackground: "#161515",
 };
 
 export const lightColors = {
@@ -50,6 +52,8 @@ export const lightColors = {
   oneRepEstimateLineStroke: "#FFFF00",
   durationLineStroke: "#90EE90",
   restDurationLineStroke: "#FF00FF",
+  inactiveTileColor: "#4A4A4C",
+  bottomSheetBackground: "#161515",
 };
 
 export type UIColor = keyof typeof darkColors & keyof typeof lightColors;

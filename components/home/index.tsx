@@ -131,7 +131,6 @@ export default function Home() {
   const liveIndicatorActions = useLiveIndicator();
 
   const loadWorkouts = async () => {
-    setLoading(true);
     WorkoutApi.getWorkouts(truncTime(workoutDate))
       .then(setCompletedWorkouts)
       .catch((error) => console.log(error))

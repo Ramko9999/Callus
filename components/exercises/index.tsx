@@ -62,10 +62,13 @@ function SearchBar({ query, onSearchQuery }: SearchBarProps) {
   return (
     <TouchableWithoutFeedback onPress={onClickSearch}>
       <View background style={searchBarStyles.container}>
-        <Search iconSize={textTheme.action.fontSize} />
+        <Search
+          iconSize={textTheme.neutral.fontSize}
+          style={{ width: 35, height: 35 }}
+        />
         <TextInput
           ref={searchRef}
-          action
+          neutral
           value={query}
           placeholder="Search for an exercise"
           placeholderTextColor={useThemeColoring("lightText")}
@@ -136,7 +139,7 @@ const searchExerciseFilterTriggerStyles = StyleSheet.create({
     ...StyleUtils.flexRow(),
     justifyContent: "center",
     alignItems: "center",
-    padding: "2%",
+    height: 35,
     borderRadius: 5,
     flex: 1,
   },
@@ -171,7 +174,7 @@ function SearchExerciseFilterTrigger({
       style={[searchExerciseFilterTriggerStyles.container, { backgroundColor }]}
       onPress={onTrigger}
     >
-      <Text action {...placeholderStyleProps}>
+      <Text neutral {...placeholderStyleProps}>
         {selectedValue ?? placeholder}
       </Text>
     </Pressable>
@@ -228,7 +231,7 @@ function SearchExercise({ meta, summary, onClick }: SearchExerciseProps) {
         <Text large>{meta.name.substring(0, 1)}</Text>
       </View>
       <View style={searchExerciseStyles.content}>
-        <Text large>{meta.name}</Text>
+        <Text neutral>{meta.name}</Text>
         <View style={searchExerciseStyles.description}>
           <Text light>{meta.muscles[0]}</Text>
           {summary?.totalSetsCompleted && (

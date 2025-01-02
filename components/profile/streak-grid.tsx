@@ -34,6 +34,9 @@ type StreakTileProps = {
 
 // todo: fix the coloring
 function StreakTile({ intensity }: StreakTileProps) {
+  const activeColor = useThemeColoring("primaryAction");
+  const inactiveColor = useThemeColoring("inactiveTileColor");
+
   return (
     <View>
       <View
@@ -46,10 +49,7 @@ function StreakTile({ intensity }: StreakTileProps) {
         style={[
           streakTileStyles.overlay,
           {
-            backgroundColor: convertHexToRGBA(
-              useThemeColoring("primaryAction"),
-              intensity > 0 ? 1 : 0
-            ),
+            backgroundColor: intensity > 0 ? activeColor : inactiveColor
           },
         ]}
       />
