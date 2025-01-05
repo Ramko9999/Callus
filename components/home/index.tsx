@@ -1,4 +1,4 @@
-import { usePathname, useRouter } from "expo-router";
+import { usePathname } from "expo-router";
 import { Text, View } from "@/components/Themed";
 import { StyleSheet, ScrollView } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -6,7 +6,7 @@ import { NewWorkoutViewTile } from "@/components/workout/view";
 import { truncTime, getLongDateDisplay } from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
-import { HistoricalEditorPopup } from "../workout/editor/historical";
+import { HistoricalEditorSheet } from "../workout/editor/historical";
 import { useLiveIndicator } from "../live";
 import { WorkoutCalendar } from "./calendar";
 import * as Haptics from "expo-haptics";
@@ -165,7 +165,7 @@ export default function Home() {
           </>
         )}
       </DynamicHeaderPage>
-      <HistoricalEditorPopup
+      <HistoricalEditorSheet
         show={workoutToUpdate != undefined}
         hide={() => {
           liveIndicatorActions.show();

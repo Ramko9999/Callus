@@ -2,7 +2,7 @@ import { useWorkout } from "@/context/WorkoutContext";
 import {
   PreviewableBottomSheet,
   PreviewableBottomSheetRef,
-} from "../util/sheets";
+} from "../util/popup";
 import { LivePreview } from "./preview";
 import { RestingActivity, Workout, WorkoutActivityType } from "@/interface";
 import { PREVIEW_HEIGHT } from "./constants";

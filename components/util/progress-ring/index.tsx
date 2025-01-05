@@ -17,12 +17,17 @@ const progressRingStyles = StyleSheet.create({
 
 type ProgressRingProps = {
   progress: number;
+  dimension?: number;
   children?: React.ReactNode;
 };
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-export function ProgressRing({ progress, children }: ProgressRingProps) {
+export function ProgressRing({
+  progress,
+  dimension,
+  children,
+}: ProgressRingProps) {
   const ringProgress = useSharedValue(progress);
 
   useEffect(() => {
@@ -31,7 +36,7 @@ export function ProgressRing({ progress, children }: ProgressRingProps) {
 
   const { width } = useWindowDimensions();
 
-  const svgDimension = width * 0.9;
+  const svgDimension = dimension ?? width * 0.9;
   const radius = svgDimension / 3;
   const circumference = Math.PI * 2 * radius;
 

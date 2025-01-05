@@ -31,7 +31,7 @@ import {
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
 import * as Haptics from "expo-haptics";
-import { DiscardUnstartedSetsConfirmation, EditRestDuration } from "./popup";
+import { DiscardSetsAndFinishConfirmation, EditRestDuration } from "./popup";
 import { TimestampRangeEdit } from "@/components/util/daterange-picker";
 import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/api/exercise";
 import { ExerciseLevelEditor } from "./common/exercise";
@@ -129,7 +129,7 @@ const liveEditorStyles = StyleSheet.create({
   },
   content: {
     ...StyleUtils.flexColumn(),
-    flex: 1
+    flex: 1,
   },
 });
 
@@ -296,7 +296,7 @@ export function LiveEditor({ back }: LiveEditorProps) {
                 setIsSearching(false);
               }}
             />
-            <DiscardUnstartedSetsConfirmation
+            <DiscardSetsAndFinishConfirmation
               show={isFinishing}
               hide={() => setIsFinishing(false)}
               onDiscard={() => {

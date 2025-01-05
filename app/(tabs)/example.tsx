@@ -8,8 +8,9 @@ import {
 import { useTabBar } from "@/components/util/tab-bar/context";
 import { StyleUtils } from "@/util/styles";
 import { useEffect, useState } from "react";
-import { BottomSheet } from "@/components/util/sheets";
+import { BottomSheet } from "@/components/util/popup";
 import React from "react";
+import { Modal } from "@/components/util/popup/modal";
 
 // for testing things out quickly, remove before prod release
 export default function () {
@@ -19,40 +20,9 @@ export default function () {
 const styles = StyleSheet.create({});
 
 function Example() {
-  const [showBottomSheet, setShowBottomSheet] = useState(false);
-  return (
-    <>
-      <DynamicHeaderPage title={"Example"}>
-        <View
-          style={{
-            height: "100%",
-            width: "100%",
-            ...StyleUtils.flexRow(),
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <TouchableOpacity onPress={() => setShowBottomSheet(true)}>
-            <Text large>Open Bottom Sheet</Text>
-          </TouchableOpacity>
-        </View>
-      </DynamicHeaderPage>
-      <MyBottomSheetPlay
-        show={showBottomSheet}
-        hide={() => setShowBottomSheet(false)}
-      />
-    </>
-  );
-}
-
-type Props = {
-  show: boolean;
-  hide: () => void;
-};
-function MyBottomSheetPlay({ show, hide }: Props) {
+  const [show, setShow] = useState(false);
+  const dims = useWindowDimensions();
   const tabBarActions = useTabBar();
-
-  const { height } = useWindowDimensions();
 
   useEffect(() => {
     if (show) {
@@ -63,20 +33,51 @@ function MyBottomSheetPlay({ show, hide }: Props) {
   }, [show]);
 
   return (
-    <BottomSheet show={show} hide={hide} height={height * 0.85}>
-      <MyBottomSheetContent />
-    </BottomSheet>
+    <>
+      <DynamicHeaderPage title={"Example"}>
+        <View
+          style={{
+            height: "100%",
+            width: "100%",
+            ...StyleUtils.flexRowCenterAll(),
+          }}
+        >
+          <TouchableOpacity onPress={() => setShow(true)}>
+            <Text large>Open Modal</Text>
+            <View
+              style={{
+                height: 300,
+                width: 300,
+                ...StyleUtils.flexRowCenterAll(),
+                backgroundColor: "red",
+              }}
+            >
+              <View
+                style={{ height: 400, width: 400, backgroundColor: "blue" }}
+              />
+            </View>
+          </TouchableOpacity>
+        </View>
+      </DynamicHeaderPage>
+      <Modal
+        show={show}
+        onHide={() => setShow(false)}
+        height={dims.height * 0.5}
+        width={dims.width * 0.8}
+      >
+        <MyModalContent />
+      </Modal>
+    </>
   );
 }
 
-function MyBottomSheetContent() {
-  const { height } = useWindowDimensions();
+function MyModalContent() {
+  const { height, width } = useWindowDimensions();
 
   return (
     <View
       background
       style={{
-        height: height * 0.85,
         ...StyleUtils.flexRow(),
         justifyContent: "center",
         alignItems: "center",

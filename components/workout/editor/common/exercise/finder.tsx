@@ -1,4 +1,4 @@
-import { BottomSheet } from "@/components/util/sheets";
+import { BottomSheet } from "@/components/util/popup";
 import { useThemeColoring } from "@/components/Themed";
 import { ExerciseMeta } from "@/interface";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";

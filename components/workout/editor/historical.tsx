@@ -27,7 +27,7 @@ import {
 } from "@/components/theme/actions";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
-import { BottomSheet } from "@/components/util/sheets";
+import { BottomSheet } from "@/components/util/popup";
 import { TimestampRangeEdit } from "@/components/util/daterange-picker";
 import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/api/exercise";
 import { ExerciseLevelEditor } from "./common/exercise";
@@ -304,7 +304,7 @@ export function HistoricalEditor({
   );
 }
 
-type HistoricalEditorPopupProps = {
+type HistoricalEditorSheetProps = {
   show: boolean;
   hide: () => void;
   workout: Workout;
@@ -313,14 +313,14 @@ type HistoricalEditorPopupProps = {
   trash: () => void;
 };
 
-export function HistoricalEditorPopup({
+export function HistoricalEditorSheet({
   show,
   hide,
   workout,
   onSave,
   onRepeat,
   trash,
-}: HistoricalEditorPopupProps) {
+}: HistoricalEditorSheetProps) {
   const tabBarActions = useTabBar();
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { BottomSheet } from "@/components/util/sheets";
+import { BottomSheet } from "@/components/util/popup";
 import { View, Text } from "@/components/Themed";
 import { getDateEditDisplay } from "@/util/date";
 import { StyleUtils } from "@/util/styles";

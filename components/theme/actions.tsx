@@ -3,7 +3,6 @@ import { textTheme } from "@/constants/Themes";
 import {
   ICON_ACTION_DIMENSION,
   StyleUtils,
-  TEXT_ACTION_HEIGHT,
 } from "@/util/styles";
 import { Entypo, FontAwesome } from "@expo/vector-icons";
 import { ViewStyle, StyleSheet, TouchableOpacity } from "react-native";
@@ -20,9 +19,8 @@ const iconActionStyles = StyleSheet.create({
 const textActionStyles = StyleSheet.create({
   container: {
     borderRadius: 5,
-    paddingHorizontal: 5,
-    paddingVertical: 5,
-    height: TEXT_ACTION_HEIGHT,
+    paddingHorizontal: "3%",
+    paddingVertical: "5%",
     ...StyleUtils.flexRowCenterAll(),
   },
 });
@@ -179,7 +177,7 @@ export function Repeat({ onClick, style }: ActionProps) {
   );
 }
 
-export function Settings({onClick, iconSize, style}: ActionProps) {
+export function Settings({ onClick, iconSize, style }: ActionProps) {
   return (
     <TouchableOpacity onPress={onClick}>
       <View style={[iconActionStyles.container, style]}>
@@ -190,7 +188,7 @@ export function Settings({onClick, iconSize, style}: ActionProps) {
         />
       </View>
     </TouchableOpacity>
-  )
+  );
 }
 
 type TextActionProps = ActionProps & { text: string };
@@ -220,7 +218,7 @@ export function NeutralAction({ onClick, style, text }: TextActionProps) {
         background
         style={[
           textActionStyles.container,
-          { backgroundColor: useThemeColoring("neutralAction") },
+          { backgroundColor: useThemeColoring("dynamicHeaderBorder") },
           style,
         ]}
       >

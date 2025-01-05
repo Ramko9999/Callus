@@ -1,4 +1,4 @@
-import { BottomSheet } from "@/components/util/sheets";
+import { BottomSheet } from "@/components/util/popup";
 import { View, Text } from "@/components/Themed";
 import {
   hasUnstartedSets,
@@ -24,7 +24,7 @@ import { getTimePeriodDisplay } from "@/util/date";
 import { Close, Edit, SignificantAction } from "@/components/theme/actions";
 import { useState } from "react";
 import { LiveEditor } from "../editor/live";
-import { DiscardUnstartedSetsConfirmation } from "../editor/popup";
+import { DiscardSetsAndFinishConfirmation } from "../editor/popup";
 import { RestingActivity as RestingActivityView } from "../../live/activity";
 
 const livePlayerActionsStyles = StyleSheet.create({
@@ -158,7 +158,7 @@ function LivePlayer({ hide, onEdit }: LivePlayerProps) {
           </View>
         </View>
       </View>
-      <DiscardUnstartedSetsConfirmation
+      <DiscardSetsAndFinishConfirmation
         show={isFinishing}
         hide={() => setIsFinishing(false)}
         onDiscard={() => {
