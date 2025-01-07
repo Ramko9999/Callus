@@ -1,4 +1,3 @@
-import { BottomSheet } from "@/components/util/popup";
 import { View, Text } from "@/components/Themed";
 import {
   hasUnstartedSets,

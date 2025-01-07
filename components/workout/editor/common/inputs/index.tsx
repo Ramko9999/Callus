@@ -1,5 +1,5 @@
 import { View, Text, useThemeColoring } from "@/components/Themed";
-import { useKeypad } from "@/context/keypad";
+import { useInputsPad } from "@/components/util/popup/inputs-pad/context";
 import {
   AssistedBodyWeightDifficulty,
   BodyWeightDifficulty,
@@ -18,6 +18,8 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
+
+const DEBOUNCE_INTERVAL = 1000;
 
 const inputStyles = StyleSheet.create({
   container: {
@@ -72,13 +74,16 @@ type WeightInputProps = {
 };
 
 function WeightInput({ id, weight, onUpdate }: WeightInputProps) {
-  const { value, actions, callerId } = useKeypad();
+  const { value, actions, callerId } = useInputsPad();
   const isFocused = callerId === id;
   const weightDisplay = `${isFocused ? value : weight} lbs`.padEnd(15, "");
 
-  const updateWithDebounce = useCallback(debounce(onUpdate, 100), [onUpdate]);
+  const updateWithDebounce = useCallback(
+    debounce(onUpdate, DEBOUNCE_INTERVAL),
+    [onUpdate]
+  );
   useEffect(() => {
-    if (isFocused && value) {
+    if (isFocused && value !== "") {
       updateWithDebounce(parseFloat(value));
     }
   }, [isFocused, value]);
@@ -106,13 +111,16 @@ type RepsInputProps = {
 };
 
 function RepsInput({ id, reps, onUpdate }: RepsInputProps) {
-  const { value, actions, callerId } = useKeypad();
+  const { value, actions, callerId } = useInputsPad();
   const isFocused = callerId === id;
   const repsDisplay = `${isFocused ? value : reps} reps`.padEnd(15, "");
 
-  const updateWithDebounce = useCallback(debounce(onUpdate, 100), [onUpdate]);
+  const updateWithDebounce = useCallback(
+    debounce(onUpdate, DEBOUNCE_INTERVAL),
+    [onUpdate]
+  );
   useEffect(() => {
-    if (isFocused && value) {
+    if (isFocused && value !== "") {
       updateWithDebounce(parseFloat(value));
     }
   }, [isFocused, value]);

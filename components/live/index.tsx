@@ -2,7 +2,7 @@ import { useWorkout } from "@/context/WorkoutContext";
 import {
   PreviewableBottomSheet,
   PreviewableBottomSheetRef,
-} from "../util/popup";
+} from "../util/popup/sheet";
 import { LivePreview } from "./preview";
 import { RestingActivity, Workout, WorkoutActivityType } from "@/interface";
 import { PREVIEW_HEIGHT } from "./constants";
@@ -11,6 +11,7 @@ import { WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
 import { Live } from "../workout/player/popup";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useTabBar } from "../util/tab-bar/context";
+import { InputsPadProvider } from "../util/popup/inputs-pad/context";
 
 type LiveIndicatorProps = {
   showPreview: boolean;
@@ -77,11 +78,13 @@ function LiveIndicator({ showPreview }: LiveIndicatorProps) {
         previewHeight={PREVIEW_HEIGHT}
         contentHeight={height * WORKOUT_PLAYER_EDITOR_HEIGHT}
       >
-        <Live
-          hide={() => {
-            previewableBottomSheetRef.current?.hideContent();
-          }}
-        />
+        <InputsPadProvider>
+          <Live
+            hide={() => {
+              previewableBottomSheetRef.current?.hideContent();
+            }}
+          />
+        </InputsPadProvider>
       </PreviewableBottomSheet>
     )
   );

@@ -1,9 +1,6 @@
 import { useThemeColoring, View, Text } from "@/components/Themed";
 import { textTheme } from "@/constants/Themes";
-import {
-  ICON_ACTION_DIMENSION,
-  StyleUtils,
-} from "@/util/styles";
+import { ICON_ACTION_DIMENSION, StyleUtils } from "@/util/styles";
 import { Entypo, FontAwesome } from "@expo/vector-icons";
 import { ViewStyle, StyleSheet, TouchableOpacity } from "react-native";
 
@@ -99,6 +96,20 @@ export function Add({ onClick, style }: ActionProps) {
       <View style={[iconActionStyles.container, style]}>
         <FontAwesome
           name="plus"
+          size={textTheme.large.fontSize}
+          color={useThemeColoring("lightText")}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+export function Minus({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View style={[iconActionStyles.container, style]}>
+        <FontAwesome
+          name="minus"
           size={textTheme.large.fontSize}
           color={useThemeColoring("lightText")}
         />

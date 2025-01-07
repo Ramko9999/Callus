@@ -1,27 +1,25 @@
-import { DynamicHeaderPage } from "@/components/util/dynamic-header-page";
-import { Text, View } from "@/components/Themed";
+import { View, useThemeColoring, Text } from "@/components/Themed";
 import {
-  TouchableOpacity,
   StyleSheet,
+  TouchableOpacity,
   useWindowDimensions,
 } from "react-native";
-import { useTabBar } from "@/components/util/tab-bar/context";
 import { StyleUtils } from "@/util/styles";
 import { useEffect, useState } from "react";
-import { BottomSheet } from "@/components/util/popup";
 import React from "react";
-import { Modal } from "@/components/util/popup/modal";
+import { InputsPad } from "@/components/util/popup/inputs-pad";
+import { KeypadType } from "@/interface";
+import { DynamicHeaderPage } from "@/components/util/dynamic-header-page";
+import { useTabBar } from "@/components/util/tab-bar/context";
 
 // for testing things out quickly, remove before prod release
 export default function () {
   return <Example />;
 }
 
-const styles = StyleSheet.create({});
-
 function Example() {
+  const [value, setValue] = useState("125");
   const [show, setShow] = useState(false);
-  const dims = useWindowDimensions();
   const tabBarActions = useTabBar();
 
   useEffect(() => {
@@ -34,56 +32,18 @@ function Example() {
 
   return (
     <>
-      <DynamicHeaderPage title={"Example"}>
-        <View
-          style={{
-            height: "100%",
-            width: "100%",
-            ...StyleUtils.flexRowCenterAll(),
-          }}
-        >
-          <TouchableOpacity onPress={() => setShow(true)}>
-            <Text large>Open Modal</Text>
-            <View
-              style={{
-                height: 300,
-                width: 300,
-                ...StyleUtils.flexRowCenterAll(),
-                backgroundColor: "red",
-              }}
-            >
-              <View
-                style={{ height: 400, width: 400, backgroundColor: "blue" }}
-              />
-            </View>
-          </TouchableOpacity>
-        </View>
+      <DynamicHeaderPage title="Example">
+        <TouchableOpacity onPress={() => setShow(true)}>
+          <Text large>Open inputs pad</Text>
+        </TouchableOpacity>
       </DynamicHeaderPage>
-      <Modal
+      <InputsPad
         show={show}
         onHide={() => setShow(false)}
-        height={dims.height * 0.5}
-        width={dims.width * 0.8}
-      >
-        <MyModalContent />
-      </Modal>
+        value={value}
+        onUpdate={setValue}
+        type={KeypadType.WEIGHT}
+      />
     </>
-  );
-}
-
-function MyModalContent() {
-  const { height, width } = useWindowDimensions();
-
-  return (
-    <View
-      background
-      style={{
-        ...StyleUtils.flexRow(),
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Yo Some Content</Text>
-    </View>
   );
 }

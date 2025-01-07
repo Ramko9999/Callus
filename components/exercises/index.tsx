@@ -19,7 +19,7 @@ import * as Haptics from "expo-haptics";
 import React from "react";
 import Animated from "react-native-reanimated";
 import { textTheme } from "@/constants/Themes";
-import { Popover, PopoverAnchor } from "../util/popover";
+import { Popover, PopoverAnchor } from "../util/popup/popover";
 import { SEARCH_EXERCISE_HEIGHT } from "@/util/styles";
 import { ExerciseInsightsPopup } from "./insights";
 import {

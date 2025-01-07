@@ -1,29 +1,30 @@
-import { Keypad } from "@/components/util/keypad";
 import { KeypadType } from "@/interface";
 import React, { useContext, createContext, useState, useCallback } from "react";
+import { InputsPad } from ".";
 
-type KeypadActions = {
+type InputsPadActions = {
   editWeight: (weight: string, callerId: string) => void;
   editReps: (reps: string, callerId: string) => void;
   close: () => void;
 };
 
-type KeypadContext = {
+type InputsPadContext = {
   show: boolean;
-  actions: KeypadActions;
-  value?: string;
+  actions: InputsPadActions;
+  value: string;
   callerId?: string;
 };
 
-type KeypadState = {
+type InputsPadState = {
   show: boolean;
   type: KeypadType;
-  value?: string;
+  value: string;
   callerId?: string;
 };
 
-const context = createContext<KeypadContext>({
+const context = createContext<InputsPadContext>({
   show: false,
+  value: "",
   actions: {
     editWeight: (weight: string, callerId: string) => {},
     editReps: (reps: string, callerId: string) => {},
@@ -35,16 +36,18 @@ type Props = {
   children: React.ReactNode;
 };
 
-export function KeypadProvider({ children }: Props) {
-  const [state, setState] = useState<KeypadState>({
+// todo: put this only in the editors
+export function InputsPadProvider({ children }: Props) {
+  const [state, setState] = useState<InputsPadState>({
     show: false,
+    value: "",
     type: KeypadType.WEIGHT,
   });
 
   const { show, type, value, callerId } = state;
 
-  const close = useCallback(() => {
-    setState({ show: false, type: KeypadType.WEIGHT });
+  const onHide = useCallback(() => {
+    setState({ show: false, value: "", type: KeypadType.WEIGHT });
   }, [setState]);
 
   return (
@@ -66,7 +69,7 @@ export function KeypadProvider({ children }: Props) {
               type: KeypadType.REPS,
               callerId,
             }),
-          close,
+          close: onHide,
         },
         value,
         callerId,
@@ -74,9 +77,9 @@ export function KeypadProvider({ children }: Props) {
     >
       <>
         {children}
-        <Keypad
+        <InputsPad
           show={show}
-          close={close}
+          onHide={onHide}
           value={value}
           type={type}
           onUpdate={(value: string) => {
@@ -88,6 +91,6 @@ export function KeypadProvider({ children }: Props) {
   );
 }
 
-export function useKeypad() {
+export function useInputsPad() {
   return useContext(context);
 }

@@ -27,6 +27,7 @@ export const darkColors = {
   restDurationLineStroke: "#FF00FF",
   inactiveTileColor: "#4A4A4C",
   bottomSheetBackground: "#161515",
+  padBackground: "black",
 };
 
 export const lightColors = {
@@ -54,6 +55,7 @@ export const lightColors = {
   restDurationLineStroke: "#FF00FF",
   inactiveTileColor: "#4A4A4C",
   bottomSheetBackground: "#161515",
+  padBackground: "black",
 };
 
 export type UIColor = keyof typeof darkColors & keyof typeof lightColors;

@@ -27,7 +27,7 @@ import {
 } from "@/components/theme/actions";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
-import { BottomSheet } from "@/components/util/popup";
+import { BottomSheet } from "@/components/util/popup/sheet";
 import { TimestampRangeEdit } from "@/components/util/daterange-picker";
 import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/api/exercise";
 import { ExerciseLevelEditor } from "./common/exercise";
@@ -39,6 +39,7 @@ import { MetaEditor, NoteEditor } from "./common/meta";
 import React from "react";
 import { getHistoricalExerciseDescription } from "@/util/workout/display";
 import { useTabBar } from "@/components/util/tab-bar/context";
+import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
 
 const historicalEditorTopActionsStyles = StyleSheet.create({
   container: {
@@ -332,14 +333,16 @@ export function HistoricalEditorSheet({
   }, [show]);
 
   return (
-    <BottomSheet show={show} onBackdropPress={hide} hide={hide}>
-      <HistoricalEditor
-        workout={workout}
-        trash={trash}
-        onSave={onSave}
-        onRepeat={onRepeat}
-        hide={hide}
-      />
-    </BottomSheet>
+    <InputsPadProvider>
+      <BottomSheet show={show} onBackdropPress={hide} hide={hide}>
+        <HistoricalEditor
+          workout={workout}
+          trash={trash}
+          onSave={onSave}
+          onRepeat={onRepeat}
+          hide={hide}
+        />
+      </BottomSheet>
+    </InputsPadProvider>
   );
 }

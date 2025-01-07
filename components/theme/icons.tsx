@@ -6,10 +6,19 @@ import {
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
+  Feather,
 } from "@expo/vector-icons";
 import { textTheme } from "@/constants/Themes";
 import { StyleUtils } from "@/util/styles";
 import { getTimePeriodDisplay } from "@/util/date";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
+import { useEffect } from "react";
 
 const dragIndicatorStyles = StyleSheet.create({
   container: {
@@ -26,6 +35,36 @@ export function DragIndicator() {
       style={[
         dragIndicatorStyles.container,
         { backgroundColor: useThemeColoring("dynamicHeaderBorder") },
+      ]}
+    />
+  );
+}
+
+const typingIndicatorStyles = StyleSheet.create({
+  container: {
+    width: 2,
+    borderRadius: 5,
+    height: 20,
+  },
+});
+
+export function TypingIndicator() {
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    opacity.value = withRepeat(withSequence(withTiming(1), withTiming(0)), -1);
+  }, []);
+
+  const typingAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View
+      style={[
+        typingIndicatorStyles.container,
+        typingAnimatedStyle,
+        { backgroundColor: useThemeColoring("primaryText") },
       ]}
     />
   );
@@ -173,11 +212,7 @@ export function ProfileTabIcon({ color }: TabBarIconProps) {
 
 export function HomeTabIcon({ color }: TabBarIconProps) {
   return (
-    <FontAwesome5
-      name="home"
-      size={textTheme.action.fontSize}
-      color={color}
-    />
+    <FontAwesome5 name="home" size={textTheme.action.fontSize} color={color} />
   );
 }
 
@@ -197,6 +232,16 @@ export function ExampleTabIcon({ color }: TabBarIconProps) {
       name="browsers-outline"
       size={textTheme.action.fontSize}
       color={color}
+    />
+  );
+}
+
+export function DeleteKeypadIcon() {
+  return (
+    <Feather
+      name="delete"
+      size={textTheme.action.fontSize}
+      color={useThemeColoring("primaryText")}
     />
   );
 }

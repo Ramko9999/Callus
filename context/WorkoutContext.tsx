@@ -364,6 +364,7 @@ type Props = {
   children: React.ReactNode;
 };
 
+// todo: consider debouncing workout updates
 export function WorkoutProvider({ children }: Props) {
   const [workout, setWorkout] = useState<Workout>();
   const [sounds, setSounds] = useState<WorkoutSounds>();

@@ -1,6 +1,6 @@
 import { View, Text } from "../../Themed";
 import { StyleSheet, useWindowDimensions } from "react-native";
-import { BottomSheet } from "../../util/popup";
+import { BottomSheet } from "../../util/popup/sheet";
 import { StyleUtils, EXERCISE_INSIGHTS_HEIGHT } from "@/util/styles";
 import { Close } from "../../theme/actions";
 import { useEffect, useState } from "react";

@@ -3,7 +3,7 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from "react-native";
-import { BottomSheet } from "../util/popup";
+import { BottomSheet } from "../util/popup/sheet";
 import { SETTING_HEIGHT, StyleUtils, SETTINGS_HEIGHT } from "@/util/styles";
 import { View, Text, useThemeColoring } from "../Themed";
 import { Close } from "../theme/actions";
