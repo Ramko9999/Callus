@@ -8,6 +8,7 @@ import {
   TimeDifficulty,
   WeightDifficulty,
   Set,
+  KeypadType,
 } from "@/interface";
 import { getDurationDisplay } from "@/util/date";
 import { debounce } from "@/util/misc";
@@ -97,7 +98,7 @@ function WeightInput({ id, weight, onUpdate }: WeightInputProps) {
         value={weightDisplay}
         focused={isFocused}
         onClick={() => {
-          actions.editWeight(weight.toString(), id);
+          actions.edit(weight.toString(), id, KeypadType.WEIGHT);
         }}
       />
     </View>
@@ -134,7 +135,7 @@ function RepsInput({ id, reps, onUpdate }: RepsInputProps) {
         focused={false}
         value={repsDisplay}
         onClick={() => {
-          actions.editReps(reps.toString(), id);
+          actions.edit(reps.toString(), id, KeypadType.REPS);
         }}
       />
     </View>
@@ -144,18 +145,39 @@ function RepsInput({ id, reps, onUpdate }: RepsInputProps) {
 type TimeInputProps = {
   id: string;
   duration: number;
-  onStartUpdate: () => void;
+  onUpdate: (duration: number) => void;
 };
 
-function TimeInput({ id, duration, onStartUpdate }: TimeInputProps) {
-  const durationDisplay = `${getDurationDisplay(duration)}`.padEnd(12, "");
+function TimeInput({ id, duration, onUpdate }: TimeInputProps) {
+  const { value, actions, callerId } = useInputsPad();
+  const isFocused = callerId === id;
+
+  const durationDisplay = getDurationDisplay(
+    isFocused ? parseInt(value) : duration
+  ).padEnd(12, "");
+
+  const updateWithDebounce = useCallback(
+    debounce(onUpdate, DEBOUNCE_INTERVAL),
+    [onUpdate]
+  );
+  useEffect(() => {
+    if (isFocused && value !== "") {
+      updateWithDebounce(parseInt(value));
+    }
+  }, [isFocused, value]);
 
   return (
     <View style={inputStyles.label}>
       <Text light neutral>
         Duration
       </Text>
-      <Input focused={false} value={durationDisplay} onClick={onStartUpdate} />
+      <Input
+        focused={false}
+        value={durationDisplay}
+        onClick={() =>
+          actions.edit(duration.toString(), id, KeypadType.DURATION)
+        }
+      />
     </View>
   );
 }
@@ -267,7 +289,9 @@ export function DifficultyInput({
           <TimeInput
             id={`${id}-duration`}
             duration={(difficulty as TimeDifficulty).duration}
-            onStartUpdate={() => {}}
+            onUpdate={(duration: number) =>
+              onUpdate({ ...difficulty, duration })
+            }
           />
         </View>
       );

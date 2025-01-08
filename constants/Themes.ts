@@ -85,6 +85,9 @@ export const textTheme = {
   stat: {
     fontSize: 42,
   },
+  roulette: {
+    fontSize: 70,
+  },
   italic: {
     fontStyle: "italic",
   },

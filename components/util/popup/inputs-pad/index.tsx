@@ -14,6 +14,7 @@ import React, { useEffect } from "react";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DragIndicator } from "@/components/theme/icons";
+import { DurationPad } from "./duration";
 
 const PAD_HEIGHT_MULTIPLIER = 0.5;
 
@@ -103,6 +104,9 @@ export function InputsPad({
     transform: [{ translateY: totalTranslation.value }],
   }));
 
+  const shouldUseNumericPad =
+    type === KeypadType.REPS || type === KeypadType.WEIGHT;
+
   return (
     show && (
       <>
@@ -121,12 +125,16 @@ export function InputsPad({
             <View background style={inputsPadStyles.drag}>
               <DragIndicator />
             </View>
-            <NumericPad
-              value={value}
-              onUpdate={onUpdate}
-              hideDecimal={type === KeypadType.REPS}
-              increment={type === KeypadType.REPS ? 1 : 2.5}
-            />
+            {shouldUseNumericPad ? (
+              <NumericPad
+                value={value}
+                onUpdate={onUpdate}
+                hideDecimal={type === KeypadType.REPS}
+                increment={type === KeypadType.REPS ? 1 : 2.5}
+              />
+            ) : (
+              <DurationPad duration={value} onUpdate={onUpdate} />
+            )}
           </Animated.View>
         </GestureDetector>
       </>

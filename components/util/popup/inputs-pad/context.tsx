@@ -1,11 +1,14 @@
 import { KeypadType } from "@/interface";
-import React, { useContext, createContext, useState, useCallback } from "react";
+import React, {
+  useContext,
+  createContext,
+  useState,
+  useCallback,
+} from "react";
 import { InputsPad } from ".";
 
 type InputsPadActions = {
-  editWeight: (weight: string, callerId: string) => void;
-  editReps: (reps: string, callerId: string) => void;
-  close: () => void;
+  edit: (value: string, callerId: string, type: KeypadType) => void;
 };
 
 type InputsPadContext = {
@@ -26,9 +29,7 @@ const context = createContext<InputsPadContext>({
   show: false,
   value: "",
   actions: {
-    editWeight: (weight: string, callerId: string) => {},
-    editReps: (reps: string, callerId: string) => {},
-    close: () => {},
+    edit: (value: string, callerId: string, type: KeypadType) => {},
   },
 });
 
@@ -36,7 +37,6 @@ type Props = {
   children: React.ReactNode;
 };
 
-// todo: put this only in the editors
 export function InputsPadProvider({ children }: Props) {
   const [state, setState] = useState<InputsPadState>({
     show: false,
@@ -55,21 +55,8 @@ export function InputsPadProvider({ children }: Props) {
       value={{
         show,
         actions: {
-          editWeight: (weight: string, callerId: string) =>
-            setState({
-              show: true,
-              value: weight,
-              type: KeypadType.WEIGHT,
-              callerId,
-            }),
-          editReps: (reps: string, callerId: string) =>
-            setState({
-              show: true,
-              value: reps,
-              type: KeypadType.REPS,
-              callerId,
-            }),
-          close: onHide,
+          edit: (value: string, callerId: string, type: KeypadType) =>
+            setState({ show: true, value, callerId, type }),
         },
         value,
         callerId,
