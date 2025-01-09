@@ -23,7 +23,7 @@ const modalStyles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
     zIndex: 1,
-    ...StyleUtils.flexRowCenterAll()
+    ...StyleUtils.flexRowCenterAll(),
   },
   container: {
     borderRadius: 10,

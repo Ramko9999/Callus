@@ -1,7 +1,7 @@
-import { View, useThemeColoring } from "@/components/Themed";
+import { View, Text, useThemeColoring } from "@/components/Themed";
 import React, { useState } from "react";
 import { StyleUtils } from "@/util/styles";
-import { DurationPad } from "@/components/util/popup/inputs-pad/duration";
+import { TimestampRangeEditor } from "@/components/util/timestamp-editor";
 
 // for testing things out quickly, remove before prod release
 export default function () {
@@ -9,7 +9,8 @@ export default function () {
 }
 
 function Example() {
-  const [duration, setDuration] = useState("112");
+  const [startTime, setStartTime] = useState(new Date("2024-01-01").valueOf());
+  const [endTime, setEndTime] = useState(new Date("2024-02-01").valueOf());
 
   return (
     <View
@@ -20,12 +21,14 @@ function Example() {
         height: "100%",
       }}
     >
-      <DurationPad
-        duration={duration}
-        onUpdate={(updatedDuration) => {
-          setDuration(updatedDuration);
-        }}
-      />
+      <View style={{ height: "50%", width: "80%", backgroundColor: "red" }}>
+        <TimestampRangeEditor
+          startTime={startTime}
+          endTime={endTime}
+          onUpdateEndTime={setEndTime}
+          onUpdateStartTime={setStartTime}
+        />
+      </View>
     </View>
   );
 }

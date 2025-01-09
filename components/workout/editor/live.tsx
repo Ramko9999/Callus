@@ -31,8 +31,11 @@ import {
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
 import * as Haptics from "expo-haptics";
-import { DiscardSetsAndFinishConfirmation, EditRestDuration } from "./popup";
-import { TimestampRangeEdit } from "@/components/util/daterange-picker";
+import {
+  AdjustStartEndTime,
+  DiscardSetsAndFinishConfirmation,
+  EditRestDuration,
+} from "./modal";
 import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/api/exercise";
 import { ExerciseLevelEditor } from "./common/exercise";
 import { ExerciseFinder } from "./common/exercise/finder";
@@ -304,11 +307,15 @@ export function LiveEditor({ back }: LiveEditorProps) {
                 setIsFinishing(false);
               }}
             />
-            <TimestampRangeEdit
+            <AdjustStartEndTime
               show={isEditingDates}
               hide={() => setIsEditingDate(false)}
-              range={{ startedAt: workout.startedAt, endedAt: workout.endedAt }}
-              onUpdate={(range) => onUpdateMeta(range)}
+              startTime={workout.startedAt}
+              endTime={workout.endedAt}
+              updateEndTime={(endTime) => onUpdateMeta({ endedAt: endTime })}
+              updateStartTime={(startTime) =>
+                onUpdateMeta({ startedAt: startTime })
+              }
             />
           </>
         )}

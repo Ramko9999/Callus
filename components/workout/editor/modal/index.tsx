@@ -3,7 +3,7 @@ import {
   StyleUtils,
   WORKOUT_PLAYER_EDITOR_HEIGHT, // todo: centralize a common height for the bottom sheet
 } from "@/util/styles";
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { StyleSheet, useWindowDimensions, ViewStyle } from "react-native";
 import {
   DangerAction,
   NeutralAction,
@@ -14,6 +14,7 @@ import { getDurationDisplay } from "@/util/date";
 import * as Haptics from "expo-haptics";
 import { Modal } from "@/components/util/popup/modal";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { TimestampRangeEditor } from "@/components/util/timestamp-editor";
 
 const popupStyles = StyleSheet.create({
   container: {
@@ -42,6 +43,7 @@ type EditorPopupProps = {
   title: string;
   description?: string;
   children: React.ReactNode;
+  containerStyle?: ViewStyle;
 };
 
 function EditorPopup({
@@ -50,6 +52,7 @@ function EditorPopup({
   title,
   description,
   children,
+  containerStyle,
 }: EditorPopupProps) {
   // all these popups are rendering from a bottom sheet and need to be adjusted to be in the center of the screen
   const insets = useSafeAreaInsets();
@@ -63,7 +66,7 @@ function EditorPopup({
       onHide={onHide}
       customBackdropStyle={{ marginTop: adjustment }}
     >
-      <View style={popupStyles.container}>
+      <View style={[popupStyles.container, containerStyle]}>
         <View style={popupStyles.title}>
           <Text action>{title}</Text>
         </View>
@@ -194,6 +197,48 @@ export function EditRestDuration({
           text="+15s"
         />
       </View>
+    </EditorPopup>
+  );
+}
+
+type AdjustStartEndTimeProps = {
+  show: boolean;
+  hide: () => void;
+  startTime: number;
+  endTime?: number;
+  updateStartTime: (startTime: number) => void;
+  updateEndTime: (endTime: number) => void;
+};
+
+export function AdjustStartEndTime({
+  show,
+  hide,
+  startTime,
+  endTime,
+  updateStartTime,
+  updateEndTime,
+}: AdjustStartEndTimeProps) {
+  const { width } = useWindowDimensions();
+  const description =
+    "Adjust when your workout started and ended" +
+    (endTime == undefined
+      ? " Since you are in a live workout, the end time cannot edited."
+      : "");
+
+  return (
+    <EditorPopup
+      show={show}
+      onHide={hide}
+      title="Adjust Start/End Time"
+      description={description}
+      containerStyle={{ width: width * 0.8 }}
+    >
+      <TimestampRangeEditor
+        startTime={startTime}
+        endTime={endTime}
+        onUpdateEndTime={updateEndTime}
+        onUpdateStartTime={updateStartTime}
+      />
     </EditorPopup>
   );
 }

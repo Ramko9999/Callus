@@ -146,7 +146,7 @@ type NumericPadProps = {
   increment: number;
 };
 
-// ehancement: when pad key is pressed, throttle the updates to the input
+// enhancement: when pad key is pressed, throttle the updates to the input
 export function NumericPad({
   value,
   onUpdate,

@@ -122,6 +122,7 @@ export type WorkoutSummary = {
 
 export type WorkoutMetadata = {
   startedAt: number;
+  endedAt?: number;
   name: string;
 };
 

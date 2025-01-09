@@ -10,6 +10,7 @@ import { StyleUtils } from "@/util/styles";
 import * as Haptics from "expo-haptics";
 
 const VISIBLE_ITEMS = 5;
+const SCROLL_DEBOUNCE_PERIOD = 100;
 
 const rouletteStyles = StyleSheet.create({
   item: {
@@ -24,7 +25,13 @@ type RouletteProps = {
   itemHeight: number;
   containerStyle?: ViewStyle;
   initialValue?: string;
+  loadNext?: () => Promise<void>;
+  loadPrevious?: () => Promise<void>;
 };
+
+function computeNearestScrollIndex(offset: number, itemHeight: number) {
+  return Math.round(offset / itemHeight);
+}
 
 export function Roulette({
   values,
@@ -33,8 +40,16 @@ export function Roulette({
   itemHeight,
   containerStyle,
   initialValue,
+  loadNext,
+  loadPrevious,
 }: RouletteProps) {
   const [scrolledOffset, setScrolledOffset] = useState(0);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
+
+  const scrolledToInitialValueRef = useRef(initialValue == undefined);
+  const initialValuesCountRef = useRef(values.length);
+  const loadPreviousRef = useRef<Record<number, boolean>>({});
+  const loadNextRef = useRef<Record<number, boolean>>({});
   const timerRef = useRef(null);
   const flatListRef = useRef<FlatList>(null);
 
@@ -45,30 +60,80 @@ export function Roulette({
     viewAreaCoveragePercentThreshold: 0.5,
   };
 
+  const handleScrollToInitialValue = () => {
+    if (!scrolledToInitialValueRef.current) {
+      const targetIndex = values.indexOf(initialValue as string);
+      flatListRef.current?.scrollToIndex({
+        index: targetIndex,
+        animated: false,
+      });
+      scrolledToInitialValueRef.current = true;
+    }
+  };
+
   const handleScrollEnd = (offset: number) => {
-    const scrollIndex = Math.round(offset / itemHeight);
+    if (offset < 0 || offset >= itemHeight * values.length) {
+      return;
+    }
+
+    const scrollIndex = computeNearestScrollIndex(offset, itemHeight);
     flatListRef.current?.scrollToIndex({ animated: true, index: scrollIndex });
+    // todo: maybe we should try invoking handleLoadPrevious and handleLoadNext here  
     onSelect(values[scrollIndex]);
+  };
+
+  const handleLoadPrevious = (offset: number) => {
+    if (loadPreviousRef.current[values.length] || !loadPrevious) {
+      return;
+    }
+
+    if (offset < 0) {
+      setScrollEnabled(false);
+      loadPreviousRef.current[values.length] = true;
+      loadPrevious().then(() => setScrollEnabled(true));
+    }
+  };
+
+  const handleLoadNext = (offset: number) => {
+    if (loadNextRef.current[values.length] || !loadNext) {
+      return;
+    }
+
+    if (offset >= (values.length - 1) * itemHeight) {
+      setScrollEnabled(false);
+      loadNextRef.current[values.length] = true;
+      loadNext().then(() => setScrollEnabled(true));
+    }
   };
 
   const handleScroll = (offset: number) => {
     setScrolledOffset(offset);
+
+    if (!scrolledToInitialValueRef.current) {
+      return;
+    }
+
+    handleLoadPrevious(offset);
+    handleLoadNext(offset);
+
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
     timerRef.current = setTimeout(() => {
       handleScrollEnd(offset);
-    }, 100) as any;
+    }, SCROLL_DEBOUNCE_PERIOD) as any;
   };
 
   return (
     <View style={[containerStyle, { height: flatListHeight }]}>
       <FlatList
+        scrollEnabled={scrollEnabled}
         showsVerticalScrollIndicator={false}
         ref={flatListRef}
         ListHeaderComponent={() => <View style={{ height: listPadding }} />}
         ListFooterComponent={() => <View style={{ height: listPadding }} />}
         data={values}
+        initialNumToRender={initialValuesCountRef.current}
         renderItem={({ item, index }) => {
           const maxOffsetWhileVisible = itemHeight * VISIBLE_ITEMS;
           const offsetDiff = scrolledOffset - index * itemHeight;
@@ -82,6 +147,11 @@ export function Roulette({
             <View
               key={index}
               style={[rouletteStyles.item, { height: itemHeight }]}
+              onLayout={() => {
+                if (index === values.length - 1) {
+                  handleScrollToInitialValue();
+                }
+              }}
             >
               <RouletteItem
                 value={item}
@@ -107,7 +177,10 @@ export function Roulette({
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
           }
         }}
-        initialScrollIndex={initialValue ? values.indexOf(initialValue) : null}
+        maintainVisibleContentPosition={{
+          minIndexForVisible: 0,
+        }}
+        keyExtractor={(item) => item}
       />
     </View>
   );

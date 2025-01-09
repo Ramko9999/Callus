@@ -28,12 +28,11 @@ import {
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
 import { BottomSheet } from "@/components/util/popup/sheet";
-import { TimestampRangeEdit } from "@/components/util/daterange-picker";
 import { NAME_TO_EXERCISE_META, EXERCISE_REPOSITORY } from "@/api/exercise";
 import { ExerciseLevelEditor } from "./common/exercise";
 import { ExerciseFinder } from "./common/exercise/finder";
 import { SetLevelEditor } from "./common/set";
-import { RepeatWorkoutConfirmation, WorkoutDeleteConfirmation } from "./popup";
+import { AdjustStartEndTime, RepeatWorkoutConfirmation, WorkoutDeleteConfirmation } from "./modal";
 import * as Haptics from "expo-haptics";
 import { MetaEditor, NoteEditor } from "./common/meta";
 import React from "react";
@@ -287,11 +286,13 @@ export function HistoricalEditor({
                 trash();
               }}
             />
-            <TimestampRangeEdit
+            <AdjustStartEndTime
               show={isEditingDates}
               hide={() => setIsEditingDate(false)}
-              range={{ startedAt: workout.startedAt, endedAt: workout.endedAt }}
-              onUpdate={(range) => onUpdateMeta(range)}
+              startTime={workout.startedAt}
+              endTime={workout.endedAt}
+              updateEndTime={(endTime) => onUpdateMeta({endedAt: endTime})}
+              updateStartTime={(startTime) => onUpdateMeta({startedAt: startTime})}
             />
             <RepeatWorkoutConfirmation
               show={isRepeating}

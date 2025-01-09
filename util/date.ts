@@ -5,7 +5,7 @@ export const Period = {
   DAY: 1000 * 60 * 60 * 24,
 };
 
-const MONTHS = [
+export const MONTHS = [
   "Jan",
   "Feb",
   "Mar",
@@ -205,6 +205,7 @@ export function getRouletteDateDisplay(timestamp: number) {
     DAYS_OF_WEEK[date.getDay()],
     MONTHS[date.getMonth()],
     date.getDate(),
+    date.getFullYear(),
   ].join(" ");
 }
 
@@ -226,16 +227,11 @@ export function getHour(timestamp: number) {
 
 export function getDateEditDisplay(timestamp: number) {
   const date = new Date(timestamp);
-  const monthDay = [
-    DAYS_OF_WEEK[date.getDay()],
-    MONTHS[date.getMonth()],
-    date.getDate(),
-  ].join(" ");
   const minutes = date.getMinutes().toString().padStart(2, "0");
 
-  return `${monthDay}, ${getHour(timestamp)}:${minutes} ${getAmOrPm(
+  return `${getRouletteDateDisplay(timestamp)}, ${getHour(
     timestamp
-  )}`;
+  )}:${minutes} ${getAmOrPm(timestamp)}`;
 }
 
 export function generateEnclosingWeek(timestamp: number) {
