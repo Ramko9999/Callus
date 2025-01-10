@@ -10,7 +10,9 @@ const SCROLL_DEBOUNCE_PERIOD = 100;
 
 const rouletteStyles = StyleSheet.create({
   item: {
-    ...StyleUtils.flexRowCenterAll(),
+    ...StyleUtils.flexRow(),
+    alignItems: "center",
+    justifyContent: "flex-end",
   },
 });
 

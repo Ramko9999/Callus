@@ -153,6 +153,9 @@ const timestampPickerStyles = StyleSheet.create({
     height: ROULETTE_ITEM_HEIGHT,
     top: 2 * ROULETTE_ITEM_HEIGHT,
   },
+  gap: {
+    marginLeft: 10,
+  },
 });
 
 type TimestampPickerProps = {
@@ -160,7 +163,6 @@ type TimestampPickerProps = {
   onUpdate: (timestamp: number) => void;
 };
 
-// todo: fix formatting
 function TimestampPicker({ timestamp, onUpdate }: TimestampPickerProps) {
   const [dates, setDates] = useState(generateDates(timestamp));
   const { hours, minutes, date, meridiem } = extractTimestamp(timestamp);
@@ -193,13 +195,13 @@ function TimestampPicker({ timestamp, onUpdate }: TimestampPickerProps) {
         }
         {...sharedProps}
       />
-
       <Roulette
         values={HOURS}
         onSelect={(hour) =>
           onUpdate(alterHour(timestamp, parseInt(hour), meridiem))
         }
         initialValue={getMeridianAdjusedHour(hours).toString()}
+        containerStyle={timestampPickerStyles.gap}
         {...sharedProps}
       />
       <View style={timestampPickerStyles.colon}>
@@ -219,7 +221,7 @@ function TimestampPicker({ timestamp, onUpdate }: TimestampPickerProps) {
           onUpdate(alterHour(timestamp, hours, meridiem as Meridiem))
         }
         initialValue={meridiem}
-        containerStyle={{ marginLeft: 10 }}
+        containerStyle={timestampPickerStyles.gap}
         {...sharedProps}
       />
     </View>
