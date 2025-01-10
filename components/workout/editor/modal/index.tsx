@@ -1,8 +1,5 @@
 import { View, Text } from "@/components/Themed";
-import {
-  StyleUtils,
-  WORKOUT_PLAYER_EDITOR_HEIGHT, // todo: centralize a common height for the bottom sheet
-} from "@/util/styles";
+import { StyleUtils } from "@/util/styles";
 import { StyleSheet, useWindowDimensions, ViewStyle } from "react-native";
 import {
   DangerAction,
@@ -13,7 +10,6 @@ import { ProgressRing } from "@/components/util/progress-ring";
 import { getDurationDisplay } from "@/util/date";
 import * as Haptics from "expo-haptics";
 import { Modal } from "@/components/util/popup/modal";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TimestampRangeEditor } from "@/components/util/timestamp-editor";
 
 const popupStyles = StyleSheet.create({
@@ -54,18 +50,8 @@ function EditorPopup({
   children,
   containerStyle,
 }: EditorPopupProps) {
-  // all these popups are rendering from a bottom sheet and need to be adjusted to be in the center of the screen
-  const insets = useSafeAreaInsets();
-  const { height } = useWindowDimensions();
-  const adjustment =
-    -1 * (height * (1 - WORKOUT_PLAYER_EDITOR_HEIGHT) - insets.bottom);
-
   return (
-    <Modal
-      show={show}
-      onHide={onHide}
-      customBackdropStyle={{ marginTop: adjustment }}
-    >
+    <Modal show={show} onHide={onHide}>
       <View style={[popupStyles.container, containerStyle]}>
         <View style={popupStyles.title}>
           <Text action>{title}</Text>

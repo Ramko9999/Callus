@@ -6,13 +6,14 @@ import { NewWorkoutViewTile } from "@/components/workout/view";
 import { truncTime, getLongDateDisplay } from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
-import { HistoricalEditorSheet } from "../workout/editor/historical";
+import { HistoricalEditorSheet } from "../workout/editor/historical/index";
 import { useLiveIndicator } from "../live";
 import { WorkoutCalendar } from "./calendar";
 import * as Haptics from "expo-haptics";
 import { DynamicHeaderPage } from "../util/dynamic-header-page";
 import { useWorkout } from "@/context/WorkoutContext";
 import { createWorkoutFromWorkout } from "@/util/workout";
+import { PLACEHOLDER_WORKOUT } from "@/util/mock";
 
 const styles = StyleSheet.create({
   homeView: {
@@ -168,6 +169,7 @@ export default function Home() {
       <HistoricalEditorSheet
         show={workoutToUpdate != undefined}
         hide={() => {
+          // todo: consolidate logic for hiding and showing the editor sheet in one place
           liveIndicatorActions.show();
           loadWorkouts();
           setWorkoutToUpdate(undefined);
@@ -191,10 +193,11 @@ export default function Home() {
         trash={() => {
           WorkoutApi.deleteWorkout((workoutToUpdate as Workout).id).then(() => {
             setWorkoutToUpdate(undefined);
+            liveIndicatorActions.show();
             loadWorkouts();
           });
         }}
-        workout={workoutToUpdate as Workout}
+        workout={(workoutToUpdate ?? PLACEHOLDER_WORKOUT) as Workout}
       />
     </>
   );

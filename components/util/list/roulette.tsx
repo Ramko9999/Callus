@@ -1,13 +1,9 @@
 import React, { useRef, useState } from "react";
-import {
-  FlatList,
-  ViewStyle,
-  StyleSheet,
-  ViewabilityConfig,
-} from "react-native";
+import { ViewStyle, StyleSheet, ViewabilityConfig } from "react-native";
 import { View, Text } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
 import * as Haptics from "expo-haptics";
+import { FlatList } from "react-native-gesture-handler";
 
 const VISIBLE_ITEMS = 5;
 const SCROLL_DEBOUNCE_PERIOD = 100;
@@ -33,6 +29,7 @@ function computeNearestScrollIndex(offset: number, itemHeight: number) {
   return Math.round(offset / itemHeight);
 }
 
+// todo: still kinda buggy but shippable. if you get time, try to make sure the weird jumps don't happens and make loading previous and next data more robust
 export function Roulette({
   values,
   onSelect,
@@ -78,7 +75,7 @@ export function Roulette({
 
     const scrollIndex = computeNearestScrollIndex(offset, itemHeight);
     flatListRef.current?.scrollToIndex({ animated: true, index: scrollIndex });
-    // todo: maybe we should try invoking handleLoadPrevious and handleLoadNext here  
+    // todo: maybe we should try invoking handleLoadPrevious and handleLoadNext here
     onSelect(values[scrollIndex]);
   };
 

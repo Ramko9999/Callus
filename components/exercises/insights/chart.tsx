@@ -118,7 +118,7 @@ const chartStyles = StyleSheet.create({
     paddingRight: "3%",
     paddingBottom: "3%",
     ...StyleUtils.flexColumn(10),
-    flex: 1
+    flex: 1,
   },
   head: {
     ...StyleUtils.flexColumn(5),
@@ -341,11 +341,11 @@ const chartPlaceholderStyles = StyleSheet.create({
   },
   mock: {
     paddingVertical: "2%",
-    flex: 1
+    flex: 1,
   },
   container: {
-    flex: 1
-  }
+    flex: 1,
+  },
 });
 
 function ChartPlaceholder() {

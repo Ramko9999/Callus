@@ -12,7 +12,10 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from "react-native-reanimated";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+} from "react-native-gesture-handler";
 import { useThemeColoring } from "@/components/Themed";
 import { forwardRef, useImperativeHandle } from "react";
 import React from "react";
@@ -36,6 +39,8 @@ const styles = StyleSheet.create({
   },
 });
 
+export type BottomSheetRef = {};
+
 type BottomSheetProps = {
   children: React.ReactNode;
   show: boolean;
@@ -49,74 +54,80 @@ type BottomSheetProps = {
 const DEFAULT_HIDE_OFFSET = 200;
 
 // todo: fix animation, make it faster
-// todo: fix bug with children bottom sheets not taking up full space
 // todo: fix hide offset lol
-export function BottomSheet({
-  children,
-  show,
-  hide,
-  onBackdropPress,
-  contentStyle,
-  backdropStyle,
-  hideOffset,
-}: BottomSheetProps) {
-  const offset = hideOffset ?? DEFAULT_HIDE_OFFSET;
-  const translation = useSharedValue(0);
-  const insets = useSafeAreaInsets();
+export const BottomSheet = forwardRef<BottomSheetRef, BottomSheetProps>(
+  (
+    {
+      children,
+      show,
+      hide,
+      onBackdropPress,
+      contentStyle,
+      backdropStyle,
+      hideOffset,
+    },
+    ref
+  ) => {
+    const offset = hideOffset ?? DEFAULT_HIDE_OFFSET;
+    const translation = useSharedValue(0);
+    const insets = useSafeAreaInsets();
 
-  const panGesture = Gesture.Pan()
-    .onUpdate(({ translationY }) => {
-      if (translationY > 0) {
-        translation.value = translationY;
-      }
-    })
-    .onEnd(({ translationY }) => {
-      if (translationY > offset) {
-        translation.value = 0;
-        runOnJS(hide)();
-      } else {
-        translation.value = withSpring(0, {
-          damping: 25,
-        });
-      }
-    });
+    const panGesture = Gesture.Pan()
+      .onUpdate(({ translationY }) => {
+        if (translationY > 0) {
+          translation.value = translationY;
+        }
+      })
+      .onEnd(({ translationY }) => {
+        if (translationY > offset) {
+          translation.value = 0;
+          runOnJS(hide)();
+        } else {
+          translation.value = withSpring(0, {
+            damping: 25,
+          });
+        }
+      });
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translation.value }],
-  }));
+    useImperativeHandle(ref, () => ({}));
 
-  const primaryBackgroundColor = useThemeColoring("primaryViewBackground");
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ translateY: translation.value }],
+    }));
 
-  return (
-    show && (
-      <>
-        <AnimatedPressable
-          style={styles.backdrop}
-          onPress={onBackdropPress}
-          entering={FadeIn}
-          exiting={FadeOut}
-        />
-        <GestureDetector gesture={panGesture}>
-          <Animated.View
-            style={[
-              styles.content,
-              animatedStyle,
-              contentStyle,
-              {
-                backgroundColor: primaryBackgroundColor,
-                paddingBottom: insets.bottom,
-              },
-            ]}
-            entering={SlideInDown.springify().damping(25)}
-            exiting={SlideOutDown}
-          >
-            {children}
-          </Animated.View>
-        </GestureDetector>
-      </>
-    )
-  );
-}
+    const primaryBackgroundColor = useThemeColoring("primaryViewBackground");
+
+    return (
+      show && (
+        <>
+          <AnimatedPressable
+            style={styles.backdrop}
+            onPress={onBackdropPress}
+            entering={FadeIn}
+            exiting={FadeOut}
+          />
+          <GestureDetector gesture={panGesture}>
+            <Animated.View
+              style={[
+                styles.content,
+                animatedStyle,
+                contentStyle,
+                {
+                  backgroundColor: primaryBackgroundColor,
+                  paddingBottom: insets.bottom,
+                },
+              ]}
+              entering={SlideInDown.springify().damping(25)}
+              exiting={SlideOutDown}
+            >
+              {children}
+            </Animated.View>
+          </GestureDetector>
+        </>
+      )
+    );
+  }
+);
 
 const previewableBottomSheetStyles = StyleSheet.create({
   container: {
