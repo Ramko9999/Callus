@@ -13,6 +13,8 @@ import {
 import { View, TextInput, Text } from "@/components/Themed";
 import { Back, Search } from "@/components/theme/actions";
 
+
+// todo: replace this with a the same set set of components used in the exercises screen
 const finderExerciseStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(10),

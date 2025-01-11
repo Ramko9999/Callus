@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Pressable, StyleSheet, ViewStyle } from "react-native";
+import { StyleSheet, ViewStyle } from "react-native";
 import Animated, {
   interpolate,
   interpolateColor,
@@ -7,18 +7,13 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+import { Backdrop, BACKDROP_VISIBLE_COLOR } from "./util";
 
 const popoverStyles = StyleSheet.create({
   content: {
     position: "absolute",
     zIndex: 2,
     overflow: "hidden",
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 1,
   },
 });
 
@@ -57,7 +52,7 @@ export function Popover({
     backgroundColor: interpolateColor(
       contentHeightPercentage.value,
       [0, 100],
-      ["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.7)"]
+      ["rgba(0, 0, 0, 0)", BACKDROP_VISIBLE_COLOR]
     ),
   }));
 
@@ -69,9 +64,9 @@ export function Popover({
 
   return (
     <>
-      <AnimatedPressable
-        style={[popoverStyles.backdrop, backdropAnimatedStyle]}
-        onPress={onBackdropPress}
+      <Backdrop
+        animatedStyle={backdropAnimatedStyle}
+        onClick={onBackdropPress}
       />
       <Animated.View
         style={[

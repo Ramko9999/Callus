@@ -1,5 +1,4 @@
 import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
-import { BottomSheet, BottomSheetRef } from "@/components/util/popup/sheet";
 import { useTabBar } from "@/components/util/tab-bar/context";
 import {
   removeExercise,
@@ -18,20 +17,25 @@ import {
   Set,
 } from "@/interface";
 import { useEffect, useRef, useState } from "react";
-import { useWindowDimensions, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
 import {
   ExerciseEditorContent,
   ExerciseEditorModals,
   SetEditorContent,
 } from "./core";
-import { StyleUtils, WORKOUT_PLAYER_EDITOR_HEIGHT } from "@/util/styles";
+import { StyleUtils } from "@/util/styles";
 import { View } from "@/components/Themed";
+import {
+  FullBottomSheet,
+  FullBottomSheetRef,
+} from "@/components/util/popup/sheet/full";
 
 const historicalEditorSheetStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
     paddingTop: "3%",
+    flex: 1,
   },
 });
 
@@ -70,9 +74,7 @@ export function HistoricalEditorSheet({
   const [isEditingTimes, setIsEditingTimes] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
-  const bottomSheetRef = useRef<BottomSheetRef>(null);
-
-  const { height } = useWindowDimensions();
+  const fullBottomSheetRef = useRef<FullBottomSheetRef>(null);
 
   const onRemoveExercise = (exerciseId: string) => {
     onSave(removeExercise(exerciseId, workout));
@@ -109,18 +111,8 @@ export function HistoricalEditorSheet({
 
   return (
     <InputsPadProvider>
-      <BottomSheet
-        show={show}
-        onBackdropPress={hide}
-        hide={hide}
-        ref={bottomSheetRef}
-      >
-        <View
-          style={[
-            historicalEditorSheetStyles.container,
-            { height: WORKOUT_PLAYER_EDITOR_HEIGHT * height },
-          ]}
-        >
+      <FullBottomSheet ref={fullBottomSheetRef} show={show} onHide={hide}>
+        <View style={historicalEditorSheetStyles.container}>
           {exerciseId ? (
             <SetEditorContent
               exercise={exercise as Exercise}
@@ -134,7 +126,7 @@ export function HistoricalEditorSheet({
             <ExerciseEditorContent
               isReordering={isReordering}
               workout={workout}
-              onClose={hide}
+              onClose={() => fullBottomSheetRef.current?.hideSheet()}
               onStartReordering={() => {
                 setIsReordering(true);
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -160,7 +152,7 @@ export function HistoricalEditorSheet({
             />
           )}
         </View>
-      </BottomSheet>
+      </FullBottomSheet>
       <ExerciseEditorModals
         add={onAddExercise}
         trash={trash}

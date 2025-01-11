@@ -2,7 +2,6 @@ import { useThemeColoring, View } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
 import { forwardRef, useEffect, useImperativeHandle } from "react";
 import {
-  Dimensions,
   Pressable,
   StyleSheet,
   useWindowDimensions,
@@ -15,9 +14,9 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { BACKDROP_VISIBLE_COLOR } from "./util";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const BACKDROP_VISIBLE_COLOR = "rgba(0, 0, 0, 0.8)";
 
 const modalStyles = StyleSheet.create({
   backdrop: {

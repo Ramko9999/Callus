@@ -1,8 +1,6 @@
 import { View, Text } from "../../Themed";
-import { StyleSheet, useWindowDimensions } from "react-native";
-import { BottomSheet } from "../../util/popup/sheet";
-import { StyleUtils, EXERCISE_INSIGHTS_HEIGHT } from "@/util/styles";
-import { Close } from "../../theme/actions";
+import { StyleSheet } from "react-native";
+import { StyleUtils } from "@/util/styles";
 import { useEffect, useState } from "react";
 import {
   BodyWeightDifficulty,
@@ -25,27 +23,10 @@ import { ChartInsight } from "./chart";
 import { HistoryInsight } from "./history";
 import { getDifficultyType } from "@/api/exercise";
 import { useTabBar } from "@/components/util/tab-bar/context";
+import { FullBottomSheet } from "@/components/util/popup/sheet/full";
 
 type InsightTab = "History" | "Chart";
 const INSIGHT_TABS = ["History", "Chart"] as InsightTab[];
-
-const exerciseInsightsHeaderStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRow(10),
-  },
-});
-
-type ExerciseInsightsHeaderProps = {
-  onClose: () => void;
-};
-
-function ExerciseInsightsHeader({ onClose }: ExerciseInsightsHeaderProps) {
-  return (
-    <View style={exerciseInsightsHeaderStyles.container}>
-      <Close onClick={onClose} />
-    </View>
-  );
-}
 
 function aggregateWeight(type: DifficultyType, sets: ISet[], bw: number) {
   return ArrayUtils.sumBy(
@@ -139,30 +120,21 @@ function ExerciseInsight({
 }
 
 const exerciseInsightsStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexColumn(),
-    paddingTop: "3%",
-  },
   head: {
     ...StyleUtils.flexColumn(5),
     paddingHorizontal: "3%",
   },
-  content: {
+  container: {
     ...StyleUtils.flexColumn(5),
     flex: 1,
   },
 });
 
 type ExerciseInsightsProps = {
-  onClose: () => void;
   exerciseName: string;
 };
 
-// todo: add a default when there aren't any sets logged
-export function ExerciseInsights({
-  onClose,
-  exerciseName,
-}: ExerciseInsightsProps) {
+export function ExerciseInsights({ exerciseName }: ExerciseInsightsProps) {
   const [insightsTab, setInsightsTab] = useState<InsightTab>(INSIGHT_TABS[0]);
   const [allCompletions, setAllCompletions] = useState<Exercise[]>();
 
@@ -170,35 +142,25 @@ export function ExerciseInsights({
     WorkoutApi.getExerciseCompletions(exerciseName).then(setAllCompletions);
   }, []);
 
-  const { height } = useWindowDimensions();
   return (
-    <View
-      background
-      style={[
-        exerciseInsightsStyles.container,
-        { height: height * EXERCISE_INSIGHTS_HEIGHT },
-      ]}
-    >
-      <ExerciseInsightsHeader onClose={onClose} />
-      <View style={exerciseInsightsStyles.content}>
-        <View style={exerciseInsightsStyles.head}>
-          <Text extraLarge>{exerciseName}</Text>
-          <ExerciseInsightsLifetimeSummary
-            completions={allCompletions ?? []}
-            type={getDifficultyType(exerciseName)}
-          />
-          <TabsNavigation
-            selectedTab={insightsTab}
-            tabs={INSIGHT_TABS}
-            onSelect={(tab) => setInsightsTab(tab as InsightTab)}
-          />
-        </View>
-        <ExerciseInsight
-          type={getDifficultyType(exerciseName)}
-          currentTab={insightsTab}
+    <View background style={exerciseInsightsStyles.container}>
+      <View style={exerciseInsightsStyles.head}>
+        <Text extraLarge>{exerciseName}</Text>
+        <ExerciseInsightsLifetimeSummary
           completions={allCompletions ?? []}
+          type={getDifficultyType(exerciseName)}
+        />
+        <TabsNavigation
+          selectedTab={insightsTab}
+          tabs={INSIGHT_TABS}
+          onSelect={(tab) => setInsightsTab(tab as InsightTab)}
         />
       </View>
+      <ExerciseInsight
+        type={getDifficultyType(exerciseName)}
+        currentTab={insightsTab}
+        completions={allCompletions ?? []}
+      />
     </View>
   );
 }
@@ -225,8 +187,8 @@ export function ExerciseInsightsPopup({
   }, [show]);
 
   return (
-    <BottomSheet show={show} hide={hide} onBackdropPress={hide}>
-      <ExerciseInsights onClose={hide} exerciseName={exerciseName} />
-    </BottomSheet>
+    <FullBottomSheet show={show} onHide={hide}>
+      <ExerciseInsights exerciseName={exerciseName} />
+    </FullBottomSheet>
   );
 }

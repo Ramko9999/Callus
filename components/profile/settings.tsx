@@ -1,12 +1,6 @@
-import {
-  StyleSheet,
-  TouchableOpacity,
-  useWindowDimensions,
-} from "react-native";
-import { BottomSheet } from "../util/popup/sheet";
-import { SETTING_HEIGHT, StyleUtils, SETTINGS_HEIGHT } from "@/util/styles";
+import { StyleSheet, TouchableOpacity } from "react-native";
+import { SETTING_HEIGHT, StyleUtils } from "@/util/styles";
 import { View, Text, useThemeColoring } from "../Themed";
-import { Close } from "../theme/actions";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import * as DocumentPicker from "expo-document-picker";
@@ -15,25 +9,7 @@ import { Workout } from "@/interface";
 import { useToast } from "react-native-toast-notifications";
 import { useTabBar } from "../util/tab-bar/context";
 import { useEffect } from "react";
-
-const settingsActionsStyle = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRow(10),
-    justifyContent: "flex-start",
-  },
-});
-
-type SettingsActionsProps = {
-  hide: () => void;
-};
-
-function SettingsActions({ hide }: SettingsActionsProps) {
-  return (
-    <View style={settingsActionsStyle.container}>
-      <Close onClick={hide} />
-    </View>
-  );
-}
+import { FullBottomSheet } from "../util/popup/sheet/full";
 
 const settingStyles = StyleSheet.create({
   container: {
@@ -107,6 +83,7 @@ async function importAppData({ onDone, onError }: ImportOptions) {
   }
 }
 
+// enhancement: show modal to show progress of import
 function ImportSetting() {
   const toast = useToast();
   const successColor = useThemeColoring("primaryAction");
@@ -134,27 +111,19 @@ function ImportSetting() {
 const settingsStyle = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
+    flex: 1,
     paddingTop: "3%",
   },
-  content: {
+  head: {
     ...StyleUtils.flexColumn(),
     paddingLeft: "3%",
   },
 });
 
-type SettingsProps = {
-  hide: () => void;
-};
-
-function Settings({ hide }: SettingsProps) {
-  const { height } = useWindowDimensions();
+function Settings() {
   return (
-    <View
-      background
-      style={[settingsStyle.container, { height: height * SETTINGS_HEIGHT }]}
-    >
-      <SettingsActions hide={hide} />
-      <View style={settingsStyle.content}>
+    <View background style={settingsStyle.container}>
+      <View background style={settingsStyle.head}>
         <Text extraLarge>Settings</Text>
         <Text neutral light>
           Configure how the app tracks your workouts
@@ -183,8 +152,8 @@ export function SettingsPopup({ show, hide }: SettingsPopupProps) {
   }, [show]);
 
   return (
-    <BottomSheet show={show} onBackdropPress={hide} hide={hide}>
-      <Settings hide={hide} />
-    </BottomSheet>
+    <FullBottomSheet show={show} onHide={hide}>
+      <Settings />
+    </FullBottomSheet>
   );
 }
