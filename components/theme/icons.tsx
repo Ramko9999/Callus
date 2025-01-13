@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { useThemeColoring, View, Text } from "../Themed";
+import { useThemeColoring, View, Text } from "@/components/Themed";
 import {
   FontAwesome6,
   FontAwesome5,

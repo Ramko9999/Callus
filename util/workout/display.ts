@@ -2,6 +2,7 @@ import { NAME_TO_EXERCISE_META } from "@/api/exercise";
 import {
   AssistedBodyWeightDifficulty,
   BodyWeightDifficulty,
+  Difficulty,
   DifficultyType,
   Exercise,
   ExerciseMeta,
@@ -88,4 +89,21 @@ export function getHistoricalExerciseDescription(exercise: Exercise) {
   }
 
   return description.join(" ");
+}
+
+export function getDifficultyDescription(difficultyType: DifficultyType, difficulty: Difficulty){
+  if(difficultyType === DifficultyType.WEIGHT || difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT){
+    const {weight, reps} = difficulty as WeightDifficulty;
+    return `${weight} lbs for ${reps} reps`
+  } else if (difficultyType === DifficultyType.BODYWEIGHT){
+    const {reps} = difficulty as BodyWeightDifficulty
+    return `${reps} reps`
+  }
+  else if (difficultyType === DifficultyType.ASSISTED_BODYWEIGHT){
+    const {assistanceWeight, reps} = difficulty as AssistedBodyWeightDifficulty;
+    return `${assistanceWeight} lbs of assistance for ${reps} reps`
+  } else {
+    const {duration} = difficulty as TimeDifficulty;
+    return `${duration} seconds`
+  }
 }

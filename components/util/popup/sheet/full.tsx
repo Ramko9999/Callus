@@ -3,12 +3,13 @@ import { GenericBottomSheet, GenericBottomSheetRef } from "./generic";
 import { useWindowDimensions, StyleSheet } from "react-native";
 import { useThemeColoring, View } from "@/components/Themed";
 import { DragIndicator } from "@/components/theme/icons";
-
-const FULL_SHEET_HEIGHT_MULTIPLIER = 0.85;
+import { FULL_SHEET_HEIGHT_MULTIPLIER } from "../util";
 
 const fullBottomSheetStyles = StyleSheet.create({
   drag: {
-    paddingTop: "2%",
+    position: "absolute",
+    top: 10,
+    width: "100%",
   },
   content: {
     borderTopLeftRadius: 10,
@@ -48,10 +49,10 @@ export const FullBottomSheet = forwardRef<
         backgroundColor: bgColor,
       }}
     >
-      <View background style={fullBottomSheetStyles.drag}>
+      {children}
+      <View style={fullBottomSheetStyles.drag}>
         <DragIndicator />
       </View>
-      {children}
     </GenericBottomSheet>
   );
 });

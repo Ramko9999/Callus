@@ -1,10 +1,5 @@
-import Home from "@/components/home";
-import { LiveIndicatorProvider } from "@/components/live";
+import Home from "@/components/pages/home";
 
 export default function () {
-  return (
-    <LiveIndicatorProvider>
-      <Home />
-    </LiveIndicatorProvider>
-  );
+  return <Home />;
 }

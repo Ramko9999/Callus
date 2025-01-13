@@ -302,7 +302,7 @@ export function getRemainingRest(set: Set): number {
   );
 }
 
-type WorkoutActions = {
+export type WorkoutActions = {
   startWorkout: (_: Workout) => void;
   completeSet: (_: string) => void;
   updateRestDuration: (_: string, u: number) => void;

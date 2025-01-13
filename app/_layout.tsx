@@ -17,6 +17,7 @@ import {
 } from "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TabBarProvider } from "@/components/util/tab-bar/context";
+import { LiveIndicatorProvider } from "@/components/popup/workout/live";
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -74,12 +75,14 @@ function RootLayoutNav() {
             <ToastProvider>
               <WorkoutProvider>
                 <Preloader>
+                  <LiveIndicatorProvider>
                     <Stack>
                       <Stack.Screen
                         name="(tabs)"
                         options={{ headerShown: false }}
                       />
                     </Stack>
+                  </LiveIndicatorProvider>
                 </Preloader>
               </WorkoutProvider>
             </ToastProvider>
