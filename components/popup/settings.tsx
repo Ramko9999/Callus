@@ -10,6 +10,7 @@ import { useToast } from "react-native-toast-notifications";
 import { useTabBar } from "@/components/util/tab-bar/context";
 import { useEffect } from "react";
 import { FullBottomSheet } from "@/components/util/popup/sheet/full";
+import { useLiveIndicator } from "./workout/live";
 
 const settingStyles = StyleSheet.create({
   container: {
@@ -142,12 +143,15 @@ type SettingsSheetProps = {
 
 export function SettingsSheet({ show, hide }: SettingsSheetProps) {
   const tabBarActions = useTabBar();
+  const liveIndicatorActions = useLiveIndicator();
 
   useEffect(() => {
     if (show) {
       tabBarActions.close();
+      liveIndicatorActions.hide();
     } else {
       tabBarActions.open();
+      liveIndicatorActions.show();
     }
   }, [show]);
 

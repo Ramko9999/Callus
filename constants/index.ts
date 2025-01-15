@@ -1,6 +1,3 @@
-import { DifficultyType, ExerciseMeta } from "@/interface";
-import STATIC_EXERCISE_REPOSITORY from "@/assets/exercises/exerciseMetas.json";
-
 // test-v3-10-6
 export const STORAGE_NAMESPACE = "test-v9-10-23";
 

@@ -135,12 +135,12 @@ function computeSummaries(completions: Exercise[], type: DifficultyType) {
   });
 }
 
-// todo: consider whether we should use set startedAt or restEndedAt for determining when a exercise was begun
+// todo: use the workout start date
 function computeHistory(
   completions: Exercise[],
   type: DifficultyType
 ): HistoryLineItem[] {
-  return ArrayUtils.groupBy(completions, ({ sets }) =>
+  const historySummaries = ArrayUtils.groupBy(completions, ({ sets }) =>
     truncTime(sets[0].restEndedAt as number)
   ).map(({ key: day, items: completions }) => {
     const notes = completions
@@ -149,6 +149,8 @@ function computeHistory(
     const summaries = computeSummaries(completions, type);
     return { day, notes, summaries };
   });
+
+  return ArrayUtils.sortBy(historySummaries, ({ day }) => day);
 }
 
 const historyStyles = StyleSheet.create({

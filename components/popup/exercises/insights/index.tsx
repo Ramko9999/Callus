@@ -24,6 +24,7 @@ import { HistoryInsight } from "./history";
 import { getDifficultyType } from "@/api/exercise";
 import { useTabBar } from "@/components/util/tab-bar/context";
 import { FullBottomSheet } from "@/components/util/popup/sheet/full";
+import { useLiveIndicator } from "../../workout/live";
 
 type InsightTab = "History" | "Chart";
 const INSIGHT_TABS = ["History", "Chart"] as InsightTab[];
@@ -178,12 +179,15 @@ export function ExerciseInsightsSheet({
   exerciseName,
 }: ExerciseInsightsSheetProps) {
   const tabBarActions = useTabBar();
+  const liveIndicatorActions = useLiveIndicator();
 
   useEffect(() => {
     if (show) {
       tabBarActions.close();
+      liveIndicatorActions.hide();
     } else {
       tabBarActions.open();
+      liveIndicatorActions.show();
     }
   }, [show]);
 

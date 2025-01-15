@@ -310,6 +310,7 @@ type LiveIndicatorProviderProps = {
   children: React.ReactNode;
 };
 
+// todo: smoothly close the indicator and open it in sync with the tab bar
 export function LiveIndicatorProvider({
   children,
 }: LiveIndicatorProviderProps) {
