@@ -52,6 +52,12 @@ export type WorkoutPlan = {
   exercises: ExercisePlan[];
 };
 
+export type Routine = {
+  id: string;
+  name: string;
+  plan: ExercisePlan[];
+};
+
 export enum SetStatus {
   UNSTARTED,
   RESTING,

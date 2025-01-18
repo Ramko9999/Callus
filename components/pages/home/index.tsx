@@ -14,6 +14,7 @@ import { useWorkout } from "@/context/WorkoutContext";
 import { createWorkoutFromWorkout } from "@/util/workout";
 import { PLACEHOLDER_WORKOUT } from "@/util/mock";
 import { CompletedWorkout } from "./completed-workout";
+import { useTabBar } from "@/components/util/tab-bar/context";
 
 const styles = StyleSheet.create({
   homeView: {
@@ -129,6 +130,7 @@ export default function Home() {
   const [workoutToUpdate, setWorkoutToUpdate] = useState<Workout>();
   const { isInWorkout, actions } = useWorkout();
 
+  const tabBarActions = useTabBar();
   const liveIndicatorActions = useLiveIndicator();
 
   const loadWorkouts = async () => {
@@ -141,6 +143,19 @@ export default function Home() {
   useEffect(() => {
     loadWorkouts();
   }, [workoutDate, pathname]);
+
+  useEffect(() => {
+    if (workoutToUpdate) {
+      tabBarActions.close();
+      liveIndicatorActions.hide();
+    } else {
+      tabBarActions.open();
+      liveIndicatorActions.show();
+    }
+    WorkoutApi.getWorkouts(truncTime(workoutDate))
+      .then(setCompletedWorkouts)
+      .finally(() => setLoading(false));
+  }, [workoutToUpdate]);
 
   return (
     <>
@@ -169,9 +184,6 @@ export default function Home() {
       <HistoricalEditorSheet
         show={workoutToUpdate != undefined}
         hide={() => {
-          // todo: consolidate logic for hiding and showing the editor sheet in one place
-          liveIndicatorActions.show();
-          loadWorkouts();
           setWorkoutToUpdate(undefined);
         }}
         onSave={(workout) => {
@@ -179,25 +191,12 @@ export default function Home() {
             setWorkoutToUpdate(workout)
           );
         }}
+        canRepeat={!isInWorkout}
         onRepeat={(workout) => {
           // todo: send an alert for why you can't start a workout if you are already in one
-          // todo: make closing smoother
-          if (isInWorkout) {
-            console.log("Cannot start a workout as you are already in one");
-          } else {
-            const repeatedWorkout = createWorkoutFromWorkout(workout);
-            setWorkoutToUpdate(undefined);
-            actions.startWorkout(repeatedWorkout);
-            liveIndicatorActions.show();
-          }
+          actions.startWorkout(createWorkoutFromWorkout(workout));
         }}
-        trash={() => {
-          WorkoutApi.deleteWorkout((workoutToUpdate as Workout).id).then(() => {
-            setWorkoutToUpdate(undefined);
-            liveIndicatorActions.show();
-            loadWorkouts();
-          });
-        }}
+        trash={() => WorkoutApi.deleteWorkout((workoutToUpdate as Workout).id)}
         workout={(workoutToUpdate ?? PLACEHOLDER_WORKOUT) as Workout}
       />
     </>

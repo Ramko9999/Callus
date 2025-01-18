@@ -6,6 +6,7 @@ import {
   DifficultyType,
   Exercise,
   ExerciseMeta,
+  ExercisePlan,
   SetStatus,
   TimeDifficulty,
   WeightDifficulty,
@@ -32,7 +33,10 @@ export function getLiveExerciseDescription(exercise: Exercise) {
   return `${completedSets} of ${totalSets} sets completed`;
 }
 
-export function getHistoricalExerciseDescription(exercise: Exercise) {
+export function getHistoricalExerciseDescription({
+  sets,
+  name,
+}: Exercise | ExercisePlan) {
   function getDifficultyRange(
     values: number[],
     format?: (value: number) => string
@@ -48,16 +52,16 @@ export function getHistoricalExerciseDescription(exercise: Exercise) {
     return `${formatValue(min)}-${formatValue(max)}`;
   }
 
-  const description = [`${exercise.sets.length} sets`];
-  const meta = NAME_TO_EXERCISE_META.get(exercise.name) as ExerciseMeta;
+  const description = [`${sets.length} sets`];
+  const meta = NAME_TO_EXERCISE_META.get(name) as ExerciseMeta;
   if (
     meta.difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT ||
     meta.difficultyType == DifficultyType.WEIGHT
   ) {
-    const reps = exercise.sets.map(
+    const reps = sets.map(
       ({ difficulty }) => (difficulty as WeightDifficulty).reps
     );
-    const weight = exercise.sets.map(
+    const weight = sets.map(
       ({ difficulty }) => (difficulty as WeightDifficulty).weight
     );
     description.push(
@@ -65,16 +69,16 @@ export function getHistoricalExerciseDescription(exercise: Exercise) {
       `for ${getDifficultyRange(reps)} reps`
     );
   } else if (meta.difficultyType === DifficultyType.BODYWEIGHT) {
-    const reps = exercise.sets.map(
+    const reps = sets.map(
       ({ difficulty }) => (difficulty as BodyWeightDifficulty).reps
     );
     description.push(`for ${getDifficultyRange(reps)} reps`);
   } else if (meta.difficultyType === DifficultyType.ASSISTED_BODYWEIGHT) {
-    const assistanceWeight = exercise.sets.map(
+    const assistanceWeight = sets.map(
       ({ difficulty }) =>
         (difficulty as AssistedBodyWeightDifficulty).assistanceWeight
     );
-    const reps = exercise.sets.map(
+    const reps = sets.map(
       ({ difficulty }) => (difficulty as AssistedBodyWeightDifficulty).reps
     );
     description.push(
@@ -82,7 +86,7 @@ export function getHistoricalExerciseDescription(exercise: Exercise) {
       `for ${getDifficultyRange(reps)} reps`
     );
   } else {
-    const duration = exercise.sets.map(
+    const duration = sets.map(
       ({ difficulty }) => (difficulty as TimeDifficulty).duration
     );
     description.push(`for ${getDifficultyRange(duration, getDurationDisplay)}`);
@@ -91,19 +95,25 @@ export function getHistoricalExerciseDescription(exercise: Exercise) {
   return description.join(" ");
 }
 
-export function getDifficultyDescription(difficultyType: DifficultyType, difficulty: Difficulty){
-  if(difficultyType === DifficultyType.WEIGHT || difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT){
-    const {weight, reps} = difficulty as WeightDifficulty;
-    return `${weight} lbs for ${reps} reps`
-  } else if (difficultyType === DifficultyType.BODYWEIGHT){
-    const {reps} = difficulty as BodyWeightDifficulty
-    return `${reps} reps`
-  }
-  else if (difficultyType === DifficultyType.ASSISTED_BODYWEIGHT){
-    const {assistanceWeight, reps} = difficulty as AssistedBodyWeightDifficulty;
-    return `${assistanceWeight} lbs of assistance for ${reps} reps`
+export function getDifficultyDescription(
+  difficultyType: DifficultyType,
+  difficulty: Difficulty
+) {
+  if (
+    difficultyType === DifficultyType.WEIGHT ||
+    difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT
+  ) {
+    const { weight, reps } = difficulty as WeightDifficulty;
+    return `${weight} lbs for ${reps} reps`;
+  } else if (difficultyType === DifficultyType.BODYWEIGHT) {
+    const { reps } = difficulty as BodyWeightDifficulty;
+    return `${reps} reps`;
+  } else if (difficultyType === DifficultyType.ASSISTED_BODYWEIGHT) {
+    const { assistanceWeight, reps } =
+      difficulty as AssistedBodyWeightDifficulty;
+    return `${assistanceWeight} lbs of assistance for ${reps} reps`;
   } else {
-    const {duration} = difficulty as TimeDifficulty;
-    return `${duration} seconds`
+    const { duration } = difficulty as TimeDifficulty;
+    return `${duration} seconds`;
   }
 }

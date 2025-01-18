@@ -14,8 +14,12 @@ import {
   GET_LIFETIME_STATS,
   GET_COMPLETED_EXERCISES,
   GET_COMPLETED_EXERCISE,
+  ROUTINES_TABLE_CREATION,
+  GET_ROUTINES,
+  UPSERT_ROUTINE,
+  DELETE_ROUTINE,
 } from "./sql";
-import { Exercise, Workout, WorkoutLifetimeStats } from "@/interface";
+import { Exercise, Routine, Workout, WorkoutLifetimeStats } from "@/interface";
 import { truncTime } from "@/util/date";
 
 const APP_DATA_DIRECTORY = `${FileSystem.documentDirectory}${STORAGE_NAMESPACE}`;
@@ -23,6 +27,7 @@ const APP_DATA_DIRECTORY = `${FileSystem.documentDirectory}${STORAGE_NAMESPACE}`
 const TABLE_CREATIONS = [
   WORKOUTS_TABLE_CREATION,
   EXERCISES_TABLE_CREATION,
+  ROUTINES_TABLE_CREATION,
 ].join("");
 
 export async function initializeAppDataDirectory() {
@@ -51,6 +56,36 @@ function toExercise({ name, id, sets, rest_duration, note }: any): Exercise {
   };
 }
 
+function toRoutine({ id, name, plan }: any): Routine {
+  return {
+    id,
+    name,
+    plan: JSON.parse(plan),
+  };
+}
+
+function toWorkout({
+  id,
+  name,
+  exercises,
+  started_at,
+  ended_at,
+  routine_id,
+}: any): Workout {
+  const parsedExercises = JSON.parse(exercises)
+    .sort((a: any, b: any) => a.order - b.order)
+    .map(toExercise);
+
+  return {
+    name,
+    exercises: parsedExercises,
+    startedAt: started_at,
+    id,
+    endedAt: ended_at,
+    routineId: routine_id,
+  };
+}
+
 let STORE: Store;
 
 export class Store {
@@ -66,22 +101,6 @@ export class Store {
 
   static instance() {
     return STORE;
-  }
-
-  private toWorkout(rawSqlRecord: any): Workout {
-    const sqlExercises: any[] = JSON.parse(rawSqlRecord.exercises);
-    const exercises: Exercise[] = sqlExercises
-      .sort((a, b) => a.order - b.order)
-      .map(toExercise);
-
-    return {
-      name: rawSqlRecord.name,
-      exercises,
-      startedAt: rawSqlRecord.started_at,
-      id: rawSqlRecord.id,
-      endedAt: rawSqlRecord.ended_at,
-      routineId: rawSqlRecord.routine_id,
-    };
   }
 
   async saveWorkout(workout: Workout) {
@@ -132,7 +151,7 @@ export class Store {
         $after: after,
         $before: before,
       })) as any[]
-    ).map(this.toWorkout);
+    ).map(toWorkout);
   }
 
   async getAllWorkouts() {
@@ -141,12 +160,28 @@ export class Store {
         $after: 0,
         $before: Date.now(),
       })) as any[]
-    ).map(this.toWorkout);
+    ).map(toWorkout);
+  }
+
+  async getRoutines() {
+    return (await this.db.getAllAsync(GET_ROUTINES)).map(toRoutine);
+  }
+
+  async saveRoutine({ id, name, plan }: Routine) {
+    await this.db.runAsync(UPSERT_ROUTINE, {
+      $id: id,
+      $name: name,
+      $plan: JSON.stringify(plan),
+    });
+  }
+
+  async deleteRoutine(routineId: string) {
+    await this.db.runAsync(DELETE_ROUTINE, { $routine_id: routineId });
   }
 
   async getInProgressWorkout(): Promise<Workout | undefined> {
     const rawSqlRecord = await this.db.getFirstAsync(GET_IN_PROGRESS_WORKOUTS);
-    return rawSqlRecord != null ? this.toWorkout(rawSqlRecord) : undefined;
+    return rawSqlRecord != null ? toWorkout(rawSqlRecord) : undefined;
   }
 
   async saveWorkouts(workouts: Workout[]) {
@@ -156,6 +191,12 @@ export class Store {
     }
     const elapsed = Date.now() - start;
     console.log(`[STORE] saveWorkouts took ${elapsed}ms`);
+  }
+
+  async saveRoutines(routines: Routine[]) {
+    for (const routine of routines) {
+      await this.saveRoutine(routine);
+    }
   }
 
   async deleteWorkout(workoutId: string) {

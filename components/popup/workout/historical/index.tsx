@@ -44,8 +44,9 @@ type HistoricalEditorSheetProps = {
   hide: () => void;
   workout: Workout;
   onSave: (workout: Workout) => void;
+  canRepeat: boolean;
   onRepeat: (workout: Workout) => void;
-  trash: () => void;
+  trash: () => Promise<void>;
 };
 
 export function HistoricalEditorSheet({
@@ -53,19 +54,10 @@ export function HistoricalEditorSheet({
   hide,
   workout,
   onSave,
+  canRepeat,
   onRepeat,
   trash,
 }: HistoricalEditorSheetProps) {
-  const tabBarActions = useTabBar();
-
-  useEffect(() => {
-    if (show) {
-      tabBarActions.close();
-    } else {
-      tabBarActions.open();
-    }
-  }, [show]);
-
   const [exerciseId, setExerciseId] = useState<string>();
   const exercise = workout.exercises.find(({ id }) => exerciseId === id);
 
@@ -74,7 +66,7 @@ export function HistoricalEditorSheet({
   const [isEditingTimes, setIsEditingTimes] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
-  const fullBottomSheetRef = useRef<FullBottomSheetRef>(null);
+  const sheetRef = useRef<FullBottomSheetRef>(null);
 
   const onHide = () => {
     setExerciseId(undefined);
@@ -116,7 +108,7 @@ export function HistoricalEditorSheet({
 
   return (
     <InputsPadProvider>
-      <FullBottomSheet ref={fullBottomSheetRef} show={show} onHide={onHide}>
+      <FullBottomSheet ref={sheetRef} show={show} onHide={onHide}>
         <View style={historicalEditorSheetStyles.container}>
           {exerciseId ? (
             <SetEditorContent
@@ -131,7 +123,7 @@ export function HistoricalEditorSheet({
             <ExerciseEditorContent
               isReordering={isReordering}
               workout={workout}
-              onClose={() => fullBottomSheetRef.current?.hideSheet()}
+              onClose={() => sheetRef.current?.hideSheet()}
               onStartReordering={() => {
                 setIsReordering(true);
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -160,9 +152,14 @@ export function HistoricalEditorSheet({
       </FullBottomSheet>
       <ExerciseEditorModals
         add={onAddExercise}
-        trash={trash}
+        trash={() => trash().then(() => sheetRef.current?.hideSheet())}
         updateMeta={onUpdateMeta}
-        repeat={onRepeat}
+        repeat={(workout) => {
+          if (canRepeat) {
+            onRepeat(workout);
+            sheetRef.current?.hideSheet();
+          }
+        }}
         workout={workout}
         finder={{
           show: isAddingExercise,

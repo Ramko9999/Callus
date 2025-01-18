@@ -4,6 +4,9 @@ export const WORKOUTS_TABLE_CREATION =
 export const EXERCISES_TABLE_CREATION =
   "CREATE TABLE IF NOT EXISTS exercises (id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, workout_id TEXT NOT NULL, sets TEXT NOT NULL, exercise_order INTEGER NOT NULL, rest_duration INTEGER NOT NULL, note TEXT, FOREIGN KEY (workout_id) REFERENCES workouts(id));";
 
+export const ROUTINES_TABLE_CREATION =
+  "CREATE TABLE IF NOT EXISTS routines (id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, plan TEXT NOT NULL)";
+
 export const UPSERT_WORKOUT = `INSERT INTO workouts(id, name, started_at, ended_at, routine_id) VALUES ($id, $name, $started_at, $ended_at, $routine_id) 
   ON CONFLICT(id) DO UPDATE SET name = excluded.name, started_at = excluded.started_at, ended_at = excluded.ended_at, routine_id = excluded.routine_id`;
 
@@ -50,3 +53,10 @@ export const GET_COMPLETED_EXERCISES = COMPLETED_EXERCISES_SQL(
 export const GET_COMPLETED_EXERCISE = COMPLETED_EXERCISES_SQL(
   `${COMPLETED_WORKOUTS_PREDICATE} and ${EXERCISE_FILTER_PREDICATE}`
 );
+
+export const GET_ROUTINES = "select id, name, plan from routines;";
+
+export const UPSERT_ROUTINE =
+  "INSERT INTO routines(id, name, plan) values($id, $name, $plan) ON CONFLICT(id) DO UPDATE SET id=excluded.id, name=excluded.name, plan=excluded.plan;";
+
+export const DELETE_ROUTINE = "DELETE FROM routines where id=$routine_id";

@@ -5,12 +5,17 @@ import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import * as DocumentPicker from "expo-document-picker";
 import { WorkoutApi } from "@/api/workout";
-import { Workout } from "@/interface";
+import { Routine, Workout } from "@/interface";
 import { useToast } from "react-native-toast-notifications";
 import { useTabBar } from "@/components/util/tab-bar/context";
 import { useEffect } from "react";
 import { FullBottomSheet } from "@/components/util/popup/sheet/full";
 import { useLiveIndicator } from "./workout/live";
+
+type ImportExport = {
+  workouts: Workout[];
+  routines: Routine[];
+};
 
 const settingStyles = StyleSheet.create({
   container: {
@@ -44,7 +49,9 @@ async function exportAppData() {
     FileSystem.cacheDirectory
   }/export-${Date.now()}.json`;
   const workouts = await WorkoutApi.getExportableWorkouts();
-  await FileSystem.writeAsStringAsync(exportFileUri, JSON.stringify(workouts));
+  const routines = await WorkoutApi.getExportableRoutines();
+  const appExport: ImportExport = { workouts, routines };
+  await FileSystem.writeAsStringAsync(exportFileUri, JSON.stringify(appExport));
   await Sharing.shareAsync(exportFileUri);
 }
 
@@ -59,25 +66,22 @@ function ExportSetting() {
 }
 
 type ImportOptions = {
-  onDone: (workouts: Workout[]) => void;
+  onDone: (appImport: ImportExport) => void;
   onError: (e: Error) => void;
 };
 
 async function importAppData({ onDone, onError }: ImportOptions) {
   const result = await DocumentPicker.getDocumentAsync({
     type: "application/json",
+    multiple: false,
   });
   if (!result.canceled && result.assets != null && result.assets.length > 0) {
-    const importWorkoutPromises = result.assets.map(async (asset) => {
-      const content = await FileSystem.readAsStringAsync(asset.uri);
-      return JSON.parse(content) as Workout[];
-    });
+    const content = await FileSystem.readAsStringAsync(result.assets[0].uri);
+    const { workouts, routines } = JSON.parse(content) as ImportExport;
     try {
-      const importedWorkouts = (
-        await Promise.all(importWorkoutPromises)
-      ).flatMap((workouts) => workouts);
-      await WorkoutApi.importWorkouts(importedWorkouts);
-      onDone(importedWorkouts);
+      await WorkoutApi.importWorkouts(workouts);
+      await WorkoutApi.importRoutines(routines);
+      onDone({ workouts, routines });
     } catch (error) {
       onError(error as Error);
     }
@@ -89,15 +93,18 @@ function ImportSetting() {
   const toast = useToast();
   const successColor = useThemeColoring("primaryAction");
 
-  const onDone = (workouts: Workout[]) => {
-    toast.show(`Imported ${workouts.length} workouts!`, {
-      successColor,
-      type: "success",
-    });
+  const onDone = ({ workouts, routines }: ImportExport) => {
+    toast.show(
+      `Imported ${workouts.length} workouts and ${routines.length} routines!`,
+      {
+        successColor,
+        type: "success",
+      }
+    );
   };
 
   const onError = (error: Error) => {
-    toast.show(`Failed to import workouts: ${error}`, { type: "danger" });
+    toast.show(`Failed to import: ${error}`, { type: "danger" });
   };
 
   return (

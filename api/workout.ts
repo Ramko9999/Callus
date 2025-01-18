@@ -4,6 +4,7 @@ import {
   Trend,
   SearchExerciseSummary,
   Exercise,
+  Routine,
 } from "@/interface";
 import { addDays, truncTime } from "@/util/date";
 import { Store } from "./store";
@@ -23,6 +24,18 @@ export class WorkoutApi {
     await Store.instance().deleteWorkout(workoutId);
   }
 
+  static async getRoutines(): Promise<Routine[]> {
+    return Store.instance().getRoutines();
+  }
+
+  static async saveRoutine(routine: Routine): Promise<void> {
+    await Store.instance().saveRoutine(routine);
+  }
+
+  static async deleteRoutine(routineId: string): Promise<void> {
+    await Store.instance().deleteRoutine(routineId);
+  }
+
   static getWorkoutId(date: number, workoutPlan: WorkoutPlan) {
     return `${new Date(truncTime(date)).toISOString()}-${workoutPlan.name}`;
   }
@@ -35,8 +48,16 @@ export class WorkoutApi {
     return await Store.instance().getAllWorkouts();
   }
 
+  static async getExportableRoutines(): Promise<Routine[]> {
+    return await Store.instance().getRoutines();
+  }
+
   static async importWorkouts(workouts: Workout[]): Promise<void> {
     await Store.instance().saveWorkouts(workouts);
+  }
+
+  static async importRoutines(routines: Routine[]): Promise<void> {
+    await Store.instance().saveRoutines(routines);
   }
 
   static async getWorkedOutDays(before: number, after: number) {

@@ -25,12 +25,6 @@ const completedWorkoutStyles = StyleSheet.create({
     padding: "3%",
     borderRadius: 5,
   },
-  summaryMetric: {
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-  },
 });
 
 type CompletedWorkoutProps = {

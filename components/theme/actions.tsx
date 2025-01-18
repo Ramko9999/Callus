@@ -48,6 +48,26 @@ export function Trash({ onClick, style }: ActionProps) {
   );
 }
 
+export function Start({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("primaryAction") },
+          style,
+        ]}
+      >
+        <FontAwesome
+          name="play"
+          size={textTheme.large.fontSize}
+          color={"white"}
+        />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
 export function Edit({ onClick, style }: ActionProps) {
   return (
     <TouchableOpacity onPress={onClick}>
@@ -90,13 +110,13 @@ export function Back({ onClick, style }: ActionProps) {
   );
 }
 
-export function Add({ onClick, style }: ActionProps) {
+export function Add({ onClick, style, iconSize }: ActionProps) {
   return (
     <TouchableOpacity onPress={onClick}>
       <View style={[iconActionStyles.container, style]}>
         <FontAwesome
           name="plus"
-          size={textTheme.large.fontSize}
+          size={iconSize ?? textTheme.large.fontSize}
           color={useThemeColoring("lightText")}
         />
       </View>

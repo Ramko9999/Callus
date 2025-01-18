@@ -97,6 +97,60 @@ export function WorkoutDeleteConfirmation({
   );
 }
 
+type RoutineDeleteConfirmationProps = {
+  show: boolean;
+  hide: () => void;
+  onDelete: () => void;
+};
+
+export function RoutineDeleteConfirmation({
+  show,
+  hide,
+  onDelete,
+}: RoutineDeleteConfirmationProps) {
+  return (
+    <EditorPopup
+      show={show}
+      onHide={hide}
+      title="Delete Routine?"
+      description="This routine cannot be recovered after it is deleted"
+    >
+      <View style={popupStyles.actions}>
+        <View style={popupStyles.actions}>
+          <DangerAction text="Delete" onClick={onDelete} />
+        </View>
+      </View>
+    </EditorPopup>
+  );
+}
+
+type RoutineStartConfirmationProps = {
+  show: boolean;
+  hide: () => void;
+  onStart: () => void;
+};
+
+export function RoutineStartConfirmation({
+  show,
+  hide,
+  onStart,
+}: RoutineStartConfirmationProps) {
+  return (
+    <EditorPopup
+      show={show}
+      onHide={hide}
+      title="Start Routine?"
+      description="Are you ready to start the routine?"
+    >
+      <View style={popupStyles.actions}>
+        <View style={popupStyles.actions}>
+          <SignificantAction text="Start" onClick={onStart} />
+        </View>
+      </View>
+    </EditorPopup>
+  );
+}
+
 type RepeatWorkoutConfirmationProps = {
   show: boolean;
   hide: () => void;

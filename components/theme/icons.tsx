@@ -7,6 +7,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
   Feather,
+  FontAwesome,
 } from "@expo/vector-icons";
 import { textTheme } from "@/constants/Themes";
 import { StyleUtils } from "@/util/styles";
@@ -220,6 +221,16 @@ export function ExerciseTabIcon({ color }: TabBarIconProps) {
   return (
     <FontAwesome6
       name="dumbbell"
+      size={textTheme.action.fontSize}
+      color={color}
+    />
+  );
+}
+
+export function RoutinesTabIcon({ color }: TabBarIconProps) {
+  return (
+    <FontAwesome
+      name="bookmark"
       size={textTheme.action.fontSize}
       color={color}
     />

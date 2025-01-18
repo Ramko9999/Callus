@@ -116,12 +116,7 @@ export function EditorExercise({
               {description}
             </Text>
             {exercise.note && (
-              <Text
-                neutral
-                light
-                italic
-                numberOfLines={1}
-              >
+              <Text neutral light italic numberOfLines={1}>
                 {exercise.note}
               </Text>
             )}

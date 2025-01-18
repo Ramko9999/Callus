@@ -1,4 +1,4 @@
-import { Workout } from "@/interface";
+import { Routine, Workout } from "@/interface";
 
 export const PLACEHOLDER_WORKOUT: Workout = {
   id: "",
@@ -7,3 +7,9 @@ export const PLACEHOLDER_WORKOUT: Workout = {
   name: "Placeholder",
   exercises: [],
 };
+
+export const PLACEHOLDER_ROUTINE: Routine = {
+  id: "",
+  name: "Placeholder",
+  plan: []
+}

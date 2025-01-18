@@ -8,6 +8,7 @@ import {
   ExerciseTabIcon,
   HomeTabIcon,
   ProfileTabIcon,
+  RoutinesTabIcon,
 } from "@/components/theme/icons";
 
 export default function TabLayout() {
@@ -37,6 +38,14 @@ export default function TabLayout() {
         options={{
           title: "Exercises",
           tabBarIcon: ({ color }) => <ExerciseTabIcon color={color} />,
+        }}
+      />
+
+      <Tabs.Screen
+        name="routines"
+        options={{
+          title: "Routines",
+          tabBarIcon: ({ color }) => <RoutinesTabIcon color={color} />,
         }}
       />
 

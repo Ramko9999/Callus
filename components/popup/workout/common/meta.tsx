@@ -16,7 +16,7 @@ import {
   Keyboard,
 } from "react-native";
 
-const workoutTitleMetaStyles = StyleSheet.create({
+const metaEditorStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(5),
     paddingLeft: "3%",
@@ -42,7 +42,7 @@ export function MetaEditor({ workout, onUpdateMeta, onDateClick }: MetaEditor) {
   const [workoutName, setWorkoutName] = useState(name);
 
   return (
-    <View style={workoutTitleMetaStyles.container}>
+    <View style={metaEditorStyles.container}>
       <TextInput
         extraLarge
         value={workoutName}
@@ -62,7 +62,7 @@ export function MetaEditor({ workout, onUpdateMeta, onDateClick }: MetaEditor) {
           {getLongDateDisplay(startedAt, true)}
         </Text>
       </TouchableOpacity>
-      <View style={workoutTitleMetaStyles.summary}>
+      <View style={metaEditorStyles.summary}>
         <WeightMetaIcon weight={totalWeightLifted} />
         <RepsMetaIcon reps={totalReps} />
         <DurationMetaIconProps durationInMillis={totalDuration} />
