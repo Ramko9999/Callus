@@ -1,6 +1,7 @@
 import {
   addExercise,
   duplicateLastSet,
+  finish,
   getCurrentWorkoutActivity,
   hasUnstartedSets,
   removeExercise,
@@ -48,6 +49,7 @@ import { View } from "@/components/Themed";
 import { StyleSheet } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import { PLACEHOLDER_WORKOUT } from "@/util/mock";
+import { CongratsFinishingWorkout } from "./player/congrats";
 
 const REST_COMPLETING_THRESHOLD = 6000;
 
@@ -91,6 +93,9 @@ function LivePlayerSheet({
   const onHideContent = () => {
     setExerciseId(undefined);
     setIsEditing(false);
+    if (workout.endedAt != undefined) {
+      actions.discardWorkout();
+    }
     tabBarActions.open();
   };
 
@@ -127,11 +132,64 @@ function LivePlayerSheet({
     onSave(updateExercise(exerciseId as string, { note }, workout));
   };
 
-  const onAttemptToFinish = () => {
+  const onFinish = () => {
     if (hasUnstartedSets(workout)) {
       setIsFinishing(true);
     } else {
-      onSave(wrapUpSets(workout));
+      onSave(finish(wrapUpSets(workout)));
+    }
+  };
+
+  const getContent = () => {
+    if (workout.endedAt != undefined) {
+      return <CongratsFinishingWorkout workout={workout} />;
+    }
+
+    if (isEditing) {
+      if (exerciseId != undefined) {
+        return (
+          <SetEditorContent
+            onAdd={onAddSet}
+            onEditRest={() => setIsEditingRest(true)}
+            onRemove={onRemoveSet}
+            onUpdate={onUpdateSet}
+            onNote={onNote}
+            close={() => setExerciseId(undefined)}
+            exercise={exercise as Exercise}
+            workout={workout}
+          />
+        );
+      } else {
+        return (
+          <ExerciseEditorContent
+            isReordering={isReordering}
+            workout={workout}
+            onClose={() => setIsEditing(false)}
+            onStartReordering={() => setIsReordering(true)}
+            onDoneReordering={() => setIsReordering(false)}
+            onAdd={() => setIsAddingExercise(true)}
+            onRemove={onRemoveExercise}
+            onSelect={(exercise) => setExerciseId(exercise.id)}
+            onReorder={onReorderExercises}
+            onFinish={onFinish}
+            onUpdateMeta={onUpdateMeta}
+            onEditTimes={() => setIsEditingDates(true)}
+          />
+        );
+      }
+    } else {
+      return (
+        <PlayerContent
+          activity={activity}
+          workout={workout}
+          onCompleteSet={actions.completeSet}
+          onSkipRest={actions.completeRest}
+          onUpdateRest={actions.updateRestDuration}
+          onFinish={onFinish}
+          onEdit={() => setIsEditing(true)}
+          onClose={() => sheetRef.current?.hideContent()}
+        />
+      );
     }
   };
 
@@ -142,7 +200,7 @@ function LivePlayerSheet({
           <PreviewableSheet
             ref={sheetRef}
             onOpenContent={tabBarActions.close}
-            onCloseContent={onHideContent}
+            onHideContent={onHideContent}
             renderPreview={() => (
               <Preview
                 workout={workout}
@@ -150,52 +208,7 @@ function LivePlayerSheet({
               />
             )}
           >
-            <View style={livePlayerSheetStyles.container}>
-              {isEditing ? (
-                exerciseId ? (
-                  <SetEditorContent
-                    onAdd={onAddSet}
-                    onEditRest={() => setIsEditingRest(true)}
-                    onRemove={onRemoveSet}
-                    onUpdate={onUpdateSet}
-                    onNote={onNote}
-                    close={() => setExerciseId(undefined)}
-                    exercise={exercise as Exercise}
-                    workout={workout}
-                  />
-                ) : (
-                  <ExerciseEditorContent
-                    isReordering={isReordering}
-                    workout={workout}
-                    onClose={() => setIsEditing(false)}
-                    onStartReordering={() => setIsReordering(true)}
-                    onDoneReordering={() => setIsReordering(false)}
-                    onAdd={() => setIsAddingExercise(true)}
-                    onRemove={onRemoveExercise}
-                    onSelect={(exercise) => setExerciseId(exercise.id)}
-                    onReorder={onReorderExercises}
-                    onFinish={onAttemptToFinish}
-                    onUpdateMeta={onUpdateMeta}
-                    onEditTimes={() => setIsEditingDates(true)}
-                  />
-                )
-              ) : (
-                <PlayerContent
-                  activity={activity}
-                  workout={workout}
-                  onCompleteSet={actions.completeSet}
-                  onSkipRest={actions.completeRest}
-                  onUpdateRest={actions.updateRestDuration}
-                  onAttemptToFinish={onAttemptToFinish}
-                  onFinish={() => {
-                    sheetRef.current?.hideContent();
-                    actions.finishWorkout();
-                  }}
-                  onEdit={() => setIsEditing(true)}
-                  onClose={() => sheetRef.current?.hideContent()}
-                />
-              )}
-            </View>
+            <View style={livePlayerSheetStyles.container}>{getContent()}</View>
           </PreviewableSheet>
         </InputsPadProvider>
         {isEditing ? (

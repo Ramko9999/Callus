@@ -1,3 +1,5 @@
+import { getNumberSuffix } from "./misc";
+
 export const Period = {
   SECOND: 1000,
   MINUTE: 60 * 1000,
@@ -126,19 +128,6 @@ export function getDateDisplay(timestamp: number) {
   return `${month}. ${date.getDate()}`;
 }
 
-function getDateSuffix(day: number) {
-  switch (day) {
-    case 1:
-      return "st";
-    case 2:
-      return "nd";
-    case 3:
-      return "rd";
-    default:
-      return "th";
-  }
-}
-
 export function getLongDateDisplay(
   timestamp: number,
   withTime: boolean = false
@@ -146,9 +135,9 @@ export function getLongDateDisplay(
   const date = new Date(timestamp);
   let month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(date);
 
-  let formatted = `${month} ${date.getDate()}${getDateSuffix(date.getDate())}`;
+  let formatted = `${month} ${date.getDate()}${getNumberSuffix(date.getDate())}`;
   if (withTime) {
-    formatted = `${month} ${date.getDate()}${getDateSuffix(
+    formatted = `${month} ${date.getDate()}${getNumberSuffix(
       date.getDate()
     )} ${getHour(timestamp)}:${date
       .getMinutes()

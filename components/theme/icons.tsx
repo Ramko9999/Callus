@@ -256,3 +256,18 @@ export function DeleteKeypadIcon() {
     />
   );
 }
+
+type StarProps = {
+  size?: number;
+  color?: string;
+};
+
+export function Star({ size, color }: StarProps) {
+  return (
+    <FontAwesome
+      name="star"
+      size={size ?? textTheme.large.fontSize}
+      color={color ?? useThemeColoring("primaryAction")}
+    />
+  );
+}

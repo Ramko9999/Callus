@@ -9,7 +9,11 @@ import { StyleSheet, Image, useWindowDimensions } from "react-native";
 import { getMeta } from "@/api/exercise";
 import { StyleUtils } from "@/util/styles";
 import { getDifficultyDescription } from "@/util/workout/display";
-import { NeutralAction, SignificantAction } from "@/components/theme/actions";
+import {
+  Edit,
+  NeutralAction,
+  SignificantAction,
+} from "@/components/theme/actions";
 import { ProgressRing } from "@/components/util/progress-ring";
 import { textTheme } from "@/constants/Themes";
 import { getDurationDisplay } from "@/util/date";
@@ -74,15 +78,41 @@ function ExercisingActivity({
   );
 }
 
-type FinishActivityProps = {
-  onFinish: () => void;
-};
+const noMoreActivitesStyles = StyleSheet.create({
+  content: {
+    ...StyleUtils.flexColumn(),
+    justifyContent: "space-between",
+    paddingHorizontal: "3%",
+  },
+  addMoreMessage: {
+    ...StyleUtils.flexRow(),
+    alignItems: "baseline",
+  },
+  inlineEdit: {
+    marginHorizontal: -15,
+  },
+});
 
-// todo: implement a screen to celebrate completion of workout
-function FinishActivity({ onFinish }: FinishActivityProps) {
+function NoMoreActivites() {
   return (
     <View style={activityStyles.container}>
-      <SignificantAction text="Done" onClick={onFinish} />
+      <Text extraLarge>Are you finished?</Text>
+      <View style={noMoreActivitesStyles.content}>
+        <Text>
+          There aren't anymore exercises for you to complete in this workout.
+        </Text>
+        <View>
+          <View style={noMoreActivitesStyles.addMoreMessage}>
+            <Text>You can add more exercises by clicking '</Text>
+            <Edit
+              iconSize={textTheme.neutral.fontSize}
+              style={noMoreActivitesStyles.inlineEdit}
+            />
+            <Text>'</Text>
+          </View>
+        </View>
+        <Text>Otherwise, you can finish your workout. Great work!</Text>
+      </View>
     </View>
   );
 }
@@ -115,9 +145,7 @@ function RestingActivity({
 
   return (
     <View style={activityStyles.container}>
-      <Text extraLarge>
-        Rest
-      </Text>
+      <Text extraLarge>Rest</Text>
       <ProgressRing progress={progress}>
         <View style={restingActivityStyles.timer}>
           <Text style={{ ...textTheme.timer }}>
@@ -189,6 +217,6 @@ export function Activity({
       />
     );
   } else {
-    return <FinishActivity onFinish={onCompleteWorkout} />;
+    return <NoMoreActivites />;
   }
 }

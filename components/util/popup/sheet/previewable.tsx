@@ -3,6 +3,7 @@ import Animated, {
   clamp,
   interpolate,
   interpolateColor,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -47,7 +48,7 @@ type PreviewableSheetProps = {
   renderPreview: () => React.ReactNode;
   children: React.ReactNode;
   onOpenContent: () => void;
-  onCloseContent: () => void;
+  onHideContent: () => void;
 };
 
 export type PreviewableSheetRef = {
@@ -64,7 +65,7 @@ export const PreviewableSheet = forwardRef<
       renderPreview,
       children,
       onOpenContent,
-      onCloseContent,
+      onHideContent,
     }: PreviewableSheetProps,
     ref
   ) => {
@@ -87,8 +88,11 @@ export const PreviewableSheet = forwardRef<
     };
 
     const hideContent = () => {
-      totalTranslation.value = withTiming(0);
-      onCloseContent();
+      totalTranslation.value = withTiming(0, {}, (done) => {
+        if (done) {
+          runOnJS(onHideContent)();
+        }
+      });
     };
 
     useImperativeHandle(ref, () => ({

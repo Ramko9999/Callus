@@ -60,3 +60,6 @@ export const UPSERT_ROUTINE =
   "INSERT INTO routines(id, name, plan) values($id, $name, $plan) ON CONFLICT(id) DO UPDATE SET id=excluded.id, name=excluded.name, plan=excluded.plan;";
 
 export const DELETE_ROUTINE = "DELETE FROM routines where id=$routine_id";
+
+export const GET_COMPLETED_WORKOUT_COUNT_BEFORE =
+  "select count(*) as workout_count from workouts where ended_at is not null and ended_at <= $before";

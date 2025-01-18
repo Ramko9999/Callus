@@ -18,6 +18,7 @@ import {
   GET_ROUTINES,
   UPSERT_ROUTINE,
   DELETE_ROUTINE,
+  GET_COMPLETED_WORKOUT_COUNT_BEFORE,
 } from "./sql";
 import { Exercise, Routine, Workout, WorkoutLifetimeStats } from "@/interface";
 import { truncTime } from "@/util/date";
@@ -265,5 +266,13 @@ export class Store {
         ),
       }))
       .filter((exercise) => exercise.sets.length > 0);
+  }
+
+  async getCompletedWorkoutCountsBefore(before: number) {
+    return (
+      (await this.db.getFirstAsync(GET_COMPLETED_WORKOUT_COUNT_BEFORE, {
+        $before: before,
+      })) as any
+    ).workout_count;
   }
 }

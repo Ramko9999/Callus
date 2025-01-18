@@ -307,7 +307,7 @@ export type WorkoutActions = {
   completeSet: (_: string) => void;
   updateRestDuration: (_: string, u: number) => void;
   completeRest: (setId: string) => void;
-  finishWorkout: () => void;
+  discardWorkout: () => void;
   resumeInProgressWorkout: (_: Workout) => void;
 };
 
@@ -345,7 +345,7 @@ const context = createContext<WorkoutContext>({
     startWorkout: () => {},
     completeSet: () => {},
     completeRest: () => {},
-    finishWorkout: () => {},
+    discardWorkout: () => {},
     resumeInProgressWorkout: () => {},
     updateRestDuration: () => {},
   },
@@ -420,14 +420,7 @@ export function WorkoutProvider({ children }: Props) {
     });
   };
 
-  const finishWorkout = () => {
-    const newWorkout = finish(workout as Workout);
-    WorkoutApi.saveWorkout(newWorkout).then(() => {
-      setWorkout(undefined);
-    });
-  };
-
-  const stopCurrentWorkout = () => {
+  const discardWorkout = () => {
     setWorkout(undefined);
   };
 
@@ -462,7 +455,7 @@ export function WorkoutProvider({ children }: Props) {
           startWorkout,
           completeRest,
           completeSet,
-          finishWorkout,
+          discardWorkout,
           resumeInProgressWorkout,
           updateRestDuration,
         },
@@ -474,7 +467,7 @@ export function WorkoutProvider({ children }: Props) {
         isInWorkout: workout != undefined,
         editor: {
           workout: workout,
-          actions: { updateWorkout, stopCurrentWorkout },
+          actions: { updateWorkout, stopCurrentWorkout: discardWorkout },
         },
         soundPlayer: {
           // todo: move to sound api

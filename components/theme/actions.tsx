@@ -68,13 +68,13 @@ export function Start({ onClick, style }: ActionProps) {
   );
 }
 
-export function Edit({ onClick, style }: ActionProps) {
+export function Edit({ onClick, style, iconSize }: ActionProps) {
   return (
     <TouchableOpacity onPress={onClick}>
       <View style={[iconActionStyles.container, style]}>
         <FontAwesome
           name="pencil"
-          size={textTheme.large.fontSize}
+          size={iconSize ?? textTheme.large.fontSize}
           color={useThemeColoring("lightText")}
         />
       </View>

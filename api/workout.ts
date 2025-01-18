@@ -94,4 +94,8 @@ export class WorkoutApi {
   ): Promise<Exercise[]> {
     return await Store.instance().getAllCompletedExercise(0, exerciseName);
   }
+
+  static async getCompletedWorkoutsBefore(before: number): Promise<number> {
+    return await Store.instance().getCompletedWorkoutCountsBefore(before);
+  }
 }

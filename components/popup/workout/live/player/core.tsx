@@ -61,7 +61,6 @@ type PlayerContentProps = {
   onCompleteSet: (setId: string) => void;
   onSkipRest: (setId: string) => void;
   onUpdateRest: (setId: string, duration: number) => void;
-  onAttemptToFinish: () => void;
   onFinish: () => void;
   onEdit: () => void;
   onClose: () => void;
@@ -73,18 +72,13 @@ export function PlayerContent({
   onCompleteSet,
   onSkipRest,
   onUpdateRest,
-  onAttemptToFinish,
   onFinish,
   onEdit,
   onClose,
 }: PlayerContentProps) {
   return (
     <>
-      <PlayerTopActions
-        onEdit={onEdit}
-        onClose={onClose}
-        onFinish={onAttemptToFinish}
-      />
+      <PlayerTopActions onEdit={onEdit} onClose={onClose} onFinish={onFinish} />
       <View background style={playerContentStyles.container}>
         <Activity
           activity={activity}
