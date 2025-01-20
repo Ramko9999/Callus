@@ -1,4 +1,4 @@
-import { getNumberSuffix } from "./misc";
+import { ArrayUtils, getNumberSuffix } from "./misc";
 
 export const Period = {
   SECOND: 1000,
@@ -135,7 +135,9 @@ export function getLongDateDisplay(
   const date = new Date(timestamp);
   let month = new Intl.DateTimeFormat("en-US", { month: "long" }).format(date);
 
-  let formatted = `${month} ${date.getDate()}${getNumberSuffix(date.getDate())}`;
+  let formatted = `${month} ${date.getDate()}${getNumberSuffix(
+    date.getDate()
+  )}`;
   if (withTime) {
     formatted = `${month} ${date.getDate()}${getNumberSuffix(
       date.getDate()
@@ -232,18 +234,24 @@ export function generateEnclosingWeek(timestamp: number) {
   return week;
 }
 
+/**
+ * Generates weeks for the enclosing month for the timestamp
+ * @param timestamp
+ * @returns
+ */
 export function generateEnclosingMonth(timestamp: number) {
   const date = new Date(timestamp);
   const month = date.getMonth();
   const firstDay = new Date(date.getFullYear(), month, 1, 0, 0, 0, 0);
+  const isInMonth = (day: number) => new Date(day).getMonth() === month;
 
   const weeks = [];
   for (
     let week = generateEnclosingWeek(firstDay.valueOf());
-    week.some((date) => new Date(date).getMonth() === month);
-    week = generateEnclosingWeek(addDays(week[6], 1))
+    week.some(isInMonth);
+    week = generateEnclosingWeek(addDays(ArrayUtils.last(week), 1))
   ) {
-    weeks.push([...week]);
+    weeks.push(week.filter(isInMonth));
   }
   return weeks;
 }

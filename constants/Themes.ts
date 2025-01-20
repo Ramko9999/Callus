@@ -28,6 +28,7 @@ export const darkColors = {
   inactiveTileColor: "#4A4A4C",
   bottomSheetBackground: "#161515",
   padBackground: "black",
+  calendarDayBackground: "#2d2c2c",
 };
 
 export const lightColors = {
@@ -56,6 +57,7 @@ export const lightColors = {
   inactiveTileColor: "#4A4A4C",
   bottomSheetBackground: "#161515",
   padBackground: "black",
+  calendarDayBackground: "#2d2c2c",
 };
 
 export type UIColor = keyof typeof darkColors & keyof typeof lightColors;
@@ -66,6 +68,10 @@ export const textTheme = {
   },
   neutral: {
     fontSize: 16,
+  },
+  header: {
+    fontSize: 18,
+    fontWeight: "600",
   },
   action: {
     fontSize: 20,

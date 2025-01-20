@@ -7,14 +7,14 @@ import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
 import { HistoricalEditorSheet } from "@/components/popup/workout/historical/index";
 import { useLiveIndicator } from "@/components/popup/workout/live/index";
-import { WorkoutCalendar } from "./calendar";
-import * as Haptics from "expo-haptics";
-import { DynamicHeaderPage } from "@/components/util/dynamic-header-page";
 import { useWorkout } from "@/context/WorkoutContext";
 import { createWorkoutFromWorkout } from "@/util/workout";
 import { PLACEHOLDER_WORKOUT } from "@/util/mock";
 import { CompletedWorkout } from "./completed-workout";
 import { useTabBar } from "@/components/util/tab-bar/context";
+import { HeaderPage } from "@/components/util/header-page";
+import { CalendarHeaderAction, Calendar } from "./calendar";
+import { useWorkedOutDays } from "./hooks/use-worked-out-days";
 
 const styles = StyleSheet.create({
   homeView: {
@@ -124,10 +124,13 @@ function CompletedWorkouts({
 
 export default function Home() {
   const pathname = usePathname();
+
+  const { refetch, hasWorkedOut } = useWorkedOutDays(truncTime(Date.now()));
   const [workoutDate, setWorkoutDate] = useState<number>(truncTime(Date.now()));
   const [loading, setLoading] = useState<boolean>(true);
   const [completedWorkouts, setCompletedWorkouts] = useState<Workout[]>([]);
   const [workoutToUpdate, setWorkoutToUpdate] = useState<Workout>();
+  const [showMonthCalendar, setShowMonthCalendar] = useState<boolean>(false);
   const { isInWorkout, actions } = useWorkout();
 
   const tabBarActions = useTabBar();
@@ -136,13 +139,18 @@ export default function Home() {
   const loadWorkouts = async () => {
     WorkoutApi.getWorkouts(truncTime(workoutDate))
       .then(setCompletedWorkouts)
-      .catch((error) => console.log(error))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
     loadWorkouts();
-  }, [workoutDate, pathname]);
+    refetch(workoutDate);
+  }, [workoutDate]);
+
+  useEffect(() => {
+    loadWorkouts();
+    refetch(workoutDate, true);
+  }, [workoutToUpdate, isInWorkout, pathname]);
 
   useEffect(() => {
     if (workoutToUpdate) {
@@ -152,20 +160,24 @@ export default function Home() {
       tabBarActions.open();
       liveIndicatorActions.show();
     }
-    WorkoutApi.getWorkouts(truncTime(workoutDate))
-      .then(setCompletedWorkouts)
-      .finally(() => setLoading(false));
   }, [workoutToUpdate]);
 
   return (
     <>
-      <DynamicHeaderPage title={getLongDateDisplay(workoutDate)}>
-        <WorkoutCalendar
+      <HeaderPage
+        title={getLongDateDisplay(workoutDate)}
+        rightAction={
+          <CalendarHeaderAction
+            toggle={() => setShowMonthCalendar((show) => !show)}
+            showingMonthCalendar={showMonthCalendar}
+          />
+        }
+      >
+        <Calendar
           currentDate={workoutDate}
-          onSelectDate={(date) => {
-            setWorkoutDate(date);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          }}
+          onSelectDate={setWorkoutDate}
+          showMonthCalendar={showMonthCalendar}
+          isActive={hasWorkedOut}
         />
         {loading ? (
           <WorkoutItineraryLoading />
@@ -180,7 +192,7 @@ export default function Home() {
             />
           </>
         )}
-      </DynamicHeaderPage>
+      </HeaderPage>
       <HistoricalEditorSheet
         show={workoutToUpdate != undefined}
         hide={() => {

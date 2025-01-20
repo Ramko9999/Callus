@@ -63,8 +63,7 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
       style={[
         tabBarStyles.container,
         {
-          backgroundColor: useThemeColoring("appBackground"),
-          borderColor: colors.notFocused,
+          backgroundColor: useThemeColoring("primaryViewBackground"),
         },
         animatedStyle,
       ]}

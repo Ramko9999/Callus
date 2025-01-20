@@ -33,6 +33,7 @@ type TextThemeProps = {
   _type?: TextType;
   small?: boolean;
   neutral?: boolean;
+  header?: boolean;
   large?: boolean;
   extraLarge?: boolean;
   action?: boolean;
@@ -92,12 +93,15 @@ function getFontStyle({
   stat,
   light,
   italic,
+  header,
 }: TextProps) {
   let style = textTheme.neutral;
   if (small) {
     style = textTheme.small;
   } else if (neutral) {
     style = textTheme.neutral;
+  } else if (header) {
+    style = textTheme.header;
   } else if (action) {
     style = textTheme.action;
   } else if (large) {
@@ -203,51 +207,3 @@ export const TextInput = React.forwardRef(
     );
   }
 );
-
-export function Action(props: ActionProps) {
-  const { _action, ...otherProps } = props;
-  const { type, style, name } = _action;
-  const color = useThemeColoring(
-    type === "danger" ? "dangerAction" : "primaryAction"
-  );
-  return (
-    <TouchableOpacity {...otherProps}>
-      <Text _type="neutral" style={[{ color }, { padding: "3%" }, style]}>
-        {name}
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
-// todo: clean this nasty ish up. Matter of fact, clean up the damn file
-export function Icon({ name, size, color }: IconProps) {
-  const defaultColor = useThemeColoring("primaryText");
-
-  return <FontAwesome name={name} color={color || defaultColor} size={size} />;
-}
-
-export function FeatherIcon({ name, size, color }: FeatherIconProps) {
-  const defaultColor = useThemeColoring("primaryText");
-
-  return <Feather name={name} color={color || defaultColor} size={size} />;
-}
-
-export function IoniconsIcon({ name, size, color }: IoniconsIconProps) {
-  const defaultColor = useThemeColoring("primaryText");
-  return <Ionicons name={name} color={color || defaultColor} size={size} />;
-}
-
-export function MaterialCommunityIcon({
-  name,
-  size,
-  color,
-}: MaterialCommunityIconProps) {
-  const defaultColor = useThemeColoring("primaryText");
-  return (
-    <MaterialCommunityIcons
-      name={name}
-      color={color || defaultColor}
-      size={size}
-    />
-  );
-}
