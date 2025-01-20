@@ -20,6 +20,13 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useEffect } from "react";
+import {
+  BicepsFlexed,
+  FlaskConical,
+  FolderKanban,
+  LucideHistory,
+  User,
+} from "lucide-react-native";
 
 const dragIndicatorStyles = StyleSheet.create({
   container: {
@@ -202,49 +209,23 @@ type TabBarIconProps = {
 };
 
 export function ProfileTabIcon({ color }: TabBarIconProps) {
-  return (
-    <FontAwesome5
-      name="user-alt"
-      size={textTheme.action.fontSize}
-      color={color}
-    />
-  );
+  return <User size={textTheme.large.fontSize} color={color} />;
 }
 
-export function HomeTabIcon({ color }: TabBarIconProps) {
-  return (
-    <FontAwesome5 name="home" size={textTheme.action.fontSize} color={color} />
-  );
+export function HistoryTabIcon({ color }: TabBarIconProps) {
+  return <LucideHistory size={textTheme.large.fontSize} color={color} />;
 }
 
 export function ExerciseTabIcon({ color }: TabBarIconProps) {
-  return (
-    <FontAwesome6
-      name="dumbbell"
-      size={textTheme.action.fontSize}
-      color={color}
-    />
-  );
+  return <BicepsFlexed size={textTheme.large.fontSize} color={color} />;
 }
 
 export function RoutinesTabIcon({ color }: TabBarIconProps) {
-  return (
-    <FontAwesome
-      name="bookmark"
-      size={textTheme.action.fontSize}
-      color={color}
-    />
-  );
+  return <FolderKanban size={textTheme.large.fontSize} color={color} />;
 }
 
 export function ExampleTabIcon({ color }: TabBarIconProps) {
-  return (
-    <Ionicons
-      name="browsers-outline"
-      size={textTheme.action.fontSize}
-      color={color}
-    />
-  );
+  return <FlaskConical size={textTheme.large.fontSize} color={color} />;
 }
 
 export function DeleteKeypadIcon() {

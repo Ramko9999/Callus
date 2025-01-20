@@ -1,6 +1,6 @@
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
 import { StyleSheet, useWindowDimensions } from "react-native";
-import { useThemeColoring } from "@/components/Themed";
+import { useThemeColoring, Text } from "@/components/Themed";
 import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
 import { textTheme } from "@/constants/Themes";
 import * as Haptics from "expo-haptics";
@@ -9,7 +9,6 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { convertHexToRGBA } from "@/util/color";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useTabBar } from "./context";
 import { useEffect } from "react";
@@ -19,15 +18,15 @@ const tabBarStyles = StyleSheet.create({
     position: "absolute",
     ...StyleUtils.flexRow(),
     justifyContent: "space-between",
+    alignItems: "center",
     width: "100%",
-    borderTopWidth: 1,
     paddingBottom: 10,
     bottom: 0,
   },
   tab: {
-    ...StyleUtils.flexRow(),
-    justifyContent: "center",
+    ...StyleUtils.flexColumn(2),
     alignItems: "center",
+    marginTop: "15%",
     flex: 1,
   },
 });
@@ -46,8 +45,8 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   }, [isOpen]);
 
   const colors = {
-    focused: useThemeColoring("primaryText"),
-    notFocused: convertHexToRGBA(useThemeColoring("primaryText"), 0.2),
+    focused: useThemeColoring("primaryAction"),
+    notFocused: useThemeColoring("lightText"),
   };
 
   const { width } = useWindowDimensions();
@@ -98,6 +97,14 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                 color: isFocused ? colors.focused : colors.notFocused,
                 size: textTheme.action.fontSize,
               })}
+            <Text
+              tab
+              style={{
+                color: isFocused ? colors.focused : colors.notFocused,
+              }}
+            >
+              {options.title}
+            </Text>
           </TouchableWithoutFeedback>
         );
       })}

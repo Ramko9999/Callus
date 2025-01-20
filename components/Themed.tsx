@@ -4,7 +4,6 @@ import {
   TextInput as DefaultTextInput,
   TextStyle,
   ViewStyle,
-  TouchableOpacity,
 } from "react-native";
 import {
   darkColors,
@@ -22,15 +21,13 @@ import {
 import React from "react";
 
 type ViewThemeProps = {
-  _type?: "background" | "foreground";
   background?: boolean;
-  foreground?: boolean;
 };
 
 export type TextType = keyof typeof textTheme;
 
 type TextThemeProps = {
-  _type?: TextType;
+  tab?: boolean;
   small?: boolean;
   neutral?: boolean;
   header?: boolean;
@@ -94,9 +91,12 @@ function getFontStyle({
   light,
   italic,
   header,
+  tab,
 }: TextProps) {
   let style = textTheme.neutral;
-  if (small) {
+  if (tab) {
+    style = textTheme.tab;
+  } else if (small) {
     style = textTheme.small;
   } else if (neutral) {
     style = textTheme.neutral;
@@ -137,36 +137,17 @@ export function useThemeColoring(color: UIColor) {
 }
 
 export function Text(props: TextProps) {
-  const { style, _type, light, ...otherProps } = props;
+  const { style, light, ...otherProps } = props;
   const color = useThemeColoring(light ? "lightText" : "primaryText");
-
-  //_type is deprecated
-  let fontStyle = {};
-  if (_type) {
-    fontStyle = textTheme[_type] as TextStyle;
-  } else {
-    fontStyle = getFontStyle(props);
-  }
+  const fontStyle = getFontStyle(props);
 
   return <DefaultText style={[{ color }, fontStyle, style]} {...otherProps} />;
 }
 
 export function View(props: ViewProps) {
-  const { style, _type, background, foreground, ...otherProps } = props;
+  const { style, background, ...otherProps } = props;
 
   let defaultStyle: ViewStyle = {};
-
-  if (_type) {
-    const isBackground = _type === "background";
-    defaultStyle = {
-      backgroundColor: useThemeColoring(
-        isBackground ? "primaryViewBackground" : "secondaryViewBackground"
-      ),
-      borderColor: useThemeColoring(
-        isBackground ? "primaryViewBorder" : "secondaryViewBorder"
-      ),
-    };
-  }
 
   if (background) {
     defaultStyle = {
@@ -175,28 +156,14 @@ export function View(props: ViewProps) {
     };
   }
 
-  if (foreground) {
-    defaultStyle = {
-      backgroundColor: useThemeColoring("secondaryViewBackground"),
-      borderColor: useThemeColoring("secondaryViewBorder"),
-    };
-  }
-
   return <DefaultView style={[defaultStyle, style]} {...otherProps} />;
 }
 
 export const TextInput = React.forwardRef(
   (props: TextInputProps, ref: React.ForwardedRef<DefaultTextInput>) => {
-    const { style, _type, light, ...otherProps } = props;
+    const { style, light, ...otherProps } = props;
     const color = useThemeColoring(light ? "lightText" : "primaryText");
-
-    //_type is deprecated
-    let fontStyle = {};
-    if (_type) {
-      fontStyle = textTheme[_type] as TextStyle;
-    } else {
-      fontStyle = getFontStyle(props);
-    }
+    const fontStyle = getFontStyle(props);
 
     return (
       <DefaultTextInput

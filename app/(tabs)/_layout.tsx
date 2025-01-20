@@ -6,7 +6,7 @@ import { TabBar } from "@/components/util/tab-bar";
 import {
   ExampleTabIcon,
   ExerciseTabIcon,
-  HomeTabIcon,
+  HistoryTabIcon,
   ProfileTabIcon,
   RoutinesTabIcon,
 } from "@/components/theme/icons";
@@ -28,8 +28,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
-          tabBarIcon: ({ color }) => <HomeTabIcon color={color} />,
+          title: "History",
+          tabBarIcon: ({ color }) => <HistoryTabIcon color={color} />,
         }}
       />
 

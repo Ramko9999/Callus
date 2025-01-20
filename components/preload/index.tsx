@@ -49,11 +49,13 @@ export function Preloader({ children }: Props) {
       .then(() => setLoaded(true));
   }, []);
 
+  // todo: replace with our icon or whatever
+
   return loaded ? (
     children
   ) : (
     <View style={styles.loadingView}>
-      <Text _type="neutral">Loading...</Text>
+      <Text>Loading...</Text>
     </View>
   );
 }

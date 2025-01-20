@@ -1,5 +1,5 @@
 import { Workout } from "@/interface";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { View, Text, useThemeColoring } from "@/components/Themed";
 import { getWorkoutSummary } from "@/context/WorkoutContext";
 import { StyleUtils } from "@/util/styles";
@@ -21,7 +21,6 @@ const completedWorkoutStyles = StyleSheet.create({
   },
   container: {
     ...StyleUtils.flexColumn(),
-    width: "90%",
     padding: "3%",
     borderRadius: 5,
   },
@@ -32,7 +31,7 @@ type CompletedWorkoutProps = {
   onClick: () => void;
 };
 
-export function CompletedWorkout({ workout, onClick }: CompletedWorkoutProps) {
+function CompletedWorkout({ workout, onClick }: CompletedWorkoutProps) {
   const { totalWeightLifted, totalReps, totalDuration } =
     getWorkoutSummary(workout);
 
@@ -44,10 +43,10 @@ export function CompletedWorkout({ workout, onClick }: CompletedWorkoutProps) {
       ]}
       onPress={onClick}
     >
-      <Text large>{workout.name}</Text>
+      <Text neutral>{workout.name}</Text>
       <View style={completedWorkoutStyles.exercises}>
         {workout.exercises.map((exercise, index) => (
-          <Text key={index} neutral light>
+          <Text neutral light key={index}>
             {exercise.name}
           </Text>
         ))}
@@ -58,5 +57,35 @@ export function CompletedWorkout({ workout, onClick }: CompletedWorkoutProps) {
         <DurationMetaIconProps durationInMillis={totalDuration} />
       </View>
     </TouchableOpacity>
+  );
+}
+
+const completedWorkoutsStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(20),
+    marginTop: 20,
+    paddingHorizontal: "3%",
+  },
+});
+
+type CompletedWorkoutsProps = {
+  workouts: Workout[];
+  onSelect: (workout: Workout) => void;
+};
+
+export function CompletedWorkouts({
+  workouts,
+  onSelect,
+}: CompletedWorkoutsProps) {
+  return (
+    <ScrollView contentContainerStyle={completedWorkoutsStyles.container}>
+      {workouts.map((workout, index) => (
+        <CompletedWorkout
+          key={index}
+          workout={workout}
+          onClick={() => onSelect(workout)}
+        />
+      ))}
+    </ScrollView>
   );
 }

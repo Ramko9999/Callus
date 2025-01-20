@@ -63,6 +63,10 @@ export const lightColors = {
 export type UIColor = keyof typeof darkColors & keyof typeof lightColors;
 
 export const textTheme = {
+  tab: {
+    fontSize: 10,
+    fontWeight: "600",
+  },
   small: {
     fontSize: 12,
   },
