@@ -1,23 +1,35 @@
-import { View, Text } from "@/components/Themed";
-import { StyleSheet } from "react-native";
-import { DynamicHeaderPage } from "@/components/util/dynamic-header-page";
+import { useThemeColoring } from "@/components/Themed";
+import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import { WorkoutStreakGrid } from "./streak-grid";
 import { LifetimeStats } from "./lifetime-stats";
-import { Settings } from "@/components/theme/actions";
-import { textTheme } from "@/constants/Themes";
 import { SettingsSheet } from "../../popup/settings";
 import React, { useState } from "react";
 import { Trends } from "./trends";
+import { HeaderPage } from "@/components/util/header-page";
+import { Settings } from "lucide-react-native";
+
+type OpenSettingsActionProps = {
+  onClick: () => void;
+};
+
+function OepnSettingsAction({ onClick }: OpenSettingsActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <Settings color={useThemeColoring("primaryAction")} />
+    </TouchableOpacity>
+  );
+}
 
 const profileStyles = StyleSheet.create({
   container: {
-    ...StyleUtils.flexColumn(15),
-  },
-  header: {
-    ...StyleUtils.flexRow(),
+    ...StyleUtils.flexColumn(20),
     justifyContent: "space-between",
-    alignItems: "baseline",
+  },
+  scroll: {
+    flex: 1,
+    marginTop: "3%",
+    paddingHorizontal: "3%",
   },
 });
 
@@ -28,26 +40,21 @@ export function Profile() {
 
   return (
     <>
-      <DynamicHeaderPage
+      <HeaderPage
         title={"Hello Ramki!"}
-        renderLargeHeader={
-          <View style={profileStyles.header}>
-            <Text emphasized extraLarge>
-              Hello Ramki!
-            </Text>
-            <Settings
-              iconSize={textTheme.extraLarge.fontSize}
-              onClick={() => setIsOpeningSettings(true)}
-            />
-          </View>
+        rightAction={
+          <OepnSettingsAction onClick={() => setIsOpeningSettings(true)} />
         }
       >
-        <View style={profileStyles.container}>
+        <ScrollView
+          style={profileStyles.scroll}
+          contentContainerStyle={profileStyles.container}
+        >
           <WorkoutStreakGrid />
           <LifetimeStats />
           <Trends />
-        </View>
-      </DynamicHeaderPage>
+        </ScrollView>
+      </HeaderPage>
       <SettingsSheet
         show={isOpeningSettings}
         hide={() => setIsOpeningSettings(false)}

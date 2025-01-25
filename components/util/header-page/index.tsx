@@ -5,6 +5,7 @@ import React from "react";
 import { StyleSheet } from "react-native";
 
 const HEADER_HEIGHT = 100;
+const ACTION_DIMENSION = 40;
 
 const headerStyles = StyleSheet.create({
   container: {
@@ -15,9 +16,12 @@ const headerStyles = StyleSheet.create({
     paddingBottom: "3%",
     paddingHorizontal: "3%",
   },
-  actionPlaceholder: {
-    height: 1,
-    width: 1,
+  action: {
+    height: ACTION_DIMENSION,
+    width: ACTION_DIMENSION,
+    ...StyleUtils.flexRow(),
+    justifyContent: "center",
+    alignItems: "flex-end",
   },
 });
 
@@ -33,17 +37,11 @@ function Header({ title, rightAction, leftAction }: HeaderProps) {
   return (
     <View style={[headerStyles.container, { backgroundColor: headerBgColor }]}>
       <StatusBar backgroundColor={headerBgColor}></StatusBar>
-      {leftAction ? (
-        leftAction
-      ) : (
-        <View style={headerStyles.actionPlaceholder} />
-      )}
+      <View style={headerStyles.action}>{leftAction ? leftAction : null}</View>
       <Text header>{title}</Text>
-      {rightAction ? (
-        rightAction
-      ) : (
-        <View style={headerStyles.actionPlaceholder} />
-      )}
+      <View style={headerStyles.action}>
+        {rightAction ? rightAction : null}
+      </View>
     </View>
   );
 }

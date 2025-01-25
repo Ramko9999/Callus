@@ -3,22 +3,22 @@ import { WorkoutActions } from "@/api/model/workout";
 import { WorkoutApi } from "@/api/workout";
 import { RoutineEditorSheet } from "@/components/popup/routine";
 import { useLiveIndicator } from "@/components/popup/workout/live";
-import { Add } from "@/components/theme/actions";
 import { useThemeColoring, View, Text } from "@/components/Themed";
-import { DynamicHeaderPage } from "@/components/util/dynamic-header-page";
+import { HeaderPage } from "@/components/util/header-page";
 import { useTabBar } from "@/components/util/tab-bar/context";
-import { textTheme } from "@/constants/Themes";
 import { useWorkout } from "@/context/WorkoutContext";
 import { Routine } from "@/interface";
 import { PLACEHOLDER_ROUTINE } from "@/util/mock";
-import { StyleUtils } from "@/util/styles";
+import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
+import { Plus } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 
 const savedRoutineStyles = StyleSheet.create({
   container: {
     paddingHorizontal: "3%",
     paddingVertical: "3%",
+    borderRadius: 10,
     ...StyleUtils.flexColumn(),
   },
   exercises: {
@@ -54,7 +54,7 @@ function SavedRoutine({ onClick, routine }: SavedRoutineProps) {
 
 const savedRoutinesStyles = StyleSheet.create({
   container: {
-    ...StyleUtils.flexColumn(5),
+    ...StyleUtils.flexColumn(10),
   },
 });
 
@@ -77,14 +77,27 @@ function SavedRoutines({ onClick, routines }: SavedRoutinesProps) {
   );
 }
 
+type CreateRoutineActionProps = {
+  onClick: () => void;
+};
+
+function CreateRoutineAction({ onClick }: CreateRoutineActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <Plus color={useThemeColoring("primaryAction")} />
+    </TouchableOpacity>
+  );
+}
+
 const routinesStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
+    paddingBottom: TAB_BAR_HEIGHT,
   },
-  header: {
-    ...StyleUtils.flexRow(),
-    justifyContent: "space-between",
-    alignItems: "baseline",
+  scroll: {
+    flex: 1,
+    marginTop: "3%",
+    paddingHorizontal: "3%",
   },
 });
 
@@ -118,27 +131,20 @@ export function Routines() {
 
   return (
     <>
-      <DynamicHeaderPage
+      <HeaderPage
         title={"Routines"}
-        renderLargeHeader={
-          <View style={routinesStyles.header}>
-            <Text emphasized extraLarge>
-              Routines
-            </Text>
-            <Add
-              iconSize={textTheme.extraLarge.fontSize}
-              onClick={onCreateRoutine}
-            />
-          </View>
-        }
+        rightAction={<CreateRoutineAction onClick={onCreateRoutine} />}
       >
-        <View style={routinesStyles.container}>
+        <ScrollView
+          style={routinesStyles.scroll}
+          contentContainerStyle={routinesStyles.container}
+        >
           <SavedRoutines
             onClick={(routine) => setSelectedRoutine(routine)}
             routines={routines}
           />
-        </View>
-      </DynamicHeaderPage>
+        </ScrollView>
+      </HeaderPage>
       <RoutineEditorSheet
         show={selectedRoutine != undefined}
         onHide={() => setSelectedRoutine(undefined)}

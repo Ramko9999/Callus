@@ -63,7 +63,7 @@ function CompletedWorkout({ workout, onClick }: CompletedWorkoutProps) {
 const completedWorkoutsStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(20),
-    marginTop: 20,
+    marginTop: "3%",
     paddingHorizontal: "3%",
   },
 });
