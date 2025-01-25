@@ -70,10 +70,6 @@ export function batch(arr: any[], batchSize: number) {
   return newArr;
 }
 
-export function clamp(value: number, maxBoundary: number, minBoundary: number) {
-  return Math.min(Math.max(value, minBoundary), maxBoundary);
-}
-
 export function safeDiv(x: number, y: number) {
   if (y === 0) {
     return x > 0 ? Number.MAX_SAFE_INTEGER : Number.MIN_SAFE_INTEGER;

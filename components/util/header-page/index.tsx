@@ -53,6 +53,10 @@ const headerPageStyles = StyleSheet.create({
     ...StyleUtils.flexColumn(),
     flex: 1,
   },
+  content: {
+    ...StyleUtils.flexColumn(),
+    flex: 1,
+  },
 });
 
 type HeaderPageProps = {
@@ -75,7 +79,7 @@ export function HeaderPage({
       style={[headerPageStyles.container, { backgroundColor: pageBgColor }]}
     >
       <Header title={title} rightAction={rightAction} leftAction={leftAction} />
-      {children}
+      <View style={headerPageStyles.content}>{children}</View>
     </View>
   );
 }

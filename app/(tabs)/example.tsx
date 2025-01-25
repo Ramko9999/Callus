@@ -1,9 +1,7 @@
-import { Text, useThemeColoring, View } from "@/components/Themed";
-import React, { useEffect, useState } from "react";
+import { View, Text } from "@/components/Themed";
+import React, { useState } from "react";
 import { HeaderPage } from "@/components/util/header-page";
-import { getLongDateDisplay, removeDays, truncTime } from "@/util/date";
-import { TouchableOpacity } from "react-native";
-import { CalendarDays } from "lucide-react-native";
+import { CollapsableSearchScroll } from "@/components/util/collapsable-search-scroll";
 
 // for testing things out quickly, remove before prod release
 export default function () {
@@ -11,21 +9,11 @@ export default function () {
 }
 
 function Example() {
-  const [date, setDate] = useState(removeDays(truncTime(Date.now()), 2));
-  const [showMonthSheet, setShowMonthSheet] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   return (
-    <>
-      <HeaderPage
-        title={getLongDateDisplay(date)}
-        rightAction={
-          <TouchableOpacity onPress={() => setShowMonthSheet(true)}>
-            <CalendarDays color={useThemeColoring("primaryAction")} />
-          </TouchableOpacity>
-        }
-      >
-        <Text>Hi</Text>
-      </HeaderPage>
-    </>
+    <HeaderPage title={"Example"}>
+      <Text>Hi</Text>
+    </HeaderPage>
   );
 }

@@ -1,185 +1,37 @@
 import {
   StyleSheet,
-  TextInput as DefaultTextInput,
   TouchableWithoutFeedback,
-  Pressable,
-  View as DefaultView,
   TouchableOpacity,
 } from "react-native";
-import { View, Text, TextInput, useThemeColoring } from "@/components/Themed";
-import { DynamicHeaderPage } from "@/components/util/dynamic-header-page";
-import { Search } from "@/components/theme/actions";
+import { View, Text, useThemeColoring } from "@/components/Themed";
 import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ExerciseMeta, SearchExerciseSummary } from "@/interface";
 import { usePathname } from "expo-router";
 import { WorkoutApi } from "@/api/workout";
 import { ArrayUtils } from "@/util/misc";
 import * as Haptics from "expo-haptics";
 import React from "react";
-import Animated from "react-native-reanimated";
-import { textTheme } from "@/constants/Themes";
-import { Popover, PopoverAnchor } from "@/components/util/popup/popover";
 import { SEARCH_EXERCISE_HEIGHT } from "@/util/styles";
 import { ExerciseInsightsSheet } from "@/components/popup/exercises/insights";
 import {
   DISPLAY_EXERCISE_TYPE_TO_TYPE,
   EXERCISE_REPOSITORY,
-  MUSCLE_GROUPS,
-  DISPLAY_EXERCISE_TYPES,
 } from "@/api/exercise";
+import { HeaderPage } from "@/components/util/header-page";
+import { CollapsableSearchScroll } from "@/components/util/collapsable-search-scroll";
+import Animated from "react-native-reanimated";
+import { ListFilter } from "lucide-react-native";
+import { ExercisesFilter } from "@/components/popup/exercises/filters";
+import { useTabBar } from "@/components/util/tab-bar/context";
+import { SEARCH_BAR_HEIGHT } from "@/components/util/collapsable-search-scroll/search";
+import { useLiveIndicator } from "@/components/popup/workout/live";
 
 const ALL_EXERCISE_GROUPS = Array.from({ length: 26 }).map((_, index) =>
   String.fromCharCode(index + "A".charCodeAt(0))
 );
 
 const SEARCH_EXERCISE_GAP = 10;
-const SEARCH_EXERCISE_DROPDOWN_FILTER_HEIGHT = 40;
-// todo: reconsider which exercises to include initially and actually create the gifs and getting the correct muscles
-// todo: give first class treatment to the assistance exercises
-const searchBarStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRow(),
-    alignItems: "baseline",
-    borderRadius: 10,
-  },
-});
-
-type SearchBarProps = {
-  query: string;
-  onSearchQuery: (query: string) => void;
-};
-
-function SearchBar({ query, onSearchQuery }: SearchBarProps) {
-  const searchRef = useRef<DefaultTextInput>(null);
-
-  const onClickSearch = useCallback(() => {
-    if (searchRef.current) {
-      searchRef.current.focus();
-    }
-  }, []);
-
-  return (
-    <TouchableWithoutFeedback onPress={onClickSearch}>
-      <View background style={searchBarStyles.container}>
-        <Search
-          iconSize={textTheme.neutral.fontSize}
-          style={{ width: 35, height: 35 }}
-        />
-        <TextInput
-          ref={searchRef}
-          neutral
-          value={query}
-          placeholder="Search for an exercise"
-          placeholderTextColor={useThemeColoring("lightText")}
-          onChangeText={onSearchQuery}
-        />
-      </View>
-    </TouchableWithoutFeedback>
-  );
-}
-
-const searchExerciseFilterDropdownStyles = StyleSheet.create({
-  container: {
-    borderRadius: 5,
-  },
-  item: {
-    ...StyleUtils.flexColumn(),
-    height: SEARCH_EXERCISE_DROPDOWN_FILTER_HEIGHT,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
-
-type SearchExerciseFilterDropdownProps = {
-  selectedValue?: string;
-  values: string[];
-  onSelect: (value: string) => void;
-  onDeselect: () => void;
-};
-
-function SearchExerciseFilterDropdown({
-  selectedValue,
-  values,
-  onSelect,
-  onDeselect,
-}: SearchExerciseFilterDropdownProps) {
-  const selectedValueBackgroundColor = useThemeColoring(
-    "highlightedAnimationColor"
-  );
-
-  return (
-    <View background style={searchExerciseFilterDropdownStyles.container}>
-      {values.map((value, index) => (
-        <TouchableOpacity
-          key={index}
-          style={[
-            searchExerciseFilterDropdownStyles.item,
-            selectedValue && selectedValue === value
-              ? { backgroundColor: selectedValueBackgroundColor }
-              : {},
-          ]}
-          onPress={() => {
-            if (selectedValue && selectedValue === value) {
-              onDeselect();
-            } else {
-              onSelect(value);
-            }
-          }}
-        >
-          <Text action>{value}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-}
-
-const searchExerciseFilterTriggerStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRow(),
-    justifyContent: "center",
-    alignItems: "center",
-    height: 35,
-    borderRadius: 5,
-    flex: 1,
-  },
-});
-
-type SearchExerciseFilterTriggerProps = {
-  selectedValue?: string;
-  placeholder: string;
-  pressableRef: React.RefObject<DefaultView>;
-  onTrigger: () => void;
-};
-
-function SearchExerciseFilterTrigger({
-  selectedValue,
-  placeholder,
-  pressableRef,
-  onTrigger,
-}: SearchExerciseFilterTriggerProps) {
-  const noSelectedValueBackgroundColor = useThemeColoring(
-    "primaryViewBackground"
-  );
-  const selectedValueBackgroundColor = useThemeColoring("dynamicHeaderBorder");
-
-  const placeholderStyleProps = selectedValue ? {} : { light: true };
-  const backgroundColor = selectedValue
-    ? selectedValueBackgroundColor
-    : noSelectedValueBackgroundColor;
-
-  return (
-    <Pressable
-      ref={pressableRef}
-      style={[searchExerciseFilterTriggerStyles.container, { backgroundColor }]}
-      onPress={onTrigger}
-    >
-      <Text neutral {...placeholderStyleProps}>
-        {selectedValue ?? placeholder}
-      </Text>
-    </Pressable>
-  );
-}
 
 const searchExerciseStyles = StyleSheet.create({
   container: {
@@ -323,6 +175,50 @@ function SearchExerciseGroupNav({
   );
 }
 
+const searchExerciseFiltersActionStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexRowCenterAll(),
+  },
+  indication: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    position: "absolute",
+    bottom: 1,
+    right: 1,
+  },
+});
+
+type SearchExerciseFilterActionProps = {
+  hasFilters: boolean;
+  onClick: () => void;
+};
+
+function SearchExerciseFilterAction({
+  hasFilters,
+  onClick,
+}: SearchExerciseFilterActionProps) {
+  const hasFiltersColor = useThemeColoring("primaryAction");
+  const hasNoFiltersColor = useThemeColoring("lightText");
+
+  return (
+    <TouchableOpacity
+      onPress={onClick}
+      style={searchExerciseFiltersActionStyles.container}
+    >
+      <ListFilter color={hasFilters ? hasFiltersColor : hasNoFiltersColor} />
+      {hasFilters && (
+        <View
+          style={[
+            searchExerciseFiltersActionStyles.indication,
+            { backgroundColor: hasFiltersColor },
+          ]}
+        />
+      )}
+    </TouchableOpacity>
+  );
+}
+
 function enrichExercisesWithPerformedSummaries(
   query: string,
   exerciseMetas: ExerciseMeta[],
@@ -392,10 +288,12 @@ function computeOffsetToScrollTo(
 const exercisesStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(5),
-    marginTop: "3%",
+    paddingBottom: TAB_BAR_HEIGHT + SEARCH_BAR_HEIGHT,
   },
-  results: {
-    paddingBottom: "3%",
+  scroll: {
+    flex: 1,
+    marginTop: "3%",
+    paddingHorizontal: "3%",
   },
   groupNavigation: {
     position: "absolute",
@@ -407,30 +305,12 @@ const exercisesStyles = StyleSheet.create({
   },
 });
 
-type SearchExerciseFilterState = {
-  selectedValue?: string;
-  show: boolean;
-};
-
-type SearchExerciseFilterDimensions = {
-  anchor: PopoverAnchor;
-  width: number;
-};
-
+// todo: reconsider which exercises to include initially and actually create the gifs and getting the correct muscles
+// todo: give first class treatment to the assistance exercises
 export function Exercises() {
+  const tabBarActions = useTabBar();
+  const liveIndicatorActions = useLiveIndicator();
   const scrollRef = useRef<Animated.ScrollView>(null);
-
-  const muscleFilterRef = useRef<DefaultView>(null);
-  const exerciseTypeRef = useRef<DefaultView>(null);
-
-  const muscleFilterAnchor = useRef<SearchExerciseFilterDimensions>({
-    anchor: { x: 0, y: 0 },
-    width: 0,
-  });
-  const exerciseTypeFilterAnchor = useRef<SearchExerciseFilterDimensions>({
-    anchor: { x: 0, y: 0 },
-    width: 0,
-  });
 
   const pathname = usePathname();
   const [performedExerciseSummaries, setPerformedExerciseSummaries] = useState<
@@ -438,78 +318,64 @@ export function Exercises() {
   >([]);
 
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [muscleFilterState, setMuscleFilterState] =
-    useState<SearchExerciseFilterState>({ show: false });
-  const [exerciseTypeFilterState, setExerciseTypeFilterState] =
-    useState<SearchExerciseFilterState>({ show: false });
+  const [showExercisesFilter, setShowExercisesFilter] =
+    useState<boolean>(false);
+  const [muscleFilter, setMuscleFilter] = useState<string>();
+  const [exerciseTypeFilter, setExerciseTypeFilter] = useState<string>();
 
   const [selectedExercise, setSelectedExercise] = useState<string>();
 
   useEffect(() => {
     WorkoutApi.getExerciseSummaries().then(setPerformedExerciseSummaries);
-    if (muscleFilterRef.current) {
-      muscleFilterRef.current?.measure((x, y, width, height, pageX, pageY) => {
-        muscleFilterAnchor.current = { anchor: { x: pageX, y: pageY }, width };
-      });
-    }
-    if (exerciseTypeRef.current) {
-      exerciseTypeRef.current?.measure((x, y, width, height, pageX, pageY) => {
-        exerciseTypeFilterAnchor.current = {
-          anchor: { x: pageX, y: pageY },
-          width,
-        };
-      });
-    }
   }, [pathname]);
+
+  useEffect(() => {
+    if (showExercisesFilter || selectedExercise != undefined) {
+      tabBarActions.close();
+      liveIndicatorActions.hide();
+    } else {
+      tabBarActions.open();
+      liveIndicatorActions.show();
+    }
+  }, [showExercisesFilter, selectedExercise]);
 
   const exerciseResultGroups = enrichExercisesWithPerformedSummaries(
     searchQuery,
     EXERCISE_REPOSITORY,
     performedExerciseSummaries,
-    muscleFilterState.selectedValue,
-    exerciseTypeFilterState.selectedValue
+    muscleFilter,
+    exerciseTypeFilter
   );
 
   return (
     <>
-      <DynamicHeaderPage title="Exercises" scrollViewRef={scrollRef}>
-        <View style={exercisesStyles.container}>
-          <SearchBar query={searchQuery} onSearchQuery={setSearchQuery} />
-          <View style={exercisesStyles.filters}>
-            <SearchExerciseFilterTrigger
-              selectedValue={muscleFilterState.selectedValue}
-              placeholder="Any muscle"
-              onTrigger={() =>
-                setMuscleFilterState((filterState) => ({
-                  ...filterState,
-                  show: true,
-                }))
-              }
-              pressableRef={muscleFilterRef}
+      <HeaderPage
+        title="Exercises"
+        rightAction={
+          <SearchExerciseFilterAction
+            hasFilters={
+              muscleFilter != undefined || exerciseTypeFilter != undefined
+            }
+            onClick={() => setShowExercisesFilter(true)}
+          />
+        }
+      >
+        <CollapsableSearchScroll
+          contentStyle={exercisesStyles.container}
+          scrollStyle={exercisesStyles.scroll}
+          scrollRef={scrollRef}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        >
+          {exerciseResultGroups.map((exerciseResultGroup, index) => (
+            <SearchExerciseGroup
+              key={index}
+              grouping={exerciseResultGroup}
+              onClick={setSelectedExercise}
             />
-            <SearchExerciseFilterTrigger
-              selectedValue={exerciseTypeFilterState.selectedValue}
-              placeholder="Any exercise type"
-              onTrigger={() =>
-                setExerciseTypeFilterState((filterState) => ({
-                  ...filterState,
-                  show: true,
-                }))
-              }
-              pressableRef={exerciseTypeRef}
-            />
-          </View>
-          <View style={exercisesStyles.results}>
-            {exerciseResultGroups.map((exerciseResultGroup, index) => (
-              <SearchExerciseGroup
-                key={index}
-                grouping={exerciseResultGroup}
-                onClick={setSelectedExercise}
-              />
-            ))}
-          </View>
-        </View>
-      </DynamicHeaderPage>
+          ))}
+        </CollapsableSearchScroll>
+      </HeaderPage>
 
       <View style={exercisesStyles.groupNavigation}>
         <SearchExerciseGroupNav
@@ -528,50 +394,18 @@ export function Exercises() {
           }}
         />
       </View>
-      <Popover
-        show={muscleFilterState.show}
-        onBackdropPress={() =>
-          setMuscleFilterState((filterState) => ({
-            ...filterState,
-            show: false,
-          }))
-        }
-        anchor={muscleFilterAnchor.current.anchor}
-        contentStyle={{ width: muscleFilterAnchor.current.width }}
-      >
-        <SearchExerciseFilterDropdown
-          selectedValue={muscleFilterState.selectedValue}
-          values={MUSCLE_GROUPS}
-          onSelect={(value) =>
-            setMuscleFilterState({ selectedValue: value, show: false })
-          }
-          onDeselect={() => setMuscleFilterState({ show: false })}
-        />
-      </Popover>
-      <Popover
-        show={exerciseTypeFilterState.show}
-        onBackdropPress={() =>
-          setExerciseTypeFilterState((filterState) => ({
-            ...filterState,
-            show: false,
-          }))
-        }
-        anchor={exerciseTypeFilterAnchor.current.anchor}
-        contentStyle={{ width: exerciseTypeFilterAnchor.current.width }}
-      >
-        <SearchExerciseFilterDropdown
-          selectedValue={exerciseTypeFilterState.selectedValue}
-          values={DISPLAY_EXERCISE_TYPES}
-          onSelect={(value) =>
-            setExerciseTypeFilterState({ selectedValue: value, show: false })
-          }
-          onDeselect={() => setExerciseTypeFilterState({ show: false })}
-        />
-      </Popover>
       <ExerciseInsightsSheet
         show={selectedExercise != undefined}
         hide={() => setSelectedExercise(undefined)}
         exerciseName={selectedExercise as string}
+      />
+      <ExercisesFilter
+        show={showExercisesFilter}
+        hide={() => setShowExercisesFilter(false)}
+        muscleFilter={muscleFilter}
+        exerciseTypeFilter={exerciseTypeFilter}
+        onUpdateExerciseTypeFilter={setExerciseTypeFilter}
+        onUpdateMuscleFilter={setMuscleFilter}
       />
     </>
   );

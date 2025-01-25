@@ -8,10 +8,10 @@ import { View, Text, useThemeColoring } from "@/components/Themed";
 import React from "react";
 import { DAYS_OF_WEEK } from "@/util/date";
 
-export const WEEK_HEIGHT = 60;
+export const WEEK_HEIGHT = 50;
 export const MONTH_HEIGHT = WEEK_HEIGHT * 6;
 
-const OVERLAY_DIMENSION = 45;
+const OVERLAY_DIMENSION = 40;
 
 const dayStyles = StyleSheet.create({
   container: {
@@ -55,9 +55,7 @@ function Day({ day, isSelected, isMarked, isToday, onClick }: DayProps) {
       }}
     >
       <View style={[dayStyles.overlay, viewBackgroundColor]}>
-        <Text action light={!(isMarked || isSelected)}>
-          {day}
-        </Text>
+        <Text light={!(isMarked || isSelected)}>{day}</Text>
       </View>
     </TouchableOpacity>
   );

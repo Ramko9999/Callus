@@ -7,7 +7,7 @@ import Animated, {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import { Backdrop, BACKDROP_VISIBLE_COLOR } from "./util";
+import { Backdrop, POPOVER_BACKDROP_VISIBLE_COLOR } from "./util";
 
 const popoverStyles = StyleSheet.create({
   content: {
@@ -24,7 +24,7 @@ export type PopoverAnchor = {
 
 type PopoverProps = {
   show: boolean;
-  onBackdropPress: () => void;
+  onHide: () => void;
   children: React.ReactNode;
   anchor: PopoverAnchor;
   contentStyle?: ViewStyle;
@@ -32,7 +32,7 @@ type PopoverProps = {
 
 export function Popover({
   show,
-  onBackdropPress,
+  onHide,
   children,
   anchor,
   contentStyle,
@@ -52,7 +52,7 @@ export function Popover({
     backgroundColor: interpolateColor(
       contentHeightPercentage.value,
       [0, 100],
-      ["rgba(0, 0, 0, 0)", BACKDROP_VISIBLE_COLOR]
+      ["rgba(0, 0, 0, 0)", POPOVER_BACKDROP_VISIBLE_COLOR]
     ),
   }));
 
@@ -64,10 +64,7 @@ export function Popover({
 
   return (
     <>
-      <Backdrop
-        animatedStyle={backdropAnimatedStyle}
-        onClick={onBackdropPress}
-      />
+      <Backdrop animatedStyle={backdropAnimatedStyle} onClick={onHide} />
       <Animated.View
         style={[
           popoverStyles.content,

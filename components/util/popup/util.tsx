@@ -3,6 +3,7 @@ import Animated from "react-native-reanimated";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
+export const POPOVER_BACKDROP_VISIBLE_COLOR = "rgba(0, 0, 0, 0.1)";
 export const BACKDROP_VISIBLE_COLOR = "rgba(0, 0, 0, 0.8)";
 
 export const PREVIEW_HEIGHT = 70;

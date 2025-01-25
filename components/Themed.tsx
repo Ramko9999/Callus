@@ -144,20 +144,24 @@ export function Text(props: TextProps) {
   return <DefaultText style={[{ color }, fontStyle, style]} {...otherProps} />;
 }
 
-export function View(props: ViewProps) {
-  const { style, background, ...otherProps } = props;
+export const View = React.forwardRef(
+  (props: ViewProps, ref: React.ForwardedRef<DefaultView>) => {
+    const { style, background, ...otherProps } = props;
 
-  let defaultStyle: ViewStyle = {};
+    let defaultStyle: ViewStyle = {};
 
-  if (background) {
-    defaultStyle = {
-      backgroundColor: useThemeColoring("primaryViewBackground"),
-      borderColor: useThemeColoring("primaryViewBorder"),
-    };
+    if (background) {
+      defaultStyle = {
+        backgroundColor: useThemeColoring("primaryViewBackground"),
+        borderColor: useThemeColoring("primaryViewBorder"),
+      };
+    }
+
+    return (
+      <DefaultView ref={ref} style={[defaultStyle, style]} {...otherProps} />
+    );
   }
-
-  return <DefaultView style={[defaultStyle, style]} {...otherProps} />;
-}
+);
 
 export const TextInput = React.forwardRef(
   (props: TextInputProps, ref: React.ForwardedRef<DefaultTextInput>) => {
