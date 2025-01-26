@@ -9,6 +9,7 @@ import { View } from "@/components/Themed";
 import Animated, {
   LightSpeedInLeft,
   LightSpeedOutLeft,
+  LinearTransition,
 } from "react-native-reanimated";
 import { SwipeableDelete } from "@/components/util/swipeable-delete";
 import { DifficultyInput } from "@/components/popup/workout/common/inputs";
@@ -24,7 +25,6 @@ const editorSetStyles = StyleSheet.create({
 
 type EditorSetProps = {
   set: SetPlan;
-  index: number;
   difficultyType: DifficultyType;
   onTrash: () => void;
   onUpdate: (update: Partial<Set>) => void;
@@ -32,7 +32,6 @@ type EditorSetProps = {
 
 export function EditorSet({
   set,
-  index,
   difficultyType,
   onTrash,
   onUpdate,
@@ -50,7 +49,7 @@ export function EditorSet({
     >
       <View style={editorSetStyles.container}>
         <DifficultyInput
-          id={index.toString()}
+          id={set.id}
           difficulty={set.difficulty}
           type={difficultyType}
           onUpdate={(difficulty: Difficulty) => onUpdate({ difficulty })}
@@ -85,8 +84,8 @@ type SetLevelEditorProps = {
   sets: SetPlan[];
   difficultyType: DifficultyType;
   back: () => void;
-  onRemove: (setPlanIndex: number) => void;
-  onEdit: (setPlanIndex: number, update: Partial<SetPlan>) => void;
+  onRemove: (setPlanId: string) => void;
+  onEdit: (setPlanId: string, update: Partial<SetPlan>) => void;
 };
 
 export function SetLevelEditor({
@@ -116,9 +115,9 @@ export function SetLevelEditor({
   );
 
   const onRemoveSet = useCallback(
-    (setPlanIndex: number) => {
+    (setPlanId: string) => {
       const isRemovingLastSet = sets.length === 1;
-      onRemove(setPlanIndex);
+      onRemove(setPlanId);
       if (isRemovingLastSet) {
         back();
       }
@@ -135,18 +134,18 @@ export function SetLevelEditor({
       <View style={setLevelEditorStyle.content}>
         {sets.map((set, index) => (
           <Animated.View
-            key={index}
+            key={set.id}
+            layout={LinearTransition}
             exiting={LightSpeedOutLeft}
             entering={LightSpeedInLeft}
           >
             <EditorSet
-              index={index}
               set={set}
               difficultyType={difficultyType}
               onUpdate={(update) => {
-                onEdit(index, update);
+                onEdit(set.id, update);
               }}
-              onTrash={() => onRemoveSet(index)}
+              onTrash={() => onRemoveSet(set.id)}
             />
           </Animated.View>
         ))}

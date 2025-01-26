@@ -4,6 +4,7 @@ import { textTheme } from "@/constants/Themes";
 import { ExercisePlan } from "@/interface";
 import { EDITOR_EXERCISE_HEIGHT, StyleUtils } from "@/util/styles";
 import { FontAwesome } from "@expo/vector-icons";
+import { Plus } from "lucide-react-native";
 import {
   ScrollView,
   StyleSheet,
@@ -11,6 +12,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import Animated, { LinearTransition } from "react-native-reanimated";
 
 // todo: try to reuse
 const editorExerciseStyles = StyleSheet.create({
@@ -89,15 +91,27 @@ const exerciseLevelEditorStyles = StyleSheet.create({
     ...StyleUtils.flexColumn(),
     paddingTop: "3%",
   },
+  addExercisesContainer: {
+    ...StyleUtils.flexColumn(10),
+    justifyContent: "center",
+    paddingHorizontal: "3%",
+  },
+  addExercisesMessage: {
+    ...StyleUtils.flexRow(),
+    alignItems: "flex-end",
+  },
+  inlineEdit: {
+    marginHorizontal: -15,
+  },
 });
 
 type ExerciseLevelEditorProps = {
   isReordering: boolean;
   exercises: ExercisePlan[];
   getDescription: (exercise: ExercisePlan) => string;
-  onRemove: (exercisePlanIndex: number) => void;
+  onRemove: (exercisePlanId: string) => void;
   onReorder: (exercises: ExercisePlan[]) => void;
-  onEdit: (exercisePlanIndex: number) => void;
+  onEdit: (exercisePlanId: string) => void;
 };
 
 // todo: scroll height doesn't need to be 0.65 * whatever. Use flex
@@ -111,21 +125,38 @@ export function ExerciseLevelEditor({
   onEdit,
 }: ExerciseLevelEditorProps) {
   const { height } = useWindowDimensions();
+  const iconColor = useThemeColoring("primaryAction");
+
   return (
     <ScrollView
       contentContainerStyle={exerciseLevelEditorStyles.scroll}
       style={{ height: height * 0.65 }}
     >
       <View style={exerciseLevelEditorStyles.content}>
-        {exercises.map((exercise, index) => (
-          <EditorExercise
-            key={index}
-            exercise={exercise}
-            onClick={() => onEdit(index)}
-            onTrash={() => onRemove(index)}
-            description={getDescription(exercise)}
-          />
-        ))}
+        {exercises.length > 0 ? (
+          exercises.map((exercise, index) => (
+            <Animated.View key={exercise.id} layout={LinearTransition}>
+              <EditorExercise
+                key={index}
+                exercise={exercise}
+                onClick={() => onEdit(exercise.id)}
+                onTrash={() => onRemove(exercise.id)}
+                description={getDescription(exercise)}
+              />
+            </Animated.View>
+          ))
+        ) : (
+          <View style={exerciseLevelEditorStyles.addExercisesContainer}>
+            <View style={exerciseLevelEditorStyles.addExercisesMessage}>
+              <Text>There are no exercises in this workout.</Text>
+            </View>
+            <View style={exerciseLevelEditorStyles.addExercisesMessage}>
+              <Text>Add an exercise by clicking '</Text>
+              <Plus size={textTheme.neutral.fontSize} color={iconColor} />
+              <Text>'</Text>
+            </View>
+          </View>
+        )}
       </View>
     </ScrollView>
   );

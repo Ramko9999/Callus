@@ -51,11 +51,11 @@ export function RoutineEditorSheet({
 }: RoutineEditorSheetProps) {
   const sheetRef = useRef<FullBottomSheetRef>(null);
 
-  const [selectedExerciseIndex, setSelectedExerciseIndex] = useState<number>();
+  const [selectedExerciseId, setSelectedExerciseId] = useState<string>();
 
   const exercise =
-    selectedExerciseIndex != undefined
-      ? routine.plan[selectedExerciseIndex]
+    selectedExerciseId != undefined
+      ? routine.plan.find(({ id }) => id === selectedExerciseId)
       : undefined;
 
   const [isAddingExercise, setIsAddingExercise] = useState(false);
@@ -66,10 +66,7 @@ export function RoutineEditorSheet({
     useState<ExerciseSearcherFiltersState>({ showFilters: false });
 
   const exercisePlanActions = ExercisePlanActions(routine);
-  const setPlanActions = SetPlanActions(
-    routine,
-    selectedExerciseIndex as number
-  );
+  const setPlanActions = SetPlanActions(routine, selectedExerciseId as string);
 
   const renderContent = () => {
     if (isAddingExercise) {
@@ -89,16 +86,14 @@ export function RoutineEditorSheet({
       );
     }
 
-    if (selectedExerciseIndex) {
+    if (selectedExerciseId) {
       return (
         <SetEditorContent
           onAdd={() => onSave(setPlanActions.add())}
-          onRemove={(index) => onSave(setPlanActions.remove(index))}
-          onUpdate={(index, update) =>
-            onSave(setPlanActions.update(index, update))
-          }
+          onRemove={(id) => onSave(setPlanActions.remove(id))}
+          onUpdate={(id, update) => onSave(setPlanActions.update(id, update))}
           onEditRest={() => setIsEditingRest(true)}
-          close={() => setSelectedExerciseIndex(undefined)}
+          close={() => setSelectedExerciseId(undefined)}
           exercise={exercise as ExercisePlan}
         />
       );
@@ -111,10 +106,10 @@ export function RoutineEditorSheet({
           onStartReordering={() => {}}
           onDoneReordering={() => {}}
           onAdd={() => setIsAddingExercise(true)}
-          onRemove={(index) => {
-            onSave(exercisePlanActions.remove(index));
+          onRemove={(id) => {
+            onSave(exercisePlanActions.remove(id));
           }}
-          onSelect={(index) => setSelectedExerciseIndex(index)}
+          onSelect={(id) => setSelectedExerciseId(id)}
           onReorder={(newPlan) => {
             onSave({ ...routine, plan: newPlan });
           }}
@@ -151,13 +146,13 @@ export function RoutineEditorSheet({
       );
     }
 
-    if (selectedExerciseIndex) {
+    if (selectedExerciseId) {
       return (
         <SetEditorModals
           exercisePlan={exercise as ExercisePlan}
           editRest={(rest) =>
             onSave(
-              exercisePlanActions.update(selectedExerciseIndex, {
+              exercisePlanActions.update(selectedExerciseId, {
                 rest,
               })
             )

@@ -108,8 +108,8 @@ type ExerciseEditorContentProps = {
   onStartReordering: () => void;
   onDoneReordering: () => void;
   onAdd: () => void;
-  onRemove: (exercisePlanIndex: number) => void;
-  onSelect: (exercisePlanIndex: number) => void;
+  onRemove: (exercisePlanId: string) => void;
+  onSelect: (exercisePlanId: string) => void;
   onReorder: (exercises: ExercisePlan[]) => void;
   onTrash: () => void;
   onStart: () => void;
@@ -161,8 +161,8 @@ export function ExerciseEditorContent(props: ExerciseEditorContentProps) {
 
 type SetEditorContentProps = {
   onAdd: () => void;
-  onRemove: (setPlanIndex: number) => void;
-  onUpdate: (setPlanIndex: number, update: Partial<SetPlan>) => void;
+  onRemove: (setPlanId: string) => void;
+  onUpdate: (setPlsetPlanId: string, update: Partial<SetPlan>) => void;
   onEditRest: () => void;
   close: () => void;
   exercise: ExercisePlan;

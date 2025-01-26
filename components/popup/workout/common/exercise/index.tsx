@@ -6,17 +6,16 @@ import {
   StyleUtils,
 } from "@/util/styles";
 import {
-  findNodeHandle,
   StyleSheet,
   TouchableOpacity,
-  UIManager,
   useWindowDimensions,
 } from "react-native";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import Animated, {
   interpolateColor,
+  LinearTransition,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -26,7 +25,7 @@ import Animated, {
 import { SwipeableDelete } from "@/components/util/swipeable-delete";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { textTheme } from "@/constants/Themes";
-import { ReorderableExercises } from "./reorder";
+import { Plus } from "lucide-react-native";
 
 const editorExerciseStyles = StyleSheet.create({
   container: {
@@ -142,6 +141,18 @@ const exerciseLevelEditorStyles = StyleSheet.create({
     ...StyleUtils.flexColumn(),
     paddingTop: "3%",
   },
+  addExercisesContainer: {
+    ...StyleUtils.flexColumn(10),
+    justifyContent: "center",
+    paddingHorizontal: "3%",
+  },
+  addExercisesMessage: {
+    ...StyleUtils.flexRow(),
+    alignItems: "flex-end",
+  },
+  inlineEdit: {
+    marginHorizontal: -15,
+  },
 });
 
 type ExerciseLevelEditorProps = {
@@ -154,85 +165,49 @@ type ExerciseLevelEditorProps = {
   onEdit: (exercise: Exercise) => void;
 };
 
-type ScrollState = {
-  top: number;
-  height: number;
-  offset: number;
-};
-
-const SCROLL_OFFSET = 80;
-
 // todo: complete rest whenever a exercise is in the midst of being shuffled
 export function ExerciseLevelEditor({
-  isReordering,
   currentExerciseId,
   exercises,
   getDescription,
   onRemove,
-  onReorder,
   onEdit,
 }: ExerciseLevelEditorProps) {
+  const iconColor = useThemeColoring("primaryAction");
   const scrollRef = useRef<ScrollView>(null);
-  const [scrollState, setScrollState] = useState<ScrollState>();
   const { height } = useWindowDimensions();
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      UIManager.measure(
-        findNodeHandle(scrollRef.current) as number,
-        (x, y, width, height, pageX, pageY) => {
-          setScrollState({ height, top: pageY, offset: 0 });
-        }
-      );
-    }
-  }, []);
-
-  // todo: the scrolling is kinda weird ngl, fix that
-  const scrollByOffset = (offset: number) => {
-    if (scrollRef.current && scrollState) {
-      scrollRef.current.scrollTo({
-        y: scrollState.offset + offset,
-      });
-    }
-  };
 
   return (
     <ScrollView
       contentContainerStyle={exerciseLevelEditorStyles.scroll}
       style={{ height: height * 0.65 }}
       ref={scrollRef}
-      onScroll={(event) => {
-        const offset = event.nativeEvent.contentOffset.y;
-        setScrollState((state) => ({
-          ...(state as ScrollState),
-          offset,
-        }));
-      }}
     >
       <View style={exerciseLevelEditorStyles.content}>
-        {isReordering ? (
-          <ReorderableExercises
-            scrollMeasurements={{
-              top: (scrollState as ScrollState).top,
-              height: (scrollState as ScrollState).height,
-            }}
-            scrollDown={() => scrollByOffset(SCROLL_OFFSET)}
-            scrollUp={() => scrollByOffset(-1 * SCROLL_OFFSET)}
-            exercises={exercises}
-            onReorder={onReorder}
-            scrollRef={scrollRef}
-          />
-        ) : (
+        {exercises.length > 0 ? (
           exercises.map((exercise, index) => (
-            <EditorExercise
-              key={index}
-              exercise={exercise}
-              onClick={() => onEdit(exercise)}
-              onTrash={() => onRemove(exercise.id)}
-              animate={exercise.id === currentExerciseId}
-              description={getDescription(exercise)}
-            />
+            <Animated.View key={exercise.id} layout={LinearTransition}>
+              <EditorExercise
+                key={index}
+                exercise={exercise}
+                onClick={() => onEdit(exercise)}
+                onTrash={() => onRemove(exercise.id)}
+                animate={exercise.id === currentExerciseId}
+                description={getDescription(exercise)}
+              />
+            </Animated.View>
           ))
+        ) : (
+          <View style={exerciseLevelEditorStyles.addExercisesContainer}>
+            <View style={exerciseLevelEditorStyles.addExercisesMessage}>
+              <Text>There are no exercises in this workout.</Text>
+            </View>
+            <View style={exerciseLevelEditorStyles.addExercisesMessage}>
+              <Text>Add an exercise by clicking '</Text>
+              <Plus size={textTheme.neutral.fontSize} color={iconColor} />
+              <Text>'</Text>
+            </View>
+          </View>
         )}
       </View>
     </ScrollView>

@@ -38,10 +38,12 @@ export type ExerciseMeta = {
 };
 
 export type SetPlan = {
+  id: string;
   difficulty: Difficulty;
 };
 
 export type ExercisePlan = {
+  id: string;
   name: string;
   rest: number;
   sets: SetPlan[];
@@ -72,8 +74,9 @@ enum Sentiment {
   HAPPY,
 }
 
-export type Set = SetPlan & {
+export type Set = {
   id: string;
+  difficulty: Difficulty;
   status: SetStatus;
   sentiment?: Sentiment;
   startedAt?: number;

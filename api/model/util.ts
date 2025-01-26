@@ -17,3 +17,11 @@ export function generateWorkoutId() {
 export function generateRoutineId(){
     return generateRandomId("ro", 8)
 }
+
+export function generateExercisePlanId(){
+  return generateRandomId("epl", 8);
+}
+
+export function generateSetPlanId(){
+  return generateRandomId("spl", 8);
+}

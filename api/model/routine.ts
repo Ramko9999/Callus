@@ -7,9 +7,17 @@ import {
 } from "@/interface";
 import { getMeta } from "../exercise";
 import { ArrayUtils } from "@/util/misc";
-import { generateRoutineId } from "./util";
+import {
+  generateExercisePlanId,
+  generateRoutineId,
+  generateSetPlanId,
+} from "./util";
 
 const DEFAULT_REST_DURATION = 60;
+
+function getExercisePlan(routine: Routine, exercisePlanId: string) {
+  return routine.plan.find(({ id }) => id === exercisePlanId) as ExercisePlan;
+}
 
 function generateDefaultSet(meta: ExerciseMeta): SetPlan {
   let difficulty: any = { duration: 30 };
@@ -22,7 +30,7 @@ function generateDefaultSet(meta: ExerciseMeta): SetPlan {
   } else if (meta.difficultyType === DifficultyType.ASSISTED_BODYWEIGHT) {
     difficulty = { assistanceWeight: 0, reps: 0 };
   }
-  return { difficulty };
+  return { difficulty, id: generateSetPlanId() };
 }
 
 function addExercisePlan(routine: Routine, meta: ExerciseMeta) {
@@ -30,6 +38,7 @@ function addExercisePlan(routine: Routine, meta: ExerciseMeta) {
     sets: [generateDefaultSet(meta)],
     rest: DEFAULT_REST_DURATION,
     name: meta.name,
+    id: generateExercisePlanId(),
   };
   const plan = [...routine.plan, exercisePlan];
   return { ...routine, plan };
@@ -45,76 +54,79 @@ function addExercisePlans(routine: Routine, metas: ExerciseMeta[]) {
 
 function updateExercisePlan(
   routine: Routine,
-  index: number,
+  exercisePlanId: string,
   update: Partial<ExercisePlan>
 ): Routine {
-  const plan = routine.plan.map((exercise, exercisePlanIndex) => {
-    const updateToApply = index === exercisePlanIndex ? update : {};
+  const plan = routine.plan.map((exercise, _) => {
+    const updateToApply = exercise.id === exercisePlanId ? update : {};
     return { ...exercise, ...updateToApply };
   });
   return { ...routine, plan };
 }
 
-function removeExercisePlan(routine: Routine, index: number) {
-  const plan = routine.plan.filter(
-    (_, exercisePlanIndex) => index !== exercisePlanIndex
-  );
+function removeExercisePlan(routine: Routine, exercisePlanId: string) {
+  const plan = routine.plan.filter(({ id }) => id !== exercisePlanId);
   return { ...routine, plan };
 }
 
 export const ExercisePlanActions = (routine: Routine) => ({
   add: (metas: ExerciseMeta[]) => addExercisePlans(routine, metas),
-  update: (index: number, update: Partial<ExercisePlan>) =>
-    updateExercisePlan(routine, index, update),
-  remove: (index: number) => removeExercisePlan(routine, index),
+  update: (exercisePlanId: string, update: Partial<ExercisePlan>) =>
+    updateExercisePlan(routine, exercisePlanId, update),
+  remove: (exercisePlanId: string) =>
+    removeExercisePlan(routine, exercisePlanId),
 });
 
-function addSetPlan(routine: Routine, exercisePlanIndex: number) {
-  const exercisePlan = routine.plan[exercisePlanIndex];
-
-  const initialSetPlans = routine.plan[exercisePlanIndex].sets;
+function addSetPlan(routine: Routine, exercisePlanId: string) {
+  const exercisePlan = getExercisePlan(routine, exercisePlanId);
   let newSetPlans = [
-    ...initialSetPlans,
+    ...exercisePlan.sets,
     generateDefaultSet(getMeta(exercisePlan.name)),
   ];
-  if (initialSetPlans.length > 0) {
-    newSetPlans = [...initialSetPlans, { ...ArrayUtils.last(initialSetPlans) }];
+  if (exercisePlan.sets.length > 0) {
+    newSetPlans = [
+      ...exercisePlan.sets,
+      { ...ArrayUtils.last(exercisePlan.sets), id: generateSetPlanId() },
+    ];
   }
 
-  return updateExercisePlan(routine, exercisePlanIndex, { sets: newSetPlans });
+  return updateExercisePlan(routine, exercisePlanId, { sets: newSetPlans });
 }
 
 function removeSetPlan(
   routine: Routine,
-  exercisePlanIndex: number,
-  setPlanIndex: number
+  exercisePlanId: string,
+  setPlanId: string
 ) {
-  const newSetPlans = routine.plan[exercisePlanIndex].sets.filter(
-    (_, index) => setPlanIndex !== index
-  );
-  return updateExercisePlan(routine, exercisePlanIndex, { sets: newSetPlans });
+  const exercisePlan = getExercisePlan(routine, exercisePlanId);
+  const newSetPlans = exercisePlan.sets.filter(({ id }) => setPlanId !== id);
+  if (newSetPlans.length === 0) {
+    return removeExercisePlan(routine, exercisePlanId);
+  }
+  return updateExercisePlan(routine, exercisePlanId, { sets: newSetPlans });
 }
 
 function updateSetPlan(
   routine: Routine,
-  exercisePlanIndex: number,
-  setPlanIndex: number,
+  exercisePlanId: string,
+  setPlanId: string,
   update: Partial<SetPlan>
 ) {
-  const newSetPlans = routine.plan[exercisePlanIndex].sets.map(
+  const newSetPlans = getExercisePlan(routine, exercisePlanId).sets.map(
     (plan, index) => {
-      const updateToApply = index === setPlanIndex ? update : {};
+      const updateToApply = plan.id === setPlanId ? update : {};
       return { ...plan, ...updateToApply };
     }
   );
-  return updateExercisePlan(routine, exercisePlanIndex, { sets: newSetPlans });
+  return updateExercisePlan(routine, exercisePlanId, { sets: newSetPlans });
 }
 
-export const SetPlanActions = (routine: Routine, exerciseIndex: number) => ({
-  add: () => addSetPlan(routine, exerciseIndex),
-  remove: (index: number) => removeSetPlan(routine, exerciseIndex, index),
-  update: (index: number, update: Partial<SetPlan>) =>
-    updateSetPlan(routine, exerciseIndex, index, update),
+export const SetPlanActions = (routine: Routine, exercisePlanId: string) => ({
+  add: () => addSetPlan(routine, exercisePlanId),
+  remove: (setPlanId: string) =>
+    removeSetPlan(routine, exercisePlanId, setPlanId),
+  update: (setPlanId: string, update: Partial<SetPlan>) =>
+    updateSetPlan(routine, exercisePlanId, setPlanId, update),
 });
 
 function makeEmptyRoutine(): Routine {

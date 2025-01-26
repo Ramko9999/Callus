@@ -10,6 +10,7 @@ import Animated, {
   interpolateColor,
   LightSpeedInLeft,
   LightSpeedOutLeft,
+  LinearTransition,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -190,14 +191,14 @@ export function SetLevelEditor({
       onContentSizeChange={handleScrollContentChange}
     >
       <View style={setLevelEditorStyle.content}>
-        {sets.map((set, index) => (
+        {sets.map((set) => (
           <Animated.View
-            key={index}
-            exiting={LightSpeedOutLeft}
+            key={set.id}
+            layout={LinearTransition}
             entering={LightSpeedInLeft}
+            exiting={LightSpeedOutLeft}
           >
             <EditorSet
-              key={index}
               set={set}
               animate={currentSet?.id === set.id}
               difficultyType={difficultyType}
