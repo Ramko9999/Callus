@@ -1,12 +1,6 @@
-import { EXERCISE_REPOSITORY, getDifficultyType } from "@/api/exercise";
+import { getDifficultyType } from "@/api/exercise";
 import { View, Text } from "@/components/Themed";
-import {
-  Exercise,
-  ExerciseMeta,
-  Set,
-  Workout,
-  WorkoutMetadata,
-} from "@/interface";
+import { Exercise, Set, Workout, WorkoutMetadata } from "@/interface";
 import { StyleUtils } from "@/util/styles";
 import { StyleSheet } from "react-native";
 import { MetaEditor, NoteEditor } from "../../common/meta";
@@ -23,13 +17,12 @@ import {
 import React from "react";
 import { ExerciseLevelEditor } from "../../common/exercise";
 import { getHistoricalExerciseDescription } from "@/util/workout/display";
-import { ExerciseFinder } from "../../common/exercise/finder";
 import {
   AdjustStartEndTime,
   RepeatWorkoutConfirmation,
   WorkoutDeleteConfirmation,
-  ModalProps,
 } from "@/components/popup/workout/common/modals";
+import { ModalProps } from "@/components/popup/common";
 
 const topActionsStyles = StyleSheet.create({
   container: {
@@ -191,38 +184,26 @@ export function SetEditorContent({
 }
 
 type ExerciseEditorModalsProps = {
-  add: (meta: ExerciseMeta) => void;
   trash: () => void;
   updateMeta: (meta: Partial<WorkoutMetadata>) => void;
   repeat: (workout: Workout) => void;
   workout: Workout;
-  finder: ModalProps;
   trashConfirmation: ModalProps;
   adjustTimes: ModalProps;
   repeatConfirmation: ModalProps;
 };
 
 export function ExerciseEditorModals({
-  add,
   trash,
   updateMeta,
   repeat,
   workout,
-  finder,
   trashConfirmation,
   adjustTimes,
   repeatConfirmation,
 }: ExerciseEditorModalsProps) {
   return (
     <>
-      <ExerciseFinder
-        {...finder}
-        repository={EXERCISE_REPOSITORY}
-        onSelect={(meta) => {
-          finder.hide();
-          add(meta);
-        }}
-      />
       <WorkoutDeleteConfirmation
         {...trashConfirmation}
         onDelete={() => {

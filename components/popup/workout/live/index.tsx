@@ -50,6 +50,11 @@ import { StyleSheet } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import { PLACEHOLDER_WORKOUT } from "@/util/mock";
 import { CongratsFinishingWorkout } from "./player/congrats";
+import {
+  ExerciseSearcherContent,
+  ExerciseSearcherFiltersState,
+  ExerciseSearcherModals,
+} from "../common/exercise/add";
 
 const REST_COMPLETING_THRESHOLD = 6000;
 
@@ -87,6 +92,8 @@ function LivePlayerSheet({
   const [isEditingDates, setIsEditingDates] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
   const [isEditingRest, setIsEditingRest] = useState(false);
+  const [exerciseFiltersState, setExerciseFiltersState] =
+    useState<ExerciseSearcherFiltersState>({ showFilters: false });
 
   const activity = getCurrentWorkoutActivity(workout);
 
@@ -103,8 +110,12 @@ function LivePlayerSheet({
     onSave(removeExercise(exerciseId, workout));
   };
 
-  const onAddExercise = (meta: ExerciseMeta) => {
-    onSave(addExercise(meta, workout));
+  const onAddExercises = (metas: ExerciseMeta[]) => {
+    let updatedWorkout = JSON.parse(JSON.stringify(workout));
+    metas.forEach((meta) => {
+      updatedWorkout = addExercise(meta, updatedWorkout);
+    });
+    onSave(updatedWorkout);
   };
 
   const onReorderExercises = (exercises: Exercise[]) => {
@@ -140,9 +151,26 @@ function LivePlayerSheet({
     }
   };
 
-  const getContent = () => {
+  const renderContent = () => {
     if (workout.endedAt != undefined) {
       return <CongratsFinishingWorkout workout={workout} />;
+    }
+
+    if (isAddingExercise) {
+      return (
+        <ExerciseSearcherContent
+          muscleFilter={exerciseFiltersState.muscleFilter}
+          exerciseTypeFilter={exerciseFiltersState.exerciseTypeFilter}
+          onClose={() => {
+            setIsAddingExercise(false);
+            setExerciseFiltersState({ showFilters: false });
+          }}
+          onEditFilters={() =>
+            setExerciseFiltersState((s) => ({ ...s, showFilters: true }))
+          }
+          onAdd={onAddExercises}
+        />
+      );
     }
 
     if (isEditing) {
@@ -193,6 +221,71 @@ function LivePlayerSheet({
     }
   };
 
+  const renderModals = () => {
+    if (isAddingExercise) {
+      return (
+        <ExerciseSearcherModals
+          exerciseSearcherFilters={{
+            show: exerciseFiltersState.showFilters,
+            hide: () =>
+              setExerciseFiltersState((s) => ({ ...s, showFilters: false })),
+          }}
+          muscleFilter={exerciseFiltersState.muscleFilter}
+          exerciseTypeFilter={exerciseFiltersState.exerciseTypeFilter}
+          onUpdateExerciseTypeFilter={(exerciseTypeFilter) =>
+            setExerciseFiltersState((s) => ({ ...s, exerciseTypeFilter }))
+          }
+          onUpdateMuscleFilter={(muscleFilter) =>
+            setExerciseFiltersState((s) => ({ ...s, muscleFilter }))
+          }
+        />
+      );
+    }
+
+    if (isEditing) {
+      if (exerciseId) {
+        return (
+          <SetEditorModals
+            exercise={exercise as Exercise}
+            editRest={(duration) =>
+              onSave(updateExerciseRest(exerciseId, duration, workout))
+            }
+            editingRest={{
+              show: isEditingRest,
+              hide: () => setIsEditingRest(false),
+            }}
+          />
+        );
+      } else {
+        return (
+          <ExerciseEditorModals
+            workout={workout}
+            finish={() => onSave(wrapUpSets(workout))}
+            updateMeta={onUpdateMeta}
+            adjustTimes={{
+              show: isEditingDates,
+              hide: () => setIsEditingDates(false),
+            }}
+            finishConfirmation={{
+              show: isFinishing,
+              hide: () => setIsFinishing(false),
+            }}
+          />
+        );
+      }
+    } else {
+      return (
+        <PlayerModals
+          finish={() => onSave(wrapUpSets(workout))}
+          finishConfirmation={{
+            show: isFinishing,
+            hide: () => setIsFinishing(false),
+          }}
+        />
+      );
+    }
+  };
+
   return (
     show && (
       <>
@@ -208,50 +301,12 @@ function LivePlayerSheet({
               />
             )}
           >
-            <View style={livePlayerSheetStyles.container}>{getContent()}</View>
+            <View style={livePlayerSheetStyles.container}>
+              {renderContent()}
+            </View>
           </PreviewableSheet>
         </InputsPadProvider>
-        {isEditing ? (
-          exerciseId ? (
-            <SetEditorModals
-              exercise={exercise as Exercise}
-              editRest={(duration) =>
-                onSave(updateExerciseRest(exerciseId, duration, workout))
-              }
-              editingRest={{
-                show: isEditingRest,
-                hide: () => setIsEditingRest(false),
-              }}
-            />
-          ) : (
-            <ExerciseEditorModals
-              workout={workout}
-              add={onAddExercise}
-              finish={() => onSave(wrapUpSets(workout))}
-              updateMeta={onUpdateMeta}
-              adjustTimes={{
-                show: isEditingDates,
-                hide: () => setIsEditingDates(false),
-              }}
-              finder={{
-                show: isAddingExercise,
-                hide: () => setIsAddingExercise(false),
-              }}
-              finishConfirmation={{
-                show: isFinishing,
-                hide: () => setIsFinishing(false),
-              }}
-            />
-          )
-        ) : (
-          <PlayerModals
-            finish={() => onSave(wrapUpSets(workout))}
-            finishConfirmation={{
-              show: isFinishing,
-              hide: () => setIsFinishing(false),
-            }}
-          />
-        )}
+        {renderModals()}
       </>
     )
   );

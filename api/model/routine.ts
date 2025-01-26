@@ -35,6 +35,14 @@ function addExercisePlan(routine: Routine, meta: ExerciseMeta) {
   return { ...routine, plan };
 }
 
+function addExercisePlans(routine: Routine, metas: ExerciseMeta[]) {
+  let updatedRoutine = routine;
+  metas.forEach((meta) => {
+    updatedRoutine = addExercisePlan(updatedRoutine, meta);
+  });
+  return updatedRoutine;
+}
+
 function updateExercisePlan(
   routine: Routine,
   index: number,
@@ -55,7 +63,7 @@ function removeExercisePlan(routine: Routine, index: number) {
 }
 
 export const ExercisePlanActions = (routine: Routine) => ({
-  add: (meta: ExerciseMeta) => addExercisePlan(routine, meta),
+  add: (metas: ExerciseMeta[]) => addExercisePlans(routine, metas),
   update: (index: number, update: Partial<ExercisePlan>) =>
     updateExercisePlan(routine, index, update),
   remove: (index: number) => removeExercisePlan(routine, index),

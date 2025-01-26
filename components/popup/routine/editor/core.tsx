@@ -11,20 +11,19 @@ import {
   Time,
   Trash,
 } from "@/components/theme/actions";
-import { ExerciseMeta, ExercisePlan, Routine, SetPlan } from "@/interface";
+import { ExercisePlan, Routine, SetPlan } from "@/interface";
 import { ExerciseLevelEditor } from "../common/exercise";
 import { getHistoricalExerciseDescription } from "@/util/workout/display";
 import { MetaEditor } from "../common/meta";
 import React from "react";
 import { SetLevelEditor } from "../common/set";
-import { EXERCISE_REPOSITORY, getDifficultyType } from "@/api/exercise";
+import { getDifficultyType } from "@/api/exercise";
 import {
   EditRestDuration,
-  ModalProps,
   RoutineDeleteConfirmation,
   RoutineStartConfirmation,
 } from "../../workout/common/modals";
-import { ExerciseFinder } from "../../workout/common/exercise/finder";
+import { ModalProps } from "../../common";
 
 const topActionsStyles = StyleSheet.create({
   container: {
@@ -201,32 +200,20 @@ export function SetEditorContent({
 }
 
 type ExerciseEditorModalsProps = {
-  add: (meta: ExerciseMeta) => void;
   trash: () => void;
   start: () => void;
-  finder: ModalProps;
   trashConfirmation: ModalProps;
   startConfirmation: ModalProps;
 };
 
 export function ExerciseEditorModals({
-  add,
   trash,
   start,
-  finder,
   trashConfirmation,
   startConfirmation,
 }: ExerciseEditorModalsProps) {
   return (
     <>
-      <ExerciseFinder
-        {...finder}
-        repository={EXERCISE_REPOSITORY}
-        onSelect={(meta) => {
-          finder.hide();
-          add(meta);
-        }}
-      />
       <RoutineDeleteConfirmation
         {...trashConfirmation}
         onDelete={() => {

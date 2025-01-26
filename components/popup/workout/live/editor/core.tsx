@@ -22,14 +22,13 @@ import { StyleSheet } from "react-native";
 import { ExerciseLevelEditor } from "@/components/popup/workout/common/exercise";
 import { MetaEditor, NoteEditor } from "@/components/popup/workout/common/meta";
 import { SetLevelEditor } from "@/components/popup/workout/common//set";
-import { EXERCISE_REPOSITORY, getDifficultyType } from "@/api/exercise";
-import { ExerciseFinder } from "@/components/popup/workout/common/exercise/finder";
+import { getDifficultyType } from "@/api/exercise";
 import {
   AdjustStartEndTime,
   DiscardSetsAndFinishConfirmation,
   EditRestDuration,
-  ModalProps,
 } from "@/components/popup/workout/common/modals";
+import { ModalProps } from "@/components/popup/common";
 
 const topActionsStyles = StyleSheet.create({
   container: {
@@ -203,34 +202,22 @@ export function SetEditorContent({
 }
 
 type ExerciseEditorModalsProps = {
-  add: (meta: ExerciseMeta) => void;
   finish: () => void;
   updateMeta: (meta: Partial<WorkoutMetadata>) => void;
   workout: Workout;
-  finder: ModalProps;
   finishConfirmation: ModalProps;
   adjustTimes: ModalProps;
 };
 
 export function ExerciseEditorModals({
-  add,
   finish,
   updateMeta,
   workout,
-  finder,
   finishConfirmation,
   adjustTimes,
 }: ExerciseEditorModalsProps) {
   return (
     <>
-      <ExerciseFinder
-        {...finder}
-        repository={EXERCISE_REPOSITORY}
-        onSelect={(meta) => {
-          finder.hide();
-          add(meta);
-        }}
-      />
       <DiscardSetsAndFinishConfirmation
         {...finishConfirmation}
         onDiscard={() => {

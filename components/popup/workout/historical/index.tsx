@@ -1,5 +1,4 @@
 import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
-import { useTabBar } from "@/components/util/tab-bar/context";
 import {
   removeExercise,
   addExercise,
@@ -16,7 +15,7 @@ import {
   WorkoutMetadata,
   Set,
 } from "@/interface";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import * as Haptics from "expo-haptics";
 import {
@@ -30,6 +29,11 @@ import {
   FullBottomSheet,
   FullBottomSheetRef,
 } from "@/components/util/popup/sheet/full";
+import {
+  ExerciseSearcherContent,
+  ExerciseSearcherFiltersState,
+  ExerciseSearcherModals,
+} from "../common/exercise/add";
 
 const historicalEditorSheetStyles = StyleSheet.create({
   container: {
@@ -66,6 +70,8 @@ export function HistoricalEditorSheet({
   const [isEditingTimes, setIsEditingTimes] = useState(false);
   const [isReordering, setIsReordering] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
+  const [exerciseFiltersState, setExerciseFiltersState] =
+    useState<ExerciseSearcherFiltersState>({ showFilters: false });
   const sheetRef = useRef<FullBottomSheetRef>(null);
 
   const onHide = () => {
@@ -77,8 +83,12 @@ export function HistoricalEditorSheet({
     onSave(removeExercise(exerciseId, workout));
   };
 
-  const onAddExercise = (meta: ExerciseMeta) => {
-    onSave(addExercise(meta, workout));
+  const onAddExercises = (metas: ExerciseMeta[]) => {
+    let updatedWorkout = JSON.parse(JSON.stringify(workout));
+    metas.forEach((meta) => {
+      updatedWorkout = addExercise(meta, updatedWorkout);
+    });
+    onSave(updatedWorkout);
   };
 
   const onReorderExercises = (exercises: Exercise[]) => {
@@ -106,52 +116,88 @@ export function HistoricalEditorSheet({
     onSave(updateExercise(exerciseId as string, { note }, workout));
   };
 
-  return (
-    <InputsPadProvider>
-      <FullBottomSheet ref={sheetRef} show={show} onHide={onHide}>
-        <View style={historicalEditorSheetStyles.container}>
-          {exerciseId ? (
-            <SetEditorContent
-              exercise={exercise as Exercise}
-              onNote={onNote}
-              onRemove={onRemoveSet}
-              onAdd={onAddSet}
-              onUpdate={onUpdateSet}
-              close={() => setExerciseId(undefined)}
-            />
-          ) : (
-            <ExerciseEditorContent
-              isReordering={isReordering}
-              workout={workout}
-              onClose={() => sheetRef.current?.hideSheet()}
-              onStartReordering={() => {
-                setIsReordering(true);
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              }}
-              onDoneReordering={() => {
-                setIsReordering(false);
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              }}
-              onAdd={() => {
-                setIsAddingExercise(true);
-              }}
-              onTrash={() => {
-                setIsTrashingWorkout(true);
-              }}
-              onRepeat={() => {
-                setIsRepeating(true);
-              }}
-              onSelect={(exercise) => setExerciseId(exercise.id)}
-              onRemove={onRemoveExercise}
-              onReorder={onReorderExercises}
-              onUpdateMeta={onUpdateMeta}
-              onEditTimes={() => setIsEditingTimes(true)}
-            />
-          )}
-        </View>
-      </FullBottomSheet>
+  const renderContent = () => {
+    if (isAddingExercise) {
+      return (
+        <ExerciseSearcherContent
+          muscleFilter={exerciseFiltersState.muscleFilter}
+          exerciseTypeFilter={exerciseFiltersState.exerciseTypeFilter}
+          onClose={() => {
+            setIsAddingExercise(false);
+            setExerciseFiltersState({ showFilters: false });
+          }}
+          onEditFilters={() =>
+            setExerciseFiltersState((s) => ({ ...s, showFilters: true }))
+          }
+          onAdd={onAddExercises}
+        />
+      );
+    }
+    if (exerciseId) {
+      return (
+        <SetEditorContent
+          exercise={exercise as Exercise}
+          onNote={onNote}
+          onRemove={onRemoveSet}
+          onAdd={onAddSet}
+          onUpdate={onUpdateSet}
+          close={() => setExerciseId(undefined)}
+        />
+      );
+    }
+    return (
+      <ExerciseEditorContent
+        isReordering={isReordering}
+        workout={workout}
+        onClose={() => sheetRef.current?.hideSheet()}
+        onStartReordering={() => {
+          setIsReordering(true);
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }}
+        onDoneReordering={() => {
+          setIsReordering(false);
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }}
+        onAdd={() => {
+          setIsAddingExercise(true);
+        }}
+        onTrash={() => {
+          setIsTrashingWorkout(true);
+        }}
+        onRepeat={() => {
+          setIsRepeating(true);
+        }}
+        onSelect={(exercise) => setExerciseId(exercise.id)}
+        onRemove={onRemoveExercise}
+        onReorder={onReorderExercises}
+        onUpdateMeta={onUpdateMeta}
+        onEditTimes={() => setIsEditingTimes(true)}
+      />
+    );
+  };
+
+  const renderModals = () => {
+    if (isAddingExercise) {
+      return (
+        <ExerciseSearcherModals
+          exerciseSearcherFilters={{
+            show: exerciseFiltersState.showFilters,
+            hide: () =>
+              setExerciseFiltersState((s) => ({ ...s, showFilters: false })),
+          }}
+          muscleFilter={exerciseFiltersState.muscleFilter}
+          exerciseTypeFilter={exerciseFiltersState.exerciseTypeFilter}
+          onUpdateExerciseTypeFilter={(exerciseTypeFilter) =>
+            setExerciseFiltersState((s) => ({ ...s, exerciseTypeFilter }))
+          }
+          onUpdateMuscleFilter={(muscleFilter) =>
+            setExerciseFiltersState((s) => ({ ...s, muscleFilter }))
+          }
+        />
+      );
+    }
+    return (
       <ExerciseEditorModals
-        add={onAddExercise}
         trash={() => trash().then(() => sheetRef.current?.hideSheet())}
         updateMeta={onUpdateMeta}
         repeat={(workout) => {
@@ -161,10 +207,6 @@ export function HistoricalEditorSheet({
           }
         }}
         workout={workout}
-        finder={{
-          show: isAddingExercise,
-          hide: () => setIsAddingExercise(false),
-        }}
         trashConfirmation={{
           show: isTrashingWorkout,
           hide: () => setIsTrashingWorkout(false),
@@ -178,6 +220,17 @@ export function HistoricalEditorSheet({
           hide: () => setIsRepeating(false),
         }}
       />
+    );
+  };
+
+  return (
+    <InputsPadProvider>
+      <FullBottomSheet ref={sheetRef} show={show} onHide={onHide}>
+        <View style={historicalEditorSheetStyles.container}>
+          {renderContent()}
+        </View>
+      </FullBottomSheet>
+      {renderModals()}
     </InputsPadProvider>
   );
 }

@@ -38,6 +38,7 @@ type CollapsableSearchScrollProps = {
   contentStyle?: ViewStyle;
 };
 
+// todo: use flat-list, its getting slow to load
 // todo: try to see if we can detect when the user takes their thumb of the scroll and then perform the collapse of the search bar
 export function CollapsableSearchScroll({
   searchQuery,
