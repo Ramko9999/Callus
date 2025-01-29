@@ -277,8 +277,8 @@ export function reorderExercises(
   return { ...workout, exercises: workoutExercises };
 }
 
-export function finishAllRestingSets(workout: Workout): Workout {
-  const exercises = workout.exercises.map((exercise) => {
+export function finishAllRestingSets(exercises: Exercise[]): Exercise[] {
+  return exercises.map((exercise) => {
     const sets = exercise.sets.map((set) => {
       if (set.status === SetStatus.RESTING) {
         return { ...set, status: SetStatus.FINISHED, restEndedAt: Date.now() };
@@ -288,7 +288,6 @@ export function finishAllRestingSets(workout: Workout): Workout {
 
     return { ...exercise, sets };
   });
-  return { ...workout, exercises };
 }
 
 export function areWorkoutsSame(a: Workout, b: Workout): boolean {

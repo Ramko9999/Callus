@@ -2,6 +2,7 @@ import {
   addExercise,
   duplicateLastSet,
   finish,
+  finishAllRestingSets,
   getCurrentWorkoutActivity,
   hasUnstartedSets,
   removeExercise,
@@ -119,7 +120,8 @@ function LivePlayerSheet({
   };
 
   const onReorderExercises = (exercises: Exercise[]) => {
-    onSave({ ...workout, exercises });
+
+    onSave({ ...workout, exercises: finishAllRestingSets(exercises) });
   };
 
   const onUpdateMeta = (meta: Partial<WorkoutMetadata>) => {

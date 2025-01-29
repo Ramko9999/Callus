@@ -1,4 +1,5 @@
 import { View, Text, useThemeColoring } from "@/components/Themed";
+import { Reorderable } from "@/components/util/reorderable";
 import { SwipeableDelete } from "@/components/util/swipeable-delete";
 import { textTheme } from "@/constants/Themes";
 import { ExercisePlan } from "@/interface";
@@ -6,13 +7,17 @@ import { EDITOR_EXERCISE_HEIGHT, StyleUtils } from "@/util/styles";
 import { FontAwesome } from "@expo/vector-icons";
 import { Plus } from "lucide-react-native";
 import {
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   useWindowDimensions,
 } from "react-native";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-import Animated, { LinearTransition } from "react-native-reanimated";
+import Animated, {
+  LinearTransition,
+  useSharedValue,
+} from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
+import React from "react";
 
 // todo: try to reuse
 const editorExerciseStyles = StyleSheet.create({
@@ -37,6 +42,7 @@ const editorExerciseStyles = StyleSheet.create({
 type EditorExerciseProps = {
   exercise: ExercisePlan;
   onClick: () => void;
+  onLongClick: () => void;
   onTrash: () => void;
   description?: string;
 };
@@ -44,6 +50,7 @@ type EditorExerciseProps = {
 export function EditorExercise({
   exercise,
   onClick,
+  onLongClick,
   onTrash,
   description,
 }: EditorExerciseProps) {
@@ -64,6 +71,7 @@ export function EditorExercise({
           { height: EDITOR_EXERCISE_HEIGHT },
         ]}
         onPress={onClick}
+        onLongPress={onLongClick}
       >
         <View style={editorExerciseStyles.title}>
           <Text large>{exercise.name}</Text>
@@ -84,17 +92,16 @@ export function EditorExercise({
 }
 
 const exerciseLevelEditorStyles = StyleSheet.create({
-  scroll: {
-    paddingBottom: "5%",
-  },
   content: {
     ...StyleUtils.flexColumn(),
     paddingTop: "3%",
+    paddingBottom: "5%",
   },
   addExercisesContainer: {
     ...StyleUtils.flexColumn(10),
     justifyContent: "center",
     paddingHorizontal: "3%",
+    paddingTop: "3%",
   },
   addExercisesMessage: {
     ...StyleUtils.flexRow(),
@@ -102,6 +109,14 @@ const exerciseLevelEditorStyles = StyleSheet.create({
   },
   inlineEdit: {
     marginHorizontal: -15,
+  },
+  placeholder: {
+    width: "100%",
+  },
+  draggingItem: {
+    borderWidth: 1,
+    borderRadius: 10,
+    width: "100%",
   },
 });
 
@@ -115,49 +130,82 @@ type ExerciseLevelEditorProps = {
 };
 
 // todo: scroll height doesn't need to be 0.65 * whatever. Use flex
-// todo: make a modal to encapsulate reordering the exercises
 export function ExerciseLevelEditor({
-  isReordering,
   exercises,
   getDescription,
   onRemove,
   onReorder,
   onEdit,
 }: ExerciseLevelEditorProps) {
-  const { height } = useWindowDimensions();
+  const hasActivatedReordering = useSharedValue(false);
+
   const iconColor = useThemeColoring("primaryAction");
+  const dragBgColor = useThemeColoring("primaryViewBackground");
+  const dragBorderColor = useThemeColoring("calendarDayBackground");
+  const { height } = useWindowDimensions();
 
   return (
-    <ScrollView
-      contentContainerStyle={exerciseLevelEditorStyles.scroll}
-      style={{ height: height * 0.65 }}
-    >
-      <View style={exerciseLevelEditorStyles.content}>
-        {exercises.length > 0 ? (
-          exercises.map((exercise, index) => (
+    <>
+      {exercises.length > 0 ? (
+        <Reorderable
+          items={exercises}
+          hasActivatedReordering={hasActivatedReordering}
+          contentStyle={exerciseLevelEditorStyles.content}
+          scrollStyle={{ height: height * 0.65 }}
+          dragItemStyle={{
+            backgroundColor: dragBgColor,
+            borderColor: dragBorderColor,
+            ...exerciseLevelEditorStyles.draggingItem,
+          }}
+          getItemHeight={(exercise) => EDITOR_EXERCISE_HEIGHT}
+          renderItem={(exercise) => (
             <Animated.View key={exercise.id} layout={LinearTransition}>
               <EditorExercise
-                key={index}
                 exercise={exercise}
                 onClick={() => onEdit(exercise.id)}
+                onLongClick={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  hasActivatedReordering.value = true;
+                }}
                 onTrash={() => onRemove(exercise.id)}
                 description={getDescription(exercise)}
               />
             </Animated.View>
-          ))
-        ) : (
-          <View style={exerciseLevelEditorStyles.addExercisesContainer}>
-            <View style={exerciseLevelEditorStyles.addExercisesMessage}>
-              <Text>There are no exercises in this workout.</Text>
-            </View>
-            <View style={exerciseLevelEditorStyles.addExercisesMessage}>
-              <Text>Add an exercise by clicking '</Text>
-              <Plus size={textTheme.neutral.fontSize} color={iconColor} />
-              <Text>'</Text>
-            </View>
+          )}
+          renderPlaceholder={(exercise) => (
+            <View
+              key={exercise.id}
+              style={[
+                exerciseLevelEditorStyles.placeholder,
+                {
+                  height: EDITOR_EXERCISE_HEIGHT,
+                },
+              ]}
+            />
+          )}
+          renderInDragItem={(exercise) => (
+            <EditorExercise
+              exercise={exercise}
+              description={getDescription(exercise)}
+              onClick={() => {}}
+              onLongClick={() => {}}
+              onTrash={() => {}}
+            />
+          )}
+          onReorder={onReorder}
+        />
+      ) : (
+        <View style={exerciseLevelEditorStyles.addExercisesContainer}>
+          <View style={exerciseLevelEditorStyles.addExercisesMessage}>
+            <Text>There are no exercises in this workout.</Text>
           </View>
-        )}
-      </View>
-    </ScrollView>
+          <View style={exerciseLevelEditorStyles.addExercisesMessage}>
+            <Text>Add an exercise by clicking '</Text>
+            <Plus size={textTheme.neutral.fontSize} color={iconColor} />
+            <Text>'</Text>
+          </View>
+        </View>
+      )}
+    </>
   );
 }

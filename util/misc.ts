@@ -39,8 +39,8 @@ export function debounce(f: Function, period: number): Function {
   return debounced;
 }
 
-export function popAndInsert(
-  arr: any[],
+export function popAndInsert<T>(
+  arr: T[],
   popIndex: number,
   insertIndex: number
 ) {

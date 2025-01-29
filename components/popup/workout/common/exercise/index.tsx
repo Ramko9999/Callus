@@ -10,8 +10,7 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from "react-native";
-import { useEffect, useRef } from "react";
-import { ScrollView } from "react-native-gesture-handler";
+import { useEffect } from "react";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import Animated, {
   interpolateColor,
@@ -26,6 +25,9 @@ import { SwipeableDelete } from "@/components/util/swipeable-delete";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { textTheme } from "@/constants/Themes";
 import { Plus } from "lucide-react-native";
+import { Reorderable } from "@/components/util/reorderable";
+import React from "react";
+import * as Haptics from "expo-haptics";
 
 const editorExerciseStyles = StyleSheet.create({
   container: {
@@ -35,11 +37,10 @@ const editorExerciseStyles = StyleSheet.create({
     paddingVertical: "3%",
   },
   title: {
-    width: "90%",
     ...StyleUtils.flexColumn(5),
   },
   rightActions: {
-    ...StyleUtils.flexRowCenterAll(),
+    ...StyleUtils.flexRowCenterAll(20),
     justifyContent: "flex-end",
     marginLeft: "auto",
     paddingRight: "3%",
@@ -49,6 +50,7 @@ const editorExerciseStyles = StyleSheet.create({
 type EditorExerciseProps = {
   exercise: Exercise;
   onClick: () => void;
+  onLongClick: () => void;
   onTrash: () => void;
   description?: string;
   animate?: boolean;
@@ -57,6 +59,7 @@ type EditorExerciseProps = {
 export function EditorExercise({
   exercise,
   onClick,
+  onLongClick,
   onTrash,
   animate,
   description,
@@ -101,7 +104,7 @@ export function EditorExercise({
         />
       )}
     >
-      <TouchableOpacity onPress={onClick}>
+      <TouchableOpacity onPress={onClick} onLongPress={onLongClick}>
         <Animated.View
           style={[
             editorExerciseStyles.container,
@@ -134,17 +137,16 @@ export function EditorExercise({
 }
 
 const exerciseLevelEditorStyles = StyleSheet.create({
-  scroll: {
-    paddingBottom: "5%",
-  },
   content: {
     ...StyleUtils.flexColumn(),
     paddingTop: "3%",
+    paddingBottom: "5%",
   },
   addExercisesContainer: {
     ...StyleUtils.flexColumn(10),
     justifyContent: "center",
     paddingHorizontal: "3%",
+    paddingTop: "3%",
   },
   addExercisesMessage: {
     ...StyleUtils.flexRow(),
@@ -152,6 +154,14 @@ const exerciseLevelEditorStyles = StyleSheet.create({
   },
   inlineEdit: {
     marginHorizontal: -15,
+  },
+  placeholder: {
+    width: "100%",
+  },
+  draggingItem: {
+    borderWidth: 1,
+    borderRadius: 10,
+    width: "100%",
   },
 });
 
@@ -171,45 +181,86 @@ export function ExerciseLevelEditor({
   exercises,
   getDescription,
   onRemove,
+  onReorder,
   onEdit,
 }: ExerciseLevelEditorProps) {
+  const hasActivatedReordering = useSharedValue(false);
+
   const iconColor = useThemeColoring("primaryAction");
-  const scrollRef = useRef<ScrollView>(null);
+  const dragBgColor = useThemeColoring("primaryViewBackground");
+  const dragBorderColor = useThemeColoring("calendarDayBackground");
   const { height } = useWindowDimensions();
 
   return (
-    <ScrollView
-      contentContainerStyle={exerciseLevelEditorStyles.scroll}
-      style={{ height: height * 0.65 }}
-      ref={scrollRef}
-    >
-      <View style={exerciseLevelEditorStyles.content}>
-        {exercises.length > 0 ? (
-          exercises.map((exercise, index) => (
+    <>
+      {exercises.length > 0 ? (
+        <Reorderable
+          items={exercises}
+          hasActivatedReordering={hasActivatedReordering}
+          contentStyle={exerciseLevelEditorStyles.content}
+          scrollStyle={{ height: height * 0.65 }}
+          dragItemStyle={{
+            backgroundColor: dragBgColor,
+            borderColor: dragBorderColor,
+            ...exerciseLevelEditorStyles.draggingItem,
+          }}
+          getItemHeight={(exercise) =>
+            exercise.note != undefined
+              ? EDITOR_EXERCISE_WITH_NOTE_HEIGHT
+              : EDITOR_EXERCISE_HEIGHT
+          }
+          renderItem={(exercise) => (
             <Animated.View key={exercise.id} layout={LinearTransition}>
               <EditorExercise
-                key={index}
                 exercise={exercise}
                 onClick={() => onEdit(exercise)}
+                onLongClick={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  hasActivatedReordering.value = true;
+                }}
                 onTrash={() => onRemove(exercise.id)}
                 animate={exercise.id === currentExerciseId}
                 description={getDescription(exercise)}
               />
             </Animated.View>
-          ))
-        ) : (
-          <View style={exerciseLevelEditorStyles.addExercisesContainer}>
-            <View style={exerciseLevelEditorStyles.addExercisesMessage}>
-              <Text>There are no exercises in this workout.</Text>
-            </View>
-            <View style={exerciseLevelEditorStyles.addExercisesMessage}>
-              <Text>Add an exercise by clicking '</Text>
-              <Plus size={textTheme.neutral.fontSize} color={iconColor} />
-              <Text>'</Text>
-            </View>
+          )}
+          renderPlaceholder={(exercise) => (
+            <View
+              key={exercise.id}
+              style={[
+                exerciseLevelEditorStyles.placeholder,
+                {
+                  height:
+                    exercise.note != undefined
+                      ? EDITOR_EXERCISE_WITH_NOTE_HEIGHT
+                      : EDITOR_EXERCISE_HEIGHT,
+                },
+              ]}
+            />
+          )}
+          renderInDragItem={(exercise) => (
+            <EditorExercise
+              exercise={exercise}
+              description={getDescription(exercise)}
+              onClick={() => {}}
+              onLongClick={() => {}}
+              onTrash={() => {}}
+            />
+          )}
+          onReorder={onReorder}
+        />
+      ) : (
+        <View style={exerciseLevelEditorStyles.addExercisesContainer}>
+          <View style={exerciseLevelEditorStyles.addExercisesMessage}>
+            <Text>There are no exercises in this workout.</Text>
           </View>
-        )}
-      </View>
-    </ScrollView>
+          <View style={exerciseLevelEditorStyles.addExercisesMessage}>
+            <Text>Add an exercise by clicking '</Text>
+            <Plus size={textTheme.neutral.fontSize} color={iconColor} />
+            <Text>'</Text>
+          </View>
+        </View>
+      )}
+    </>
   );
 }
