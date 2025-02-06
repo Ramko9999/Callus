@@ -1,39 +1,57 @@
-import {
-  getConnection,
-  initializeAppDataDirectory,
-  migrateTables,
-} from "@/api/store/index";
+import { getConnection, migrateTables } from "@/api/store/index";
 import { WorkoutApi } from "@/api/workout";
 import { useWorkout } from "@/context/WorkoutContext";
-import { useState, useEffect, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  createContext,
+} from "react";
 import { StyleSheet } from "react-native";
 import { View, Text } from "@/components/Themed";
 import { Store } from "@/api/store";
+import { StyleUtils } from "@/util/styles";
+import React from "react";
 
-const styles = StyleSheet.create({
-  loadingView: {
-    width: "100%",
-    height: "100%",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
 
-type Props = {
-  children: React.ReactNode;
+// todo: preloader likely isn't even necessary anymore tbh, we can load all these things in the splash screen
+type PreloaderContext = {
+  hasOnboarded: boolean;
+  reCheckOnboarding: () => void;
 };
 
+const context = createContext<PreloaderContext>({
+  hasOnboarded: false,
+  reCheckOnboarding: () => {},
+});
+
 async function preloadDB() {
-  await initializeAppDataDirectory();
   const db = await getConnection();
   Store.setup(db);
   await migrateTables(db);
 }
 
+const styles = StyleSheet.create({
+  loading: {
+    ...StyleUtils.flexRowCenterAll(),
+    width: "100%",
+    height: "100%",
+  },
+});
+
+type PreloaderState = {
+  hasLoaded: boolean;
+};
+
+type Props = {
+  children: React.ReactNode;
+};
+
 // todo: use a cool animation with our logo here
 export function Preloader({ children }: Props) {
-  const [loaded, setLoaded] = useState(false);
+  const [state, setState] = useState<PreloaderState>({
+    hasLoaded: false,
+  });
   const { actions } = useWorkout();
 
   const hydrateInProgressWorkout = useCallback(async () => {
@@ -43,19 +61,26 @@ export function Preloader({ children }: Props) {
     }
   }, []);
 
+  const preload = async () => {
+    await preloadDB();
+    await hydrateInProgressWorkout();
+    setState({ hasLoaded: true });
+  };
+
   useEffect(() => {
-    preloadDB()
-      .then(hydrateInProgressWorkout)
-      .then(() => setLoaded(true));
+    preload();
   }, []);
 
   // todo: replace with our icon or whatever
-
-  return loaded ? (
-    children
-  ) : (
-    <View style={styles.loadingView}>
-      <Text>Loading...</Text>
-    </View>
+  return (
+    <>
+      {state.hasLoaded ? (
+        children
+      ) : (
+        <View style={styles.loading}>
+          <Text>Loading...</Text>
+        </View>
+      )}
+    </>
   );
 }

@@ -8,6 +8,8 @@ import React, { useState } from "react";
 import { Trends } from "./trends";
 import { HeaderPage } from "@/components/util/header-page";
 import { Settings } from "lucide-react-native";
+import { useUserDetails } from "@/components/user-details";
+import { UserDetails } from "@/api/user";
 
 type OpenSettingsActionProps = {
   onClick: () => void;
@@ -37,11 +39,12 @@ const profileStyles = StyleSheet.create({
 // todo: add loading skeletons and show trends will be enabled only after 2 weeks of logging the exercise
 export function Profile() {
   const [isOpeningSettings, setIsOpeningSettings] = useState(false);
+  const { userDetails } = useUserDetails();
 
   return (
     <>
       <HeaderPage
-        title={"Hello Ramki!"}
+        title={`Hello ${userDetails?.name as string}!`}
         rightAction={
           <OepnSettingsAction onClick={() => setIsOpeningSettings(true)} />
         }

@@ -18,7 +18,6 @@ import { createContext, useState, useContext, useEffect } from "react";
 import { generateRandomId, timeout } from "@/util/misc";
 import { WorkoutApi } from "@/api/workout";
 import { Audio } from "expo-av";
-import { BW } from "@/constants";
 import { NAME_TO_EXERCISE_META } from "@/api/exercise";
 
 function generateSetId() {
@@ -239,15 +238,15 @@ export function getWorkoutSummary(workout: Workout): WorkoutSummary {
           const { reps, assistanceWeight } =
             set.difficulty as AssistedBodyWeightDifficulty;
           totalReps += reps;
-          totalWeightLifted += (BW - assistanceWeight) * reps;
+          totalWeightLifted += (workout.bodyweight - assistanceWeight) * reps;
         } else if (difficultyType === DifficultyType.BODYWEIGHT) {
           const { reps } = set.difficulty as BodyWeightDifficulty;
           totalReps += reps;
-          totalWeightLifted += BW * reps;
+          totalWeightLifted += workout.bodyweight * reps;
         } else if (difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT) {
           const { reps, weight } = set.difficulty as WeightDifficulty;
           totalReps += reps;
-          totalWeightLifted += (BW + weight) * reps;
+          totalWeightLifted += (workout.bodyweight + weight) * reps;
         } else if (difficultyType === DifficultyType.WEIGHT) {
           const { reps, weight } = set.difficulty as WeightDifficulty;
           totalReps += reps;

@@ -4,14 +4,13 @@ import { StyleUtils } from "@/util/styles";
 import { useEffect, useState } from "react";
 import {
   BodyWeightDifficulty,
+  CompletedExercise,
   DifficultyType,
-  Exercise,
   Set as ISet,
   TimeDifficulty,
   WeightDifficulty,
 } from "@/interface";
 import { WorkoutApi } from "@/api/workout";
-import { BW } from "@/constants";
 import {
   DurationMetaIconProps,
   RepsMetaIcon,
@@ -27,13 +26,38 @@ import { FullBottomSheet } from "@/components/util/popup/sheet/full";
 type InsightTab = "History" | "Chart";
 const INSIGHT_TABS = ["History", "Chart"] as InsightTab[];
 
-function aggregateWeight(type: DifficultyType, sets: ISet[], bw: number) {
+function aggregateWeight(
+  type: DifficultyType,
+  completions: CompletedExercise[]
+) {
+  return ArrayUtils.sumBy(completions, (completion) => {
+    return ArrayUtils.sumBy(completion.sets, ({ difficulty }) => {
+      const { weight, reps } = difficulty as WeightDifficulty;
+      return (
+        (type === DifficultyType.WEIGHT
+          ? weight
+          : weight + completion.bodyweight) * reps
+      );
+    });
+  });
+}
+
+function aggregateReps(completions: CompletedExercise[]) {
   return ArrayUtils.sumBy(
-    sets,
-    ({ difficulty }) =>
-      (difficulty as WeightDifficulty).weight +
-      (type === DifficultyType.WEIGHTED_BODYWEIGHT ? bw : 0)
+    completions.flatMap(({ sets }) => sets),
+    ({ difficulty }) => (difficulty as BodyWeightDifficulty).reps
   );
+}
+
+function aggregateDuration(completions: CompletedExercise[]) {
+  return ArrayUtils.sumBy(
+    completions.flatMap(({ sets }) => sets),
+    ({ difficulty }) => (difficulty as TimeDifficulty).duration
+  );
+}
+
+function aggregateSets(completions: CompletedExercise[]) {
+  return completions.flatMap(({ sets }) => sets).length;
 }
 
 const exerciseInsightsLifetimeSummaryStyles = StyleSheet.create({
@@ -44,7 +68,7 @@ const exerciseInsightsLifetimeSummaryStyles = StyleSheet.create({
 });
 
 type ExerciseInsightsLifetimeSummaryProps = {
-  completions: Exercise[];
+  completions: CompletedExercise[];
   type: DifficultyType;
 };
 
@@ -52,8 +76,6 @@ function ExerciseInsightsLifetimeSummary({
   completions,
   type,
 }: ExerciseInsightsLifetimeSummaryProps) {
-  const allSets = completions.flatMap(({ sets }) => sets);
-
   const hasWeightMeta =
     type === DifficultyType.WEIGHT ||
     type === DifficultyType.WEIGHTED_BODYWEIGHT;
@@ -66,25 +88,15 @@ function ExerciseInsightsLifetimeSummary({
   return (
     <View style={exerciseInsightsLifetimeSummaryStyles.container}>
       {hasWeightMeta && (
-        <WeightMetaIcon weight={aggregateWeight(type, allSets, BW)} />
+        <WeightMetaIcon weight={aggregateWeight(type, completions)} />
       )}
       {hasDurationMeta && (
         <DurationMetaIconProps
-          durationInMillis={ArrayUtils.sumBy(
-            allSets,
-            ({ difficulty }) => (difficulty as TimeDifficulty).duration * 1000
-          )}
+          durationInMillis={aggregateDuration(completions) * 1000}
         />
       )}
-      {hasRepsMeta && (
-        <RepsMetaIcon
-          reps={ArrayUtils.sumBy(
-            allSets,
-            ({ difficulty }) => (difficulty as BodyWeightDifficulty).reps
-          )}
-        />
-      )}
-      <Text light>{`${allSets.length} sets`}</Text>
+      {hasRepsMeta && <RepsMetaIcon reps={aggregateReps(completions)} />}
+      <Text light>{`${aggregateSets(completions)} sets`}</Text>
     </View>
   );
 }
@@ -97,7 +109,7 @@ const exerciseInsightStyles = StyleSheet.create({
 });
 
 type ExerciseInsightProps = {
-  completions: Exercise[];
+  completions: CompletedExercise[];
   type: DifficultyType;
   currentTab: InsightTab;
 };
@@ -136,7 +148,7 @@ type ExerciseInsightsProps = {
 
 export function ExerciseInsights({ exerciseName }: ExerciseInsightsProps) {
   const [insightsTab, setInsightsTab] = useState<InsightTab>(INSIGHT_TABS[0]);
-  const [allCompletions, setAllCompletions] = useState<Exercise[]>();
+  const [allCompletions, setAllCompletions] = useState<CompletedExercise[]>();
 
   useEffect(() => {
     WorkoutApi.getExerciseCompletions(exerciseName).then(setAllCompletions);

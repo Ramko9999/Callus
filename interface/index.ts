@@ -93,8 +93,13 @@ export type Exercise = {
   note?: string;
 };
 
+export type CompletedExercise = Exercise & {
+  bodyweight: number;
+};
+
 export type Workout = {
   id: string;
+  bodyweight: number;
   startedAt: number;
   endedAt?: number;
   routineId?: string;
@@ -153,7 +158,7 @@ export type WorkoutLifetimeStats = {
   totalWorkoutDuration: number;
 };
 
-export type MetricGenerationFunc = (completion: Exercise) => number;
+export type MetricGenerationFunc = (completion: CompletedExercise) => number;
 
 export type MetricType =
   | "Average Weight"

@@ -1,6 +1,6 @@
 import {
+  CompletedExercise,
   DifficultyType,
-  Exercise,
   Metric,
   MetricPoint,
   MetricType,
@@ -11,7 +11,6 @@ import { textTheme } from "@/constants/Themes";
 import * as d3 from "d3";
 import React, { useRef, useState } from "react";
 import * as MetricApi from "@/api/metric";
-import { BW } from "@/constants";
 import { ArrayUtils } from "@/util/misc";
 import { addDays, getDaysBetween, getLongDateDisplay } from "@/util/date";
 import {
@@ -26,6 +25,7 @@ import * as Haptics from "expo-haptics";
 import { getMockCompletions, MOCK_EXERCISE } from "@/api/exercise/mock";
 import { getDifficultyType } from "@/api/exercise";
 import { BlurView } from "expo-blur";
+import { useUserDetails } from "@/components/user-details";
 
 const TIME_STEP_DAYS = 7;
 const DAY_WIDTH = 14;
@@ -127,7 +127,7 @@ const chartStyles = StyleSheet.create({
 });
 
 type ChartProps = {
-  completions: Exercise[];
+  completions: CompletedExercise[];
   type: DifficultyType;
 };
 
@@ -150,6 +150,7 @@ function Chart({ completions, type }: ChartProps) {
   const [metricConfigIndex, setMetricConfigIndex] = useState<number>(0);
   const [yAxisOffset, setYAxisOffset] = useState<number>(0);
   const [pointIndex, setPointIndex] = useState<number>();
+  const { userDetails } = useUserDetails();
 
   const scrollRef = useRef<ScrollView>(null);
   const hasInitiallyScrolledToEndRef = useRef<boolean>(false);
@@ -162,7 +163,10 @@ function Chart({ completions, type }: ChartProps) {
     "Estimated 1 Rep Max": useThemeColoring("oneRepEstimateLineStroke"),
   };
 
-  const metricConfigs = MetricApi.getPossibleMetrics(type, BW);
+  const metricConfigs = MetricApi.getPossibleMetrics(
+    type,
+    userDetails?.bodyweight as number
+  );
   const metric = MetricApi.computeMetric(
     completions,
     metricConfigs[metricConfigIndex]

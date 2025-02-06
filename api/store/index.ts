@@ -1,5 +1,3 @@
-import * as FileSystem from "expo-file-system";
-import { DB_NAME, STORAGE_NAMESPACE } from "@/constants";
 import { SQLiteDatabase, openDatabaseAsync } from "expo-sqlite";
 import {
   CLEAR_ALL_EXERCISES,
@@ -19,25 +17,28 @@ import {
   UPSERT_ROUTINE,
   DELETE_ROUTINE,
   GET_COMPLETED_WORKOUT_COUNT_BEFORE,
+  UPSERT_METADATA,
+  GET_METADATA,
+  METADATA_TABLE_CREATION,
 } from "./sql";
-import { Exercise, Routine, Workout, WorkoutLifetimeStats } from "@/interface";
+import {
+  CompletedExercise,
+  Exercise,
+  Routine,
+  Workout,
+  WorkoutLifetimeStats,
+} from "@/interface";
 import { truncTime } from "@/util/date";
 
-const APP_DATA_DIRECTORY = `${FileSystem.documentDirectory}${STORAGE_NAMESPACE}`;
+const DB_VERSION = "v5";
+export const DB_NAME = `store-${DB_VERSION}.db`;
 
 const TABLE_CREATIONS = [
   WORKOUTS_TABLE_CREATION,
   EXERCISES_TABLE_CREATION,
   ROUTINES_TABLE_CREATION,
+  METADATA_TABLE_CREATION,
 ].join("");
-
-export async function initializeAppDataDirectory() {
-  const { exists } = await FileSystem.getInfoAsync(APP_DATA_DIRECTORY);
-  if (!exists) {
-    await FileSystem.makeDirectoryAsync(APP_DATA_DIRECTORY);
-  }
-  return APP_DATA_DIRECTORY;
-}
 
 export async function getConnection() {
   return await openDatabaseAsync(DB_NAME);
@@ -57,6 +58,24 @@ function toExercise({ name, id, sets, rest_duration, note }: any): Exercise {
   };
 }
 
+function toCompletedExercise({
+  name,
+  id,
+  sets,
+  rest_duration,
+  note,
+  bodyweight,
+}: any): CompletedExercise {
+  return {
+    name,
+    id,
+    sets: JSON.parse(sets),
+    restDuration: rest_duration,
+    note,
+    bodyweight,
+  };
+}
+
 function toRoutine({ id, name, plan }: any): Routine {
   return {
     id,
@@ -68,6 +87,7 @@ function toRoutine({ id, name, plan }: any): Routine {
 function toWorkout({
   id,
   name,
+  bodyweight,
   exercises,
   started_at,
   ended_at,
@@ -79,6 +99,7 @@ function toWorkout({
 
   return {
     name,
+    bodyweight,
     exercises: parsedExercises,
     startedAt: started_at,
     id,
@@ -113,6 +134,7 @@ export class Store {
       endedAt,
       exercises,
       routineId,
+      bodyweight,
     } = workout;
     await this.db.withExclusiveTransactionAsync(async (txn) => {
       await txn.runAsync(UPSERT_WORKOUT, {
@@ -121,6 +143,7 @@ export class Store {
         $started_at: startedAt,
         $ended_at: endedAt ? endedAt : null,
         $routine_id: routineId ? routineId : null,
+        $bodyweight: bodyweight,
       });
 
       await txn.runAsync(CLEAR_ALL_EXERCISES, { $workout_id: workoutId });
@@ -226,7 +249,7 @@ export class Store {
     };
   }
 
-  async getAllCompletedExercises(after: number): Promise<Exercise[]> {
+  async getAllCompletedExercises(after: number): Promise<CompletedExercise[]> {
     const completedExercises: any[] = await this.db.getAllAsync(
       GET_COMPLETED_EXERCISES,
       {
@@ -235,7 +258,7 @@ export class Store {
       }
     );
     return completedExercises
-      .map(toExercise)
+      .map(toCompletedExercise)
       .map((exercise) => ({
         ...exercise,
         sets: exercise.sets.filter(
@@ -248,7 +271,7 @@ export class Store {
   async getAllCompletedExercise(
     after: number,
     exerciseName: string
-  ): Promise<Exercise[]> {
+  ): Promise<CompletedExercise[]> {
     const completions: any[] = await this.db.getAllAsync(
       GET_COMPLETED_EXERCISE,
       {
@@ -258,7 +281,7 @@ export class Store {
       }
     );
     return completions
-      .map(toExercise)
+      .map(toCompletedExercise)
       .map((exercise) => ({
         ...exercise,
         sets: exercise.sets.filter(
@@ -274,5 +297,19 @@ export class Store {
         $before: before,
       })) as any
     ).workout_count;
+  }
+
+  async upsertMetadata(key: string, value: string) {
+    await this.db.runAsync(UPSERT_METADATA, { $key: key, $value: value });
+  }
+
+  async readMetadata(key: string): Promise<string | undefined> {
+    const result: any = await this.db.getFirstAsync(GET_METADATA, {
+      $key: key,
+    });
+
+    if (result != null) {
+      return result.value as string;
+    }
   }
 }

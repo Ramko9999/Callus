@@ -21,12 +21,15 @@ import Animated, {
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import {
+  Badge,
   BicepsFlexed,
+  ChartNoAxesColumnIncreasing,
   FlaskConical,
   FolderKanban,
   LucideHistory,
   User,
 } from "lucide-react-native";
+import { Dumbbell } from "./custom-svg";
 
 const dragIndicatorStyles = StyleSheet.create({
   container: {
@@ -250,5 +253,55 @@ export function Star({ size, color }: StarProps) {
       size={size ?? textTheme.large.fontSize}
       color={color ?? useThemeColoring("primaryAction")}
     />
+  );
+}
+
+export function OnboardingWeightIcon() {
+  return (
+    <Dumbbell
+      color={useThemeColoring("primaryAction")}
+      size={64}
+      fill={useThemeColoring("primaryAction")}
+      viewBox="0 0 48 48"
+      strokeWidth={1}
+    />
+  );
+}
+
+export function OnboardingProgressIcon() {
+  return (
+    <ChartNoAxesColumnIncreasing
+      color={useThemeColoring("primaryAction")}
+      strokeWidth={3}
+      size={40}
+    />
+  );
+}
+
+const onboardingFreeIconStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexRowCenterAll(),
+  },
+  overlay: {
+    position: "absolute",
+  },
+});
+
+export function OnboardingFreeIcon() {
+  const overlayColor = useThemeColoring("primaryViewBackground");
+
+  return (
+    <View style={onboardingFreeIconStyles.container}>
+      <Badge
+        color={useThemeColoring("primaryAction")}
+        size={52}
+        fill={useThemeColoring("primaryAction")}
+      />
+      <View style={onboardingFreeIconStyles.overlay}>
+        <Text small style={{ color: overlayColor }}>
+          FREE
+        </Text>
+      </View>
+    </View>
   );
 }

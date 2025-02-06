@@ -3,8 +3,8 @@ import {
   Workout,
   Trend,
   SearchExerciseSummary,
-  Exercise,
   Routine,
+  CompletedExercise,
 } from "@/interface";
 import { addDays, truncTime } from "@/util/date";
 import { Store } from "./store";
@@ -91,7 +91,7 @@ export class WorkoutApi {
 
   static async getExerciseCompletions(
     exerciseName: string
-  ): Promise<Exercise[]> {
+  ): Promise<CompletedExercise[]> {
     return await Store.instance().getAllCompletedExercise(0, exerciseName);
   }
 

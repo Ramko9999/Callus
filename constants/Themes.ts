@@ -3,6 +3,7 @@ import { Theme } from "@react-navigation/native";
 
 // todo: figure out colors for tiles
 export const darkColors = {
+  textInputPlaceholderColor: "#434247",
   primaryText: "#ffffff",
   lightText: "#999EA0",
   secondaryViewBackground: "#27272F",
@@ -32,6 +33,7 @@ export const darkColors = {
 };
 
 export const lightColors = {
+  textInputPlaceholderColor: "#434247",
   primaryText: "#000000",
   lightText: "#48515D",
   secondaryViewBackground: "#fff",

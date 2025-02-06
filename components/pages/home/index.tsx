@@ -16,6 +16,7 @@ import { HeaderPage } from "@/components/util/header-page";
 import { CalendarHeaderAction, Calendar } from "./calendar";
 import { useWorkedOutDays } from "./hooks/use-worked-out-days";
 import { StyleUtils } from "@/util/styles";
+import { useUserDetails } from "@/components/user-details";
 
 const loadingWorkoutsStyles = StyleSheet.create({
   container: {
@@ -43,6 +44,7 @@ export default function Home() {
   const [workoutToUpdate, setWorkoutToUpdate] = useState<Workout>();
   const [showMonthCalendar, setShowMonthCalendar] = useState<boolean>(false);
   const { isInWorkout, actions } = useWorkout();
+  const { userDetails } = useUserDetails();
 
   const tabBarActions = useTabBar();
   const liveIndicatorActions = useLiveIndicator();
@@ -117,7 +119,9 @@ export default function Home() {
         canRepeat={!isInWorkout}
         onRepeat={(workout) => {
           // todo: send an alert for why you can't start a workout if you are already in one
-          actions.startWorkout(createWorkoutFromWorkout(workout));
+          actions.startWorkout(
+            createWorkoutFromWorkout(workout, userDetails?.bodyweight as number)
+          );
         }}
         trash={() => WorkoutApi.deleteWorkout((workoutToUpdate as Workout).id)}
         workout={(workoutToUpdate ?? PLACEHOLDER_WORKOUT) as Workout}

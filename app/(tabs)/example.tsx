@@ -1,7 +1,6 @@
-import { View, Text } from "@/components/Themed";
-import React, { useState } from "react";
+import React from "react";
 import { HeaderPage } from "@/components/util/header-page";
-import { CollapsableSearchScroll } from "@/components/util/collapsable-search-scroll";
+import { Text } from "@/components/Themed";
 
 // for testing things out quickly, remove before prod release
 export default function () {
@@ -9,11 +8,9 @@ export default function () {
 }
 
 function Example() {
-  const [searchQuery, setSearchQuery] = useState("");
-
   return (
-    <HeaderPage title={"Example"}>
-      <Text>Hi</Text>
+    <HeaderPage title="Example">
+      <Text>Play around</Text>
     </HeaderPage>
   );
 }

@@ -13,35 +13,10 @@ function generateWorkoutId() {
   return generateRandomId("wrk", 8);
 }
 
-export function createWorkoutFromRoutine(routine: WorkoutPlan): Workout {
-  const exercises: Exercise[] = routine.exercises.map(
-    ({ name, rest, sets: routineSets }) => {
-      const sets: Set[] = routineSets.map((set) => ({
-        ...set,
-        id: generateSetId(),
-        status: SetStatus.UNSTARTED,
-        restDuration: rest,
-      }));
-
-      return {
-        name,
-        restDuration: rest,
-        sets,
-        id: generateExerciseId(),
-      };
-    }
-  );
-
-  return {
-    name: routine.name,
-    exercises,
-    startedAt: Date.now(),
-    id: generateWorkoutId(),
-    routineId: routine.name,
-  };
-}
-
-export function createWorkoutFromWorkout(workout: Workout): Workout {
+export function createWorkoutFromWorkout(
+  workout: Workout,
+  bodyweight: number
+): Workout {
   const exercises: Exercise[] = workout.exercises.map((exercise) => {
     const sets: Set[] = exercise.sets.map(({ difficulty }) => ({
       difficulty,
@@ -59,6 +34,7 @@ export function createWorkoutFromWorkout(workout: Workout): Workout {
   });
 
   return {
+    bodyweight,
     name: workout.name,
     exercises,
     startedAt: Date.now(),

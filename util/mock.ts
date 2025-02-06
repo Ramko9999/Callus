@@ -6,6 +6,7 @@ export const PLACEHOLDER_WORKOUT: Workout = {
   endedAt: 1,
   name: "Placeholder",
   exercises: [],
+  bodyweight: 135
 };
 
 export const PLACEHOLDER_ROUTINE: Routine = {

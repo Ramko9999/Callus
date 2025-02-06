@@ -1,15 +1,18 @@
-import { Exercise, SetStatus } from "@/interface";
+import { CompletedExercise, SetStatus } from "@/interface";
 import { addDays, removeDays, truncTime } from "@/util/date";
 
 export const MOCK_EXERCISE = "Squat";
 
-export function getMockCompletions(completionCount: number): Exercise[] {
+export function getMockCompletions(
+  completionCount: number
+): CompletedExercise[] {
   const originTimestamp = removeDays(truncTime(Date.now()), completionCount);
   const baseWeight = 100;
   return Array.from({ length: completionCount }).map((_, index) => ({
     id: `${index}`,
     name: MOCK_EXERCISE,
     restDuration: 60,
+    bodyweight: 150,
     sets: [
       {
         id: `set-${index}`,

@@ -1,10 +1,9 @@
 import {
   BodyWeightDifficulty,
+  CompletedExercise,
   DifficultyType,
-  Exercise,
   Metric,
   MetricConfig,
-  MetricGenerationFunc,
   MetricType,
   TimeDifficulty,
   WeightDifficulty,
@@ -16,7 +15,7 @@ function getBrzyckiMaxEstimate(weight: number, reps: number): number {
   return (weight * 36) / (37 - reps);
 }
 
-function getOneRepMaxEstimate(completion: Exercise) {
+function getOneRepMaxEstimate(completion: CompletedExercise) {
   const bestSet = Math.max(
     ...completion.sets.map(({ difficulty }) => {
       const { weight, reps } = difficulty as WeightDifficulty;
@@ -27,22 +26,23 @@ function getOneRepMaxEstimate(completion: Exercise) {
   return Math.round(bestSet * 10) / 10;
 }
 
-function adjustOneRepMaxEstimateForBodyweight(
-  bodyweight: number
-): MetricGenerationFunc {
-  return (completion: Exercise) => {
-    const bestSet = Math.max(
-      ...completion.sets.map(({ difficulty }) => {
-        const { weight, reps } = difficulty as WeightDifficulty;
-        return getBrzyckiMaxEstimate(bodyweight + weight, reps) - bodyweight;
-      })
-    );
+function getOneRepMaxEstimateForWeightedBodyWeight(
+  completion: CompletedExercise
+) {
+  const bestSet = Math.max(
+    ...completion.sets.map(({ difficulty }) => {
+      const { weight, reps } = difficulty as WeightDifficulty;
+      return (
+        getBrzyckiMaxEstimate(weight + completion.bodyweight, reps) -
+        completion.bodyweight
+      );
+    })
+  );
 
-    return Math.round(bestSet * 10) / 10;
-  };
+  return Math.round(bestSet * 10) / 10;
 }
 
-function getAverageRepsPerSet(completion: Exercise) {
+function getAverageRepsPerSet(completion: CompletedExercise) {
   const average =
     ArrayUtils.sumBy(
       completion.sets,
@@ -51,7 +51,7 @@ function getAverageRepsPerSet(completion: Exercise) {
   return Math.round(average * 10) / 10;
 }
 
-function getAverageWeightPerSet(completion: Exercise) {
+function getAverageWeightPerSet(completion: CompletedExercise) {
   const average =
     ArrayUtils.sumBy(
       completion.sets,
@@ -60,7 +60,7 @@ function getAverageWeightPerSet(completion: Exercise) {
   return Math.round(average * 10) / 10;
 }
 
-function getAverageDurationPerSet(completion: Exercise) {
+function getAverageDurationPerSet(completion: CompletedExercise) {
   const average =
     ArrayUtils.sumBy(
       completion.sets,
@@ -69,7 +69,7 @@ function getAverageDurationPerSet(completion: Exercise) {
   return Math.round(average * 10) / 10;
 }
 
-function getAverageRestDurationPerSet(completion: Exercise) {
+function getAverageRestDurationPerSet(completion: CompletedExercise) {
   const average =
     ArrayUtils.sumBy(completion.sets, ({ restStartedAt, restEndedAt }) =>
       Math.floor(((restEndedAt as number) - (restStartedAt as number)) / 1000)
@@ -117,14 +117,19 @@ const AVERAGE_REST_DURATION_METRIC_CONFIG: MetricConfig = {
   determineHasImproved: (a, b) => b < a,
 };
 
-const GET_ESTIMATED_ONE_REP_MAX_METRIC_CONFIG = (
-  oneRepMaxEstimation: MetricGenerationFunc
-) => ({
+const ONE_REP_MAX_METRIC_CONFIG: MetricConfig = {
   metricType: "Estimated 1 Rep Max" as MetricType,
-  metricGeneration: oneRepMaxEstimation,
+  metricGeneration: getOneRepMaxEstimate,
   format: displayWeight,
   determineHasImproved: (a: number, b: number) => b > a,
-});
+};
+
+const ONE_REP_MAX_METRIC_FOR_WEIGHTED_BODYWEIGHT_CONFIG: MetricConfig = {
+  metricType: "Estimated 1 Rep Max" as MetricType,
+  metricGeneration: getOneRepMaxEstimateForWeightedBodyWeight,
+  format: displayWeight,
+  determineHasImproved: (a: number, b: number) => b > a,
+};
 
 export function getPossibleMetrics(type: DifficultyType, bodyweight: number) {
   let metrics: MetricConfig[];
@@ -136,11 +141,9 @@ export function getPossibleMetrics(type: DifficultyType, bodyweight: number) {
       { ...AVERAGE_WEIGHT_METRIC_CONFIG },
       { ...AVERAGE_REP_METRIC_CONFIG },
       { ...AVERAGE_REST_DURATION_METRIC_CONFIG },
-      GET_ESTIMATED_ONE_REP_MAX_METRIC_CONFIG(
-        type === DifficultyType.WEIGHT
-          ? getOneRepMaxEstimate
-          : adjustOneRepMaxEstimateForBodyweight(bodyweight)
-      ),
+      type === DifficultyType.WEIGHT
+        ? { ...ONE_REP_MAX_METRIC_CONFIG }
+        : { ...ONE_REP_MAX_METRIC_FOR_WEIGHTED_BODYWEIGHT_CONFIG },
     ];
   } else if (type === DifficultyType.BODYWEIGHT) {
     metrics = [
@@ -158,19 +161,11 @@ export function getPossibleMetrics(type: DifficultyType, bodyweight: number) {
   return metrics;
 }
 
-export function getToplineMetric(
-  type: DifficultyType,
-  bodyweight: number
-): MetricConfig {
-  if (
-    type === DifficultyType.WEIGHT ||
-    type === DifficultyType.WEIGHTED_BODYWEIGHT
-  ) {
-    return GET_ESTIMATED_ONE_REP_MAX_METRIC_CONFIG(
-      type === DifficultyType.WEIGHT
-        ? getOneRepMaxEstimate
-        : adjustOneRepMaxEstimateForBodyweight(bodyweight)
-    );
+export function getToplineMetric(type: DifficultyType): MetricConfig {
+  if (type === DifficultyType.WEIGHT) {
+    return { ...ONE_REP_MAX_METRIC_CONFIG };
+  } else if (type === DifficultyType.WEIGHTED_BODYWEIGHT) {
+    return { ...ONE_REP_MAX_METRIC_FOR_WEIGHTED_BODYWEIGHT_CONFIG };
   } else if (type === DifficultyType.BODYWEIGHT) {
     return { ...AVERAGE_REP_METRIC_CONFIG };
   } else if (type === DifficultyType.TIME) {
@@ -181,7 +176,7 @@ export function getToplineMetric(
 }
 
 export function computeMetric(
-  completions: Exercise[],
+  completions: CompletedExercise[],
   metricConfig: MetricConfig
 ): Metric {
   const points = completions

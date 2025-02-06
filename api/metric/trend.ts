@@ -1,5 +1,4 @@
-import { BW } from "@/constants";
-import { DifficultyType, Exercise, Trend } from "@/interface";
+import { CompletedExercise, DifficultyType, Trend } from "@/interface";
 import { getDaysBetween, removeDays, truncTime } from "@/util/date";
 import { ArrayUtils, safeDiv } from "@/util/misc";
 import { getDifficultyType } from "../exercise";
@@ -12,7 +11,7 @@ const MAX_TRENDS = 5;
 
 type ExerciseCompletions = {
   name: string;
-  completions: Exercise[];
+  completions: CompletedExercise[];
 };
 
 function hasEnoughDataToTrend({ completions }: ExerciseCompletions) {
@@ -143,7 +142,7 @@ export function generateTrend(
   exerciseCompletion: ExerciseCompletions,
   type: DifficultyType
 ): Trend {
-  const metricConfig = MetricApi.getToplineMetric(type, BW);
+  const metricConfig = MetricApi.getToplineMetric(type);
   const metric = MetricApi.computeMetric(
     exerciseCompletion.completions,
     metricConfig
@@ -155,7 +154,7 @@ export function generateTrend(
   };
 }
 
-export function getTrends(exercises: Exercise[]): Trend[] {
+export function getTrends(exercises: CompletedExercise[]): Trend[] {
   const exerciseCompletions = ArrayUtils.groupBy(exercises, ({ name }) => name)
     .map(({ key: name, items: completions }) => ({ name, completions }))
     .filter(hasEnoughDataToTrend);

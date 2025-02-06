@@ -19,6 +19,7 @@ export default function TabLayout() {
   return (
     <Tabs
       // @ts-ignore
+      initialRouteName="history"
       tabBar={(props) => <TabBar {...props} />}
       screenOptions={{
         tabBarActiveTintColor: getTabActiveTintColor(colorScheme ?? "light"),
@@ -26,7 +27,7 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="history"
         options={{
           title: "History",
           tabBarIcon: ({ color }) => <HistoryTabIcon color={color} />,

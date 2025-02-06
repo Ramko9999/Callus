@@ -1,4 +1,4 @@
-import { DifficultyType, Exercise, Set } from "@/interface";
+import { CompletedExercise, DifficultyType, Set } from "@/interface";
 import { View, Text, useThemeColoring } from "@/components/Themed";
 import { ArrayUtils } from "@/util/misc";
 import { getDurationDisplay, getLongDateDisplay, truncTime } from "@/util/date";
@@ -91,7 +91,10 @@ function HistoryItem({ day, summaries, notes }: HistoryItemProps) {
   );
 }
 
-function computeSummaries(completions: Exercise[], type: DifficultyType) {
+function computeSummaries(
+  completions: CompletedExercise[],
+  type: DifficultyType
+) {
   let difficultyToAggregate = [];
   if (
     type === DifficultyType.WEIGHT ||
@@ -137,7 +140,7 @@ function computeSummaries(completions: Exercise[], type: DifficultyType) {
 
 // todo: use the workout start date
 function computeHistory(
-  completions: Exercise[],
+  completions: CompletedExercise[],
   type: DifficultyType
 ): HistoryLineItem[] {
   const historySummaries = ArrayUtils.groupBy(completions, ({ sets }) =>
@@ -165,7 +168,7 @@ const historyStyles = StyleSheet.create({
 });
 
 type HistoryProps = {
-  completions: Exercise[];
+  completions: CompletedExercise[];
   type: DifficultyType;
 };
 

@@ -4,6 +4,7 @@ import { WorkoutApi } from "@/api/workout";
 import { RoutineEditorSheet } from "@/components/popup/routine";
 import { useLiveIndicator } from "@/components/popup/workout/live";
 import { useThemeColoring, View, Text } from "@/components/Themed";
+import { useUserDetails } from "@/components/user-details";
 import { HeaderPage } from "@/components/util/header-page";
 import { useTabBar } from "@/components/util/tab-bar/context";
 import { useWorkout } from "@/context/WorkoutContext";
@@ -107,6 +108,7 @@ export function Routines() {
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [selectedRoutine, setSelectedRoutine] = useState<Routine>();
   const { actions, isInWorkout } = useWorkout();
+  const { userDetails } = useUserDetails();
 
   useEffect(() => {
     if (selectedRoutine) {
@@ -152,7 +154,10 @@ export function Routines() {
         canStart={!isInWorkout}
         onStart={() =>
           actions.startWorkout(
-            WorkoutActions.createFromRoutine(selectedRoutine as Routine)
+            WorkoutActions.createFromRoutine(
+              selectedRoutine as Routine,
+              userDetails?.bodyweight as number
+            )
           )
         }
         onSave={(routine) =>

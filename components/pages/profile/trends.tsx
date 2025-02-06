@@ -343,7 +343,7 @@ export function Trends() {
 
   useEffect(() => {
     WorkoutApi.getTrends(
-      goBackMonths(truncTime(Date.now()), MONTHS_TO_LOOKBACK)
+      goBackMonths(truncTime(Date.now()), MONTHS_TO_LOOKBACK),
     )
       .then(setTrends)
       .catch((error) => {

@@ -2,7 +2,12 @@ import { useThemeColoring, View, Text } from "@/components/Themed";
 import { textTheme } from "@/constants/Themes";
 import { ICON_ACTION_DIMENSION, StyleUtils } from "@/util/styles";
 import { Entypo, FontAwesome } from "@expo/vector-icons";
-import { ViewStyle, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  ViewStyle,
+  StyleSheet,
+  TouchableOpacity,
+  TextStyle,
+} from "react-native";
 
 const iconActionStyles = StyleSheet.create({
   container: {
@@ -19,6 +24,10 @@ const textActionStyles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 7,
     ...StyleUtils.flexRowCenterAll(),
+  },
+  text: {
+    fontWeight: 600,
+    color: "white",
   },
 });
 
@@ -234,7 +243,7 @@ export function SignificantAction({ onClick, style, text }: TextActionProps) {
           style,
         ]}
       >
-        <Text action style={{ color: "white" }}>
+        <Text neutral style={textActionStyles.text}>
           {text}
         </Text>
       </View>
@@ -253,7 +262,9 @@ export function NeutralAction({ onClick, style, text }: TextActionProps) {
           style,
         ]}
       >
-        <Text action>{text}</Text>
+        <Text neutral style={textActionStyles.text}>
+          {text}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -269,7 +280,7 @@ export function DangerAction({ onClick, style, text }: TextActionProps) {
           style,
         ]}
       >
-        <Text action style={{ color: "white" }}>
+        <Text neutral style={textActionStyles.text}>
           {text}
         </Text>
       </View>

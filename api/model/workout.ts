@@ -1,7 +1,10 @@
 import { Exercise, Routine, Set, SetStatus, Workout } from "@/interface";
 import { generateExerciseId, generateSetId, generateWorkoutId } from "./util";
 
-function createWorkoutFromRoutine(routine: Routine): Workout {
+function createWorkoutFromRoutine(
+  routine: Routine,
+  bodyweight: number
+): Workout {
   const exercises: Exercise[] = routine.plan.map(
     ({ name, rest, sets: routineSets }) => {
       const sets: Set[] = routineSets.map((set) => ({
@@ -26,6 +29,7 @@ function createWorkoutFromRoutine(routine: Routine): Workout {
     startedAt: Date.now(),
     id: generateWorkoutId(),
     routineId: routine.id,
+    bodyweight,
   };
 }
 

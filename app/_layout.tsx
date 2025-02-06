@@ -18,6 +18,7 @@ import {
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TabBarProvider } from "@/components/util/tab-bar/context";
 import { LiveIndicatorProvider } from "@/components/popup/workout/live";
+import { UserDetailsProvider } from "@/components/user-details";
 
 // This is the default configuration
 configureReanimatedLogger({
@@ -32,7 +33,7 @@ export {
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: "(tabs)",
+  initialRouteName: "index",
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -75,14 +76,11 @@ function RootLayoutNav() {
             <ToastProvider>
               <WorkoutProvider>
                 <Preloader>
-                  <LiveIndicatorProvider>
-                    <Stack>
-                      <Stack.Screen
-                        name="(tabs)"
-                        options={{ headerShown: false }}
-                      />
-                    </Stack>
-                  </LiveIndicatorProvider>
+                  <UserDetailsProvider>
+                    <LiveIndicatorProvider>
+                      <Routes />
+                    </LiveIndicatorProvider>
+                  </UserDetailsProvider>
                 </Preloader>
               </WorkoutProvider>
             </ToastProvider>
@@ -90,5 +88,16 @@ function RootLayoutNav() {
         </SafeAreaProvider>
       </ThemeProvider>
     </GestureHandlerRootView>
+  );
+}
+
+function Routes() {
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="onboarding" />
+      <Stack.Screen name="sign-up" />
+    </Stack>
   );
 }
