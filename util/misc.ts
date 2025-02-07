@@ -23,22 +23,6 @@ export function getNumberSuffix(number: number) {
   }
 }
 
-type Function = (...args: any[]) => void;
-
-// todo: debounce won't work in a React component
-export function debounce(f: Function, period: number): Function {
-  let timer: any;
-  const debounced = (...args: any[]) => {
-    if (timer) {
-      clearTimeout(timer);
-    }
-    timer = setTimeout(() => {
-      f(...args);
-    }, period);
-  };
-  return debounced;
-}
-
 export function popAndInsert<T>(
   arr: T[],
   popIndex: number,

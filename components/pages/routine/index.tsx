@@ -1,6 +1,7 @@
 import { RoutineActions } from "@/api/model/routine";
 import { WorkoutActions } from "@/api/model/workout";
 import { WorkoutApi } from "@/api/workout";
+import { useDebounce } from "@/components/hooks/use-debounce";
 import { RoutineEditorSheet } from "@/components/popup/routine";
 import { useLiveIndicator } from "@/components/popup/workout/live";
 import { useThemeColoring, View, Text } from "@/components/Themed";
@@ -109,6 +110,7 @@ export function Routines() {
   const [selectedRoutine, setSelectedRoutine] = useState<Routine>();
   const { actions, isInWorkout } = useWorkout();
   const { userDetails } = useUserDetails();
+  const { invoke } = useDebounce({ delay: 200 });
 
   useEffect(() => {
     if (selectedRoutine) {
@@ -160,11 +162,11 @@ export function Routines() {
             )
           )
         }
-        onSave={(routine) =>
-          WorkoutApi.saveRoutine(routine).then(() =>
-            setSelectedRoutine(routine)
-          )
-        }
+        onSave={(routine) => {
+          setSelectedRoutine(routine);
+          //@ts-ignore
+          invoke(WorkoutApi.saveRoutine)(routine);
+        }}
         onTrash={() =>
           WorkoutApi.deleteRoutine((selectedRoutine as Routine).id)
         }

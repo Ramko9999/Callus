@@ -77,9 +77,7 @@ function RootLayoutNav() {
               <WorkoutProvider>
                 <Preloader>
                   <UserDetailsProvider>
-                    <LiveIndicatorProvider>
-                      <Routes />
-                    </LiveIndicatorProvider>
+                    <Routes />
                   </UserDetailsProvider>
                 </Preloader>
               </WorkoutProvider>

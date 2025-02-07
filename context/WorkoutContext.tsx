@@ -19,6 +19,7 @@ import { generateRandomId, timeout } from "@/util/misc";
 import { WorkoutApi } from "@/api/workout";
 import { Audio } from "expo-av";
 import { NAME_TO_EXERCISE_META } from "@/api/exercise";
+import { useDebounce } from "@/components/hooks/use-debounce";
 
 function generateSetId() {
   return generateRandomId("st", 8);
@@ -362,10 +363,17 @@ type Props = {
   children: React.ReactNode;
 };
 
-// todo: consider debouncing workout updates
 export function WorkoutProvider({ children }: Props) {
   const [workout, setWorkout] = useState<Workout>();
   const [sounds, setSounds] = useState<WorkoutSounds>();
+  const { invoke } = useDebounce({ delay: 200 });
+
+  const updateWorkout = (workoutUpdate: Partial<Workout>) => {
+    const updatedWorkout = { ...(workout as Workout), ...workoutUpdate };
+    setWorkout(updatedWorkout);
+    //@ts-ignore
+    invoke(WorkoutApi.saveWorkout)(workoutUpdate);
+  };
 
   const startWorkout = (workout: Workout) => {
     const activity = getCurrentWorkoutActivity(workout);
@@ -387,9 +395,8 @@ export function WorkoutProvider({ children }: Props) {
       { status: SetStatus.RESTING, restStartedAt: Date.now() },
       workout as Workout
     );
-    WorkoutApi.saveWorkout(newWorkout).then(() => {
-      setWorkout(newWorkout);
-    });
+
+    updateWorkout(newWorkout);
   };
 
   const completeRest = (setId: string) => {
@@ -406,16 +413,8 @@ export function WorkoutProvider({ children }: Props) {
         newWorkout as Workout
       );
     }
-    WorkoutApi.saveWorkout(newWorkout).then(() => {
-      setWorkout(newWorkout);
-    });
-  };
 
-  const updateWorkout = (update: Partial<Workout>) => {
-    const newWorkout = { ...(workout as Workout), ...update };
-    WorkoutApi.saveWorkout(newWorkout).then(() => {
-      setWorkout(newWorkout);
-    });
+    updateWorkout(newWorkout);
   };
 
   const discardWorkout = () => {
@@ -428,9 +427,7 @@ export function WorkoutProvider({ children }: Props) {
       { restDuration: updatedRestDuration },
       workout as Workout
     );
-    WorkoutApi.saveWorkout(newWorkout).then(() => {
-      setWorkout(newWorkout);
-    });
+    updateWorkout(newWorkout);
   };
 
   const resumeInProgressWorkout = (workout: Workout) => {

@@ -17,6 +17,7 @@ import { CalendarHeaderAction, Calendar } from "./calendar";
 import { useWorkedOutDays } from "./hooks/use-worked-out-days";
 import { StyleUtils } from "@/util/styles";
 import { useUserDetails } from "@/components/user-details";
+import { useDebounce } from "@/components/hooks/use-debounce";
 
 const loadingWorkoutsStyles = StyleSheet.create({
   container: {
@@ -45,6 +46,7 @@ export default function Home() {
   const [showMonthCalendar, setShowMonthCalendar] = useState<boolean>(false);
   const { isInWorkout, actions } = useWorkout();
   const { userDetails } = useUserDetails();
+  const { invoke } = useDebounce({ delay: 200 });
 
   const tabBarActions = useTabBar();
   const liveIndicatorActions = useLiveIndicator();
@@ -112,9 +114,10 @@ export default function Home() {
           setWorkoutToUpdate(undefined);
         }}
         onSave={(workout) => {
-          WorkoutApi.saveWorkout(workout).then(() =>
-            setWorkoutToUpdate(workout)
-          );
+          // todo: ensure we save whenever we exit the app before releasing actuallly
+          setWorkoutToUpdate(workout);
+          // @ts-ignore
+          invoke(WorkoutApi.saveWorkout)(workout);
         }}
         canRepeat={!isInWorkout}
         onRepeat={(workout) => {

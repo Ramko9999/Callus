@@ -11,7 +11,6 @@ import {
   KeypadType,
 } from "@/interface";
 import { getDurationDisplay } from "@/util/date";
-import { debounce } from "@/util/misc";
 import { StyleUtils } from "@/util/styles";
 import { useCallback, useEffect } from "react";
 import { StyleSheet, TouchableOpacity, ViewStyle } from "react-native";
@@ -19,8 +18,6 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-
-const DEBOUNCE_INTERVAL = 1000;
 
 const inputStyles = StyleSheet.create({
   container: {
@@ -79,13 +76,9 @@ function WeightInput({ id, weight, onUpdate }: WeightInputProps) {
   const isFocused = callerId === id;
   const weightDisplay = `${isFocused ? value : weight} lbs`.padEnd(15, "");
 
-  const updateWithDebounce = useCallback(
-    debounce(onUpdate, DEBOUNCE_INTERVAL),
-    [onUpdate]
-  );
   useEffect(() => {
     if (isFocused && value !== "") {
-      updateWithDebounce(parseFloat(value));
+      onUpdate(parseFloat(value));
     }
   }, [isFocused, value]);
 
@@ -116,13 +109,9 @@ function RepsInput({ id, reps, onUpdate }: RepsInputProps) {
   const isFocused = callerId === id;
   const repsDisplay = `${isFocused ? value : reps} reps`.padEnd(15, "");
 
-  const updateWithDebounce = useCallback(
-    debounce(onUpdate, DEBOUNCE_INTERVAL),
-    [onUpdate]
-  );
   useEffect(() => {
     if (isFocused && value !== "") {
-      updateWithDebounce(parseFloat(value));
+      onUpdate(parseFloat(value));
     }
   }, [isFocused, value]);
 
@@ -156,13 +145,9 @@ function TimeInput({ id, duration, onUpdate }: TimeInputProps) {
     isFocused ? parseInt(value) : duration
   ).padEnd(12, "");
 
-  const updateWithDebounce = useCallback(
-    debounce(onUpdate, DEBOUNCE_INTERVAL),
-    [onUpdate]
-  );
   useEffect(() => {
     if (isFocused && value !== "") {
-      updateWithDebounce(parseInt(value));
+      onUpdate(parseInt(value));
     }
   }, [isFocused, value]);
 

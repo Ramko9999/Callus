@@ -189,7 +189,14 @@ export function RoutineEditorSheet({
   return (
     <>
       <InputsPadProvider>
-        <FullBottomSheet show={show} onHide={onHide} ref={sheetRef}>
+        <FullBottomSheet
+          show={show}
+          onHide={() => {
+            setSelectedExerciseId(undefined);
+            onHide();
+          }}
+          ref={sheetRef}
+        >
           <View style={routineEditorSheetStyles.container}>
             {renderContent()}
           </View>
