@@ -1,6 +1,6 @@
 import { usePathname } from "expo-router";
-import { Text, View } from "@/components/Themed";
-import { StyleSheet } from "react-native";
+import { Text, useThemeColoring, View } from "@/components/Themed";
+import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { truncTime, getLongDateDisplay } from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
@@ -10,7 +10,7 @@ import { useLiveIndicator } from "@/components/popup/workout/live/index";
 import { useWorkout } from "@/context/WorkoutContext";
 import { createWorkoutFromWorkout } from "@/util/workout";
 import { PLACEHOLDER_WORKOUT } from "@/util/mock";
-import { CompletedWorkouts } from "./completed-workout";
+import { CompletedWorkouts, NoWorkoutsLogged } from "./completed-workout";
 import { useTabBar } from "@/components/util/tab-bar/context";
 import { HeaderPage } from "@/components/util/header-page";
 import { CalendarHeaderAction, Calendar } from "./calendar";
@@ -18,6 +18,10 @@ import { useWorkedOutDays } from "./hooks/use-worked-out-days";
 import { StyleUtils } from "@/util/styles";
 import { useUserDetails } from "@/components/user-details";
 import { useDebounce } from "@/components/hooks/use-debounce";
+import { Dumbbell } from "@/components/theme/custom-svg";
+import * as Haptics from "expo-haptics";
+import { WorkoutActions } from "@/api/model/workout";
+import { useToast } from "react-native-toast-notifications";
 
 const loadingWorkoutsStyles = StyleSheet.create({
   container: {
@@ -35,6 +39,67 @@ function LoadingWorkouts() {
   );
 }
 
+const quickStartWorkoutStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(),
+    alignItems: "center",
+    borderRadius: 5,
+    padding: "2%",
+  },
+  scrollContainer: {
+    marginTop: "3%",
+    paddingHorizontal: "3%",
+    flex: 1,
+  },
+  cta: {
+    marginTop: -10,
+  },
+  icon: {
+    marginTop: -20,
+  },
+  ctaText: {
+    fontWeight: 600,
+  },
+});
+
+type QuickStartWorkoutProps = {
+  onClick: () => void;
+};
+
+function QuickStartWorkout({ onClick }: QuickStartWorkoutProps) {
+  return (
+    <ScrollView contentContainerStyle={quickStartWorkoutStyles.scrollContainer}>
+      <TouchableOpacity
+        style={[
+          quickStartWorkoutStyles.container,
+          { backgroundColor: useThemeColoring("primaryViewBackground") },
+        ]}
+        onPress={onClick}
+      >
+        <View style={quickStartWorkoutStyles.icon}>
+          <Dumbbell
+            color={useThemeColoring("primaryAction")}
+            size={96}
+            fill={useThemeColoring("primaryAction")}
+            viewBox="0 0 48 48"
+            strokeWidth={1}
+          />
+        </View>
+        <View style={quickStartWorkoutStyles.cta}>
+          <Text
+            style={[
+              { color: useThemeColoring("primaryAction") },
+              quickStartWorkoutStyles.ctaText,
+            ]}
+          >
+            Start an empty workout
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+}
+
 export default function Home() {
   const pathname = usePathname();
 
@@ -47,6 +112,7 @@ export default function Home() {
   const { isInWorkout, actions } = useWorkout();
   const { userDetails } = useUserDetails();
   const { invoke } = useDebounce({ delay: 200 });
+  const toast = useToast();
 
   const tabBarActions = useTabBar();
   const liveIndicatorActions = useLiveIndicator();
@@ -98,13 +164,38 @@ export default function Home() {
           <LoadingWorkouts />
         ) : (
           <>
-            <CompletedWorkouts
-              workouts={completedWorkouts}
-              onSelect={(workout: Workout) => {
-                liveIndicatorActions.hide();
-                setWorkoutToUpdate(workout);
-              }}
-            />
+            {completedWorkouts.length === 0 ? (
+              truncTime(workoutDate) === truncTime(Date.now()) ? (
+                <QuickStartWorkout
+                  onClick={() => {
+                    if (isInWorkout) {
+                      toast.show(
+                        "Please finish your current workout before trying to start another workout",
+                        { type: "danger" }
+                      );
+                    } else {
+                      const workout = WorkoutActions.createFromQuickStart(
+                        userDetails?.bodyweight as number
+                      );
+                      actions.startWorkout(workout);
+                      Haptics.notificationAsync(
+                        Haptics.NotificationFeedbackType.Success
+                      );
+                    }
+                  }}
+                />
+              ) : (
+                <NoWorkoutsLogged />
+              )
+            ) : (
+              <CompletedWorkouts
+                workouts={completedWorkouts}
+                onSelect={(workout: Workout) => {
+                  liveIndicatorActions.hide();
+                  setWorkoutToUpdate(workout);
+                }}
+              />
+            )}
           </>
         )}
       </HeaderPage>

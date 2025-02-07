@@ -91,7 +91,6 @@ function LivePlayerSheet({
   const [isFinishing, setIsFinishing] = useState(false);
   const [isAddingExercise, setIsAddingExercise] = useState(false);
   const [isEditingDates, setIsEditingDates] = useState(false);
-  const [isReordering, setIsReordering] = useState(false);
   const [isEditingRest, setIsEditingRest] = useState(false);
   const [exerciseFiltersState, setExerciseFiltersState] =
     useState<ExerciseSearcherFiltersState>({ showFilters: false });
@@ -120,7 +119,6 @@ function LivePlayerSheet({
   };
 
   const onReorderExercises = (exercises: Exercise[]) => {
-
     onSave({ ...workout, exercises: finishAllRestingSets(exercises) });
   };
 
@@ -192,11 +190,8 @@ function LivePlayerSheet({
       } else {
         return (
           <ExerciseEditorContent
-            isReordering={isReordering}
             workout={workout}
             onClose={() => setIsEditing(false)}
-            onStartReordering={() => setIsReordering(true)}
-            onDoneReordering={() => setIsReordering(false)}
             onAdd={() => setIsAddingExercise(true)}
             onRemove={onRemoveExercise}
             onSelect={(exercise) => setExerciseId(exercise.id)}

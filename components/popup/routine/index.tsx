@@ -21,6 +21,7 @@ import {
   ExerciseSearcherFiltersState,
   ExerciseSearcherModals,
 } from "../workout/common/exercise/add";
+import { useToast } from "react-native-toast-notifications";
 
 const routineEditorSheetStyles = StyleSheet.create({
   container: {
@@ -67,6 +68,7 @@ export function RoutineEditorSheet({
 
   const exercisePlanActions = ExercisePlanActions(routine);
   const setPlanActions = SetPlanActions(routine, selectedExerciseId as string);
+  const toast = useToast();
 
   const renderContent = () => {
     if (isAddingExercise) {
@@ -100,11 +102,8 @@ export function RoutineEditorSheet({
     } else {
       return (
         <ExerciseEditorContent
-          isReordering={false}
           routine={routine}
           onClose={() => sheetRef.current?.hideSheet()}
-          onStartReordering={() => {}}
-          onDoneReordering={() => {}}
           onAdd={() => setIsAddingExercise(true)}
           onRemove={(id) => {
             onSave(exercisePlanActions.remove(id));
@@ -171,6 +170,11 @@ export function RoutineEditorSheet({
             if (canStart) {
               onStart();
               sheetRef.current?.hideSheet();
+            } else {
+              toast.show(
+                "Please finish your current workout before trying to start another workout",
+                { type: "danger" }
+              );
             }
           }}
           trashConfirmation={{

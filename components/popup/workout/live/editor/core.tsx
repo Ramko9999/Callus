@@ -8,13 +8,7 @@ import {
 } from "@/components/theme/actions";
 import { View, Text } from "@/components/Themed";
 import { getCurrentWorkoutActivity } from "@/context/WorkoutContext";
-import {
-  Exercise,
-  Workout,
-  WorkoutMetadata,
-  Set,
-  ExerciseMeta,
-} from "@/interface";
+import { Exercise, Workout, WorkoutMetadata, Set } from "@/interface";
 import { StyleUtils } from "@/util/styles";
 import { getLiveExerciseDescription } from "@/util/workout/display";
 import React from "react";
@@ -43,19 +37,13 @@ const topActionsStyles = StyleSheet.create({
 });
 
 type ExerciseEditorTopActionsProps = {
-  isReordering: boolean;
   onClose: () => void;
-  onStartReordering: () => void;
-  onDoneReordering: () => void;
   onAdd: () => void;
   onFinish: () => void;
 };
 
 function ExerciseEditorTopActions({
-  isReordering,
   onClose,
-  onStartReordering,
-  onDoneReordering,
   onAdd,
   onFinish,
 }: ExerciseEditorTopActionsProps) {
@@ -63,11 +51,6 @@ function ExerciseEditorTopActions({
     <View style={topActionsStyles.container}>
       <Back onClick={onClose} />
       <View style={topActionsStyles.rightActions}>
-        {isReordering ? (
-          <Done onClick={onDoneReordering} />
-        ) : (
-          <Shuffle onClick={onStartReordering} />
-        )}
         <Add onClick={onAdd} />
         <SignificantAction onClick={onFinish} text="Finish" />
       </View>
@@ -105,11 +88,8 @@ const editorContentStyles = StyleSheet.create({
 });
 
 type ExerciseEditorContentProps = {
-  isReordering: boolean;
   workout: Workout;
   onClose: () => void;
-  onStartReordering: () => void;
-  onDoneReordering: () => void;
   onAdd: () => void;
   onRemove: (exerciseId: string) => void;
   onSelect: (exercise: Exercise) => void;
@@ -120,15 +100,8 @@ type ExerciseEditorContentProps = {
 };
 
 export function ExerciseEditorContent(props: ExerciseEditorContentProps) {
-  const {
-    workout,
-    onUpdateMeta,
-    onEditTimes,
-    onRemove,
-    onSelect,
-    onReorder,
-    isReordering,
-  } = props;
+  const { workout, onUpdateMeta, onEditTimes, onRemove, onSelect, onReorder } =
+    props;
 
   return (
     <>
@@ -143,7 +116,6 @@ export function ExerciseEditorContent(props: ExerciseEditorContentProps) {
           currentExerciseId={
             getCurrentWorkoutActivity(workout).activityData.exercise?.id
           }
-          isReordering={isReordering}
           exercises={workout.exercises}
           onRemove={onRemove}
           onEdit={onSelect}

@@ -121,7 +121,6 @@ const exerciseLevelEditorStyles = StyleSheet.create({
 });
 
 type ExerciseLevelEditorProps = {
-  isReordering: boolean;
   exercises: ExercisePlan[];
   getDescription: (exercise: ExercisePlan) => string;
   onRemove: (exercisePlanId: string) => void;

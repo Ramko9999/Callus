@@ -1,5 +1,10 @@
 import { Exercise, Routine, Set, SetStatus, Workout } from "@/interface";
-import { generateExerciseId, generateSetId, generateWorkoutId } from "./util";
+import {
+  generateExerciseId,
+  getQuickstartWorkoutName,
+  generateSetId,
+  generateWorkoutId,
+} from "./util";
 
 function createWorkoutFromRoutine(
   routine: Routine,
@@ -33,6 +38,17 @@ function createWorkoutFromRoutine(
   };
 }
 
+function createWorkoutFromQuickStart(bodyweight: number) {
+  return {
+    name: getQuickstartWorkoutName(),
+    exercises: [],
+    startedAt: Date.now(),
+    id: generateWorkoutId(),
+    bodyweight,
+  };
+}
+
 export const WorkoutActions = {
   createFromRoutine: createWorkoutFromRoutine,
+  createFromQuickStart: createWorkoutFromQuickStart,
 };

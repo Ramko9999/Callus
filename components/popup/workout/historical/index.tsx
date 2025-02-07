@@ -34,6 +34,7 @@ import {
   ExerciseSearcherFiltersState,
   ExerciseSearcherModals,
 } from "../common/exercise/add";
+import { useToast } from "react-native-toast-notifications";
 
 const historicalEditorSheetStyles = StyleSheet.create({
   container: {
@@ -68,11 +69,11 @@ export function HistoricalEditorSheet({
   const [isTrashingWorkout, setIsTrashingWorkout] = useState(false);
   const [isAddingExercise, setIsAddingExercise] = useState(false);
   const [isEditingTimes, setIsEditingTimes] = useState(false);
-  const [isReordering, setIsReordering] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
   const [exerciseFiltersState, setExerciseFiltersState] =
     useState<ExerciseSearcherFiltersState>({ showFilters: false });
   const sheetRef = useRef<FullBottomSheetRef>(null);
+  const toast = useToast();
 
   const onHide = () => {
     setExerciseId(undefined);
@@ -147,17 +148,8 @@ export function HistoricalEditorSheet({
     }
     return (
       <ExerciseEditorContent
-        isReordering={isReordering}
         workout={workout}
         onClose={() => sheetRef.current?.hideSheet()}
-        onStartReordering={() => {
-          setIsReordering(true);
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        }}
-        onDoneReordering={() => {
-          setIsReordering(false);
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        }}
         onAdd={() => {
           setIsAddingExercise(true);
         }}
@@ -204,6 +196,11 @@ export function HistoricalEditorSheet({
           if (canRepeat) {
             onRepeat(workout);
             sheetRef.current?.hideSheet();
+          } else {
+            toast.show(
+              "Please finish your current workout before trying to start another workout",
+              { type: "danger" }
+            );
           }
         }}
         workout={workout}

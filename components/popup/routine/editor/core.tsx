@@ -59,20 +59,14 @@ function SetEditorTopActions({
 }
 
 type ExerciseEditorTopActionsProps = {
-  isReordering: boolean;
   onClose: () => void;
-  onStartReordering: () => void;
-  onDoneReordering: () => void;
   onAdd: () => void;
   onTrash: () => void;
   onStart: () => void;
 };
 
 function ExerciseEditorTopActions({
-  isReordering,
   onClose,
-  onStartReordering,
-  onDoneReordering,
   onAdd,
   onTrash,
   onStart,
@@ -81,11 +75,6 @@ function ExerciseEditorTopActions({
     <View style={topActionsStyles.container}>
       <Close onClick={onClose} />
       <View style={topActionsStyles.rightActions}>
-        {isReordering ? (
-          <Done onClick={onDoneReordering} />
-        ) : (
-          <Shuffle onClick={onStartReordering} />
-        )}
         <Add onClick={onAdd} />
         <Start onClick={onStart} />
         <Trash onClick={onTrash} />
@@ -102,11 +91,8 @@ const editorContentStyles = StyleSheet.create({
 });
 
 type ExerciseEditorContentProps = {
-  isReordering: boolean;
   routine: Routine;
   onClose: () => void;
-  onStartReordering: () => void;
-  onDoneReordering: () => void;
   onAdd: () => void;
   onRemove: (exercisePlanId: string) => void;
   onSelect: (exercisePlanId: string) => void;
@@ -119,15 +105,12 @@ type ExerciseEditorContentProps = {
 // todo: reuse the same components for workout and routines
 export function ExerciseEditorContent(props: ExerciseEditorContentProps) {
   const {
-    isReordering,
     routine,
     onRemove,
     onSelect,
     onReorder,
     onUpdateMeta,
     onClose,
-    onStartReordering,
-    onDoneReordering,
     onAdd,
     onTrash,
     onStart,
@@ -136,10 +119,7 @@ export function ExerciseEditorContent(props: ExerciseEditorContentProps) {
   return (
     <>
       <ExerciseEditorTopActions
-        isReordering={isReordering}
         onClose={onClose}
-        onStartReordering={onStartReordering}
-        onDoneReordering={onDoneReordering}
         onAdd={onAdd}
         onTrash={onTrash}
         onStart={onStart}
@@ -147,7 +127,6 @@ export function ExerciseEditorContent(props: ExerciseEditorContentProps) {
       <View style={editorContentStyles.container}>
         <MetaEditor routine={routine} onUpdateMeta={onUpdateMeta} />
         <ExerciseLevelEditor
-          isReordering={isReordering}
           exercises={routine.plan}
           getDescription={getHistoricalExerciseDescription}
           onRemove={onRemove}
@@ -162,7 +141,7 @@ export function ExerciseEditorContent(props: ExerciseEditorContentProps) {
 type SetEditorContentProps = {
   onAdd: () => void;
   onRemove: (setPlanId: string) => void;
-  onUpdate: (setPlsetPlanId: string, update: Partial<SetPlan>) => void;
+  onUpdate: (setPlanId: string, update: Partial<SetPlan>) => void;
   onEditRest: () => void;
   close: () => void;
   exercise: ExercisePlan;

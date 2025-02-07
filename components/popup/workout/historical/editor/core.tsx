@@ -52,20 +52,14 @@ function SetEditorTopActions({ onAdd, onClose }: SetEditorTopActionsProps) {
 }
 
 type ExerciseEditorTopActionsProps = {
-  isReordering: boolean;
   onClose: () => void;
-  onStartReordering: () => void;
-  onDoneReordering: () => void;
   onAdd: () => void;
   onTrash: () => void;
   onRepeat: () => void;
 };
 
 function ExerciseEditorTopActions({
-  isReordering,
   onClose,
-  onStartReordering,
-  onDoneReordering,
   onAdd,
   onTrash,
   onRepeat,
@@ -75,11 +69,6 @@ function ExerciseEditorTopActions({
       <Close onClick={onClose} />
       <View style={topActionsStyles.rightActions}>
         <Repeat onClick={onRepeat} />
-        {isReordering ? (
-          <Done onClick={onDoneReordering} />
-        ) : (
-          <Shuffle onClick={onStartReordering} />
-        )}
         <Add onClick={onAdd} />
         <Trash onClick={onTrash} />
       </View>
@@ -95,11 +84,8 @@ const editorContentStyles = StyleSheet.create({
 });
 
 type ExerciseEditorContentProps = {
-  isReordering: boolean;
   workout: Workout;
   onClose: () => void;
-  onStartReordering: () => void;
-  onDoneReordering: () => void;
   onAdd: () => void;
   onRemove: (exerciseId: string) => void;
   onSelect: (exercise: Exercise) => void;
@@ -112,7 +98,6 @@ type ExerciseEditorContentProps = {
 
 export function ExerciseEditorContent(props: ExerciseEditorContentProps) {
   const {
-    isReordering,
     workout,
     onUpdateMeta,
     onEditTimes,
@@ -131,7 +116,6 @@ export function ExerciseEditorContent(props: ExerciseEditorContentProps) {
           onDateClick={onEditTimes}
         />
         <ExerciseLevelEditor
-          isReordering={isReordering}
           exercises={workout.exercises}
           onRemove={onRemove}
           onEdit={onSelect}

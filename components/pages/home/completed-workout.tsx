@@ -60,11 +60,27 @@ function CompletedWorkout({ workout, onClick }: CompletedWorkoutProps) {
   );
 }
 
+const noWorkoutsLoggedStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    ...StyleUtils.flexRowCenterAll(),
+  },
+});
+
+export function NoWorkoutsLogged() {
+  return (
+    <View style={noWorkoutsLoggedStyles.container}>
+      <Text>There are no workouts logged today</Text>
+    </View>
+  );
+}
+
 const completedWorkoutsStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(20),
     marginTop: "3%",
     paddingHorizontal: "3%",
+    flex: 1,
   },
 });
 
