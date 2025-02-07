@@ -50,7 +50,7 @@ export const GET_LIFETIME_STATS =
 export const GET_METADATA = "select key, value from metadata where key = $key";
 
 const COMPLETED_EXERCISES_SQL = (predicate: string) => `
-  select exercises.id as id, exercises.name as name, exercises.sets as sets, exercises.rest_duration as rest_duration, exercises.note as note, workouts.bodyweight as bodyweight from workouts join exercises on workouts.id = exercises.workout_id where ${predicate}
+  select exercises.id as id, exercises.name as name, exercises.sets as sets, exercises.rest_duration as rest_duration, exercises.note as note, workouts.bodyweight as bodyweight, workouts.started_at as workout_started_at from workouts join exercises on workouts.id = exercises.workout_id where ${predicate}
 `;
 
 export const GET_COMPLETED_EXERCISES = COMPLETED_EXERCISES_SQL(

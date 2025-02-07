@@ -13,6 +13,7 @@ export function getMockCompletions(
     name: MOCK_EXERCISE,
     restDuration: 60,
     bodyweight: 150,
+    workoutStartedAt: addDays(originTimestamp, index),
     sets: [
       {
         id: `set-${index}`,

@@ -70,10 +70,18 @@ function getAverageDurationPerSet(completion: CompletedExercise) {
 }
 
 function getAverageRestDurationPerSet(completion: CompletedExercise) {
+  const setsWithRest = completion.sets.filter(
+    ({ restStartedAt, restEndedAt }) =>
+      restStartedAt != undefined && restEndedAt != undefined
+  );
+  if (setsWithRest.length === 0) {
+    return;
+  }
+
   const average =
-    ArrayUtils.sumBy(completion.sets, ({ restStartedAt, restEndedAt }) =>
+    ArrayUtils.sumBy(setsWithRest, ({ restStartedAt, restEndedAt }) =>
       Math.floor(((restEndedAt as number) - (restStartedAt as number)) / 1000)
-    ) / completion.sets.length;
+    ) / setsWithRest.length;
   return Math.round(average * 10) / 10;
 }
 
@@ -180,10 +188,13 @@ export function computeMetric(
   metricConfig: MetricConfig
 ): Metric {
   const points = completions
-    .map((completion) => ({
-      value: metricConfig.metricGeneration(completion),
-      timestamp: truncTime(completion.sets[0].restEndedAt as number),
-    }))
+    .flatMap((completion) => {
+      const value = metricConfig.metricGeneration(completion);
+      if (value != undefined) {
+        return [{ value, timestamp: truncTime(completion.workoutStartedAt) }];
+      }
+      return [];
+    })
     .sort((a, b) => a.timestamp - b.timestamp);
 
   const first = points[0].value;

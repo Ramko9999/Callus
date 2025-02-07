@@ -22,9 +22,9 @@ import Animated, {
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 
-function getWorkoutCompletionMessage(nthWorkout: number) {
-  return `You just completed your ${nthWorkout}${getNumberSuffix(
-    nthWorkout
+function getWorkoutCompletionMessage(completedWorkouts: number) {
+  return `You just completed your ${completedWorkouts}${getNumberSuffix(
+    completedWorkouts
   )} workout.`;
 }
 
@@ -43,11 +43,11 @@ const congratsFinishingWorkoutHeadingStyles = StyleSheet.create({
 });
 
 type CongratsFinishingWorkoutHeadingProps = {
-  nthWorkout: number;
+  completedWorkoutsBefore: number;
 };
 
 function CongratsFinishWorkoutHeading({
-  nthWorkout,
+  completedWorkoutsBefore,
 }: CongratsFinishingWorkoutHeadingProps) {
   const visibility = useSharedValue(0);
 
@@ -69,7 +69,9 @@ function CongratsFinishWorkoutHeading({
         <Star size={textTheme.extraLarge.fontSize} />
       </View>
       <Text extraLarge>Congrats!</Text>
-      <Text light>{getWorkoutCompletionMessage(nthWorkout)}</Text>
+      <Text light>
+        {getWorkoutCompletionMessage(completedWorkoutsBefore + 1)}
+      </Text>
     </Animated.View>
   );
 }
@@ -194,24 +196,26 @@ type CongratsFinishingWorkoutProps = {
 export function CongratsFinishingWorkout({
   workout,
 }: CongratsFinishingWorkoutProps) {
-  const [workoutNumber, setWorkoutNumber] = useState<number>();
+  const [workoutsCompleted, setWorkoutsCompleted] = useState<number>();
 
   useEffect(() => {
     WorkoutApi.getCompletedWorkoutsBefore(workout.startedAt).then(
-      (workoutNumber) => {
-        setWorkoutNumber(workoutNumber);
+      (workoutsCompleted) => {
+        setWorkoutsCompleted(workoutsCompleted);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
     );
   }, []);
 
-  if (workoutNumber == undefined) {
+  if (workoutsCompleted == undefined) {
     return null;
   }
 
   return (
     <View style={congratsFinishingWorkoutStyles.container}>
-      <CongratsFinishWorkoutHeading nthWorkout={workoutNumber} />
+      <CongratsFinishWorkoutHeading
+        completedWorkoutsBefore={workoutsCompleted}
+      />
       <View style={congratsFinishingWorkoutStyles.content}>
         <CongratsFinishingWorkoutSummary workout={workout} />
         <ScrollView

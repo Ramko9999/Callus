@@ -209,10 +209,12 @@ function Chart({ completions, type }: ChartProps) {
 
   const yTicks = yScale.ticks(5);
 
-  const cursorValue =
-    metric.points[pointIndex ?? metric.points.length - 1].value;
-  const cursorTimestamp =
-    metric.points[pointIndex ?? metric.points.length - 1].timestamp;
+  const cursorPoint =
+    metric.points[
+      pointIndex && pointIndex < metric.points.length
+        ? pointIndex
+        : metric.points.length - 1
+    ];
 
   return (
     <View style={chartStyles.container}>
@@ -224,9 +226,9 @@ function Chart({ completions, type }: ChartProps) {
           }
         }}
       >
-        <Text large>{metric.format(cursorValue)}</Text>
+        <Text large>{metric.format(cursorPoint.value)}</Text>
         <Text neutral light>
-          {getLongDateDisplay(cursorTimestamp)}
+          {getLongDateDisplay(cursorPoint.timestamp)}
         </Text>
       </View>
       <ScrollView
@@ -297,8 +299,8 @@ function Chart({ completions, type }: ChartProps) {
                 />
               ))}
               <Circle
-                cx={xScale(new Date(cursorTimestamp))}
-                cy={yScale(cursorValue)}
+                cx={xScale(new Date(cursorPoint.timestamp))}
+                cy={yScale(cursorPoint.value)}
                 r={7}
                 fill={metricTypeToStrokeColor[metric.metricType]}
               />

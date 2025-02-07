@@ -116,6 +116,23 @@ function computeSummaries(
     );
   };
 
+  const getAverageRest = (sets: Set[]) => {
+    const setsWithRest = sets.filter(
+      ({ restStartedAt, restEndedAt }) =>
+        restStartedAt != undefined && restEndedAt != undefined
+    );
+    if (setsWithRest.length === 0) {
+      return;
+    }
+    return Math.ceil(
+      ArrayUtils.sumBy(
+        setsWithRest,
+        ({ restStartedAt, restEndedAt }) =>
+          (restEndedAt as number) - (restStartedAt as number)
+      ) / setsWithRest.length
+    );
+  };
+
   return ArrayUtils.groupBy(
     completions.flatMap(({ sets }) => sets),
     difficultyExtractor
@@ -126,25 +143,19 @@ function computeSummaries(
         // @ts-ignore
         (setSummary[difficultyMeta] = commonSets[0].difficulty[difficultyMeta])
     );
-    setSummary.averageRest = Math.ceil(
-      ArrayUtils.sumBy(
-        commonSets,
-        ({ restStartedAt, restEndedAt }) =>
-          (restEndedAt as number) - (restStartedAt as number)
-      ) / commonSets.length
-    );
+    setSummary.averageRest = getAverageRest(commonSets);
     setSummary.sets = commonSets.length;
     return setSummary as SetSummary;
   });
 }
 
-// todo: use the workout start date
 function computeHistory(
   completions: CompletedExercise[],
   type: DifficultyType
 ): HistoryLineItem[] {
-  const historySummaries = ArrayUtils.groupBy(completions, ({ sets }) =>
-    truncTime(sets[0].restEndedAt as number)
+  const historySummaries = ArrayUtils.groupBy(
+    completions,
+    ({ workoutStartedAt }) => truncTime(workoutStartedAt)
   ).map(({ key: day, items: completions }) => {
     const notes = completions
       .filter(({ note }) => note != undefined)

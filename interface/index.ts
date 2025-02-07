@@ -95,6 +95,7 @@ export type Exercise = {
 
 export type CompletedExercise = Exercise & {
   bodyweight: number;
+  workoutStartedAt: number;
 };
 
 export type Workout = {
@@ -140,12 +141,6 @@ export type WorkoutMetadata = {
   name: string;
 };
 
-export type Program = {
-  id: string;
-  name: string;
-  skippedDays: number[];
-};
-
 export enum KeypadType {
   WEIGHT,
   REPS,
@@ -158,7 +153,7 @@ export type WorkoutLifetimeStats = {
   totalWorkoutDuration: number;
 };
 
-export type MetricGenerationFunc = (completion: CompletedExercise) => number;
+export type MetricGenerationFunc = (completion: CompletedExercise) => number | undefined;
 
 export type MetricType =
   | "Average Weight"

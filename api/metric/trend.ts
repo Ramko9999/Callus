@@ -15,8 +15,8 @@ type ExerciseCompletions = {
 };
 
 function hasEnoughDataToTrend({ completions }: ExerciseCompletions) {
-  const setCompletions = completions.flatMap(({ sets }) =>
-    sets.map(({ restEndedAt }) => restEndedAt as number)
+  const setCompletions = completions.map(
+    ({ workoutStartedAt }) => workoutStartedAt
   );
 
   const earliestTimePerformed = Math.min(...setCompletions);

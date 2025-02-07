@@ -27,6 +27,8 @@ import {
   Routine,
   Workout,
   WorkoutLifetimeStats,
+  Set as ISet,
+  SetStatus,
 } from "@/interface";
 import { truncTime } from "@/util/date";
 
@@ -65,15 +67,24 @@ function toCompletedExercise({
   rest_duration,
   note,
   bodyweight,
+  workout_started_at,
 }: any): CompletedExercise {
+  const parsedSets: ISet[] = JSON.parse(sets);
+
   return {
     name,
     id,
-    sets: JSON.parse(sets),
+    sets: parsedSets.filter((set) => set.status === SetStatus.FINISHED),
     restDuration: rest_duration,
     note,
     bodyweight,
+    workoutStartedAt: workout_started_at,
   };
+}
+
+function toCompletedExercises(records: any[]): CompletedExercise[] {
+  const completedExercises = records.map(toCompletedExercise);
+  return completedExercises.filter(({ sets }) => sets.length > 0);
 }
 
 function toRoutine({ id, name, plan }: any): Routine {
@@ -257,15 +268,7 @@ export class Store {
         $before: Date.now(),
       }
     );
-    return completedExercises
-      .map(toCompletedExercise)
-      .map((exercise) => ({
-        ...exercise,
-        sets: exercise.sets.filter(
-          ({ restEndedAt }) => restEndedAt != undefined
-        ),
-      }))
-      .filter((exercise) => exercise.sets.length > 0);
+    return toCompletedExercises(completedExercises);
   }
 
   async getAllCompletedExercise(
@@ -280,15 +283,7 @@ export class Store {
         $exercise_name: exerciseName,
       }
     );
-    return completions
-      .map(toCompletedExercise)
-      .map((exercise) => ({
-        ...exercise,
-        sets: exercise.sets.filter(
-          ({ restEndedAt }) => restEndedAt != undefined
-        ),
-      }))
-      .filter((exercise) => exercise.sets.length > 0);
+    return toCompletedExercises(completions);
   }
 
   async getCompletedWorkoutCountsBefore(before: number) {
