@@ -1,7 +1,11 @@
 import { popAndInsert } from "@/util/misc";
 import React, { useEffect, useState } from "react";
 import { View, ViewStyle } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import {
+  Gesture,
+  GestureDetector,
+  ScrollView,
+} from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
   SharedValue,
@@ -20,6 +24,8 @@ const AUTO_SCROLL_THRESHOLD = {
   top: -10,
   bottom: 30,
 };
+
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
 type ReorderableProps<T> = {
   items: T[];
@@ -63,6 +69,7 @@ export function Reorderable<T>({
   const isAutoScrolling = useSharedValue(false);
 
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
+
   const scrollOffset = useScrollViewOffset(scrollRef);
 
   const [reorderableState, setReorderableState] = useState<ReorderableState>();
@@ -186,7 +193,7 @@ export function Reorderable<T>({
     : items;
 
   return (
-    <Animated.ScrollView
+    <AnimatedScrollView
       contentContainerStyle={contentStyle}
       style={scrollStyle}
       ref={scrollRef}
@@ -212,6 +219,6 @@ export function Reorderable<T>({
           {renderInDragItem(items[reorderableState.originIndex])}
         </Animated.View>
       )}
-    </Animated.ScrollView>
+    </AnimatedScrollView>
   );
 }

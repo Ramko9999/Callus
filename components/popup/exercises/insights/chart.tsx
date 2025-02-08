@@ -16,7 +16,6 @@ import { addDays, getDaysBetween, getLongDateDisplay } from "@/util/date";
 import {
   useWindowDimensions,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   Pressable,
 } from "react-native";
@@ -26,6 +25,9 @@ import { getMockCompletions, MOCK_EXERCISE } from "@/api/exercise/mock";
 import { getDifficultyType } from "@/api/exercise";
 import { BlurView } from "expo-blur";
 import { useUserDetails } from "@/components/user-details";
+import {
+  ScrollView,
+} from "react-native-gesture-handler";
 
 const TIME_STEP_DAYS = 7;
 const DAY_WIDTH = 14;
@@ -363,7 +365,10 @@ function ChartPlaceholder() {
           type={getDifficultyType(MOCK_EXERCISE)}
         />
       </View>
-      <BlurView style={chartPlaceholderStyles.placeholder} experimentalBlurMethod="dimezisBlurView">
+      <BlurView
+        style={chartPlaceholderStyles.placeholder}
+        experimentalBlurMethod="dimezisBlurView"
+      >
         <Text>{CHART_PLACEHOLDER_MESSAGE}</Text>
       </BlurView>
     </View>

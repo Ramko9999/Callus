@@ -12,8 +12,11 @@ import Animated, {
 } from "react-native-reanimated";
 import { useDebounce } from "@/components/hooks/use-debounce";
 import { SEARCH_BAR_HEIGHT, SearchBar } from "./search";
+import { ScrollView } from "react-native-gesture-handler";
 
 const DEBOUNCE_DELAY = 100;
+
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 
 const collapsableSearchScrollStyles = StyleSheet.create({
   searchContainer: {
@@ -86,7 +89,7 @@ export function CollapsableSearchScroll({
   }));
 
   return (
-    <Animated.ScrollView
+    <AnimatedScrollView
       ref={scrollRef}
       style={scrollStyle}
       contentContainerStyle={contentStyle}
@@ -111,6 +114,6 @@ export function CollapsableSearchScroll({
         </Animated.View>
       </View>
       {children}
-    </Animated.ScrollView>
+    </AnimatedScrollView>
   );
 }

@@ -13,7 +13,7 @@ import { getNumberSuffix } from "@/util/misc";
 import { StyleUtils } from "@/util/styles";
 import { getHistoricalExerciseDescription } from "@/util/workout/display";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -21,6 +21,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
+import { ScrollView } from "react-native-gesture-handler";
 
 function getWorkoutCompletionMessage(completedWorkouts: number) {
   return `You just completed your ${completedWorkouts}${getNumberSuffix(

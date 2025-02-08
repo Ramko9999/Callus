@@ -2,12 +2,15 @@ import { CompletedExercise, DifficultyType, Set } from "@/interface";
 import { View, Text, useThemeColoring } from "@/components/Themed";
 import { ArrayUtils } from "@/util/misc";
 import { getDurationDisplay, getLongDateDisplay, truncTime } from "@/util/date";
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import { useRef } from "react";
 import { getMockCompletions, MOCK_EXERCISE } from "@/api/exercise/mock";
 import { getDifficultyType } from "@/api/exercise";
 import { BlurView } from "expo-blur";
+import {
+  ScrollView,
+} from "react-native-gesture-handler";
 
 const HISTORY_PLACEHOLDER_MESSAGE =
   "Log this exercise in a workout to view your history";
@@ -232,7 +235,10 @@ function HistoryPlaceholder() {
           type={getDifficultyType(MOCK_EXERCISE)}
         />
       </View>
-      <BlurView style={historyPlaceholderStyles.placeholder} experimentalBlurMethod="dimezisBlurView">
+      <BlurView
+        style={historyPlaceholderStyles.placeholder}
+        experimentalBlurMethod="dimezisBlurView"
+      >
         <Text>{HISTORY_PLACEHOLDER_MESSAGE}</Text>
       </BlurView>
     </View>
