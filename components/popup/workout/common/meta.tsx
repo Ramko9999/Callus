@@ -3,7 +3,7 @@ import {
   RepsMetaIcon,
   WeightMetaIcon,
 } from "@/components/theme/icons";
-import { TextInput, View, Text } from "@/components/Themed";
+import { TextInput, View, Text, useThemeColoring } from "@/components/Themed";
 import { getWorkoutSummary } from "@/context/WorkoutContext";
 import { Workout, WorkoutMetadata } from "@/interface";
 import { getLongDateDisplay } from "@/util/date";
@@ -87,6 +87,7 @@ type NoteEditorProps = {
 export function NoteEditor({ note, onUpdateNote }: NoteEditorProps) {
   const noteRef = useRef<DefaultTextInput>(null);
   const [currentNote, setCurrentNote] = useState(note);
+  const placeHolderColor = useThemeColoring("textInputPlaceholderColor");
 
   const onNoteFocus = useCallback(() => {
     if (noteRef.current) {
@@ -102,6 +103,7 @@ export function NoteEditor({ note, onUpdateNote }: NoteEditorProps) {
           neutral
           value={currentNote}
           onChangeText={setCurrentNote}
+          placeholderTextColor={placeHolderColor}
           placeholder="Note down any thoughts..."
           multiline
           onSubmitEditing={Keyboard.dismiss}

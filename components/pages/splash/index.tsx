@@ -1,11 +1,12 @@
 import { UserApi } from "@/api/user";
+import { AppIcon } from "@/components/theme/custom-svg";
 import { useThemeColoring, View, Text } from "@/components/Themed";
 import { useUserDetails } from "@/components/user-details";
 import { StyleUtils } from "@/util/styles";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
-import { StyleSheet } from "react-native";
+import { Appearance, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const splashStyles = StyleSheet.create({
@@ -14,6 +15,8 @@ const splashStyles = StyleSheet.create({
     ...StyleUtils.flexRowCenterAll(),
   },
 });
+
+Appearance.setColorScheme("dark");
 
 export function Splash() {
   const router = useRouter();
@@ -45,7 +48,13 @@ export function Splash() {
           },
         ]}
       >
-        <Text>Replace me with a cool loading logo</Text>
+        <AppIcon
+          size={256}
+          color={useThemeColoring("primaryText")}
+          fill={useThemeColoring("primaryText")}
+          viewBox="0 0 520 520"
+          strokeWidth={2}
+        />
       </View>
     </>
   );

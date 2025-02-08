@@ -36,7 +36,7 @@ function Header({ title, rightAction, leftAction }: HeaderProps) {
 
   return (
     <View style={[headerStyles.container, { backgroundColor: headerBgColor }]}>
-      <StatusBar backgroundColor={headerBgColor}></StatusBar>
+      <StatusBar backgroundColor={headerBgColor} ></StatusBar>
       <View style={headerStyles.action}>{leftAction ? leftAction : null}</View>
       <Text header>{title}</Text>
       <View style={headerStyles.action}>

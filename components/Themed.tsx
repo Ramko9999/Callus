@@ -4,6 +4,7 @@ import {
   TextInput as DefaultTextInput,
   TextStyle,
   ViewStyle,
+  useColorScheme,
 } from "react-native";
 import {
   darkColors,
@@ -11,7 +12,6 @@ import {
   textTheme,
   UIColor,
 } from "@/constants/Themes";
-import { useColorScheme } from "./useColorScheme";
 import {
   FontAwesome,
   Feather,
@@ -128,6 +128,7 @@ function getFontStyle({
 }
 
 export function useThemeColoring(color: UIColor) {
+  // todo: enable light theme
   const theme = useColorScheme() ?? "light";
 
   if (theme === "dark") {

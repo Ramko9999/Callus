@@ -363,7 +363,7 @@ function ChartPlaceholder() {
           type={getDifficultyType(MOCK_EXERCISE)}
         />
       </View>
-      <BlurView style={chartPlaceholderStyles.placeholder}>
+      <BlurView style={chartPlaceholderStyles.placeholder} experimentalBlurMethod="dimezisBlurView">
         <Text>{CHART_PLACEHOLDER_MESSAGE}</Text>
       </BlurView>
     </View>

@@ -259,7 +259,10 @@ function TrendsPlaceholder() {
           getDifficultyType(MOCK_EXERCISE)
         )}
       />
-      <BlurView style={trendsPlaceholderStyles.placeholder}>
+      <BlurView
+        style={trendsPlaceholderStyles.placeholder}
+        experimentalBlurMethod="dimezisBlurView"
+      >
         <Text>{TREND_PLACEHOLDER_MESSAGE}</Text>
       </BlurView>
     </View>
@@ -343,7 +346,7 @@ export function Trends() {
 
   useEffect(() => {
     WorkoutApi.getTrends(
-      goBackMonths(truncTime(Date.now()), MONTHS_TO_LOOKBACK),
+      goBackMonths(truncTime(Date.now()), MONTHS_TO_LOOKBACK)
     )
       .then(setTrends)
       .catch((error) => {

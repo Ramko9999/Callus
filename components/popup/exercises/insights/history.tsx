@@ -232,7 +232,7 @@ function HistoryPlaceholder() {
           type={getDifficultyType(MOCK_EXERCISE)}
         />
       </View>
-      <BlurView style={historyPlaceholderStyles.placeholder}>
+      <BlurView style={historyPlaceholderStyles.placeholder} experimentalBlurMethod="dimezisBlurView">
         <Text>{HISTORY_PLACEHOLDER_MESSAGE}</Text>
       </BlurView>
     </View>

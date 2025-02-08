@@ -9,9 +9,7 @@ import {
   Add,
   Back,
   Close,
-  Done,
   Repeat,
-  Shuffle,
   Trash,
 } from "@/components/theme/actions";
 import React from "react";
@@ -97,14 +95,8 @@ type ExerciseEditorContentProps = {
 };
 
 export function ExerciseEditorContent(props: ExerciseEditorContentProps) {
-  const {
-    workout,
-    onUpdateMeta,
-    onEditTimes,
-    onRemove,
-    onSelect,
-    onReorder,
-  } = props;
+  const { workout, onUpdateMeta, onEditTimes, onRemove, onSelect, onReorder } =
+    props;
 
   return (
     <>
