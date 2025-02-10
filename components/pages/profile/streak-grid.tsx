@@ -17,13 +17,6 @@ const streakTileStyles = StyleSheet.create({
     width: STREAK_TILE_DIMENSION,
     height: STREAK_TILE_DIMENSION,
     borderRadius: 4,
-    borderWidth: 1,
-  },
-  overlay: {
-    position: "absolute",
-    width: STREAK_TILE_DIMENSION,
-    height: STREAK_TILE_DIMENSION,
-    borderRadius: 4,
   },
 });
 
@@ -41,12 +34,6 @@ function StreakTile({ intensity }: StreakTileProps) {
       <View
         style={[
           streakTileStyles.container,
-          { borderColor: useThemeColoring("dynamicHeaderBorder") },
-        ]}
-      />
-      <View
-        style={[
-          streakTileStyles.overlay,
           {
             backgroundColor: intensity > 0 ? activeColor : inactiveColor,
           },

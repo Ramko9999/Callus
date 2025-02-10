@@ -1,13 +1,14 @@
 {
   "expo": {
     "newArchEnabled": true,
-    "name": "WorkoutLog",
-    "slug": "workoutlog",
+    "name": "Callus",
+    "slug": "Callus",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
+    "backgroundColor": "#000000",
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
@@ -18,13 +19,35 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ramko9999.workoutlog"
+      "bundleIdentifier": "com.ramko9999.callus",
+      "icon": {
+        "light": "./assets/icon/ios/light.png",
+        "dark": "./assets/icon/ios/dark.png",
+        "tinted": "./assets/icon/ios/tinted.png"
+      },
+      "splash": {
+        "backgroundColor": "#ffffff",
+        "image": "./assets/icon/splash/dark.png",
+        "dark": {
+          "backgroundColor": "#000000",
+          "image": "./assets/icon/splash/light.png"
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "foregroundImage": "./assets/icon/android/adaptive-dark.png",
+        "backgroundColor": "#000000"
+      },
+      "splash": {
+        "backgroundColor": "#ffffff",
+        "image": "./assets/icon/splash/dark.png",
+        "dark": {
+          "backgroundColor": "#000000",
+          "image": "./assets/icon/splash/light.png"
+        }
+      },
+      "package": "com.ramko9999.callus"
     },
     "web": {
       "bundler": "metro",

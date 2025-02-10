@@ -17,7 +17,6 @@ import {
 } from "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TabBarProvider } from "@/components/util/tab-bar/context";
-import { LiveIndicatorProvider } from "@/components/popup/workout/live";
 import { UserDetailsProvider } from "@/components/user-details";
 
 // This is the default configuration
