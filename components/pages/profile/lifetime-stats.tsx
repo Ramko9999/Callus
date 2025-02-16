@@ -6,7 +6,6 @@ import { View, Text } from "@/components/Themed";
 import { WorkoutApi } from "@/api/workout";
 import { Duration, getDuration, roundToNearestMinute } from "@/util/date";
 import React from "react";
-import { usePathname } from "expo-router";
 
 const lifetimeStatStyles = StyleSheet.create({
   container: {
@@ -126,13 +125,12 @@ const lifetimeStatsStyles = StyleSheet.create({
 type LifetimeStatsState = WorkoutLifetimeStats;
 
 export function LifetimeStats() {
-  const pathname = usePathname();
   const [{ totalWorkouts, totalWorkoutDuration }, setStats] =
     useState<LifetimeStatsState>({ totalWorkouts: 0, totalWorkoutDuration: 0 });
 
   useEffect(() => {
     WorkoutApi.getLifetimeStats().then(setStats);
-  }, [pathname]);
+  }, []);
 
   return (
     <View style={lifetimeStatsStyles.container}>

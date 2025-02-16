@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { WorkoutApi } from "@/api/workout";
 import { addDays, getDateDisplay, removeDays, truncTime } from "@/util/date";
 import { batch } from "@/util/misc";
-import { usePathname } from "expo-router";
 
 const STREAK_COLUMN_GROUP_SIZE = 6;
 const STREAK_GROUP_SIZE = 3;
@@ -128,7 +127,6 @@ type WorkoutStreakGridState = {
 };
 
 export function WorkoutStreakGrid() {
-  const pathname = usePathname();
   const [{ streak }, setState] = useState<WorkoutStreakGridState>({
     loading: false,
     streak: Array.from({ length: LOOK_BACK_DAYS }, () => ({
@@ -150,7 +148,7 @@ export function WorkoutStreakGrid() {
         ),
       })
     );
-  }, [pathname]);
+  }, []);
 
   return (
     <View style={workoutMonthStreakGridStyles.container}>

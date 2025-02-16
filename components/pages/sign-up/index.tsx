@@ -16,7 +16,7 @@ import {
   Keyboard,
   TextInput as DefaultTextInput,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { useUserDetails } from "@/components/user-details";
 
 const signUpTextInputStyles = StyleSheet.create({
@@ -92,7 +92,7 @@ type RegistrationState = Partial<UserDetails>;
 export function SignUp() {
   const [{ name, bodyweight }, setState] = useState<RegistrationState>({});
   const { setUserDetails } = useUserDetails();
-  const router = useRouter();
+  const navigation = useNavigation();
   const hasEnteredAllDetails = name != undefined && bodyweight != undefined;
 
   return (
@@ -133,7 +133,7 @@ export function SignUp() {
                 bodyweight: bodyweight as number,
               }).then(() => {
                 setUserDetails({ name, bodyweight });
-                router.push("/(tabs)/history");
+                navigation.navigate("tabs" as never);
               });
             }}
           />

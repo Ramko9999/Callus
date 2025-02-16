@@ -10,7 +10,7 @@ import {
 import { View, Text, useThemeColoring } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
 import Animated, { FadeIn } from "react-native-reanimated";
-import { router } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 
 const ICON_ONBOARDING_ICON_DIMENSION = 60;
 
@@ -147,6 +147,7 @@ const onboardingStyles = StyleSheet.create({
 
 export function Onboarding() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation();
 
   return (
     <View
@@ -162,7 +163,7 @@ export function Onboarding() {
       <StatusBar backgroundColor={useThemeColoring("appBackground")} />
       <OnboardingIntro
         onStart={() => {
-          router.navigate("/sign-up");
+          navigation.navigate("sign-up" as never);
         }}
       />
     </View>

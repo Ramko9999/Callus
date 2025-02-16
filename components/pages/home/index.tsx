@@ -1,4 +1,3 @@
-import { usePathname } from "expo-router";
 import { Text, useThemeColoring, View } from "@/components/Themed";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
@@ -101,8 +100,6 @@ function QuickStartWorkout({ onClick }: QuickStartWorkoutProps) {
 }
 
 export default function Home() {
-  const pathname = usePathname();
-
   const { refetch, hasWorkedOut } = useWorkedOutDays(truncTime(Date.now()));
   const [workoutDate, setWorkoutDate] = useState<number>(truncTime(Date.now()));
   const [loading, setLoading] = useState<boolean>(true);
@@ -128,10 +125,11 @@ export default function Home() {
     refetch(workoutDate);
   }, [workoutDate]);
 
+  // todo: load when route changes
   useEffect(() => {
     loadWorkouts();
     refetch(workoutDate, true);
-  }, [workoutToUpdate, isInWorkout, pathname]);
+  }, [workoutToUpdate, isInWorkout]);
 
   useEffect(() => {
     if (workoutToUpdate) {

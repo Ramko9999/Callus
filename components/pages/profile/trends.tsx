@@ -33,7 +33,6 @@ import { Pagination } from "@/components/util/pagination";
 import { useCallback, useEffect, useState } from "react";
 import { WorkoutApi } from "@/api/workout";
 import * as TrendsApi from "@/api/metric/trend";
-import { usePathname } from "expo-router";
 import { Trend, MetricPoint } from "@/interface";
 import { ArrayUtils } from "@/util/misc";
 import { getMockCompletions, MOCK_EXERCISE } from "@/api/exercise/mock";
@@ -342,7 +341,6 @@ const trendsStyles = StyleSheet.create({
 
 export function Trends() {
   const [trends, setTrends] = useState<Trend[]>();
-  const pathname = usePathname();
 
   useEffect(() => {
     WorkoutApi.getTrends(
@@ -352,7 +350,7 @@ export function Trends() {
       .catch((error) => {
         console.error(error.stack);
       });
-  }, [pathname]);
+  }, []);
 
   const shouldShowPlaceholder = trends && trends.length === 0;
 

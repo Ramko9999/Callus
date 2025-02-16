@@ -1,9 +1,9 @@
 import { UserApi } from "@/api/user";
 import { AppIcon } from "@/components/theme/custom-svg";
-import { useThemeColoring, View, Text } from "@/components/Themed";
+import { useThemeColoring, View } from "@/components/Themed";
 import { useUserDetails } from "@/components/user-details";
 import { StyleUtils } from "@/util/styles";
-import { useRouter } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import { Appearance, StyleSheet } from "react-native";
@@ -19,7 +19,7 @@ const splashStyles = StyleSheet.create({
 Appearance.setColorScheme("dark");
 
 export function Splash() {
-  const router = useRouter();
+  const navigator = useNavigation();
   const insets = useSafeAreaInsets();
   const { setUserDetails } = useUserDetails();
   const appBgColor = useThemeColoring("appBackground");
@@ -28,9 +28,9 @@ export function Splash() {
     UserApi.getUserDetails().then((userDetails) => {
       if (userDetails) {
         setUserDetails(userDetails);
-        router.push("/(tabs)/history");
+        navigator.navigate("tabs" as never);
       } else {
-        router.push("/onboarding");
+        navigator.navigate("onboarding" as never);
       }
     });
   }, []);

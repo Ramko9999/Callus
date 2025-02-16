@@ -3,7 +3,6 @@ import { View } from "@/components/Themed";
 import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
 import { useEffect, useRef, useState } from "react";
 import { ExerciseMeta, SearchExerciseSummary } from "@/interface";
-import { usePathname } from "expo-router";
 import { WorkoutApi } from "@/api/workout";
 import React from "react";
 import { ExerciseInsightsSheet } from "@/components/popup/exercises/insights";
@@ -71,7 +70,6 @@ export function Exercises() {
   const liveIndicatorActions = useLiveIndicator();
   const scrollRef = useRef<Animated.ScrollView>(null);
 
-  const pathname = usePathname();
   const [performedExerciseSummaries, setPerformedExerciseSummaries] = useState<
     SearchExerciseSummary[]
   >([]);
@@ -86,7 +84,7 @@ export function Exercises() {
 
   useEffect(() => {
     WorkoutApi.getExerciseSummaries().then(setPerformedExerciseSummaries);
-  }, [pathname]);
+  }, []);
 
   useEffect(() => {
     if (showExercisesFilter || selectedExercise != undefined) {
