@@ -25,9 +25,7 @@ import { getMockCompletions, MOCK_EXERCISE } from "@/api/exercise/mock";
 import { getDifficultyType } from "@/api/exercise";
 import { BlurView } from "expo-blur";
 import { useUserDetails } from "@/components/user-details";
-import {
-  ScrollView,
-} from "react-native-gesture-handler";
+import { ScrollView } from "react-native-gesture-handler";
 
 const TIME_STEP_DAYS = 7;
 const DAY_WIDTH = 14;
@@ -120,7 +118,6 @@ const chartStyles = StyleSheet.create({
     paddingRight: "3%",
     paddingBottom: "3%",
     ...StyleUtils.flexColumn(10),
-    flex: 1,
   },
   head: {
     ...StyleUtils.flexColumn(5),

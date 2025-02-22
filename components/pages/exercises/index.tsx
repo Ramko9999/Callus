@@ -22,6 +22,7 @@ import {
   SearchExerciseGroup,
   SearchExerciseGroupNav,
 } from "./search";
+import { useNavigation } from "@react-navigation/native";
 
 type SearchExerciseWithSummaryProps = {
   meta: ExerciseMeta;
@@ -66,6 +67,7 @@ const exercisesStyles = StyleSheet.create({
 // todo: reconsider which exercises to include initially and actually create the gifs and getting the correct muscles
 // todo: give first class treatment to the assistance exercises
 export function Exercises() {
+  const navigation = useNavigation();
   const tabBarActions = useTabBar();
   const liveIndicatorActions = useLiveIndicator();
   const scrollRef = useRef<Animated.ScrollView>(null);
@@ -141,7 +143,10 @@ export function Exercises() {
                   meta={meta}
                   summary={getSummary(meta)}
                   key={index}
-                  onClick={() => setSelectedExercise(meta.name)}
+                  onClick={() => {
+                    // @ts-ignore
+                    navigation.navigate("exerciseInsight", {name: meta.name})
+                  }}
                 />
               )}
             />

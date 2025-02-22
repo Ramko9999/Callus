@@ -37,6 +37,7 @@ type Props = {
   children: React.ReactNode;
 };
 
+// todo: slow on android - make it smooth
 export function InputsPadProvider({ children }: Props) {
   const [state, setState] = useState<InputsPadState>({
     show: false,

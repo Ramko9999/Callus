@@ -1,8 +1,6 @@
 import { StyleSheet } from "react-native";
 import { useThemeColoring, View, Text } from "@/components/Themed";
 import {
-  FontAwesome6,
-  FontAwesome5,
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
@@ -46,6 +44,25 @@ export function DragIndicator() {
       style={[
         dragIndicatorStyles.container,
         { backgroundColor: useThemeColoring("dynamicHeaderBorder") },
+      ]}
+    />
+  );
+}
+
+const modalDragIndicatorStyles = StyleSheet.create({
+  container: {
+    height: 3,
+    borderRadius: 2,
+    width: 80,
+  },
+});
+
+export function ModalDragIndicator() {
+  return (
+    <View
+      style={[
+        modalDragIndicatorStyles.container,
+        { backgroundColor: useThemeColoring("primaryText") },
       ]}
     />
   );

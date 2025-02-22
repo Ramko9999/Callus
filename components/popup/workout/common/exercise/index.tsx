@@ -38,6 +38,7 @@ const editorExerciseStyles = StyleSheet.create({
   },
   title: {
     ...StyleUtils.flexColumn(5),
+    width: "90%",
   },
   rightActions: {
     ...StyleUtils.flexRowCenterAll(20),

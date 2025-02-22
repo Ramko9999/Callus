@@ -4,23 +4,18 @@ import React, { useEffect, useState } from "react";
 import { truncTime, getLongDateDisplay } from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
-import { HistoricalEditorSheet } from "@/components/popup/workout/historical/index";
-import { useLiveIndicator } from "@/components/popup/workout/live/index";
 import { useWorkout } from "@/context/WorkoutContext";
-import { createWorkoutFromWorkout } from "@/util/workout";
-import { PLACEHOLDER_WORKOUT } from "@/util/mock";
 import { CompletedWorkouts, NoWorkoutsLogged } from "./completed-workout";
-import { useTabBar } from "@/components/util/tab-bar/context";
 import { HeaderPage } from "@/components/util/header-page";
 import { CalendarHeaderAction, Calendar } from "./calendar";
 import { useWorkedOutDays } from "./hooks/use-worked-out-days";
 import { StyleUtils } from "@/util/styles";
 import { useUserDetails } from "@/components/user-details";
-import { useDebounce } from "@/components/hooks/use-debounce";
 import { Dumbbell } from "@/components/theme/custom-svg";
 import * as Haptics from "expo-haptics";
 import { WorkoutActions } from "@/api/model/workout";
 import { useToast } from "react-native-toast-notifications";
+import { useNavigation } from "@react-navigation/native";
 
 const loadingWorkoutsStyles = StyleSheet.create({
   container: {
@@ -100,19 +95,15 @@ function QuickStartWorkout({ onClick }: QuickStartWorkoutProps) {
 }
 
 export default function Home() {
+  const navigation = useNavigation();
   const { refetch, hasWorkedOut } = useWorkedOutDays(truncTime(Date.now()));
   const [workoutDate, setWorkoutDate] = useState<number>(truncTime(Date.now()));
   const [loading, setLoading] = useState<boolean>(true);
   const [completedWorkouts, setCompletedWorkouts] = useState<Workout[]>([]);
-  const [workoutToUpdate, setWorkoutToUpdate] = useState<Workout>();
   const [showMonthCalendar, setShowMonthCalendar] = useState<boolean>(false);
   const { isInWorkout, actions } = useWorkout();
   const { userDetails } = useUserDetails();
-  const { invoke } = useDebounce({ delay: 200 });
   const toast = useToast();
-
-  const tabBarActions = useTabBar();
-  const liveIndicatorActions = useLiveIndicator();
 
   const loadWorkouts = async () => {
     WorkoutApi.getWorkouts(truncTime(workoutDate))
@@ -129,17 +120,7 @@ export default function Home() {
   useEffect(() => {
     loadWorkouts();
     refetch(workoutDate, true);
-  }, [workoutToUpdate, isInWorkout]);
-
-  useEffect(() => {
-    if (workoutToUpdate) {
-      tabBarActions.close();
-      liveIndicatorActions.hide();
-    } else {
-      tabBarActions.open();
-      liveIndicatorActions.show();
-    }
-  }, [workoutToUpdate]);
+  }, [isInWorkout]);
 
   return (
     <>
@@ -189,35 +170,14 @@ export default function Home() {
               <CompletedWorkouts
                 workouts={completedWorkouts}
                 onSelect={(workout: Workout) => {
-                  liveIndicatorActions.hide();
-                  setWorkoutToUpdate(workout);
+                  // @ts-ignore
+                  navigation.navigate("completedWorkout", { id: workout.id });
                 }}
               />
             )}
           </>
         )}
       </HeaderPage>
-      <HistoricalEditorSheet
-        show={workoutToUpdate != undefined}
-        hide={() => {
-          setWorkoutToUpdate(undefined);
-        }}
-        onSave={(workout) => {
-          // todo: ensure we save whenever we exit the app before releasing actuallly
-          setWorkoutToUpdate(workout);
-          // @ts-ignore
-          invoke(WorkoutApi.saveWorkout)(workout);
-        }}
-        canRepeat={!isInWorkout}
-        onRepeat={(workout) => {
-          // todo: send an alert for why you can't start a workout if you are already in one
-          actions.startWorkout(
-            createWorkoutFromWorkout(workout, userDetails?.bodyweight as number)
-          );
-        }}
-        trash={() => WorkoutApi.deleteWorkout((workoutToUpdate as Workout).id)}
-        workout={(workoutToUpdate ?? PLACEHOLDER_WORKOUT) as Workout}
-      />
     </>
   );
 }

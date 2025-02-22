@@ -1,7 +1,5 @@
 import {
   Back,
-  Done,
-  Shuffle,
   Add,
   SignificantAction,
   Time,

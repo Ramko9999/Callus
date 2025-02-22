@@ -30,6 +30,7 @@ export const darkColors = {
   bottomSheetBackground: "#161515",
   padBackground: "black",
   calendarDayBackground: "#2d2c2c",
+  calendarDayBackgroundTint: "#424141",
 };
 
 export const lightColors = {
@@ -60,6 +61,7 @@ export const lightColors = {
   bottomSheetBackground: "#161515",
   padBackground: "black",
   calendarDayBackground: "#2d2c2c",
+  calendarDayBackgroundTint: "#424141",
 };
 
 export type UIColor = keyof typeof darkColors & keyof typeof lightColors;

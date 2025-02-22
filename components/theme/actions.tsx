@@ -1,13 +1,19 @@
 import { useThemeColoring, View, Text } from "@/components/Themed";
 import { textTheme } from "@/constants/Themes";
 import { ICON_ACTION_DIMENSION, StyleUtils } from "@/util/styles";
-import { Entypo, FontAwesome } from "@expo/vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 import {
-  ViewStyle,
-  StyleSheet,
-  TouchableOpacity,
-  TextStyle,
-} from "react-native";
+  ArrowDown,
+  ArrowLeft,
+  ChartNoAxesColumnIncreasing,
+  Flag,
+  ListFilter,
+  Repeat as LucideRepeat,
+  Timer as LucideTimer,
+  Plus,
+  Trash2,
+} from "lucide-react-native";
+import { ViewStyle, StyleSheet, TouchableOpacity } from "react-native";
 
 const iconActionStyles = StyleSheet.create({
   container: {
@@ -47,31 +53,7 @@ export function Trash({ onClick, style }: ActionProps) {
           style,
         ]}
       >
-        <FontAwesome
-          name="trash"
-          size={textTheme.large.fontSize}
-          color={"white"}
-        />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-export function Start({ onClick, style }: ActionProps) {
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <View
-        style={[
-          iconActionStyles.container,
-          { backgroundColor: useThemeColoring("primaryAction") },
-          style,
-        ]}
-      >
-        <FontAwesome
-          name="play"
-          size={textTheme.large.fontSize}
-          color={"white"}
-        />
+        <Trash2 strokeWidth={2} color={useThemeColoring("primaryText")} />
       </View>
     </TouchableOpacity>
   );
@@ -94,12 +76,14 @@ export function Edit({ onClick, style, iconSize }: ActionProps) {
 export function Close({ onClick, style }: ActionProps) {
   return (
     <TouchableOpacity onPress={onClick}>
-      <View style={[iconActionStyles.container, style]}>
-        <FontAwesome
-          name="close"
-          size={textTheme.large.fontSize}
-          color={useThemeColoring("lightText")}
-        />
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("calendarDayBackground") },
+          style,
+        ]}
+      >
+        <ArrowDown strokeWidth={3} color={useThemeColoring("primaryText")} />
       </View>
     </TouchableOpacity>
   );
@@ -108,26 +92,127 @@ export function Close({ onClick, style }: ActionProps) {
 export function Back({ onClick, style }: ActionProps) {
   return (
     <TouchableOpacity onPress={onClick}>
-      <View style={[iconActionStyles.container, style]}>
-        <FontAwesome
-          name="arrow-left"
-          size={textTheme.large.fontSize}
-          color={useThemeColoring("lightText")}
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("calendarDayBackground") },
+          style,
+        ]}
+      >
+        <ArrowLeft strokeWidth={3} color={useThemeColoring("primaryText")} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+export function Add({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("calendarDayBackground") },
+          style,
+        ]}
+      >
+        <Plus strokeWidth={3} color={useThemeColoring("primaryText")} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+export function Start({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("calendarDayBackground") },
+          style,
+        ]}
+      >
+        <Flag strokeWidth={2} color={useThemeColoring("primaryText")} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+export function Timer({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("calendarDayBackground") },
+          style,
+        ]}
+      >
+        <LucideTimer strokeWidth={2} color={useThemeColoring("primaryText")} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+export function Progress({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("calendarDayBackground") },
+          style,
+        ]}
+      >
+        <ChartNoAxesColumnIncreasing
+          strokeWidth={3}
+          color={useThemeColoring("primaryText")}
         />
       </View>
     </TouchableOpacity>
   );
 }
 
-export function Add({ onClick, style, iconSize }: ActionProps) {
+const filterStyles = StyleSheet.create({
+  indication: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    position: "absolute",
+    bottom: 8,
+    right: 10,
+    zIndex: 1,
+  },
+});
+
+type FilterActionProps = ActionProps & {
+  hasFilters: boolean;
+};
+
+export function Filter({ onClick, style, hasFilters }: FilterActionProps) {
+  const hasFiltersColor = useThemeColoring("primaryAction");
+  const notHasFiltersColor = useThemeColoring("primaryText");
+
   return (
     <TouchableOpacity onPress={onClick}>
-      <View style={[iconActionStyles.container, style]}>
-        <FontAwesome
-          name="plus"
-          size={iconSize ?? textTheme.large.fontSize}
-          color={useThemeColoring("lightText")}
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("calendarDayBackground") },
+          style,
+        ]}
+      >
+        <ListFilter
+          strokeWidth={3}
+          color={hasFilters ? hasFiltersColor : notHasFiltersColor}
         />
+        {hasFilters && (
+          <View
+            style={[
+              filterStyles.indication,
+              { backgroundColor: hasFiltersColor },
+            ]}
+          />
+        )}
       </View>
     </TouchableOpacity>
   );
@@ -154,20 +239,6 @@ export function Search({ onClick, style, iconSize }: ActionProps) {
         <FontAwesome
           name="search"
           size={iconSize ?? textTheme.large.fontSize}
-          color={useThemeColoring("lightText")}
-        />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-export function Shuffle({ onClick, style }: ActionProps) {
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <View style={[iconActionStyles.container, style]}>
-        <Entypo
-          name="shuffle"
-          size={textTheme.large.fontSize}
           color={useThemeColoring("lightText")}
         />
       </View>
@@ -206,12 +277,14 @@ export function Time({ onClick, style }: ActionProps) {
 export function Repeat({ onClick, style }: ActionProps) {
   return (
     <TouchableOpacity onPress={onClick}>
-      <View style={[iconActionStyles.container, style]}>
-        <FontAwesome
-          name="repeat"
-          size={textTheme.large.fontSize}
-          color={useThemeColoring("lightText")}
-        />
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("calendarDayBackground") },
+          style,
+        ]}
+      >
+        <LucideRepeat strokeWidth={3} color={useThemeColoring("primaryText")} />
       </View>
     </TouchableOpacity>
   );

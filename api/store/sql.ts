@@ -24,6 +24,8 @@ export const CLEAR_ALL_EXERCISES =
 const COMPLETED_WORKOUTS_PREDICATE =
   "started_at >= $after and started_at < $before and ended_at is not null";
 
+const WORKOUT_ID_PREDICATE = "workouts.id = $workout_id";
+
 const EXERCISE_FILTER_PREDICATE = "exercises.name = $exercise_name";
 
 const WORKOUT_SELECTION_SQL = (predicate: string) =>
@@ -36,6 +38,8 @@ from workouts left join exercises on workouts.id = exercises.workout_id where ${
 export const GET_COMPLETED_WORKOUTS_BETWEEN_TIME = WORKOUT_SELECTION_SQL(
   COMPLETED_WORKOUTS_PREDICATE
 );
+
+export const GET_WORKOUT = WORKOUT_SELECTION_SQL(WORKOUT_ID_PREDICATE);
 
 export const GET_IN_PROGRESS_WORKOUTS =
   WORKOUT_SELECTION_SQL("ended_at is null");
@@ -62,6 +66,8 @@ export const GET_COMPLETED_EXERCISE = COMPLETED_EXERCISES_SQL(
 );
 
 export const GET_ROUTINES = "select id, name, plan from routines;";
+
+export const GET_ROUTINE = "select id, name, plan from routines where id = $routine_id;"
 
 export const UPSERT_ROUTINE =
   "INSERT INTO routines(id, name, plan) values($id, $name, $plan) ON CONFLICT(id) DO UPDATE SET id=excluded.id, name=excluded.name, plan=excluded.plan;";

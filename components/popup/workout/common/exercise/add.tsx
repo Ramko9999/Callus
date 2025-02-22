@@ -1,4 +1,8 @@
-import { EXERCISE_REPOSITORY } from "@/api/exercise";
+import {
+  DISPLAY_EXERCISE_TYPE_TO_TYPE,
+  EXERCISE_REPOSITORY,
+  getMeta,
+} from "@/api/exercise";
 import {
   computeOffsetToScrollTo,
   filterExerciseResultGroups,
@@ -11,11 +15,11 @@ import {
 import { ModalProps } from "@/components/popup/common";
 import { ExercisesFilter } from "@/components/popup/exercises/filters";
 import { Back, SignificantAction } from "@/components/theme/actions";
-import { View, useThemeColoring } from "@/components/Themed";
+import { View, Text, useThemeColoring } from "@/components/Themed";
 import { CollapsableSearchScroll } from "@/components/util/collapsable-search-scroll";
 import { ExerciseMeta } from "@/interface";
 import { StyleUtils } from "@/util/styles";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useRef, useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import Animated, {
@@ -25,6 +29,9 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
+import { FlatList } from "react-native-gesture-handler";
+import { ArrayUtils } from "@/util/misc";
+import { SearchBar } from "@/components/util/collapsable-search-scroll/search";
 
 export type ExerciseSearcherFiltersState = {
   muscleFilter?: string;
@@ -76,96 +83,77 @@ const selectableSearchExercise = StyleSheet.create({
     alignItems: "center",
   },
   selected: {
+    width: SEARCH_EXERCISE_SELECTED_INDICATOR_WIDTH,
     height: SEARCH_EXERCISE_HEIGHT - 15,
     borderRadius: 10,
   },
 });
 
+// todo: clean up the animation here son
 type SelectableSearchExerciseProps = {
-  meta: ExerciseMeta;
+  name: string;
   isSelected: boolean;
-  onSelect: () => void;
-  onDeselect: () => void;
+  onToggle: (exerciseMeta: ExerciseMeta) => void;
 };
 
-function SelectableSearchExercise({
-  meta,
-  isSelected,
-  onSelect,
-  onDeselect,
-}: SelectableSearchExerciseProps) {
-  const selectability = useSharedValue(0);
+const SelectableSearchExercise = React.memo(
+  ({ name, isSelected, onToggle }: SelectableSearchExerciseProps) => {
+    const meta = getMeta(name);
+    const translation = useSharedValue(
+      -SEARCH_EXERCISE_SELECTED_INDICATOR_WIDTH - 5
+    );
 
-  useEffect(() => {
-    if (isSelected) {
-      selectability.value = withTiming(1, { duration: 100 });
-    } else {
-      selectability.value = withTiming(0, { duration: 100 });
-    }
-  }, [isSelected]);
+    useEffect(() => {
+      if (isSelected) {
+        translation.value = withTiming(0, { duration: 100 });
+      } else {
+        translation.value = withTiming(
+          -SEARCH_EXERCISE_SELECTED_INDICATOR_WIDTH - 5,
+          { duration: 100 }
+        );
+      }
+    }, [isSelected]);
 
-  const selectionIndicatorAnimatedStyle = useAnimatedStyle(() => ({
-    width: selectability.value * SEARCH_EXERCISE_SELECTED_INDICATOR_WIDTH,
-    display: selectability.value === 0 ? "none" : "flex",
-  }));
+    const animatedStyle = useAnimatedStyle(() => ({
+      transform: [{ translateX: translation.value }],
+    }));
 
-  return (
-    <TouchableOpacity
-      style={selectableSearchExercise.container}
-      onPress={() => {
-        if (isSelected) {
-          onDeselect();
-        } else {
-          onSelect();
-        }
-      }}
-    >
-      <Animated.View
-        style={[
-          selectableSearchExercise.selected,
-          selectionIndicatorAnimatedStyle,
-          { backgroundColor: useThemeColoring("primaryAction") },
-        ]}
-      />
-      <SearchExercise meta={meta} />
-    </TouchableOpacity>
-  );
-}
+    const selectionAnimatedStyle = useAnimatedStyle(() => ({
+      opacity: isSelected ? 1 : 0,
+    }));
 
-type ExerciseSearcherContentProps = {
+    return (
+      <TouchableOpacity onPress={() => onToggle(meta)}>
+        <Animated.View
+          style={[animatedStyle, selectableSearchExercise.container]}
+        >
+          <Animated.View
+            style={[
+              selectableSearchExercise.selected,
+              selectionAnimatedStyle,
+              { backgroundColor: useThemeColoring("primaryAction") },
+            ]}
+          />
+          <SearchExercise meta={meta} />
+        </Animated.View>
+      </TouchableOpacity>
+    );
+  }
+);
+
+type ExerciseAdderProps = {
   muscleFilter?: string;
   exerciseTypeFilter?: string;
   onClose: () => void;
-  onEditFilters: () => void;
   onAdd: (exercises: ExerciseMeta[]) => void;
 };
 
-const exerciseSearcherContentStyles = StyleSheet.create({
-  content: {
-    ...StyleUtils.flexColumn(5),
-  },
-  scroll: {
-    paddingHorizontal: "3%",
-    flex: 1,
-  },
-  groupNavigation: {
-    position: "absolute",
-    left: "97%",
-  },
-  action: {
-    position: "absolute",
-    width: "80%",
-    left: "10%",
-  },
-});
-
-export function ExerciseSearcherContent({
-  onClose,
-  onEditFilters,
-  onAdd,
+export function ExerciseAdder({
   muscleFilter,
   exerciseTypeFilter,
-}: ExerciseSearcherContentProps) {
+  onClose,
+  onAdd,
+}: ExerciseAdderProps) {
   const insets = useSafeAreaInsets();
 
   const scrollRef = useRef<Animated.ScrollView>(null);
@@ -185,13 +173,6 @@ export function ExerciseSearcherContent({
 
   return (
     <>
-      <ExerciseSearcherTopActions
-        hasFilters={
-          muscleFilter != undefined || exerciseTypeFilter != undefined
-        }
-        onEditFilters={onEditFilters}
-        onClose={onClose}
-      />
       <CollapsableSearchScroll
         scrollRef={scrollRef}
         searchQuery={searchQuery}
@@ -206,14 +187,17 @@ export function ExerciseSearcherContent({
             renderExercise={(meta, index) => (
               <SelectableSearchExercise
                 key={index}
-                meta={meta}
+                name={meta.name}
                 isSelected={isExerciseMetaSelected(meta)}
-                onSelect={() => setExercisesToAdd((e) => [...e, meta])}
-                onDeselect={() =>
-                  setExercisesToAdd((e) =>
-                    e.filter(({ name }) => name !== meta.name)
-                  )
-                }
+                onToggle={(meta) => {
+                  setExercisesToAdd((metas) => {
+                    if (metas.map(({ name }) => name).includes(meta.name)) {
+                      return metas.filter(({ name }) => meta.name !== name);
+                    } else {
+                      return [...metas, meta];
+                    }
+                  });
+                }}
               />
             )}
           />
@@ -263,6 +247,284 @@ export function ExerciseSearcherContent({
           />
         </View>
       )}
+    </>
+  );
+}
+
+// todo: use only the performance improved exercise adder
+type ExerciseAdderResult = {
+  resultType: "exercise" | "group";
+  exercise?: ExerciseMeta;
+  group?: string;
+};
+
+function getResultsToDisplay(
+  query: string,
+  exerciseMetas: ExerciseMeta[],
+  muscleFilter?: string,
+  exerciseTypeFilter?: string
+): ExerciseAdderResult[] {
+  const relevantMetas = exerciseMetas.filter(
+    ({ name, muscles, difficultyType }) => {
+      if (!name.includes(query.trim())) {
+        return false;
+      }
+      if (muscleFilter && muscles[0] !== muscleFilter) {
+        return false;
+      }
+      if (
+        exerciseTypeFilter &&
+        !DISPLAY_EXERCISE_TYPE_TO_TYPE[exerciseTypeFilter].includes(
+          difficultyType
+        )
+      ) {
+        return false;
+      }
+      return true;
+    }
+  );
+
+  const groups = ArrayUtils.sortBy(
+    ArrayUtils.groupBy(relevantMetas, (meta) => meta.name.charAt(0)),
+    ({ key }) => key
+  );
+
+  return groups.flatMap(({ key, items }) => [
+    { resultType: "group", group: key },
+    ...items.map((meta) => ({ resultType: "exercise", exercise: meta })),
+  ]) as ExerciseAdderResult[];
+}
+
+const searchExerciseGroupingStyles = StyleSheet.create({
+  container: {
+    height: SEARCH_EXERCISE_HEIGHT,
+    marginRight: "1%",
+    alignItems: "flex-end",
+    justifyContent: "center",
+  },
+});
+
+type SearchExerciseGroupingProps = {
+  group: string;
+};
+
+function SearchExerciseGrouping({ group }: SearchExerciseGroupingProps) {
+  return (
+    <View style={searchExerciseGroupingStyles.container}>
+      <Text large>{group}</Text>
+    </View>
+  );
+}
+
+const performantExerciseAdderStyles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+    paddingHorizontal: "3%",
+  },
+  content: {
+    paddingBottom: "3%",
+  },
+  search: {
+    paddingHorizontal: "3%",
+    paddingBottom: "1%",
+  },
+  bar: {
+    borderRadius: 5,
+  },
+});
+
+type PerformantExerciseAdderProps = {
+  muscleFilter?: string;
+  exerciseTypeFilter?: string;
+  onClose: () => void;
+  onAdd: (exercises: ExerciseMeta[]) => void;
+};
+
+export function PerformantExerciseAdder({
+  onClose,
+  onAdd,
+  muscleFilter,
+  exerciseTypeFilter,
+}: ExerciseAdderProps) {
+  const flatListRef = useRef<FlatList>(null);
+  const insets = useSafeAreaInsets();
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [exercisesToAdd, setExercisesToAdd] = useState<ExerciseMeta[]>([]);
+
+  const results = getResultsToDisplay(
+    searchQuery,
+    EXERCISE_REPOSITORY,
+    muscleFilter,
+    exerciseTypeFilter
+  );
+
+  const groups = results
+    .filter(({ resultType }) => resultType === "group")
+    .map(({ group }) => group) as string[];
+
+  const onToggle = useCallback((meta: ExerciseMeta) => {
+    setExercisesToAdd((exerciseMetas) => {
+      if (exerciseMetas.map(({ name }) => name).indexOf(meta.name) > -1) {
+        return exerciseMetas.filter(({ name }) => name !== meta.name);
+      } else {
+        return [{ ...meta }, ...exerciseMetas];
+      }
+    });
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item }: { item: ExerciseAdderResult }) =>
+      item.resultType === "group" ? (
+        <SearchExerciseGrouping group={item.group as string} />
+      ) : (
+        <SelectableSearchExercise
+          name={(item.exercise as ExerciseMeta).name}
+          isSelected={
+            exercisesToAdd
+              .map(({ name }) => name)
+              .indexOf((item.exercise as ExerciseMeta).name) > -1
+          }
+          onToggle={onToggle}
+        />
+      ),
+    [exercisesToAdd, onToggle]
+  );
+
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: SEARCH_EXERCISE_HEIGHT,
+      offset: SEARCH_EXERCISE_HEIGHT * index,
+      index,
+    }),
+    []
+  );
+
+  const keyExtractor = useCallback(
+    ({ resultType, exercise, group }: ExerciseAdderResult) =>
+      exercise ? `${resultType}-${exercise.name}` : `${resultType}-${group}`,
+    []
+  );
+
+  // todo: prevent keyboard form pushing up group nav on android
+  return (
+    <>
+      <View style={performantExerciseAdderStyles.search}>
+        <SearchBar
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          style={{
+            ...performantExerciseAdderStyles.bar,
+            backgroundColor: useThemeColoring("calendarDayBackground"),
+          }}
+        />
+      </View>
+      <FlatList
+        ref={flatListRef}
+        style={performantExerciseAdderStyles.scroll}
+        contentContainerStyle={performantExerciseAdderStyles.content}
+        showsVerticalScrollIndicator={false}
+        data={results}
+        getItemLayout={getItemLayout}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+      />
+      <View
+        style={[
+          exerciseSearcherContentStyles.groupNavigation,
+          { bottom: insets.bottom + 10 },
+        ]}
+      >
+        <SearchExerciseGroupNav
+          enabledGroups={groups}
+          onClick={(selectedGroup) => {
+            const scrollIndex = results
+              .map(({ resultType, group }) =>
+                resultType === "group" ? group : ""
+              )
+              .indexOf(selectedGroup);
+            flatListRef.current?.scrollToIndex({
+              animated: true,
+              index: scrollIndex,
+            });
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          }}
+        />
+      </View>
+      {exercisesToAdd.length > 0 && (
+        <View
+          style={[
+            exerciseSearcherContentStyles.action,
+            { bottom: insets.bottom },
+          ]}
+        >
+          <SignificantAction
+            onClick={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+              onAdd(exercisesToAdd);
+              onClose();
+            }}
+            text={
+              exercisesToAdd.length === 1
+                ? "Add 1 exercise"
+                : `Add ${exercisesToAdd.length} exercises`
+            }
+          />
+        </View>
+      )}
+    </>
+  );
+}
+
+type ExerciseSearcherContentProps = {
+  muscleFilter?: string;
+  exerciseTypeFilter?: string;
+  onClose: () => void;
+  onEditFilters: () => void;
+  onAdd: (exercises: ExerciseMeta[]) => void;
+};
+
+const exerciseSearcherContentStyles = StyleSheet.create({
+  content: {
+    ...StyleUtils.flexColumn(5),
+  },
+  scroll: {
+    paddingHorizontal: "3%",
+    flex: 1,
+  },
+  groupNavigation: {
+    position: "absolute",
+    left: "97%",
+  },
+  action: {
+    position: "absolute",
+    width: "80%",
+    left: "10%",
+  },
+});
+
+export function ExerciseSearcherContent({
+  onClose,
+  onEditFilters,
+  onAdd,
+  muscleFilter,
+  exerciseTypeFilter,
+}: ExerciseSearcherContentProps) {
+  return (
+    <>
+      <ExerciseSearcherTopActions
+        hasFilters={
+          muscleFilter != undefined || exerciseTypeFilter != undefined
+        }
+        onEditFilters={onEditFilters}
+        onClose={onClose}
+      />
+      <ExerciseAdder
+        onClose={onClose}
+        onAdd={onAdd}
+        muscleFilter={muscleFilter}
+        exerciseTypeFilter={exerciseTypeFilter}
+        onEditFilters={onEditFilters}
+      />
     </>
   );
 }

@@ -15,13 +15,20 @@ import { TabBar } from "@/components/util/tab-bar";
 import { getTabActiveTintColor } from "@/constants/Themes";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
+import {
+  createStackNavigator,
+  TransitionPresets,
+} from "@react-navigation/stack";
 import Home from "@/components/pages/home";
-import { useColorScheme } from "react-native";
+import { Platform, useColorScheme } from "react-native";
 import { LiveIndicatorProvider } from "@/components/popup/workout/live";
+import { RootStackParamList, TabParamList } from "./types";
+import { ExerciseInsightsOverviewModal } from "@/components/modals/exercise/insight";
+import { CompletedWorkoutModal } from "@/components/modals/workout/completed";
+import { RoutineModal } from "@/components/modals/routine";
 
-const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator<TabParamList>();
+const Stack = createStackNavigator<RootStackParamList>();
 
 function Tabs() {
   const colorScheme = useColorScheme();
@@ -107,10 +114,30 @@ export function Layout({ onReady }: LayoutProps) {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="sign-up"
+          name="signUp"
           component={SignUp}
           options={{ headerShown: false }}
         />
+        <Stack.Group
+          screenOptions={{
+            headerShown: false,
+            presentation: "modal",
+            gestureEnabled: true,
+            ...(Platform.OS === "android"
+              ? TransitionPresets.ModalPresentationIOS
+              : {}),
+          }}
+        >
+          <Stack.Screen
+            name="exerciseInsight"
+            component={ExerciseInsightsOverviewModal}
+          />
+          <Stack.Screen
+            name="completedWorkout"
+            component={CompletedWorkoutModal}
+          />
+          <Stack.Screen name="routine" component={RoutineModal} />
+        </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>
   );

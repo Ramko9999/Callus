@@ -3,7 +3,6 @@ import { StyleSheet, useWindowDimensions } from "react-native";
 import { useThemeColoring, Text } from "@/components/Themed";
 import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
 import { textTheme } from "@/constants/Themes";
-import * as Haptics from "expo-haptics";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -80,7 +79,6 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           });
 
           if (!isFocused && !event.defaultPrevented) {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
             navigation.navigate(route.name, route.params);
           }
         };

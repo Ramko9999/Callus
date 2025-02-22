@@ -176,9 +176,11 @@ export function SetLevelEditor({
   const onRemoveSet = useCallback(
     (set: Set) => {
       const isRemovingLastSet = sets.length === 1;
-      onRemove(set.id);
       if (isRemovingLastSet) {
         back();
+        onRemove(set.id)
+      } else {
+        onRemove(set.id);
       }
     },
     [sets, back]
@@ -195,7 +197,6 @@ export function SetLevelEditor({
           <Animated.View
             key={set.id}
             layout={LinearTransition}
-            entering={LightSpeedInLeft}
             exiting={LightSpeedOutLeft}
           >
             <EditorSet

@@ -1,17 +1,10 @@
 import { RoutineActions } from "@/api/model/routine";
-import { WorkoutActions } from "@/api/model/workout";
 import { WorkoutApi } from "@/api/workout";
-import { useDebounce } from "@/components/hooks/use-debounce";
-import { RoutineEditorSheet } from "@/components/popup/routine";
-import { useLiveIndicator } from "@/components/popup/workout/live";
 import { useThemeColoring, View, Text } from "@/components/Themed";
-import { useUserDetails } from "@/components/user-details";
 import { HeaderPage } from "@/components/util/header-page";
-import { useTabBar } from "@/components/util/tab-bar/context";
-import { useWorkout } from "@/context/WorkoutContext";
 import { Routine } from "@/interface";
-import { PLACEHOLDER_ROUTINE } from "@/util/mock";
 import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
+import { useNavigation } from "@react-navigation/native";
 import { Plus } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
@@ -104,32 +97,21 @@ const routinesStyles = StyleSheet.create({
 });
 
 export function Routines() {
-  const tabBarActions = useTabBar();
-  const liveIndicatorActions = useLiveIndicator();
+  const navigation = useNavigation();
   const [routines, setRoutines] = useState<Routine[]>([]);
-  const [selectedRoutine, setSelectedRoutine] = useState<Routine>();
-  const { actions, isInWorkout } = useWorkout();
-  const { userDetails } = useUserDetails();
-  const { invoke } = useDebounce({ delay: 200 });
 
+  // todo: reload based on path
   useEffect(() => {
-    if (selectedRoutine) {
-      tabBarActions.close();
-      liveIndicatorActions.hide();
-    } else {
-      tabBarActions.open();
-      liveIndicatorActions.show();
-    }
-
     WorkoutApi.getRoutines().then((savedRoutines) => {
       setRoutines(savedRoutines);
     });
-  }, [selectedRoutine]);
+  }, []);
 
   const onCreateRoutine = () => {
     const createdRoutine = RoutineActions.makeEmptyRoutine();
     WorkoutApi.saveRoutine(createdRoutine).then(() =>
-      setSelectedRoutine(createdRoutine)
+      //@ts-ignore
+      navigation.navigate("routine", { id: createdRoutine.id })
     );
   };
 
@@ -144,33 +126,14 @@ export function Routines() {
           contentContainerStyle={routinesStyles.container}
         >
           <SavedRoutines
-            onClick={(routine) => setSelectedRoutine(routine)}
+            onClick={(routine) => {
+              //@ts-ignore
+              navigation.navigate("routine", { id: routine.id });
+            }}
             routines={routines}
           />
         </ScrollView>
       </HeaderPage>
-      <RoutineEditorSheet
-        show={selectedRoutine != undefined}
-        onHide={() => setSelectedRoutine(undefined)}
-        routine={selectedRoutine ?? PLACEHOLDER_ROUTINE}
-        canStart={!isInWorkout}
-        onStart={() =>
-          actions.startWorkout(
-            WorkoutActions.createFromRoutine(
-              selectedRoutine as Routine,
-              userDetails?.bodyweight as number
-            )
-          )
-        }
-        onSave={(routine) => {
-          setSelectedRoutine(routine);
-          //@ts-ignore
-          invoke(WorkoutApi.saveRoutine)(routine);
-        }}
-        onTrash={() =>
-          WorkoutApi.deleteRoutine((selectedRoutine as Routine).id)
-        }
-      />
     </>
   );
 }

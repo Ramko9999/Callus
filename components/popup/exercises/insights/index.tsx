@@ -6,7 +6,6 @@ import {
   BodyWeightDifficulty,
   CompletedExercise,
   DifficultyType,
-  Set as ISet,
   TimeDifficulty,
   WeightDifficulty,
 } from "@/interface";
@@ -137,7 +136,6 @@ const exerciseInsightsStyles = StyleSheet.create({
   },
   container: {
     ...StyleUtils.flexColumn(5),
-    paddingTop: "6%",
     flex: 1,
   },
 });

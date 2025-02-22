@@ -8,9 +8,7 @@ import { useRef } from "react";
 import { getMockCompletions, MOCK_EXERCISE } from "@/api/exercise/mock";
 import { getDifficultyType } from "@/api/exercise";
 import { BlurView } from "expo-blur";
-import {
-  ScrollView,
-} from "react-native-gesture-handler";
+import { ScrollView } from "react-native-gesture-handler";
 
 const HISTORY_PLACEHOLDER_MESSAGE =
   "Log this exercise in a workout to view your history";
@@ -173,7 +171,7 @@ function computeHistory(
 const historyStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(30),
-    paddingBottom: "3%",
+    paddingBottom: "5%",
     paddingHorizontal: "3%",
   },
   scroll: {
@@ -191,7 +189,11 @@ function History({ completions, type }: HistoryProps) {
   const hasInitiallyScrolledToEndRef = useRef<boolean>(false);
 
   return (
-    <ScrollView ref={scrollRef} style={historyStyles.scroll}>
+    <ScrollView
+      ref={scrollRef}
+      style={historyStyles.scroll}
+      showsVerticalScrollIndicator={false}
+    >
       <View
         style={historyStyles.container}
         onLayout={() => {

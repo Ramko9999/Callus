@@ -20,6 +20,8 @@ import {
   UPSERT_METADATA,
   GET_METADATA,
   METADATA_TABLE_CREATION,
+  GET_WORKOUT,
+  GET_ROUTINE,
 } from "./sql";
 import {
   CompletedExercise,
@@ -189,6 +191,12 @@ export class Store {
     ).map(toWorkout);
   }
 
+  async getWorkout(workoutId: string): Promise<Workout> {
+    return toWorkout(
+      await this.db.getFirstAsync(GET_WORKOUT, { $workout_id: workoutId })
+    );
+  }
+
   async getAllWorkouts() {
     return (
       (await this.db.getAllAsync(GET_COMPLETED_WORKOUTS_BETWEEN_TIME, {
@@ -200,6 +208,12 @@ export class Store {
 
   async getRoutines() {
     return (await this.db.getAllAsync(GET_ROUTINES)).map(toRoutine);
+  }
+
+  async getRoutine(routineId: string): Promise<Routine> {
+    return toRoutine(
+      await this.db.getFirstAsync(GET_ROUTINE, { $routine_id: routineId })
+    );
   }
 
   async saveRoutine({ id, name, plan }: Routine) {

@@ -18,7 +18,7 @@ import {
 
 const metaEditorStyles = StyleSheet.create({
   container: {
-    ...StyleUtils.flexColumn(5),
+    ...StyleUtils.flexColumn(3),
     paddingLeft: "3%",
   },
   summary: {

@@ -7,14 +7,19 @@ import {
   StyleSheet,
   TextInput as DefaultTextInput,
   TouchableOpacity,
+  ViewStyle,
+  useWindowDimensions,
 } from "react-native";
 
-export const SEARCH_BAR_HEIGHT = 35;
+// todo: figure out search bar height
+export const SEARCH_BAR_HEIGHT = 45;
 
 const searchBarStyles = StyleSheet.create({
   container: {
     marginTop: "3%",
-    height: SEARCH_BAR_HEIGHT,
+    ...StyleUtils.flexRow(5),
+    alignItems: "center",
+    paddingHorizontal: "3%",
   },
   bar: {
     ...StyleUtils.flexRow(5),
@@ -26,30 +31,34 @@ const searchBarStyles = StyleSheet.create({
 type SearchBarProps = {
   searchQuery: string;
   setSearchQuery: (searchQuery: string) => void;
+  style?: ViewStyle;
 };
 
-export function SearchBar({ searchQuery, setSearchQuery }: SearchBarProps) {
+export function SearchBar({
+  searchQuery,
+  setSearchQuery,
+  style,
+}: SearchBarProps) {
+  const { height } = useWindowDimensions();
   const inputRef = useRef<DefaultTextInput>(null);
   const lightText = useThemeColoring("lightText");
 
   return (
     <TouchableOpacity
-      style={searchBarStyles.container}
+      style={[searchBarStyles.container, style, { height: height * 0.04 }]}
       onPress={() => {
         inputRef.current?.focus();
       }}
     >
-      <View background style={searchBarStyles.bar}>
-        <Search size={textTheme.neutral.fontSize} color={lightText} />
-        <TextInput
-          neutral
-          value={searchQuery}
-          placeholder="Search for an exercise"
-          placeholderTextColor={lightText}
-          onChangeText={setSearchQuery}
-          ref={inputRef}
-        />
-      </View>
+      <Search size={textTheme.neutral.fontSize} color={lightText} />
+      <TextInput
+        neutral
+        value={searchQuery}
+        placeholder="Search for an exercise"
+        placeholderTextColor={lightText}
+        onChangeText={setSearchQuery}
+        ref={inputRef}
+      />
     </TouchableOpacity>
   );
 }
