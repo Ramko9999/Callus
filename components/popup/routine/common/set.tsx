@@ -137,7 +137,6 @@ export function SetLevelEditor({
             key={set.id}
             layout={LinearTransition}
             exiting={LightSpeedOutLeft}
-            entering={LightSpeedInLeft}
           >
             <EditorSet
               set={set}
