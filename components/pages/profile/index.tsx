@@ -9,7 +9,6 @@ import { Trends } from "./trends";
 import { HeaderPage } from "@/components/util/header-page";
 import { Settings } from "lucide-react-native";
 import { useUserDetails } from "@/components/user-details";
-import { UserDetails } from "@/api/user";
 
 type OpenSettingsActionProps = {
   onClick: () => void;

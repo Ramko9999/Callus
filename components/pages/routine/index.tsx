@@ -4,9 +4,9 @@ import { useThemeColoring, View, Text } from "@/components/Themed";
 import { HeaderPage } from "@/components/util/header-page";
 import { Routine } from "@/interface";
 import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Plus } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 
 const savedRoutineStyles = StyleSheet.create({
@@ -100,12 +100,11 @@ export function Routines() {
   const navigation = useNavigation();
   const [routines, setRoutines] = useState<Routine[]>([]);
 
-  // todo: reload based on path
-  useEffect(() => {
-    WorkoutApi.getRoutines().then((savedRoutines) => {
-      setRoutines(savedRoutines);
-    });
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      WorkoutApi.getRoutines().then(setRoutines);
+    }, [])
+  );
 
   const onCreateRoutine = () => {
     const createdRoutine = RoutineActions.makeEmptyRoutine();

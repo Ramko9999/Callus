@@ -1,11 +1,12 @@
 import { WorkoutLifetimeStats } from "@/interface";
 import { StyleUtils } from "@/util/styles";
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { StyleSheet } from "react-native";
 import { View, Text } from "@/components/Themed";
 import { WorkoutApi } from "@/api/workout";
 import { Duration, getDuration, roundToNearestMinute } from "@/util/date";
 import React from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
 const lifetimeStatStyles = StyleSheet.create({
   container: {
@@ -128,9 +129,11 @@ export function LifetimeStats() {
   const [{ totalWorkouts, totalWorkoutDuration }, setStats] =
     useState<LifetimeStatsState>({ totalWorkouts: 0, totalWorkoutDuration: 0 });
 
-  useEffect(() => {
-    WorkoutApi.getLifetimeStats().then(setStats);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      WorkoutApi.getLifetimeStats().then(setStats);
+    }, [])
+  );
 
   return (
     <View style={lifetimeStatsStyles.container}>

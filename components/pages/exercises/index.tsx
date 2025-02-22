@@ -1,11 +1,10 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { View } from "@/components/Themed";
 import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ExerciseMeta, SearchExerciseSummary } from "@/interface";
 import { WorkoutApi } from "@/api/workout";
 import React from "react";
-import { ExerciseInsightsSheet } from "@/components/popup/exercises/insights";
 import { EXERCISE_REPOSITORY } from "@/api/exercise";
 import { HeaderPage } from "@/components/util/header-page";
 import { CollapsableSearchScroll } from "@/components/util/collapsable-search-scroll";
@@ -22,7 +21,7 @@ import {
   SearchExerciseGroup,
   SearchExerciseGroupNav,
 } from "./search";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 type SearchExerciseWithSummaryProps = {
   meta: ExerciseMeta;
@@ -82,21 +81,21 @@ export function Exercises() {
   const [muscleFilter, setMuscleFilter] = useState<string>();
   const [exerciseTypeFilter, setExerciseTypeFilter] = useState<string>();
 
-  const [selectedExercise, setSelectedExercise] = useState<string>();
+  useFocusEffect(
+    useCallback(() => {
+      WorkoutApi.getExerciseSummaries().then(setPerformedExerciseSummaries);
+    }, [])
+  );
 
   useEffect(() => {
-    WorkoutApi.getExerciseSummaries().then(setPerformedExerciseSummaries);
-  }, []);
-
-  useEffect(() => {
-    if (showExercisesFilter || selectedExercise != undefined) {
+    if (showExercisesFilter) {
       tabBarActions.close();
       liveIndicatorActions.hide();
     } else {
       tabBarActions.open();
       liveIndicatorActions.show();
     }
-  }, [showExercisesFilter, selectedExercise]);
+  }, [showExercisesFilter]);
 
   const exerciseResultGroups = filterExerciseResultGroups(
     searchQuery,
@@ -145,7 +144,7 @@ export function Exercises() {
                   key={index}
                   onClick={() => {
                     // @ts-ignore
-                    navigation.navigate("exerciseInsight", {name: meta.name})
+                    navigation.navigate("exerciseInsight", { name: meta.name });
                   }}
                 />
               )}
@@ -171,11 +170,6 @@ export function Exercises() {
           }}
         />
       </View>
-      <ExerciseInsightsSheet
-        show={selectedExercise != undefined}
-        hide={() => setSelectedExercise(undefined)}
-        exerciseName={selectedExercise as string}
-      />
       <ExercisesFilter
         show={showExercisesFilter}
         hide={() => setShowExercisesFilter(false)}

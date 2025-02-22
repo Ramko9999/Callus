@@ -1,6 +1,6 @@
 import { Text, useThemeColoring, View } from "@/components/Themed";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { truncTime, getLongDateDisplay } from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
@@ -15,7 +15,7 @@ import { Dumbbell } from "@/components/theme/custom-svg";
 import * as Haptics from "expo-haptics";
 import { WorkoutActions } from "@/api/model/workout";
 import { useToast } from "react-native-toast-notifications";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 
 const loadingWorkoutsStyles = StyleSheet.create({
   container: {
@@ -105,22 +105,22 @@ export default function Home() {
   const { userDetails } = useUserDetails();
   const toast = useToast();
 
-  const loadWorkouts = async () => {
+  // todo: once the live workout player is moved over to modals check that the app is updated once its closed
+  useFocusEffect(
+    useCallback(() => {
+      WorkoutApi.getWorkouts(truncTime(workoutDate))
+        .then(setCompletedWorkouts)
+        .finally(() => setLoading(false));
+      refetch(workoutDate, true);
+    }, [])
+  );
+
+  useEffect(() => {
     WorkoutApi.getWorkouts(truncTime(workoutDate))
       .then(setCompletedWorkouts)
       .finally(() => setLoading(false));
-  };
-
-  useEffect(() => {
-    loadWorkouts();
     refetch(workoutDate);
   }, [workoutDate]);
-
-  // todo: load when route changes
-  useEffect(() => {
-    loadWorkouts();
-    refetch(workoutDate, true);
-  }, [isInWorkout]);
 
   return (
     <>

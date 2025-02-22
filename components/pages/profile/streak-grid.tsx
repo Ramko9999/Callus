@@ -1,10 +1,11 @@
 import { StyleUtils } from "@/util/styles";
 import { StyleSheet } from "react-native";
 import { useThemeColoring, View, Text } from "@/components/Themed";
-import { useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { WorkoutApi } from "@/api/workout";
 import { addDays, getDateDisplay, removeDays, truncTime } from "@/util/date";
 import { batch } from "@/util/misc";
+import { useFocusEffect } from "@react-navigation/native";
 
 const STREAK_COLUMN_GROUP_SIZE = 6;
 const STREAK_GROUP_SIZE = 3;
@@ -122,33 +123,32 @@ type WorkedOutDay = {
 };
 
 type WorkoutStreakGridState = {
-  loading: boolean;
   streak: WorkedOutDay[];
 };
 
 export function WorkoutStreakGrid() {
   const [{ streak }, setState] = useState<WorkoutStreakGridState>({
-    loading: false,
     streak: Array.from({ length: LOOK_BACK_DAYS }, () => ({
       intensity: 0,
       day: 0,
     })),
   });
 
-  useEffect(() => {
-    const gridEnd = addDays(truncTime(Date.now()), 1);
-    const gridStart = removeDays(gridEnd, LOOK_BACK_DAYS);
-    WorkoutApi.getWorkedOutDays(gridEnd, gridStart).then((workedOutDaysSet) =>
-      setState({
-        loading: true,
-        streak: getStreaksFromWorkedOutDays(
-          gridStart,
-          gridEnd,
-          workedOutDaysSet
-        ),
-      })
-    );
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      const gridEnd = addDays(truncTime(Date.now()), 1);
+      const gridStart = removeDays(gridEnd, LOOK_BACK_DAYS);
+      WorkoutApi.getWorkedOutDays(gridEnd, gridStart).then((workedOutDaysSet) =>
+        setState({
+          streak: getStreaksFromWorkedOutDays(
+            gridStart,
+            gridEnd,
+            workedOutDaysSet
+          ),
+        })
+      );
+    }, [])
+  );
 
   return (
     <View style={workoutMonthStreakGridStyles.container}>

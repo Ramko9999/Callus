@@ -38,6 +38,7 @@ import { ArrayUtils } from "@/util/misc";
 import { getMockCompletions, MOCK_EXERCISE } from "@/api/exercise/mock";
 import { getDifficultyType } from "@/api/exercise";
 import { BlurView } from "expo-blur";
+import { useFocusEffect } from "@react-navigation/native";
 
 const TREND_CHART_MARGIN = {
   top: 20,
@@ -342,15 +343,14 @@ const trendsStyles = StyleSheet.create({
 export function Trends() {
   const [trends, setTrends] = useState<Trend[]>();
 
-  useEffect(() => {
-    WorkoutApi.getTrends(
-      goBackMonths(truncTime(Date.now()), MONTHS_TO_LOOKBACK)
-    )
-      .then(setTrends)
-      .catch((error) => {
-        console.error(error.stack);
-      });
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      WorkoutApi.getTrends(
+        goBackMonths(truncTime(Date.now()), MONTHS_TO_LOOKBACK)
+      )
+        .then(setTrends)
+    }, [])
+  );
 
   const shouldShowPlaceholder = trends && trends.length === 0;
 
