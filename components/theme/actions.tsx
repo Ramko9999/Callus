@@ -6,10 +6,12 @@ import {
   ArrowDown,
   ArrowLeft,
   ChartNoAxesColumnIncreasing,
+  Check,
   Flag,
   ListFilter,
   Repeat as LucideRepeat,
   Timer as LucideTimer,
+  Pencil,
   Plus,
   Trash2,
 } from "lucide-react-native";
@@ -54,20 +56,6 @@ export function Trash({ onClick, style }: ActionProps) {
         ]}
       >
         <Trash2 strokeWidth={2} color={useThemeColoring("primaryText")} />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
-export function Edit({ onClick, style, iconSize }: ActionProps) {
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <View style={[iconActionStyles.container, style]}>
-        <FontAwesome
-          name="pencil"
-          size={iconSize ?? textTheme.large.fontSize}
-          color={useThemeColoring("lightText")}
-        />
       </View>
     </TouchableOpacity>
   );
@@ -246,20 +234,6 @@ export function Search({ onClick, style, iconSize }: ActionProps) {
   );
 }
 
-export function Done({ onClick, style }: ActionProps) {
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <View style={[iconActionStyles.container, style]}>
-        <FontAwesome
-          name="check"
-          size={textTheme.large.fontSize}
-          color={useThemeColoring("lightText")}
-        />
-      </View>
-    </TouchableOpacity>
-  );
-}
-
 export function Time({ onClick, style }: ActionProps) {
   return (
     <TouchableOpacity onPress={onClick}>
@@ -284,21 +258,39 @@ export function Repeat({ onClick, style }: ActionProps) {
           style,
         ]}
       >
-        <LucideRepeat strokeWidth={3} color={useThemeColoring("primaryText")} />
+        <LucideRepeat strokeWidth={2} color={useThemeColoring("primaryText")} />
       </View>
     </TouchableOpacity>
   );
 }
 
-export function Settings({ onClick, iconSize, style }: ActionProps) {
+export function Edit({ onClick, style }: ActionProps) {
   return (
     <TouchableOpacity onPress={onClick}>
-      <View style={[iconActionStyles.container, style]}>
-        <FontAwesome
-          name="gear"
-          size={iconSize ?? textTheme.large.fontSize}
-          color={useThemeColoring("lightText")}
-        />
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("calendarDayBackground") },
+          style,
+        ]}
+      >
+        <Pencil strokeWidth={2} color={useThemeColoring("primaryText")} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+export function Finish({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("calendarDayBackground") },
+          style,
+        ]}
+      >
+        <Check strokeWidth={3} color={useThemeColoring("primaryText")} />
       </View>
     </TouchableOpacity>
   );

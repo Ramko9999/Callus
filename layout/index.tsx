@@ -26,6 +26,7 @@ import { RootStackParamList, TabParamList } from "./types";
 import { ExerciseInsightsOverviewModal } from "@/components/modals/exercise/insight";
 import { CompletedWorkoutModal } from "@/components/modals/workout/completed";
 import { RoutineModal } from "@/components/modals/routine";
+import { LiveWorkoutModal } from "@/components/modals/workout/live";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
@@ -137,6 +138,7 @@ export function Layout({ onReady }: LayoutProps) {
             component={CompletedWorkoutModal}
           />
           <Stack.Screen name="routine" component={RoutineModal} />
+          <Stack.Screen name="liveWorkout" component={LiveWorkoutModal} />
         </Stack.Group>
       </Stack.Navigator>
     </NavigationContainer>

@@ -8,10 +8,11 @@ export type TabParamList = {
 };
 
 type ModalParamsList = {
-    exerciseInsight: {name: string};
-    completedWorkout: {id: string};
-    routine: {id: string};
-}
+  exerciseInsight: { name: string };
+  completedWorkout: { id: string };
+  liveWorkout: {};
+  routine: { id: string };
+};
 
 export type RootStackParamList = {
   splash: undefined;

@@ -13,11 +13,7 @@ import { useToast } from "react-native-toast-notifications";
 import { ModalWrapper } from "../common";
 import { contentStyles } from "../common/styles";
 import { View, Text } from "@/components/Themed";
-import {
-  AddExercisesTopActions,
-  ExerciseInsightTopActions,
-  ExercisesEditorTopActions,
-} from "./top-actions";
+import { ExercisesEditorTopActions } from "./top-actions";
 import { MetaEditor } from "@/components/popup/routine/common/meta";
 import { ExerciseLevelEditor } from "@/components/popup/routine/common/exercise";
 import { WorkoutApi } from "@/api/workout";
@@ -38,6 +34,10 @@ import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
 import { PerformantExerciseAdder } from "@/components/popup/workout/common/exercise/add";
 import { ExercisesFilter } from "@/components/popup/exercises/filters";
 import { ExerciseInsights } from "@/components/popup/exercises/insights";
+import {
+  AddExercisesTopActions,
+  ExerciseInsightTopActions,
+} from "../common/top-actions";
 
 type RoutineStackParamList = {
   exercises: undefined;

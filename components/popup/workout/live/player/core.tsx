@@ -6,10 +6,7 @@ import { getTimePeriodDisplay } from "@/util/date";
 import { Close, Edit, SignificantAction } from "@/components/theme/actions";
 import React from "react";
 import { Activity } from "./activity";
-import {
-  DiscardSetsAndFinishConfirmation,
-  ModalProps,
-} from "../../common/modals";
+import { DiscardSetsAndFinishConfirmation } from "../../common/modals";
 
 const topActionsStyles = StyleSheet.create({
   container: {

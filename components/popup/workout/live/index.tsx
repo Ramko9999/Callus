@@ -56,6 +56,7 @@ import {
   ExerciseSearcherFiltersState,
   ExerciseSearcherModals,
 } from "../common/exercise/add";
+import { useNavigation } from "@react-navigation/native";
 
 const REST_COMPLETING_THRESHOLD = 6000;
 
@@ -80,6 +81,8 @@ function LivePlayerSheet({
   show,
   onSave,
 }: LivePlayerSheetProps) {
+  const navigation = useNavigation();
+
   const tabBarActions = useTabBar();
   const sheetRef = useRef<PreviewableSheetRef>(null);
 
@@ -294,7 +297,10 @@ function LivePlayerSheet({
             renderPreview={() => (
               <Preview
                 workout={workout}
-                onClick={() => sheetRef.current?.openContent()}
+                onClick={() => {
+                  //@ts-ignore
+                  navigation.navigate("liveWorkout");
+                }}
               />
             )}
           >

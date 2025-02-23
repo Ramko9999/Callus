@@ -43,14 +43,13 @@ import { useUserDetails } from "@/components/user-details";
 import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
 import { ExercisesFilter } from "@/components/popup/exercises/filters";
 import { ExerciseInsights } from "@/components/popup/exercises/insights";
+import { ExercisesEditorTopActions, SetsEditorTopActions } from "./top-actions";
+import { contentStyles } from "../../common/styles";
+import { ModalWrapper } from "../../common";
 import {
   AddExercisesTopActions,
   ExerciseInsightTopActions,
-  ExercisesEditorTopActions,
-  SetsEditorTopActions,
-} from "./top-actions";
-import { contentStyles } from "../../common/styles";
-import { ModalWrapper } from "../../common";
+} from "../../common/top-actions";
 
 type CompletedWorkoutStackParamList = {
   exercises: undefined;

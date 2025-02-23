@@ -1,34 +1,54 @@
-import { View } from "@/components/Themed";
 import {
-  Close,
   Add,
-  Repeat,
-  Trash,
   Back,
+  Close,
+  Edit,
+  Finish,
   Progress,
+  Timer,
 } from "@/components/theme/actions";
 import { topActionsStyles } from "../../common/styles";
+import { View } from "@/components/Themed";
 
-type ExerciseEditorTopActionsProps = {
+type PlayerTopActionsProps = {
   onClose: () => void;
-  onAdd: () => void;
-  onTrash: () => void;
-  onRepeat: () => void;
+  onEdit: () => void;
+  onFinish: () => void;
 };
 
-export function ExercisesEditorTopActions({
+export function PlayerTopActions({
   onClose,
-  onAdd,
-  onTrash,
-  onRepeat,
-}: ExerciseEditorTopActionsProps) {
+  onEdit,
+  onFinish,
+}: PlayerTopActionsProps) {
   return (
     <View style={topActionsStyles.container}>
       <Close onClick={onClose} />
       <View style={topActionsStyles.rightActions}>
-        <Repeat onClick={onRepeat} />
+        <Edit onClick={onEdit} />
+        <Finish onClick={onFinish} />
+      </View>
+    </View>
+  );
+}
+
+type ExerciseEditorTopActionsProps = {
+  onBack: () => void;
+  onAdd: () => void;
+  onFinish: () => void;
+};
+
+export function ExercisesEditorTopActions({
+  onBack,
+  onAdd,
+  onFinish,
+}: ExerciseEditorTopActionsProps) {
+  return (
+    <View style={topActionsStyles.container}>
+      <Back onClick={onBack} />
+      <View style={topActionsStyles.rightActions}>
         <Add onClick={onAdd} />
-        <Trash onClick={onTrash} />
+        <Finish onClick={onFinish} />
       </View>
     </View>
   );
@@ -38,18 +58,21 @@ type SetsEditorTopActionsProps = {
   onAdd: () => void;
   onBack: () => void;
   onViewProgress: () => void;
+  onEditRest: () => void;
 };
 
 export function SetsEditorTopActions({
   onAdd,
   onBack,
   onViewProgress,
+  onEditRest,
 }: SetsEditorTopActionsProps) {
   return (
     <View style={topActionsStyles.container}>
       <Back onClick={onBack} />
       <View style={topActionsStyles.rightActions}>
         <Progress onClick={onViewProgress} />
+        <Timer onClick={onEditRest} />
         <Add onClick={onAdd} />
       </View>
     </View>

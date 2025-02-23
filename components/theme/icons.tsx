@@ -49,25 +49,6 @@ export function DragIndicator() {
   );
 }
 
-const modalDragIndicatorStyles = StyleSheet.create({
-  container: {
-    height: 3,
-    borderRadius: 2,
-    width: 80,
-  },
-});
-
-export function ModalDragIndicator() {
-  return (
-    <View
-      style={[
-        modalDragIndicatorStyles.container,
-        { backgroundColor: useThemeColoring("primaryText") },
-      ]}
-    />
-  );
-}
-
 const typingIndicatorStyles = StyleSheet.create({
   container: {
     width: 2,

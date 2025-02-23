@@ -105,7 +105,6 @@ export default function Home() {
   const { userDetails } = useUserDetails();
   const toast = useToast();
 
-  // todo: once the live workout player is moved over to modals check that the app is updated once its closed
   useFocusEffect(
     useCallback(() => {
       WorkoutApi.getWorkouts(truncTime(workoutDate))
