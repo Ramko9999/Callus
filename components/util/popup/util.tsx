@@ -6,7 +6,6 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export const POPOVER_BACKDROP_VISIBLE_COLOR = "rgba(0, 0, 0, 0.1)";
 export const BACKDROP_VISIBLE_COLOR = "rgba(0, 0, 0, 0.8)";
 
-export const PREVIEW_HEIGHT = 70;
 export const FULL_SHEET_HEIGHT_MULTIPLIER = 0.85;
 
 const backdropStyles = StyleSheet.create({

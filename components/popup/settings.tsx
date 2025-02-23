@@ -7,10 +7,9 @@ import * as DocumentPicker from "expo-document-picker";
 import { WorkoutApi } from "@/api/workout";
 import { Routine, Workout } from "@/interface";
 import { useToast } from "react-native-toast-notifications";
-import { useTabBar } from "@/components/util/tab-bar/context";
+import { useTabBar } from "@/components/tab-bar/context";
 import { useEffect } from "react";
 import { FullBottomSheet } from "@/components/util/popup/sheet/full";
-import { useLiveIndicator } from "./workout/live";
 
 type ImportExport = {
   workouts: Workout[];
@@ -150,15 +149,12 @@ type SettingsSheetProps = {
 
 export function SettingsSheet({ show, hide }: SettingsSheetProps) {
   const tabBarActions = useTabBar();
-  const liveIndicatorActions = useLiveIndicator();
 
   useEffect(() => {
     if (show) {
       tabBarActions.close();
-      liveIndicatorActions.hide();
     } else {
       tabBarActions.open();
-      liveIndicatorActions.show();
     }
   }, [show]);
 

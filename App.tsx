@@ -14,7 +14,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ToastProvider } from "react-native-toast-notifications";
 import { Preloader } from "./components/preload";
 import { UserDetailsProvider } from "./components/user-details";
-import { TabBarProvider } from "./components/util/tab-bar/context";
+import { TabBarProvider } from "./components/tab-bar/context";
 import { WorkoutProvider } from "./context/WorkoutContext";
 import { Layout } from "./layout";
 

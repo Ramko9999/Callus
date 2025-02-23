@@ -10,9 +10,8 @@ import { HeaderPage } from "@/components/util/header-page";
 import { CollapsableSearchScroll } from "@/components/util/collapsable-search-scroll";
 import Animated from "react-native-reanimated";
 import { ExercisesFilter } from "@/components/popup/exercises/filters";
-import { useTabBar } from "@/components/util/tab-bar/context";
+import { useTabBar } from "@/components/tab-bar/context";
 import { SEARCH_BAR_HEIGHT } from "@/components/util/collapsable-search-scroll/search";
-import { useLiveIndicator } from "@/components/popup/workout/live";
 import {
   computeOffsetToScrollTo,
   filterExerciseResultGroups,
@@ -46,7 +45,7 @@ function SearchExerciseWithSummary({
 const exercisesStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(5),
-    paddingBottom: TAB_BAR_HEIGHT + SEARCH_BAR_HEIGHT,
+    paddingBottom: SEARCH_BAR_HEIGHT,
   },
   scroll: {
     flex: 1,
@@ -68,7 +67,6 @@ const exercisesStyles = StyleSheet.create({
 export function Exercises() {
   const navigation = useNavigation();
   const tabBarActions = useTabBar();
-  const liveIndicatorActions = useLiveIndicator();
   const scrollRef = useRef<Animated.ScrollView>(null);
 
   const [performedExerciseSummaries, setPerformedExerciseSummaries] = useState<
@@ -90,10 +88,8 @@ export function Exercises() {
   useEffect(() => {
     if (showExercisesFilter) {
       tabBarActions.close();
-      liveIndicatorActions.hide();
     } else {
       tabBarActions.open();
-      liveIndicatorActions.show();
     }
   }, [showExercisesFilter]);
 

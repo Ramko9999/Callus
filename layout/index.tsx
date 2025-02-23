@@ -11,7 +11,7 @@ import {
   ProfileTabIcon,
 } from "@/components/theme/icons";
 import { useThemeColoring } from "@/components/Themed";
-import { TabBar } from "@/components/util/tab-bar";
+import { TabBar } from "@/components/tab-bar";
 import { getTabActiveTintColor } from "@/constants/Themes";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
@@ -21,7 +21,6 @@ import {
 } from "@react-navigation/stack";
 import Home from "@/components/pages/home";
 import { Platform, useColorScheme } from "react-native";
-import { LiveIndicatorProvider } from "@/components/popup/workout/live";
 import { RootStackParamList, TabParamList } from "./types";
 import { ExerciseInsightsOverviewModal } from "@/components/modals/exercise/insight";
 import { CompletedWorkoutModal } from "@/components/modals/workout/completed";
@@ -34,52 +33,50 @@ const Stack = createStackNavigator<RootStackParamList>();
 function Tabs() {
   const colorScheme = useColorScheme();
   return (
-    <LiveIndicatorProvider>
-      <Tab.Navigator
-        initialRouteName="history"
-        tabBar={(props) => <TabBar {...props} />}
-        screenOptions={{
-          tabBarActiveTintColor: getTabActiveTintColor(colorScheme ?? "light"),
-          headerShown: false,
-          lazy: false,
+    <Tab.Navigator
+      initialRouteName="history"
+      tabBar={(props) => <TabBar {...props} />}
+      screenOptions={{
+        tabBarActiveTintColor: getTabActiveTintColor(colorScheme ?? "light"),
+        headerShown: false,
+        lazy: false,
+      }}
+    >
+      <Tab.Screen
+        name="history"
+        component={Home}
+        options={{
+          title: "History",
+          tabBarIcon: ({ color }) => <HistoryTabIcon color={color} />,
         }}
-      >
-        <Tab.Screen
-          name="history"
-          component={Home}
-          options={{
-            title: "History",
-            tabBarIcon: ({ color }) => <HistoryTabIcon color={color} />,
-          }}
-        />
-        <Tab.Screen
-          name="exercises"
-          component={Exercises}
-          options={{
-            title: "Exercises",
-            tabBarIcon: ({ color }) => <ExerciseTabIcon color={color} />,
-          }}
-        />
+      />
+      <Tab.Screen
+        name="exercises"
+        component={Exercises}
+        options={{
+          title: "Exercises",
+          tabBarIcon: ({ color }) => <ExerciseTabIcon color={color} />,
+        }}
+      />
 
-        <Tab.Screen
-          name="routines"
-          component={Routines}
-          options={{
-            title: "Routines",
-            tabBarIcon: ({ color }) => <RoutinesTabIcon color={color} />,
-          }}
-        />
+      <Tab.Screen
+        name="routines"
+        component={Routines}
+        options={{
+          title: "Routines",
+          tabBarIcon: ({ color }) => <RoutinesTabIcon color={color} />,
+        }}
+      />
 
-        <Tab.Screen
-          name="profile"
-          component={Profile}
-          options={{
-            title: "Profile",
-            tabBarIcon: ({ color }) => <ProfileTabIcon color={color} />,
-          }}
-        />
-      </Tab.Navigator>
-    </LiveIndicatorProvider>
+      <Tab.Screen
+        name="profile"
+        component={Profile}
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color }) => <ProfileTabIcon color={color} />,
+        }}
+      />
+    </Tab.Navigator>
   );
 }
 

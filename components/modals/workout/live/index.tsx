@@ -58,6 +58,7 @@ import { Activity } from "@/components/popup/workout/live/player/activity";
 import { getTimePeriodDisplay } from "@/util/date";
 import { StyleUtils } from "@/util/styles";
 import { WorkoutApi } from "@/api/workout";
+import { useRefresh } from "@/components/hooks/use-refresh";
 
 type LiveWorkoutStackParamList = {
   player: undefined;
@@ -86,20 +87,8 @@ function Player({ navigation }: PlayerProps) {
   const { activity, actions, editor } = useWorkout();
   const { workout, actions: editorActions } = editor;
   const [isFinishing, setIsFinishing] = useState(false);
-  const [_, setNow] = useState(0);
-  const stopwatch = useRef();
 
-  useEffect(() => {
-    stopwatch.current = setInterval(() => {
-      setNow(Date.now());
-    }, 1000) as any;
-
-    return () => {
-      if (stopwatch.current) {
-        clearTimeout(stopwatch.current);
-      }
-    };
-  }, []);
+  useRefresh({ period: 1000 });
 
   const forceFinish = () => {
     WorkoutApi.saveWorkout(finish(wrapUpSets(workout as Workout))).then(() => {
@@ -159,6 +148,8 @@ function ExercisesEditor({ navigation }: ExercisesEditorProps) {
   const { editor } = useWorkout();
   const workout = editor.workout as Workout;
   const { actions } = editor;
+
+  useRefresh({ period: 1000 });
 
   const [isFinishing, setIsFinishing] = useState(false);
   const [isEditingDates, setIsEditingDates] = useState(false);
