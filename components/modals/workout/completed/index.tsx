@@ -1,7 +1,5 @@
-import { ExerciseLevelEditor } from "@/components/popup/workout/common/exercise";
 import { MetaEditor, NoteEditor } from "@/components/popup/workout/common/meta";
 import { RootStackParamList } from "@/layout/types";
-import { getHistoricalExerciseDescription } from "@/util/workout/display";
 import { CompositeScreenProps } from "@react-navigation/native";
 import {
   createStackNavigator,
@@ -30,7 +28,6 @@ import {
 } from "@/interface";
 import { View, Text } from "@/components/Themed";
 import { getDifficultyType } from "@/api/exercise";
-import { SetLevelEditor } from "@/components/popup/workout/common/set";
 import { PerformantExerciseAdder } from "@/components/popup/workout/common/exercise/add";
 import {
   WorkoutDeleteConfirmation,
@@ -50,6 +47,10 @@ import {
   AddExercisesTopActions,
   ExerciseInsightTopActions,
 } from "../../common/top-actions";
+import { ExerciseEditor } from "../../common/exercise";
+import { CompletedWorkoutExercise } from "../../common/exercise/item";
+import { SetEditor } from "../../common/set";
+import { CompletedWorkoutSet } from "../../common/set/item";
 
 type CompletedWorkoutStackParamList = {
   exercises: undefined;
@@ -89,8 +90,8 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
     onSave({ ...workout, ...meta });
   };
 
-  const onSelectExercise = ({ id }: Exercise) => {
-    navigation.navigate("sets", { exerciseId: id });
+  const onSelectExercise = (exerciseId: string) => {
+    navigation.navigate("sets", { exerciseId });
   };
 
   const trash = () => {
@@ -126,12 +127,14 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
             onUpdateMeta={onUpdateMeta}
             onDateClick={() => setIsEditingTimes(true)}
           />
-          <ExerciseLevelEditor
+          <ExerciseEditor
             exercises={workout.exercises}
             onRemove={onRemoveExercise}
             onEdit={onSelectExercise}
-            onReorder={onReorderExercises}
-            getDescription={getHistoricalExerciseDescription}
+            onReorder={(exercises) =>
+              onReorderExercises(exercises as Exercise[])
+            }
+            renderExercise={(props) => <CompletedWorkoutExercise {...props} />}
           />
         </View>
       </ModalWrapper>
@@ -179,6 +182,9 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
   };
 
   const onRemoveSet = (setId: string) => {
+    if (exercise?.sets.length === 1) {
+      navigation.goBack();
+    }
     onSave(removeSet(setId, workout));
   };
 
@@ -207,7 +213,7 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
             <Text extraLarge>{exercise?.name ?? ""}</Text>
           </View>
           <NoteEditor note={exercise?.note ?? ""} onUpdateNote={onNote} />
-          <SetLevelEditor
+          <SetEditor
             sets={exercise?.sets ?? []}
             difficultyType={
               exercise
@@ -216,7 +222,7 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
             }
             onRemove={onRemoveSet}
             onEdit={onUpdateSet}
-            back={navigation.goBack}
+            renderSet={(props) => <CompletedWorkoutSet {...props} />}
           />
         </View>
       </ModalWrapper>

@@ -15,7 +15,6 @@ import {
   SetsEditorTopActions,
 } from "./top-actions";
 import { MetaEditor, NoteEditor } from "@/components/popup/workout/common/meta";
-import { ExerciseLevelEditor } from "@/components/popup/workout/common/exercise";
 import {
   getCurrentWorkoutActivity,
   hasUnstartedSets,
@@ -35,15 +34,14 @@ import {
   Set,
   ExerciseMeta,
   WorkoutActivity,
+  Exercise,
 } from "@/interface";
-import { getLiveExerciseDescription } from "@/util/workout/display";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   AdjustStartEndTime,
   DiscardSetsAndFinishConfirmation,
   EditRestDuration,
 } from "@/components/popup/workout/common/modals";
-import { SetLevelEditor } from "@/components/popup/workout/common/set";
 import { getDifficultyType } from "@/api/exercise";
 import { updateExerciseRest } from "@/util/workout/update";
 import { ExerciseInsights } from "@/components/popup/exercises/insights";
@@ -59,6 +57,10 @@ import { getTimePeriodDisplay } from "@/util/date";
 import { StyleUtils } from "@/util/styles";
 import { WorkoutApi } from "@/api/workout";
 import { useRefresh } from "@/components/hooks/use-refresh";
+import { ExerciseEditor } from "../../common/exercise";
+import { LiveWorkoutExercise } from "../../common/exercise/item";
+import { SetEditor } from "../../common/set";
+import { LiveWorkoutSet } from "../../common/set/item";
 
 type LiveWorkoutStackParamList = {
   player: undefined;
@@ -188,22 +190,22 @@ function ExercisesEditor({ navigation }: ExercisesEditorProps) {
             onUpdateMeta={updateMeta}
             onDateClick={() => setIsEditingDates(true)}
           />
-          <ExerciseLevelEditor
-            currentExerciseId={
-              getCurrentWorkoutActivity(workout).activityData.exercise?.id
-            }
+          <ExerciseEditor
             exercises={workout.exercises}
             onRemove={(exerciseId) =>
               actions.updateWorkout(removeExercise(exerciseId, workout))
             }
-            onEdit={({ id }) => {
+            onEdit={(exerciseId) => {
               //@ts-ignore
-              navigation.navigate("sets", { exerciseId: id });
+              navigation.navigate("sets", { exerciseId });
             }}
             onReorder={(exercises) =>
-              actions.updateWorkout({ ...workout, exercises })
+              actions.updateWorkout({
+                ...workout,
+                exercises: exercises as Exercise[],
+              })
             }
-            getDescription={getLiveExerciseDescription}
+            renderExercise={(props) => <LiveWorkoutExercise {...props} />}
           />
         </View>
         <DiscardSetsAndFinishConfirmation
@@ -249,6 +251,9 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
   };
 
   const onRemoveSet = (setId: string) => {
+    if (exercise?.sets.length === 1) {
+      navigation.goBack();
+    }
     actions.updateWorkout(removeSet(setId, workout as Workout));
   };
 
@@ -280,9 +285,8 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
             <Text extraLarge>{exercise?.name ?? ""}</Text>
           </View>
           <NoteEditor note={exercise?.note ?? ""} onUpdateNote={onNote} />
-          <SetLevelEditor
+          <SetEditor
             sets={exercise?.sets ?? []}
-            currentSet={currentSet}
             difficultyType={
               exercise
                 ? getDifficultyType(exercise.name)
@@ -290,7 +294,7 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
             }
             onRemove={onRemoveSet}
             onEdit={onUpdateSet}
-            back={navigation.goBack}
+            renderSet={(props) => <LiveWorkoutSet {...props} />}
           />
         </View>
       </ModalWrapper>

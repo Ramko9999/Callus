@@ -15,11 +15,9 @@ import { contentStyles } from "../common/styles";
 import { View, Text } from "@/components/Themed";
 import { ExercisesEditorTopActions } from "./top-actions";
 import { MetaEditor } from "@/components/popup/routine/common/meta";
-import { ExerciseLevelEditor } from "@/components/popup/routine/common/exercise";
 import { WorkoutApi } from "@/api/workout";
 import { WorkoutActions } from "@/api/model/workout";
-import { DifficultyType, Routine } from "@/interface";
-import { getHistoricalExerciseDescription } from "@/util/workout/display";
+import { DifficultyType, ExercisePlan, Routine } from "@/interface";
 import { ExercisePlanActions, SetPlanActions } from "@/api/model/routine";
 import {
   EditRestDuration,
@@ -28,7 +26,6 @@ import {
 } from "@/components/popup/workout/common/modals";
 import { useState } from "react";
 import { SetsEditorTopActions } from "./top-actions";
-import { SetLevelEditor } from "@/components/popup/routine/common/set";
 import { getDifficultyType } from "@/api/exercise";
 import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
 import { PerformantExerciseAdder } from "@/components/popup/workout/common/exercise/add";
@@ -38,6 +35,10 @@ import {
   AddExercisesTopActions,
   ExerciseInsightTopActions,
 } from "../common/top-actions";
+import { ExerciseEditor } from "../common/exercise";
+import { RoutineExercise } from "../common/exercise/item";
+import { SetEditor } from "../common/set";
+import { RoutineSet } from "../common/set/item";
 
 type RoutineStackParamList = {
   exercises: undefined;
@@ -101,14 +102,14 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
             onStart={() => setIsStarting(true)}
           />
           <MetaEditor routine={routine} onUpdateMeta={onUpdateMeta} />
-          <ExerciseLevelEditor
+          <ExerciseEditor
             exercises={routine.plan}
-            getDescription={getHistoricalExerciseDescription}
             onRemove={(id) => onSave(ExercisePlanActions(routine).remove(id))}
-            onEdit={(exercisePlanId) =>
-              navigation.navigate("sets", { exerciseId: exercisePlanId })
+            onEdit={(exerciseId) => navigation.navigate("sets", { exerciseId })}
+            onReorder={(plan) =>
+              onSave(onUpdateMeta({ plan: plan as ExercisePlan[] }))
             }
-            onReorder={(plan) => onSave(onUpdateMeta({ plan }))}
+            renderExercise={(props) => <RoutineExercise {...props} />}
           />
         </View>
       </ModalWrapper>
@@ -141,6 +142,13 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
   const exercisePlanActions = ExercisePlanActions(routine);
   const setPlanActions = SetPlanActions(routine, route.params.exerciseId);
 
+  const onRemove = (setId: string) => {
+    if (exercisePlan?.sets.length == 1) {
+      navigation.goBack();
+    }
+    onSave(setPlanActions.remove(setId));
+  };
+
   return (
     <InputsPadProvider>
       <ModalWrapper>
@@ -155,10 +163,10 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
             }
             onEditRest={() => setIsEditingRest(true)}
           />
-          <View style={{ paddingLeft: "3%" }}>
+          <View style={{ paddingLeft: "3%", paddingBottom: "3%" }}>
             <Text extraLarge>{exercisePlan?.name ?? ""}</Text>
           </View>
-          <SetLevelEditor
+          <SetEditor
             sets={exercisePlan?.sets ?? []}
             difficultyType={
               exercisePlan
@@ -166,8 +174,8 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
                 : DifficultyType.BODYWEIGHT
             }
             onEdit={(id, update) => onSave(setPlanActions.update(id, update))}
-            onRemove={(id) => onSave(setPlanActions.remove(id))}
-            back={navigation.goBack}
+            onRemove={onRemove}
+            renderSet={(props) => <RoutineSet {...props} />}
           />
         </View>
       </ModalWrapper>

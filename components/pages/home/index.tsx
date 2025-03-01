@@ -105,6 +105,7 @@ export default function Home() {
   const { userDetails } = useUserDetails();
   const toast = useToast();
 
+  // todo: there is a bug here my boi, fix this hoe dawg
   useFocusEffect(
     useCallback(() => {
       WorkoutApi.getWorkouts(truncTime(workoutDate))

@@ -11,12 +11,15 @@ import {
   KeypadType,
 } from "@/interface";
 import { getDurationDisplay } from "@/util/date";
-import { StyleUtils } from "@/util/styles";
+import { EDITOR_SET_HEIGHT, StyleUtils } from "@/util/styles";
+import { Check } from "lucide-react-native";
 import { useEffect } from "react";
-import { StyleSheet, TouchableOpacity, ViewStyle } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import Animated, {
+  interpolateColor,
   useAnimatedStyle,
   useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 
 const inputStyles = StyleSheet.create({
@@ -27,9 +30,6 @@ const inputStyles = StyleSheet.create({
   },
   label: {
     ...StyleUtils.flexColumn(3),
-  },
-  difficulty: {
-    ...StyleUtils.flexRow(10),
   },
 });
 
@@ -203,7 +203,7 @@ export function DifficultyInput({
   switch (type) {
     case DifficultyType.ASSISTED_BODYWEIGHT:
       return (
-        <View style={inputStyles.difficulty}>
+        <>
           <AssistBodyWeightInput
             id={`${id}-weight`}
             weight={
@@ -220,11 +220,11 @@ export function DifficultyInput({
               onUpdate({ ...difficulty, reps });
             }}
           />
-        </View>
+        </>
       );
     case DifficultyType.WEIGHT:
       return (
-        <View style={inputStyles.difficulty}>
+        <>
           <WeightInput
             id={`${id}-weight`}
             weight={(difficulty as WeightDifficulty).weight}
@@ -237,11 +237,11 @@ export function DifficultyInput({
               onUpdate({ ...difficulty, reps });
             }}
           />
-        </View>
+        </>
       );
     case DifficultyType.WEIGHTED_BODYWEIGHT:
       return (
-        <View style={inputStyles.difficulty}>
+        <>
           <WeightInput
             id={`${id}-weight`}
             weight={(difficulty as WeightDifficulty).weight}
@@ -254,11 +254,11 @@ export function DifficultyInput({
               onUpdate({ ...difficulty, reps });
             }}
           />
-        </View>
+        </>
       );
     case DifficultyType.BODYWEIGHT:
       return (
-        <View style={inputStyles.difficulty}>
+        <>
           <RepsInput
             id={`${id}-reps`}
             reps={(difficulty as BodyWeightDifficulty).reps}
@@ -266,11 +266,11 @@ export function DifficultyInput({
               onUpdate({ ...difficulty, reps });
             }}
           />
-        </View>
+        </>
       );
     default:
       return (
-        <View style={inputStyles.difficulty}>
+        <>
           <TimeInput
             id={`${id}-duration`}
             duration={(difficulty as TimeDifficulty).duration}
@@ -278,40 +278,54 @@ export function DifficultyInput({
               onUpdate({ ...difficulty, duration })
             }
           />
-        </View>
+        </>
       );
   }
 }
 
-const setStatusInputStyles = {
+const setStatusInputStyles = StyleSheet.create({
   container: {
+    alignSelf: "center",
+  },
+  check: {
     ...StyleUtils.flexRowCenterAll(),
     borderRadius: 5,
-    height: 40,
-    width: 40,
+    height: EDITOR_SET_HEIGHT - 20,
+    width: EDITOR_SET_HEIGHT - 20,
+    alignSelf: "flex-end",
   },
-};
+});
 
-type SetStatusInput = {
-  set: Set;
-  isOn: boolean;
+type SetStatusInputProps = {
+  isActive: boolean;
   onToggle: () => void;
 };
 
-// todo: let's have another state for while we are resting and display rest duration
-export function SetStatusInput({ set, isOn, onToggle }: SetStatusInput) {
-  const isOnColor = useThemeColoring("lightText");
+export function SetStatusInput({ isActive, onToggle }: SetStatusInputProps) {
+  const setColor = useSharedValue(isActive ? 1 : 0);
+  const notStartedColor = useThemeColoring("calendarDayBackground");
+  const finishedColor = useThemeColoring("primaryAction");
 
-  let backgroundStyle: ViewStyle = isOn
-    ? { backgroundColor: isOnColor }
-    : { borderWidth: 1 };
+  useEffect(() => {
+    setColor.value = withTiming(isActive ? 1 : 0);
+  }, [isActive]);
+
+  const animatedStyle = useAnimatedStyle(
+    () => ({
+      backgroundColor: interpolateColor(
+        setColor.value,
+        [0, 1],
+        [notStartedColor, finishedColor]
+      ),
+    }),
+    []
+  );
 
   return (
-    <TouchableOpacity onPress={() => onToggle()}>
-      <View
-        background
-        style={[setStatusInputStyles.container, backgroundStyle]}
-      />
+    <TouchableOpacity onPress={onToggle} style={setStatusInputStyles.container}>
+      <Animated.View style={[setStatusInputStyles.check, animatedStyle]}>
+        <Check color={useThemeColoring("primaryText")} strokeWidth={3} />
+      </Animated.View>
     </TouchableOpacity>
   );
 }
