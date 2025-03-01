@@ -320,11 +320,6 @@ type WorkoutEditor = {
   actions: WorkoutEditorActions;
 };
 
-type WorkoutSounds = {
-  shortBeep: Audio.Sound;
-  longBeep: Audio.Sound;
-};
-
 type WorkoutSoundPlayer = {
   playRestCompleting: () => Promise<void>;
 };
@@ -335,7 +330,6 @@ type WorkoutContext = {
   activity?: WorkoutActivity;
   actions: WorkoutActions;
   editor: WorkoutEditor;
-  soundPlayer: WorkoutSoundPlayer;
 };
 
 const context = createContext<WorkoutContext>({
@@ -354,9 +348,6 @@ const context = createContext<WorkoutContext>({
       stopCurrentWorkout: () => {},
     },
   },
-  soundPlayer: {
-    playRestCompleting: async () => {},
-  },
 });
 
 type Props = {
@@ -365,7 +356,6 @@ type Props = {
 
 export function WorkoutProvider({ children }: Props) {
   const [workout, setWorkout] = useState<Workout>();
-  const [sounds, setSounds] = useState<WorkoutSounds>();
   const { invoke } = useDebounce({ delay: 200 });
 
   const updateWorkout = (workoutUpdate: Partial<Workout>) => {
@@ -434,15 +424,6 @@ export function WorkoutProvider({ children }: Props) {
     setWorkout(workout);
   };
 
-  useEffect(() => {
-    Promise.all([
-      Audio.Sound.createAsync(require("@/assets/audio/short-beep.mp3")),
-      Audio.Sound.createAsync(require("@/assets/audio/long-beep.mp3")),
-    ]).then(([{ sound: shortBeep }, { sound: longBeep }]) => {
-      setSounds({ shortBeep, longBeep });
-    });
-  }, []);
-
   return (
     <context.Provider
       value={{
@@ -463,18 +444,6 @@ export function WorkoutProvider({ children }: Props) {
         editor: {
           workout: workout,
           actions: { updateWorkout, stopCurrentWorkout: discardWorkout },
-        },
-        soundPlayer: {
-          // todo: move to sound api
-          playRestCompleting: async () => {
-            await sounds?.shortBeep.replayAsync();
-            await timeout(1500);
-            await sounds?.shortBeep.replayAsync();
-            await timeout(1500);
-            await sounds?.shortBeep.replayAsync();
-            await timeout(1500);
-            await sounds?.longBeep.replayAsync();
-          },
         },
       }}
     >

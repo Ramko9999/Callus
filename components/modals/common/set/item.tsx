@@ -1,3 +1,4 @@
+import { useSound } from "@/components/sounds";
 import {
   SetStatusInput,
   DifficultyInput,
@@ -52,6 +53,7 @@ export function CompletedWorkoutSet({
   onTrash,
   onUpdate,
 }: SetProps) {
+  const { play } = useSound();
   const completedWorkoutSet = set as Set;
 
   const setAnimationSize = useSharedValue(1);
@@ -107,11 +109,13 @@ export function CompletedWorkoutSet({
                 status: SetStatus.FINISHED,
                 restEndedAt: Date.now(),
               });
+              play("positive_ring");
               onFinishAnimation();
             } else {
               onUpdate(completedWorkoutSet.id, {
                 status: SetStatus.FINISHED,
               });
+              play("positive_ring");
               onFinishAnimation();
             }
           }}
@@ -167,6 +171,7 @@ export function LiveWorkoutSet({
   onTrash,
   onUpdate,
 }: SetProps) {
+  const { play } = useSound();
   // todo: add the flow for live workout when toggling
   const liveWorkoutSet = set as Set;
 
@@ -224,11 +229,13 @@ export function LiveWorkoutSet({
                 restEndedAt: Date.now(),
               });
               onFinishAnimation();
+              play("positive_ring");
             } else {
               onUpdate(liveWorkoutSet.id, {
                 status: SetStatus.FINISHED,
               });
               onFinishAnimation();
+              play("positive_ring");
             }
           }}
         />

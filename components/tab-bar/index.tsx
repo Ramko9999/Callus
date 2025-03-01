@@ -29,7 +29,7 @@ import {
 import { getDurationDisplay, getTimePeriodDisplay } from "@/util/date";
 import { Tabs } from "./tabs";
 import { useNavigation } from "@react-navigation/native";
-import { useWorkoutOrchestrator } from "../hooks/use-workout-orchestrator";
+import { useRestOrchestrator } from "../hooks/use-rest-orchestrator";
 
 const previewStyles = StyleSheet.create({
   container: {
@@ -76,7 +76,7 @@ function LiveWorkoutPreview({ workout, onClick }: LiveWorkoutPreviewProps) {
   const activity = getCurrentWorkoutActivity(workout);
   const restProgress = useSharedValue(0);
 
-  useWorkoutOrchestrator();
+  useRestOrchestrator();
 
   useEffect(() => {
     if (activity) {

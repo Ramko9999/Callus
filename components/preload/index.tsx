@@ -1,18 +1,14 @@
 import { getConnection, migrateTables } from "@/api/store/index";
 import { WorkoutApi } from "@/api/workout";
 import { useWorkout } from "@/context/WorkoutContext";
-import {
-  useState,
-  useEffect,
-  useCallback,
-  createContext,
-} from "react";
+import { useState, useEffect, useCallback, createContext } from "react";
 import { StyleSheet } from "react-native";
 import { View, Text } from "@/components/Themed";
 import { Store } from "@/api/store";
 import { StyleUtils } from "@/util/styles";
 import React from "react";
-
+import { loadSoundAssets, useSound } from "../sounds";
+import { Audio } from "expo-av";
 
 // todo: preloader likely isn't even necessary anymore tbh, we can load all these things in the splash screen
 type PreloaderContext = {
@@ -53,6 +49,7 @@ export function Preloader({ children }: Props) {
     hasLoaded: false,
   });
   const { actions } = useWorkout();
+  const { initialize } = useSound();
 
   const hydrateInProgressWorkout = useCallback(async () => {
     const workout = await WorkoutApi.getInProgressWorkout();
@@ -61,9 +58,16 @@ export function Preloader({ children }: Props) {
     }
   }, []);
 
+  const setupAudio = async () => {
+    const registry = await loadSoundAssets();
+    await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+    initialize(registry);
+  };
+
   const preload = async () => {
     await preloadDB();
     await hydrateInProgressWorkout();
+    await setupAudio();
     setState({ hasLoaded: true });
   };
 
