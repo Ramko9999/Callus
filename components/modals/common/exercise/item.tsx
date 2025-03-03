@@ -11,7 +11,7 @@ import {
   getLiveExerciseDescription,
 } from "@/util/workout/display";
 import { SwipeableDelete } from "@/components/util/swipeable-delete";
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { TouchableOpacity, StyleSheet, Pressable } from "react-native";
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -71,6 +71,11 @@ const exerciseStyles = StyleSheet.create({
     marginLeft: "auto",
     paddingRight: "3%",
   },
+  pressed: {
+    borderWidth: 1,
+    borderRadius: 10,
+    width: "100%",
+  },
 });
 
 export const CompletedWorkoutExercise = memo(
@@ -88,12 +93,16 @@ export const CompletedWorkoutExercise = memo(
           />
         )}
       >
-        <TouchableOpacity
+        <Pressable
           onPress={() => onClick(historicalWorkoutExercise.id)}
           onLongPress={onLongClick}
-          style={[
+          style={(state) => [
             exerciseStyles.container,
-            { height: getExerciseHeight(historicalWorkoutExercise) },
+            {
+              height: getExerciseHeight(historicalWorkoutExercise),
+              borderColor: useThemeColoring("calendarDayBackground"),
+            },
+            state.pressed && exerciseStyles.pressed,
           ]}
         >
           <View style={exerciseStyles.title}>
@@ -114,7 +123,7 @@ export const CompletedWorkoutExercise = memo(
               size={textTheme.large.fontSize}
             />
           </View>
-        </TouchableOpacity>
+        </Pressable>
       </Swipeable>
     );
   },

@@ -1,7 +1,7 @@
 import { DifficultyType, Set, SetPlan } from "@/interface";
 import { StyleUtils } from "@/util/styles";
 import { useRef, useState, useCallback } from "react";
-import { ScrollView, View, StyleSheet } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import Animated, {
   LinearTransition,
   LightSpeedOutLeft,

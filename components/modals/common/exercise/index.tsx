@@ -9,10 +9,10 @@ import { View, Text } from "@/components/Themed";
 import Animated, {
   useSharedValue,
   LinearTransition,
-  LightSpeedOutLeft,
 } from "react-native-reanimated";
 import * as Haptics from "expo-haptics";
 import { ExerciseProps, getExerciseHeight } from "./item";
+import React from "react";
 
 const exerciseEditorStyles = StyleSheet.create({
   content: {
@@ -85,11 +85,7 @@ export function ExerciseEditor({
           }}
           getItemHeight={(exercise) => getExerciseHeight(exercise as Exercise)}
           renderItem={(exercise) => (
-            <Animated.View
-              key={exercise.id}
-              layout={LinearTransition}
-              exiting={LightSpeedOutLeft}
-            >
+            <Animated.View key={exercise.id} layout={LinearTransition}>
               {renderExercise({
                 exercise,
                 onClick: onEdit,
