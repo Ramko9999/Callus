@@ -107,8 +107,12 @@ function Player({ navigation }: PlayerProps) {
     }
   };
 
+  const onUpdateSet = (setId: string, update: Partial<Set>) => {
+    editorActions.updateWorkout(updateSet(setId, update, workout as Workout));
+  };
+
   return (
-    <>
+    <InputsPadProvider>
       <ModalWrapper>
         <View style={contentStyles.container}>
           <PlayerTopActions
@@ -121,7 +125,7 @@ function Player({ navigation }: PlayerProps) {
             onCompleteSet={actions.completeSet}
             onSkipRest={actions.completeRest}
             onUpdateRest={actions.updateRestDuration}
-            onCompleteWorkout={attemptFinish}
+            onUpdateSet={onUpdateSet}
           />
           <View style={playerStyles.timer}>
             <Text large>
@@ -137,7 +141,7 @@ function Player({ navigation }: PlayerProps) {
         hide={() => setIsFinishing(false)}
         onDiscard={forceFinish}
       />
-    </>
+    </InputsPadProvider>
   );
 }
 

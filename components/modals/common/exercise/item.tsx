@@ -93,16 +93,14 @@ export const CompletedWorkoutExercise = memo(
           />
         )}
       >
-        <Pressable
+        <TouchableOpacity
           onPress={() => onClick(historicalWorkoutExercise.id)}
           onLongPress={onLongClick}
-          style={(state) => [
+          style={[
             exerciseStyles.container,
             {
               height: getExerciseHeight(historicalWorkoutExercise),
-              borderColor: useThemeColoring("calendarDayBackground"),
             },
-            state.pressed && exerciseStyles.pressed,
           ]}
         >
           <View style={exerciseStyles.title}>
@@ -123,7 +121,7 @@ export const CompletedWorkoutExercise = memo(
               size={textTheme.large.fontSize}
             />
           </View>
-        </Pressable>
+        </TouchableOpacity>
       </Swipeable>
     );
   },

@@ -7,7 +7,6 @@ import {
   DifficultyType,
   TimeDifficulty,
   WeightDifficulty,
-  Set,
   KeypadType,
 } from "@/interface";
 import { getDurationDisplay } from "@/util/date";
@@ -281,6 +280,27 @@ export function DifficultyInput({
         </>
       );
   }
+}
+
+const setIndexStyles = StyleSheet.create({
+  index: {
+    alignSelf: "center",
+  },
+});
+
+type SetIndexProps = {
+  index: number;
+};
+
+export function SetIndex({ index }: SetIndexProps) {
+  return (
+    <View style={inputStyles.label}>
+      <Text light>Set</Text>
+      <View style={setIndexStyles.index}>
+        <Text large>{index + 1}</Text>
+      </View>
+    </View>
+  );
 }
 
 const setStatusInputStyles = StyleSheet.create({

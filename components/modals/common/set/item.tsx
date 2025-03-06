@@ -2,8 +2,9 @@ import { useSound } from "@/components/sounds";
 import {
   SetStatusInput,
   DifficultyInput,
+  SetIndex,
 } from "@/components/popup/workout/common/inputs";
-import { View, Text } from "@/components/Themed";
+import { View } from "@/components/Themed";
 import { SwipeableDelete } from "@/components/util/swipeable-delete";
 import {
   Difficulty,
@@ -40,9 +41,6 @@ const setStyles = StyleSheet.create({
   meta: {
     ...StyleUtils.flexRow(30),
     alignItems: "baseline",
-  },
-  index: {
-    ...StyleUtils.flexColumn(3),
   },
 });
 
@@ -82,10 +80,7 @@ export function CompletedWorkoutSet({
     >
       <Animated.View style={[setStyles.container, animatedStyle]}>
         <View style={setStyles.meta}>
-          <View style={setStyles.index}>
-            <Text light>Set</Text>
-            <Text large>{index + 1}</Text>
-          </View>
+          <SetIndex index={index} />
           <DifficultyInput
             id={completedWorkoutSet.id}
             difficulty={completedWorkoutSet.difficulty}
@@ -146,10 +141,7 @@ export function RoutineSet({
     >
       <View style={setStyles.container}>
         <View style={setStyles.meta}>
-          <View style={setStyles.index}>
-            <Text light>Set</Text>
-            <Text large>{index + 1}</Text>
-          </View>
+          <SetIndex index={index} />
           <DifficultyInput
             id={routineSet.id}
             difficulty={routineSet.difficulty}
@@ -201,10 +193,7 @@ export function LiveWorkoutSet({
     >
       <Animated.View style={[setStyles.container, animatedStyle]}>
         <View style={setStyles.meta}>
-          <View style={setStyles.index}>
-            <Text light>Set</Text>
-            <Text large>{index + 1}</Text>
-          </View>
+          <SetIndex index={index} />
           <DifficultyInput
             id={liveWorkoutSet.id}
             difficulty={liveWorkoutSet.difficulty}
