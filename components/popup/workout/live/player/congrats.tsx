@@ -1,6 +1,6 @@
 import { WorkoutApi } from "@/api/workout";
 import {
-  DurationMetaIconProps,
+  DurationMetaIcon,
   RepsMetaIcon,
   Star,
   WeightMetaIcon,
@@ -163,7 +163,7 @@ function CongratsFinishingWorkoutSummary({
       <View style={congratsFinishingWorkoutSummaryStyles.summary}>
         <WeightMetaIcon weight={totalWeightLifted} />
         <RepsMetaIcon reps={totalReps} />
-        <DurationMetaIconProps durationInMillis={totalDuration} />
+        <DurationMetaIcon durationInMillis={totalDuration} />
       </View>
     </Animated.View>
   );

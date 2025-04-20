@@ -101,12 +101,6 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-        release {
-            storeFile file('C:\\Users\\16122\\android-app-release.keystore')
-            storePassword "Poverty-behavior-common-man1!"
-            keyAlias "android-app-release"
-            keyPassword "Poverty-behavior-common-man1!"
-        }
     }
     buildTypes {
         debug {

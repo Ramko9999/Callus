@@ -11,7 +11,7 @@ import {
 } from "@/interface";
 import { WorkoutApi } from "@/api/workout";
 import {
-  DurationMetaIconProps,
+  DurationMetaIcon,
   RepsMetaIcon,
   WeightMetaIcon,
 } from "@/components/theme/icons";
@@ -90,7 +90,7 @@ function ExerciseInsightsLifetimeSummary({
         <WeightMetaIcon weight={aggregateWeight(type, completions)} />
       )}
       {hasDurationMeta && (
-        <DurationMetaIconProps
+        <DurationMetaIcon
           durationInMillis={aggregateDuration(completions) * 1000}
         />
       )}

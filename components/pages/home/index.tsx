@@ -1,183 +1,184 @@
-import { Text, useThemeColoring, View } from "@/components/Themed";
-import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
-import React, { useCallback, useEffect, useState } from "react";
-import { truncTime, getLongDateDisplay } from "@/util/date";
+import { Text, View } from "@/components/Themed";
+import { ScrollView, StyleSheet } from "react-native";
+import React, { useEffect, useState } from "react";
+import { truncTime } from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
-import { useWorkout } from "@/context/WorkoutContext";
-import { CompletedWorkouts, NoWorkoutsLogged } from "./completed-workout";
+import { CompletedWorkouts } from "./completed-workout";
 import { HeaderPage } from "@/components/util/header-page";
-import { CalendarHeaderAction, Calendar } from "./calendar";
-import { useWorkedOutDays } from "./hooks/use-worked-out-days";
 import { StyleUtils } from "@/util/styles";
-import { useUserDetails } from "@/components/user-details";
-import { Dumbbell } from "@/components/theme/custom-svg";
-import * as Haptics from "expo-haptics";
-import { WorkoutActions } from "@/api/model/workout";
-import { useToast } from "react-native-toast-notifications";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
+import { Calendar, CalendarItem } from "./calendar";
+import {
+  DurationMetaIcon,
+  RepsMetaIcon,
+  WeightMetaIcon,
+} from "@/components/theme/icons";
+import { getWorkoutSummary } from "@/context/WorkoutContext";
+import { getNumberSuffix } from "@/util/misc";
+import { Loading } from "@/components/util/loading";
 
-const loadingWorkoutsStyles = StyleSheet.create({
+const completedWorkoutsSummaryStyles = StyleSheet.create({
   container: {
-    ...StyleUtils.flexRowCenterAll(),
-    height: "100%",
+    paddingHorizontal: "4%",
+    paddingVertical: "3%",
   },
-});
-
-// todo: figure out a placeholder for when we don't have any workouts done for a day
-function LoadingWorkouts() {
-  return (
-    <View style={loadingWorkoutsStyles.container}>
-      <Text>Loading workouts...</Text>
-    </View>
-  );
-}
-
-const quickStartWorkoutStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexColumn(),
+  summary: {
+    ...StyleUtils.flexRow(10),
+    flexWrap: "wrap",
+    paddingTop: "1%",
+  },
+  workoutCount: {
+    ...StyleUtils.flexRow(5),
     alignItems: "center",
-    borderRadius: 5,
-    padding: "2%",
-  },
-  scrollContainer: {
-    marginTop: "3%",
-    paddingHorizontal: "3%",
-    flex: 1,
-  },
-  cta: {
-    marginTop: -10,
-  },
-  icon: {
-    marginTop: -20,
-  },
-  ctaText: {
-    fontWeight: 600,
   },
 });
 
-type QuickStartWorkoutProps = {
-  onClick: () => void;
+const homeStyles = StyleSheet.create({
+  calendar: {
+    marginTop: "3%",
+  },
+});
+
+type CompletedWorkoutsSummaryProps = {
+  workouts: Workout[];
+  calendarItem: CalendarItem;
 };
 
-function QuickStartWorkout({ onClick }: QuickStartWorkoutProps) {
+function CompletedWorkoutsSummary({
+  workouts,
+  calendarItem,
+}: CompletedWorkoutsSummaryProps) {
+  const totalStats = workouts.reduce(
+    (acc, workout) => {
+      const { totalWeightLifted, totalReps, totalDuration } =
+        getWorkoutSummary(workout);
+      return {
+        totalWeightLifted: acc.totalWeightLifted + totalWeightLifted,
+        totalReps: acc.totalReps + totalReps,
+        totalDuration: acc.totalDuration + totalDuration,
+      };
+    },
+    { totalWeightLifted: 0, totalReps: 0, totalDuration: 0 }
+  );
+
+  const date = new Date(
+    calendarItem.year,
+    calendarItem.month,
+    calendarItem.day ?? 1
+  );
+  const monthYear = date.toLocaleString("default", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const formattedDate = calendarItem.day
+    ? `${date.toLocaleString("default", { month: "long" })} ${
+        calendarItem.day
+      }${getNumberSuffix(calendarItem.day)}, ${calendarItem.year}`
+    : monthYear;
+
   return (
-    <ScrollView contentContainerStyle={quickStartWorkoutStyles.scrollContainer}>
-      <TouchableOpacity
-        style={[
-          quickStartWorkoutStyles.container,
-          { backgroundColor: useThemeColoring("primaryViewBackground") },
-        ]}
-        onPress={onClick}
-      >
-        <View style={quickStartWorkoutStyles.icon}>
-          <Dumbbell
-            color={useThemeColoring("primaryAction")}
-            size={96}
-            fill={useThemeColoring("primaryAction")}
-            viewBox="0 0 48 48"
-            strokeWidth={1}
-          />
-        </View>
-        <View style={quickStartWorkoutStyles.cta}>
-          <Text
-            style={[
-              { color: useThemeColoring("primaryAction") },
-              quickStartWorkoutStyles.ctaText,
-            ]}
-          >
-            Start an empty workout
-          </Text>
-        </View>
-      </TouchableOpacity>
-    </ScrollView>
+    <View style={completedWorkoutsSummaryStyles.container}>
+      <Text emphasized style={{fontSize: 18}}>{formattedDate}</Text>
+      <View style={completedWorkoutsSummaryStyles.summary}>
+        {!calendarItem.day && (
+          <View style={completedWorkoutsSummaryStyles.workoutCount}>
+            <Text light neutral>
+              {workouts.length} {workouts.length === 1 ? "workout" : "workouts"}
+            </Text>
+          </View>
+        )}
+        <WeightMetaIcon weight={totalStats.totalWeightLifted} />
+        <RepsMetaIcon reps={totalStats.totalReps} />
+        <DurationMetaIcon
+          durationInMillis={totalStats.totalDuration}
+          shouldDisplayDecimalHours={true}
+        />
+      </View>
+    </View>
   );
 }
 
 export default function Home() {
   const navigation = useNavigation();
-  const { refetch, hasWorkedOut } = useWorkedOutDays(truncTime(Date.now()));
-  const [workoutDate, setWorkoutDate] = useState<number>(truncTime(Date.now()));
-  const [loading, setLoading] = useState<boolean>(true);
-  const [completedWorkouts, setCompletedWorkouts] = useState<Workout[]>([]);
-  const [showMonthCalendar, setShowMonthCalendar] = useState<boolean>(false);
-  const { isInWorkout, actions } = useWorkout();
-  const { userDetails } = useUserDetails();
-  const toast = useToast();
-
-  // todo: there is a bug here my boi, fix this hoe dawg
-  useFocusEffect(
-    useCallback(() => {
-      WorkoutApi.getWorkouts(truncTime(workoutDate))
-        .then(setCompletedWorkouts)
-        .finally(() => setLoading(false));
-      refetch(workoutDate, true);
-    }, [])
-  );
+  const [selectedItem, setSelectedItem] = useState<CalendarItem>(() => {
+    const now = new Date();
+    return {
+      year: now.getFullYear(),
+      month: now.getMonth(),
+      day: now.getDate(),
+    };
+  });
+  const [monthWorkouts, setMonthWorkouts] = useState<Workout[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    WorkoutApi.getWorkouts(truncTime(workoutDate))
-      .then(setCompletedWorkouts)
-      .finally(() => setLoading(false));
-    refetch(workoutDate);
-  }, [workoutDate]);
+    setIsLoading(true);
+    getWorkoutHistory(selectedItem)
+      .then(setMonthWorkouts)
+      .finally(() => setIsLoading(false));
+  }, [selectedItem.year, selectedItem.month]);
+
+  const filteredWorkouts = getFilteredWorkouts(
+    monthWorkouts,
+    selectedItem.year,
+    selectedItem.month,
+    selectedItem.day
+  );
 
   return (
-    <>
-      <HeaderPage
-        title={getLongDateDisplay(workoutDate)}
-        rightAction={
-          <CalendarHeaderAction
-            toggle={() => setShowMonthCalendar((show) => !show)}
-            showingMonthCalendar={showMonthCalendar}
-          />
-        }
-      >
-        <Calendar
-          currentDate={workoutDate}
-          onSelectDate={setWorkoutDate}
-          showMonthCalendar={showMonthCalendar}
-          isActive={hasWorkedOut}
+    <HeaderPage title="History">
+      <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+        <View style={homeStyles.calendar}>
+          <Calendar onDateChange={setSelectedItem} />
+        </View>
+        <CompletedWorkoutsSummary
+          workouts={filteredWorkouts}
+          calendarItem={selectedItem}
         />
-        {loading ? (
-          <LoadingWorkouts />
+        {isLoading ? (
+          <Loading />
         ) : (
-          <>
-            {completedWorkouts.length === 0 ? (
-              truncTime(workoutDate) === truncTime(Date.now()) ? (
-                <QuickStartWorkout
-                  onClick={() => {
-                    if (isInWorkout) {
-                      toast.show(
-                        "Please finish your current workout before trying to start another workout",
-                        { type: "danger" }
-                      );
-                    } else {
-                      const workout = WorkoutActions.createFromQuickStart(
-                        userDetails?.bodyweight as number
-                      );
-                      actions.startWorkout(workout);
-                      Haptics.notificationAsync(
-                        Haptics.NotificationFeedbackType.Success
-                      );
-                    }
-                  }}
-                />
-              ) : (
-                <NoWorkoutsLogged />
-              )
-            ) : (
-              <CompletedWorkouts
-                workouts={completedWorkouts}
-                onSelect={(workout: Workout) => {
-                  // @ts-ignore
-                  navigation.navigate("completedWorkout", { id: workout.id });
-                }}
-              />
-            )}
-          </>
+          <CompletedWorkouts
+            workouts={filteredWorkouts}
+            onSelect={(workout: Workout) => {
+              // @ts-ignore
+              navigation.navigate("completedWorkout", { id: workout.id });
+            }}
+          />
         )}
-      </HeaderPage>
-    </>
+      </ScrollView>
+    </HeaderPage>
+  );
+}
+
+function getFilteredWorkouts(
+  workouts: Workout[],
+  year: number,
+  month: number,
+  day: number | null
+): Workout[] {
+  if (day === null) {
+    return workouts.sort((a, b) => b.startedAt - a.startedAt);
+  }
+
+  const dayStart = new Date(year, month, day);
+  const dayEnd = new Date(year, month, day + 1);
+  return workouts
+    .filter(
+      (workout) =>
+        workout.startedAt >= truncTime(dayStart.getTime()) &&
+        workout.startedAt < truncTime(dayEnd.getTime())
+    )
+    .sort((a, b) => b.startedAt - a.startedAt);
+}
+
+async function getWorkoutHistory(item: CalendarItem): Promise<Workout[]> {
+  const startDate = new Date(item.year, item.month, 1);
+  const endDate = new Date(item.year, item.month + 1, 0);
+  return WorkoutApi.getWorkoutsFromRange(
+    truncTime(startDate.getTime()),
+    truncTime(endDate.getTime())
   );
 }

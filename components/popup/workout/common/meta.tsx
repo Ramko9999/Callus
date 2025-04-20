@@ -1,5 +1,5 @@
 import {
-  DurationMetaIconProps,
+  DurationMetaIcon,
   RepsMetaIcon,
   WeightMetaIcon,
 } from "@/components/theme/icons";
@@ -65,7 +65,7 @@ export function MetaEditor({ workout, onUpdateMeta, onDateClick }: MetaEditor) {
       <View style={metaEditorStyles.summary}>
         <WeightMetaIcon weight={totalWeightLifted} />
         <RepsMetaIcon reps={totalReps} />
-        <DurationMetaIconProps durationInMillis={totalDuration} />
+        <DurationMetaIcon durationInMillis={totalDuration} />
       </View>
     </View>
   );

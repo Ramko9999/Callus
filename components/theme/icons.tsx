@@ -184,13 +184,15 @@ export function RepsMetaIcon({ reps }: RepsMetaIconProps) {
   );
 }
 
-type DurationMetaIconProps = {
+type DurationMetaIcon = {
   durationInMillis: number;
+  shouldDisplayDecimalHours?: boolean;
 };
 
-export function DurationMetaIconProps({
+export function DurationMetaIcon({
   durationInMillis,
-}: DurationMetaIconProps) {
+  shouldDisplayDecimalHours = false,
+}: DurationMetaIcon) {
   return (
     <View style={summaryIconStyles.container}>
       <Ionicons
@@ -199,7 +201,9 @@ export function DurationMetaIconProps({
         size={textTheme.neutral.fontSize}
       />
       <Text neutral light>
-        {getTimePeriodDisplay(durationInMillis)}
+        {shouldDisplayDecimalHours
+          ? `${(durationInMillis / (1000 * 60 * 60)).toFixed(1)}h`
+          : getTimePeriodDisplay(durationInMillis)}
       </Text>
     </View>
   );

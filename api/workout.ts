@@ -15,6 +15,10 @@ export class WorkoutApi {
     return await Store.instance().getWorkouts(localDate, addDays(localDate, 1));
   }
 
+  static async getWorkoutsFromRange(before: number, after: number): Promise<Workout[]> {
+    return await Store.instance().getWorkouts(before, after);
+  }
+
   static async saveWorkout(workout: Workout): Promise<void> {
     await Store.instance().saveWorkout(workout);
   }

@@ -251,7 +251,7 @@ export function generateEnclosingMonth(timestamp: number) {
     week.some(isInMonth);
     week = generateEnclosingWeek(addDays(ArrayUtils.last(week), 1))
   ) {
-    weeks.push(week.filter(isInMonth));
+    weeks.push(week);
   }
   return weeks;
 }

@@ -32,11 +32,9 @@ type HeaderProps = {
 };
 
 function Header({ title, rightAction, leftAction }: HeaderProps) {
-  const headerBgColor = useThemeColoring("primaryViewBackground");
 
   return (
-    <View style={[headerStyles.container, { backgroundColor: headerBgColor }]}>
-      <StatusBar backgroundColor={headerBgColor}></StatusBar>
+    <View style={[headerStyles.container]}>
       <View style={headerStyles.action}>{leftAction ? leftAction : null}</View>
       <Text header>{title}</Text>
       <View style={headerStyles.action}>
