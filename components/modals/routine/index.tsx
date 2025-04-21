@@ -1,11 +1,6 @@
 import { RootStackParamList } from "@/layout/types";
-import {
-  createStackNavigator,
-  StackScreenProps,
-  TransitionPresets,
-} from "@react-navigation/stack";
+import { StackScreenProps } from "@react-navigation/stack";
 import { RoutineProvider, useRoutine } from "./context";
-import { Platform } from "react-native";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { useUserDetails } from "@/components/user-details";
 import { useWorkout } from "@/context/WorkoutContext";
@@ -39,6 +34,7 @@ import { ExerciseEditor } from "../common/exercise";
 import { RoutineExercise } from "../common/exercise/item";
 import { SetEditor } from "../common/set";
 import { RoutineSet } from "../common/set/item";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 type RoutineStackParamList = {
   exercises: undefined;
@@ -47,7 +43,7 @@ type RoutineStackParamList = {
   exerciseInsight: { name: string };
 };
 
-const Stack = createStackNavigator<RoutineStackParamList>();
+const Stack = createNativeStackNavigator<RoutineStackParamList>();
 
 type ExerciseEditorProps = CompositeScreenProps<
   StackScreenProps<RoutineStackParamList, "exercises">,
@@ -258,9 +254,6 @@ export function RoutineModal({ route }: RoutineModalProps) {
         initialRouteName="exercises"
         screenOptions={{
           headerShown: false,
-          ...(Platform.OS === "android"
-            ? TransitionPresets.SlideFromRightIOS
-            : {}),
         }}
       >
         <Stack.Screen name="exercises" component={ExercisesEditor} />

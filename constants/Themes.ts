@@ -74,6 +74,9 @@ export const textTheme = {
   small: {
     fontSize: 12,
   },
+  sneutral: {
+    fontSize: 14,
+  },
   neutral: {
     fontSize: 16,
   },

@@ -7,9 +7,11 @@ import * as DocumentPicker from "expo-document-picker";
 import { WorkoutApi } from "@/api/workout";
 import { Routine, Workout } from "@/interface";
 import { useToast } from "react-native-toast-notifications";
-import { useTabBar } from "@/components/tab-bar/context";
-import { useEffect } from "react";
-import { FullBottomSheet } from "@/components/util/popup/sheet/full";
+import { RootStackParamList } from "@/layout/types";
+import { StackScreenProps } from "@react-navigation/stack";
+import { contentStyles, topActionsStyles } from "../common/styles";
+import { Close } from "@/components/theme/actions";
+import { ModalWrapper } from "../common";
 
 type ImportExport = {
   workouts: Workout[];
@@ -87,7 +89,6 @@ async function importAppData({ onDone, onError }: ImportOptions) {
   }
 }
 
-// enhancement: show modal to show progress of import
 function ImportSetting() {
   const toast = useToast();
   const successColor = useThemeColoring("primaryAction");
@@ -119,7 +120,6 @@ const settingsStyle = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
     flex: 1,
-    paddingTop: "6%",
   },
   head: {
     ...StyleUtils.flexColumn(),
@@ -142,25 +142,27 @@ function Settings() {
   );
 }
 
-type SettingsSheetProps = {
-  show: boolean;
-  hide: () => void;
+type SettingsTopActionsProps = {
+  onClose: () => void;
 };
 
-export function SettingsSheet({ show, hide }: SettingsSheetProps) {
-  const tabBarActions = useTabBar();
-
-  useEffect(() => {
-    if (show) {
-      tabBarActions.close();
-    } else {
-      tabBarActions.open();
-    }
-  }, [show]);
-
+function SettingsTopActions({ onClose }: SettingsTopActionsProps) {
   return (
-    <FullBottomSheet show={show} onHide={hide}>
-      <Settings />
-    </FullBottomSheet>
+    <View style={topActionsStyles.container}>
+      <Close onClick={onClose} />
+    </View>
+  );
+}
+
+type SettingsModalProps = StackScreenProps<RootStackParamList, "settings">;
+
+export function SettingsModal({ route, navigation }: SettingsModalProps) {
+  return (
+    <ModalWrapper>
+      <View style={contentStyles.container}>
+        <SettingsTopActions onClose={navigation.goBack} />
+        <Settings />
+      </View>
+    </ModalWrapper>
   );
 }

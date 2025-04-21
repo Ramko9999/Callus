@@ -244,6 +244,7 @@ const trendsPlaceholderStyles = StyleSheet.create({
   container: {
     borderRadius: 10,
     overflow: "hidden",
+    opacity: 0.5,
   },
 });
 
@@ -261,7 +262,6 @@ function TrendsPlaceholder() {
       />
       <BlurView
         style={trendsPlaceholderStyles.placeholder}
-        experimentalBlurMethod="dimezisBlurView"
       >
         <Text>{TREND_PLACEHOLDER_MESSAGE}</Text>
       </BlurView>

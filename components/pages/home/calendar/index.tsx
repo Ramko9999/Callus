@@ -65,7 +65,7 @@ function Day({ day, isCurrentMonth, isSelected, isMarked, onPress }: DayProps) {
           ]}
         />
       )}
-      <Text style={[{ color: textColor }, isSelected && { fontWeight: "600" }]}>
+      <Text sneutral style={[{ color: textColor }, isSelected && { fontWeight: "600" }]}>
         {new Date(day).getDate()}
       </Text>
       {isMarked && !isSelected && (
@@ -157,7 +157,10 @@ const calendarHeaderStyles = StyleSheet.create({
   },
   navigation: {
     ...StyleUtils.flexRow(10),
-    alignItems: "center",
+    justifyContent: "flex-end",
+  },
+  chevron: {
+    padding: "3%",
   },
 });
 
@@ -188,15 +191,23 @@ function CalendarHeader({
         })}
       </Text>
       <View style={calendarHeaderStyles.navigation}>
-        <TouchableOpacity onPress={onGoBack} disabled={!canGoBack}>
+        <TouchableOpacity
+          style={calendarHeaderStyles.chevron}
+          onPress={onGoBack}
+          disabled={!canGoBack}
+        >
           <ChevronLeft
-            size={22}
+            size={24}
             color={canGoBack ? chevronActiveColor : chevronDisabledColor}
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={onGoForward} disabled={!canGoForward}>
+        <TouchableOpacity
+          style={calendarHeaderStyles.chevron}
+          onPress={onGoForward}
+          disabled={!canGoForward}
+        >
           <ChevronRight
-            size={22}
+            size={24}
             color={canGoForward ? chevronActiveColor : chevronDisabledColor}
           />
         </TouchableOpacity>
@@ -265,7 +276,7 @@ export function Calendar({ onDateChange }: CalendarProps) {
     return {
       year: now.getFullYear(),
       month: now.getMonth(),
-      day: now.getDate(),
+      day: null,
     };
   });
   const pagerRef = useRef<PagerView>(null);
@@ -344,7 +355,7 @@ export function Calendar({ onDateChange }: CalendarProps) {
       <DaysOfWeek textColor={textColor} />
       <PagerView
         ref={pagerRef}
-        style={{ height: 0.28 * height }}
+        style={{ height: 0.25 * height }}
         initialPage={currentPage}
         onPageSelected={onPageSelected}
       >

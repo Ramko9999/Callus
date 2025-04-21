@@ -9,6 +9,7 @@ export type TabParamList = {
 
 type ModalParamsList = {
   exerciseInsight: { name: string };
+  settings: undefined;
   completedWorkout: { id: string };
   liveWorkout: {};
   routine: { id: string };

@@ -80,7 +80,9 @@ function CompletedWorkoutsSummary({
 
   return (
     <View style={completedWorkoutsSummaryStyles.container}>
-      <Text emphasized style={{fontSize: 18}}>{formattedDate}</Text>
+      <Text emphasized style={{ fontSize: 18 }}>
+        {formattedDate}
+      </Text>
       <View style={completedWorkoutsSummaryStyles.summary}>
         {!calendarItem.day && (
           <View style={completedWorkoutsSummaryStyles.workoutCount}>
@@ -107,7 +109,7 @@ export default function Home() {
     return {
       year: now.getFullYear(),
       month: now.getMonth(),
-      day: now.getDate(),
+      day: null,
     };
   });
   const [monthWorkouts, setMonthWorkouts] = useState<Workout[]>([]);

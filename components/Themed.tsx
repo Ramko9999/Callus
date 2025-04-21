@@ -38,6 +38,7 @@ type TextThemeProps = {
   emphasized?: boolean;
   light?: boolean;
   italic?: boolean;
+  sneutral?: boolean;
 };
 
 type ActionThemeProps = {
@@ -92,12 +93,15 @@ function getFontStyle({
   italic,
   header,
   tab,
+  sneutral,
 }: TextProps) {
   let style = textTheme.neutral;
   if (tab) {
     style = textTheme.tab;
   } else if (small) {
     style = textTheme.small;
+  } else if (sneutral) {
+    style = textTheme.sneutral;
   } else if (neutral) {
     style = textTheme.neutral;
   } else if (header) {

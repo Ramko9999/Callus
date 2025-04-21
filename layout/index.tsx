@@ -26,7 +26,7 @@ import { ExerciseInsightsOverviewModal } from "@/components/modals/exercise/insi
 import { CompletedWorkoutModal } from "@/components/modals/workout/completed";
 import { RoutineModal } from "@/components/modals/routine";
 import { LiveWorkoutModal } from "@/components/modals/workout/live";
-
+import { SettingsModal } from "@/components/modals/settings";
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
 
@@ -40,6 +40,7 @@ function Tabs() {
         tabBarActiveTintColor: getTabActiveTintColor(colorScheme ?? "light"),
         headerShown: false,
         lazy: false,
+        animation: "shift",
       }}
     >
       <Tab.Screen
@@ -130,6 +131,7 @@ export function Layout({ onReady }: LayoutProps) {
             name="exerciseInsight"
             component={ExerciseInsightsOverviewModal}
           />
+          <Stack.Screen name="settings" component={SettingsModal} />
           <Stack.Screen
             name="completedWorkout"
             component={CompletedWorkoutModal}

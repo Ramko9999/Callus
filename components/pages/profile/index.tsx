@@ -3,12 +3,14 @@ import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import { WorkoutStreakGrid } from "./streak-grid";
 import { LifetimeStats } from "./lifetime-stats";
-import { SettingsSheet } from "../../popup/settings";
-import React, { useState } from "react";
+import React from "react";
 import { Trends } from "./trends";
 import { HeaderPage } from "@/components/util/header-page";
 import { Settings } from "lucide-react-native";
 import { useUserDetails } from "@/components/user-details";
+import { useNavigation } from "@react-navigation/native";
+import { RootStackParamList } from "@/layout/types";
+import { StackNavigationProp } from "@react-navigation/stack";
 
 type OpenSettingsActionProps = {
   onClick: () => void;
@@ -37,7 +39,7 @@ const profileStyles = StyleSheet.create({
 // todo: figure out how to re-render the stats after settings change
 // todo: add loading skeletons and show trends will be enabled only after 2 weeks of logging the exercise
 export function Profile() {
-  const [isOpeningSettings, setIsOpeningSettings] = useState(false);
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { userDetails } = useUserDetails();
 
   return (
@@ -45,7 +47,7 @@ export function Profile() {
       <HeaderPage
         title={`Hello ${userDetails?.name as string}!`}
         rightAction={
-          <OepnSettingsAction onClick={() => setIsOpeningSettings(true)} />
+          <OepnSettingsAction onClick={() => navigation.navigate("settings")} />
         }
       >
         <ScrollView
@@ -57,10 +59,6 @@ export function Profile() {
           <Trends />
         </ScrollView>
       </HeaderPage>
-      <SettingsSheet
-        show={isOpeningSettings}
-        hide={() => setIsOpeningSettings(false)}
-      />
     </>
   );
 }

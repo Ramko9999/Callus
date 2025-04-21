@@ -51,6 +51,7 @@ import { ExerciseEditor } from "../../common/exercise";
 import { CompletedWorkoutExercise } from "../../common/exercise/item";
 import { SetEditor } from "../../common/set";
 import { CompletedWorkoutSet } from "../../common/set/item";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 type CompletedWorkoutStackParamList = {
   exercises: undefined;
@@ -59,7 +60,7 @@ type CompletedWorkoutStackParamList = {
   exerciseInsight: { name: string };
 };
 
-const Stack = createStackNavigator<CompletedWorkoutStackParamList>();
+const Stack = createNativeStackNavigator<CompletedWorkoutStackParamList>();
 
 type ExerciseEditorProps = CompositeScreenProps<
   StackScreenProps<CompletedWorkoutStackParamList, "exercises">,
@@ -308,9 +309,6 @@ export function CompletedWorkoutModal({ route }: CompletedWorkoutModalProps) {
         initialRouteName="exercises"
         screenOptions={{
           headerShown: false,
-          ...(Platform.OS === "android"
-            ? TransitionPresets.SlideFromRightIOS
-            : {}),
         }}
       >
         <Stack.Screen name="exercises" component={ExercisesEditor} />
