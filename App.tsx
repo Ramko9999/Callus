@@ -18,6 +18,7 @@ import { TabBarProvider } from "./components/tab-bar/context";
 import { WorkoutProvider } from "./context/WorkoutContext";
 import { Layout } from "./layout";
 import { SoundProvider } from "./components/sounds";
+import { PopupProvider } from "./components/popup";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -38,13 +39,15 @@ function RootLayoutNav() {
           <TabBarProvider>
             <ToastProvider>
               <SoundProvider>
-                <WorkoutProvider>
-                  <Preloader>
-                    <UserDetailsProvider>
-                      <Layout onReady={SplashScreen.hideAsync} />
-                    </UserDetailsProvider>
-                  </Preloader>
-                </WorkoutProvider>
+                <UserDetailsProvider>
+                  <WorkoutProvider>
+                    <PopupProvider>
+                      <Preloader>
+                        <Layout onReady={SplashScreen.hideAsync} />
+                      </Preloader>
+                    </PopupProvider>
+                  </WorkoutProvider>
+                </UserDetailsProvider>
               </SoundProvider>
             </ToastProvider>
           </TabBarProvider>

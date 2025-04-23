@@ -20,7 +20,6 @@ import { TabsNavigation } from "@/components/util/tabs-navigation";
 import { ChartInsight } from "./chart";
 import { HistoryInsight } from "./history";
 import { getDifficultyType } from "@/api/exercise";
-import { FullBottomSheet } from "@/components/util/popup/sheet/full";
 
 type InsightTab = "History" | "Chart";
 const INSIGHT_TABS = ["History", "Chart"] as InsightTab[];
@@ -172,23 +171,5 @@ export function ExerciseInsights({ exerciseName }: ExerciseInsightsProps) {
         completions={allCompletions ?? []}
       />
     </View>
-  );
-}
-
-type ExerciseInsightsSheetProps = {
-  show: boolean;
-  hide: () => void;
-  exerciseName: string;
-};
-
-export function ExerciseInsightsSheet({
-  show,
-  hide,
-  exerciseName,
-}: ExerciseInsightsSheetProps) {
-  return (
-    <FullBottomSheet show={show} onHide={hide}>
-      <ExerciseInsights exerciseName={exerciseName} />
-    </FullBottomSheet>
   );
 }

@@ -10,6 +10,7 @@ import { useThemeColoring, Text, View } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
 import { generateEnclosingMonth, DAYS_OF_WEEK, truncTime } from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
+import { useFocusEffect } from "@react-navigation/native";
 
 // Day Component
 const dayStyles = StyleSheet.create({
@@ -65,7 +66,10 @@ function Day({ day, isCurrentMonth, isSelected, isMarked, onPress }: DayProps) {
           ]}
         />
       )}
-      <Text sneutral style={[{ color: textColor }, isSelected && { fontWeight: "600" }]}>
+      <Text
+        sneutral
+        style={[{ color: textColor }, isSelected && { fontWeight: "600" }]}
+      >
         {new Date(day).getDate()}
       </Text>
       {isMarked && !isSelected && (
@@ -114,6 +118,15 @@ function Month({ year, month, selectedDate, onDayClick }: MonthProps) {
 
     WorkoutApi.getWorkedOutDays(monthEnd, monthStart).then(setWorkedOutDays);
   }, [year, month]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const monthStart = new Date(year, month, 1).getTime();
+      const monthEnd = new Date(year, month + 1, 0).getTime();
+
+      WorkoutApi.getWorkedOutDays(monthEnd, monthStart).then(setWorkedOutDays);
+    }, [year, month])
+  );
 
   return (
     <View style={monthStyles.container}>

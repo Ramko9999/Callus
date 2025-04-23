@@ -10,6 +10,11 @@ import {
 } from "@/components/theme/icons";
 import { getNumberSuffix } from "@/util/misc";
 import { BookmarkX } from "lucide-react-native";
+import Animated, {
+  LinearTransition,
+  LightSpeedInRight,
+  LightSpeedOutLeft,
+} from "react-native-reanimated";
 
 const completedWorkoutStyles = StyleSheet.create({
   container: {
@@ -127,14 +132,21 @@ export function CompletedWorkouts({
     return <NoWorkoutsLogged />;
   }
 
+  // todo: look at these animations again
   return (
     <View style={completedWorkoutsStyles.container}>
       {workouts.map((workout, index) => (
-        <CompletedWorkout
-          key={index}
-          workout={workout}
-          onClick={() => onSelect(workout)}
-        />
+        <Animated.View
+          key={workout.id}
+          layout={LinearTransition}
+          entering={LightSpeedInRight.duration(300 + 20 * index)}
+          exiting={LightSpeedOutLeft.duration(300 + 20 * index)}
+        >
+          <CompletedWorkout
+            workout={workout}
+            onClick={() => onSelect(workout)}
+          />
+        </Animated.View>
       ))}
     </View>
   );

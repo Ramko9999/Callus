@@ -1,13 +1,13 @@
-import { Text, View } from "@/components/Themed";
-import { ScrollView, StyleSheet } from "react-native";
-import React, { useEffect, useState } from "react";
+import { Text, useThemeColoring, View } from "@/components/Themed";
+import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
 import { truncTime } from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
 import { Workout } from "@/interface";
 import { CompletedWorkouts } from "./completed-workout";
 import { HeaderPage } from "@/components/util/header-page";
 import { StyleUtils } from "@/util/styles";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Calendar, CalendarItem } from "./calendar";
 import {
   DurationMetaIcon,
@@ -17,6 +17,36 @@ import {
 import { getWorkoutSummary } from "@/context/WorkoutContext";
 import { getNumberSuffix } from "@/util/misc";
 import { Loading } from "@/components/util/loading";
+import { usePopup } from "@/components/popup";
+import * as Haptics from "expo-haptics";
+import { Plus } from "lucide-react-native";
+
+const startWorkoutActionStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexRow(10),
+    padding: "10%",
+  },
+});
+
+type StartWorkoutActionProps = {
+  onClick: () => void;
+};
+
+function StartWorkoutAction({ onClick }: StartWorkoutActionProps) {
+  const handlePress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onClick();
+  }, [onClick]);
+
+  return (
+    <TouchableOpacity
+      style={startWorkoutActionStyles.container}
+      onPress={handlePress}
+    >
+      <Plus color={useThemeColoring("primaryAction")} />
+    </TouchableOpacity>
+  );
+}
 
 const completedWorkoutsSummaryStyles = StyleSheet.create({
   container: {
@@ -114,7 +144,15 @@ export default function Home() {
   });
   const [monthWorkouts, setMonthWorkouts] = useState<Workout[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { startWorkout } = usePopup();
 
+  useFocusEffect(
+    useCallback(() => {
+      getWorkoutHistory(selectedItem)
+        .then(setMonthWorkouts)
+        .finally(() => setIsLoading(false));
+    }, [selectedItem.year, selectedItem.month])
+  );
   useEffect(() => {
     setIsLoading(true);
     getWorkoutHistory(selectedItem)
@@ -130,28 +168,31 @@ export default function Home() {
   );
 
   return (
-    <HeaderPage title="History">
-      <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-        <View style={homeStyles.calendar}>
-          <Calendar onDateChange={setSelectedItem} />
-        </View>
-        <CompletedWorkoutsSummary
-          workouts={filteredWorkouts}
-          calendarItem={selectedItem}
-        />
-        {isLoading ? (
-          <Loading />
-        ) : (
-          <CompletedWorkouts
+      <HeaderPage
+        title="History"
+        rightAction={<StartWorkoutAction onClick={startWorkout.open} />}
+      >
+        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+          <View style={homeStyles.calendar}>
+            <Calendar onDateChange={setSelectedItem} />
+          </View>
+          <CompletedWorkoutsSummary
             workouts={filteredWorkouts}
-            onSelect={(workout: Workout) => {
-              // @ts-ignore
-              navigation.navigate("completedWorkout", { id: workout.id });
-            }}
+            calendarItem={selectedItem}
           />
-        )}
-      </ScrollView>
-    </HeaderPage>
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <CompletedWorkouts
+              workouts={filteredWorkouts}
+              onSelect={(workout: Workout) => {
+                // @ts-ignore
+                navigation.navigate("completedWorkout", { id: workout.id });
+              }}
+            />
+          )}
+        </ScrollView>
+      </HeaderPage>
   );
 }
 
