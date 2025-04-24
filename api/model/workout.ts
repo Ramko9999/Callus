@@ -1,4 +1,11 @@
-import { Exercise, ExerciseMeta, Routine, Set, SetStatus, Workout } from "@/interface";
+import {
+  Exercise,
+  ExerciseMeta,
+  Routine,
+  Set,
+  SetStatus,
+  Workout,
+} from "@/interface";
 import {
   generateExerciseId,
   getQuickstartWorkoutName,
@@ -50,7 +57,39 @@ function createWorkoutFromQuickStart(bodyweight: number) {
   };
 }
 
+function createWorkoutFromWorkout(
+  workout: Workout,
+  bodyweight: number
+): Workout {
+  const exercises: Exercise[] = workout.exercises.map((exercise) => {
+    const sets: Set[] = exercise.sets.map(({ difficulty }) => ({
+      difficulty,
+      restDuration: exercise.restDuration,
+      id: generateSetId(),
+      status: SetStatus.UNSTARTED,
+    }));
+
+    return {
+      id: generateExerciseId(),
+      name: (ID_TO_EXERCISE_META.get(exercise.metaId) as ExerciseMeta).name,
+      metaId: exercise.metaId,
+      sets,
+      restDuration: exercise.restDuration,
+    };
+  });
+
+  return {
+    bodyweight,
+    name: workout.name,
+    exercises,
+    startedAt: Date.now(),
+    id: generateWorkoutId(),
+    routineId: workout.routineId,
+  };
+}
+
 export const WorkoutActions = {
   createFromRoutine: createWorkoutFromRoutine,
   createFromQuickStart: createWorkoutFromQuickStart,
+  createFromWorkout: createWorkoutFromWorkout,
 };

@@ -8,7 +8,7 @@ import {
 import { StartWorkoutSheet } from "../pages/home/start-workout";
 import { useWorkout } from "@/context/WorkoutContext";
 import { useToast } from "react-native-toast-notifications";
-import { Routine } from "@/interface";
+import { Routine, Workout } from "@/interface";
 import { WorkoutActions } from "@/api/model/workout";
 import { useUserDetails } from "@/components/user-details";
 import BottomSheet from "@gorhom/bottom-sheet";
@@ -74,7 +74,27 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
       );
       startWorkoutSheetRef.current?.close();
     }
-  }, [actions]);
+  }, [isInWorkout, toast, actions, userDetails?.bodyweight]);
+
+  const startFromWorkout = useCallback(
+    (workout: Workout) => {
+      if (isInWorkout) {
+        toast.show(
+          "Please finish your current workout before trying to start another workout",
+          { type: "danger" }
+        );
+      } else {
+        actions.startWorkout(
+          WorkoutActions.createFromWorkout(
+            workout,
+            userDetails?.bodyweight as number
+          )
+        );
+        startWorkoutSheetRef.current?.close();
+      }
+    },
+    [isInWorkout, toast, actions, userDetails?.bodyweight]
+  );
 
   return (
     <PopupContext.Provider value={{ startWorkout }}>
@@ -85,6 +105,7 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
         onHide={startWorkout.close}
         onQuickStart={quickStart}
         onStartFromRoutine={startFromRoutine}
+        onStartFromWorkout={startFromWorkout}
       />
     </PopupContext.Provider>
   );

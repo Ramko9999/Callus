@@ -16,13 +16,13 @@ import Animated, {
   withRepeat,
   withSequence,
   withTiming,
+  withSpring,
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import {
   Badge,
   BicepsFlexed,
   ChartNoAxesColumnIncreasing,
-  FlaskConical,
   FolderKanban,
   LucideHistory,
   User,
@@ -211,26 +211,77 @@ export function DurationMetaIcon({
 
 type TabBarIconProps = {
   color: string;
+  focused: boolean;
 };
 
-export function ProfileTabIcon({ color }: TabBarIconProps) {
-  return <User size={textTheme.large.fontSize} color={color} />;
+export function AnimatedTabIcon({
+  children,
+  focused,
+}: {
+  children: React.ReactNode;
+  focused: boolean;
+}) {
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    scale.value = withSpring(focused ? 0.9 : 1, {
+      damping: 10,
+      stiffness: 100,
+      mass: 0.5,
+    });
+  }, [focused]);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  return <Animated.View style={animatedStyle}>{children}</Animated.View>;
 }
 
-export function HistoryTabIcon({ color }: TabBarIconProps) {
-  return <LucideHistory size={textTheme.large.fontSize} color={color} />;
+export function ProfileTabIcon({ color, focused }: TabBarIconProps) {
+  return (
+    <AnimatedTabIcon focused={focused}>
+      <User size={textTheme.large.fontSize} color={color} strokeWidth={1} />
+    </AnimatedTabIcon>
+  );
 }
 
-export function ExerciseTabIcon({ color }: TabBarIconProps) {
-  return <BicepsFlexed size={textTheme.large.fontSize} color={color} />;
+export function HistoryTabIcon({ color, focused }: TabBarIconProps) {
+  return (
+    <AnimatedTabIcon focused={focused}>
+      <LucideHistory
+        size={textTheme.large.fontSize}
+        color={color}
+        strokeWidth={1}
+      />
+    </AnimatedTabIcon>
+  );
 }
 
-export function RoutinesTabIcon({ color }: TabBarIconProps) {
-  return <FolderKanban size={textTheme.large.fontSize} color={color} />;
+export function ExerciseTabIcon({ color, focused }: TabBarIconProps) {
+  return (
+    <AnimatedTabIcon focused={focused}>
+      <BicepsFlexed
+        size={textTheme.large.fontSize}
+        color={color}
+        strokeWidth={1}
+      />
+    </AnimatedTabIcon>
+  );
 }
 
-export function ExampleTabIcon({ color }: TabBarIconProps) {
-  return <FlaskConical size={textTheme.large.fontSize} color={color} />;
+export function RoutinesTabIcon({ color, focused }: TabBarIconProps) {
+  return (
+    <AnimatedTabIcon focused={focused}>
+      <FolderKanban
+        size={textTheme.large.fontSize}
+        color={color}
+        strokeWidth={1}
+      />
+    </AnimatedTabIcon>
+  );
 }
 
 export function DeleteKeypadIcon() {

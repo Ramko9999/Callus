@@ -5,6 +5,8 @@ alwaysApply: false
 ---
 Please refer to the following when working with react-native
 
+Before we get into the rules, please do exactly as I tell you. Do not do other things without asking me first.
+
 1. Each component should have its own stylesheet and props type if it requires styles or/and props. The order of definitions in code should be: stylesheet, props and then the component. The name of the stylesheet should be the components name with the first letter lowercase and with "Styles" postpended. The props type should be the component name with "Props" postpended.
 
 For example, if we created a component <Week/>, its stylesheet would be `weekStyles` and its props type would be `WeekProps`. 

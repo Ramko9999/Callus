@@ -7,6 +7,7 @@ import {
   useEffect,
   forwardRef,
   ForwardedRef,
+  useMemo,
 } from "react";
 import { Zap } from "lucide-react-native";
 import { useThemeColoring } from "@/components/Themed";
@@ -20,7 +21,7 @@ import { convertHexToRGBA, tintColor } from "@/util/color";
 import { textTheme } from "@/constants/Themes";
 import * as Haptics from "expo-haptics";
 import { WorkoutApi } from "@/api/workout";
-import { Routine } from "@/interface";
+import { Routine, Workout } from "@/interface";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -46,21 +47,29 @@ const startWorkoutInitialPromptStyles = StyleSheet.create({
     padding: "4%",
     borderRadius: 12,
     alignItems: "center",
+    marginBottom: "2%",
   },
   actions: {
     ...StyleUtils.flexColumn(10),
     paddingHorizontal: "4%",
   },
+  disabledButton: {
+    opacity: 0.5,
+  },
 });
 
 type StartWorkoutInitialPromptProps = {
+  hasCompletedWorkouts: boolean;
   onQuickStart: () => void;
   onShowRoutines: () => void;
+  onShowWorkouts: () => void;
 };
 
 function StartWorkoutInitialPrompt({
+  hasCompletedWorkouts,
   onQuickStart,
   onShowRoutines,
+  onShowWorkouts,
 }: StartWorkoutInitialPromptProps) {
   const primaryColor = convertHexToRGBA(useThemeColoring("primaryAction"), 0.8);
   const showRoutinesColor = tintColor(
@@ -78,6 +87,11 @@ function StartWorkoutInitialPrompt({
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onShowRoutines();
   }, [onShowRoutines]);
+
+  const handleShowWorkouts = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onShowWorkouts();
+  }, [onShowWorkouts]);
 
   return (
     <View style={startWorkoutInitialPromptStyles.container}>
@@ -110,12 +124,61 @@ function StartWorkoutInitialPrompt({
         >
           <Text>Select existing routine</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            startWorkoutInitialPromptStyles.button,
+            { backgroundColor: showRoutinesColor },
+            !hasCompletedWorkouts &&
+              startWorkoutInitialPromptStyles.disabledButton,
+          ]}
+          disabled={!hasCompletedWorkouts}
+          onPress={hasCompletedWorkouts ? handleShowWorkouts : undefined}
+        >
+          <Text>Select from recent workouts</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 }
 
-const routineSkeletonStyles = StyleSheet.create({
+const pickableRoutineStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(3),
+    padding: "3%",
+    borderRadius: 12,
+    marginBottom: "2%",
+  },
+});
+
+type PickableRoutineProps = {
+  routine: Routine;
+  onClick: (routine: Routine) => void;
+};
+
+function PickableRoutine({ routine, onClick }: PickableRoutineProps) {
+  const routineColor = tintColor(
+    useThemeColoring("primaryViewBackground"),
+    0.1
+  );
+
+  return (
+    <TouchableOpacity
+      key={routine.id}
+      style={[
+        pickableRoutineStyles.container,
+        { backgroundColor: routineColor },
+      ]}
+      onPress={() => onClick(routine)}
+    >
+      <Text emphasized>{routine.name}</Text>
+      <Text light small>
+        {routine.plan.length} exercises
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+const pickableSkeletonStyles = StyleSheet.create({
   title: {
     width: "60%",
     height: 16,
@@ -128,7 +191,7 @@ const routineSkeletonStyles = StyleSheet.create({
   },
 });
 
-function RoutineSkeletion() {
+function PickableSkeleton() {
   const backgroundValue = useSharedValue(0);
   const backgroundColor = useThemeColoring("primaryViewBackground");
   const highlightColor = convertHexToRGBA(
@@ -170,11 +233,13 @@ function RoutineSkeletion() {
 
   return (
     <Animated.View
-      style={[pickFromRoutinesStyles.routineItem, animatedBackground]}
+      style={[pickFromRoutinesStyles.container, animatedBackground]}
     >
-      <Animated.View style={[routineSkeletonStyles.title, animatedTextStyle]} />
       <Animated.View
-        style={[routineSkeletonStyles.subtitle, animatedSubtitleStyle]}
+        style={[pickableSkeletonStyles.title, animatedTextStyle]}
+      />
+      <Animated.View
+        style={[pickableSkeletonStyles.subtitle, animatedSubtitleStyle]}
       />
     </Animated.View>
   );
@@ -192,11 +257,6 @@ const pickFromRoutinesStyles = StyleSheet.create({
     paddingLeft: "4%",
     paddingBottom: "2%",
   },
-  loadingContainer: {
-    ...StyleUtils.flexColumn(),
-    padding: "4%",
-    alignItems: "center",
-  },
   emptyContainer: {
     ...StyleUtils.flexColumn(),
     padding: "4%",
@@ -205,12 +265,6 @@ const pickFromRoutinesStyles = StyleSheet.create({
   listContainer: {
     ...StyleUtils.flexColumn(10),
     paddingHorizontal: "4%",
-  },
-  routineItem: {
-    ...StyleUtils.flexColumn(3),
-    padding: "3%",
-    borderRadius: 12,
-    marginBottom: "2%",
   },
 });
 
@@ -221,11 +275,6 @@ type PickFromRoutinesProps = {
 function PickFromRoutines({ onStartFromRoutine }: PickFromRoutinesProps) {
   const [routines, setRoutines] = useState<Routine[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const routineColor = tintColor(
-    useThemeColoring("primaryViewBackground"),
-    0.1
-  );
 
   useEffect(() => {
     WorkoutApi.getRoutines()
@@ -251,7 +300,7 @@ function PickFromRoutines({ onStartFromRoutine }: PickFromRoutinesProps) {
       {loading ? (
         <View style={pickFromRoutinesStyles.listContainer}>
           {[...Array(3)].map((_, index) => (
-            <RoutineSkeletion key={index} />
+            <PickableSkeleton key={index} />
           ))}
         </View>
       ) : routines.length === 0 ? (
@@ -261,19 +310,134 @@ function PickFromRoutines({ onStartFromRoutine }: PickFromRoutinesProps) {
       ) : (
         <View style={pickFromRoutinesStyles.listContainer}>
           {routines.map((routine) => (
-            <TouchableOpacity
+            <PickableRoutine
               key={routine.id}
-              style={[
-                pickFromRoutinesStyles.routineItem,
-                { backgroundColor: routineColor },
-              ]}
-              onPress={() => handleStartFromRoutine(routine)}
-            >
-              <Text emphasized>{routine.name}</Text>
-              <Text light small>
-                {routine.plan.length} exercises
-              </Text>
-            </TouchableOpacity>
+              routine={routine}
+              onClick={handleStartFromRoutine}
+            />
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+const pickableWorkoutStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(3),
+    padding: "3%",
+    borderRadius: 12,
+    marginBottom: "2%",
+  },
+});
+
+type PickableWorkoutProps = {
+  workout: Workout;
+  onClick: (workout: Workout) => void;
+};
+
+function PickableWorkout({ workout, onClick }: PickableWorkoutProps) {
+  const workoutColor = tintColor(
+    useThemeColoring("primaryViewBackground"),
+    0.1
+  );
+
+  const formattedDate = useMemo(() => {
+    const date = new Date(workout.startedAt);
+    return date.toLocaleDateString(undefined, {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    });
+  }, [workout.startedAt]);
+
+  return (
+    <TouchableOpacity
+      key={workout.id}
+      style={[
+        pickableWorkoutStyles.container,
+        { backgroundColor: workoutColor },
+      ]}
+      onPress={() => onClick(workout)}
+    >
+      <Text emphasized>{workout.name}</Text>
+      <Text light small>
+        {formattedDate} · {workout.exercises.length} exercises
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+const pickFromWorkoutsStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(10),
+    paddingHorizontal: "2%",
+    paddingBottom: "4%",
+    paddingTop: "2%",
+  },
+  title: {
+    ...StyleUtils.flexRow(),
+    paddingLeft: "4%",
+    paddingBottom: "2%",
+  },
+  emptyContainer: {
+    ...StyleUtils.flexColumn(),
+    padding: "4%",
+    alignItems: "center",
+  },
+  listContainer: {
+    ...StyleUtils.flexColumn(10),
+    paddingHorizontal: "4%",
+  },
+});
+
+type PickFromWorkoutsProps = {
+  onStartFromWorkout: (workout: Workout) => void;
+};
+
+function PickFromWorkouts({ onStartFromWorkout }: PickFromWorkoutsProps) {
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    WorkoutApi.getRecentlyCompletedWorkouts()
+      .then(setWorkouts)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleStartFromWorkout = useCallback(
+    (workout: Workout) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      onStartFromWorkout(workout);
+    },
+    [onStartFromWorkout]
+  );
+
+  return (
+    <View style={pickFromWorkoutsStyles.container}>
+      <View style={pickFromWorkoutsStyles.title}>
+        <Text large emphasized>
+          Recent workouts
+        </Text>
+      </View>
+      {loading ? (
+        <View style={pickFromWorkoutsStyles.listContainer}>
+          {[...Array(3)].map((_, index) => (
+            <PickableSkeleton key={index} />
+          ))}
+        </View>
+      ) : workouts.length === 0 ? (
+        <View style={pickFromWorkoutsStyles.emptyContainer}>
+          <Text>No recent workouts found</Text>
+        </View>
+      ) : (
+        <View style={pickFromWorkoutsStyles.listContainer}>
+          {workouts.map((workout) => (
+            <PickableWorkout
+              key={workout.id}
+              workout={workout}
+              onClick={handleStartFromWorkout}
+            />
           ))}
         </View>
       )}
@@ -301,16 +465,34 @@ type StartWorkoutSheetProps = {
   onHide: () => void;
   onQuickStart: () => void;
   onStartFromRoutine: (routine: Routine) => void;
+  onStartFromWorkout: (workout: Workout) => void;
 };
 
 export const StartWorkoutSheet = forwardRef(
   (
-    { show, onHide, onQuickStart, onStartFromRoutine }: StartWorkoutSheetProps,
+    {
+      show,
+      onHide,
+      onQuickStart,
+      onStartFromRoutine,
+      onStartFromWorkout,
+    }: StartWorkoutSheetProps,
     ref: ForwardedRef<BottomSheet>
   ) => {
     const sheetColor = useThemeColoring("primaryViewBackground");
     const textColor = useThemeColoring("primaryText");
     const [showRoutines, setShowRoutines] = useState(false);
+    const [showWorkouts, setShowWorkouts] = useState(false);
+    const [hasCompletedWorkouts, setHasCompletedWorkouts] = useState(false);
+
+    useEffect(() => {
+      if (show) {
+        setHasCompletedWorkouts(false);
+        WorkoutApi.getCompletedWorkoutsBefore(Date.now()).then((count) => {
+          setHasCompletedWorkouts(count > 0);
+        });
+      }
+    }, [show]);
 
     const renderBackground = useCallback(
       (props: BottomSheetBackgroundProps) => (
@@ -324,10 +506,17 @@ export const StartWorkoutSheet = forwardRef(
 
     const handleShowRoutines = useCallback(() => {
       setShowRoutines(true);
+      setShowWorkouts(false);
+    }, []);
+
+    const handleShowWorkouts = useCallback(() => {
+      setShowWorkouts(true);
+      setShowRoutines(false);
     }, []);
 
     const onHideSheet = useCallback(() => {
       setShowRoutines(false);
+      setShowWorkouts(false);
       onHide();
     }, [onHide]);
 
@@ -383,10 +572,14 @@ export const StartWorkoutSheet = forwardRef(
         >
           {showRoutines ? (
             <PickFromRoutines onStartFromRoutine={onStartFromRoutine} />
+          ) : showWorkouts ? (
+            <PickFromWorkouts onStartFromWorkout={onStartFromWorkout} />
           ) : (
             <StartWorkoutInitialPrompt
+              hasCompletedWorkouts={hasCompletedWorkouts}
               onQuickStart={onQuickStart}
               onShowRoutines={handleShowRoutines}
+              onShowWorkouts={handleShowWorkouts}
             />
           )}
         </BottomSheetView>

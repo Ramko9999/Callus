@@ -28,11 +28,11 @@ const WORKOUT_ID_PREDICATE = "workouts.id = $workout_id";
 
 const EXERCISE_FILTER_PREDICATE = "exercises.meta_id = $meta_id";
 
-const WORKOUT_SELECTION_SQL = (predicate: string) =>
+const WORKOUT_SELECTION_SQL = (predicate: string, isAsc: boolean = true, limit?: number) =>
   `
 select workouts.id as id, workouts.name as name, workouts.started_at as started_at, workouts.ended_at as ended_at, workouts.routine_id as routine_id, workouts.bodyweight as bodyweight,
 case when exercises.id is null then json_array() else json_group_array(json_object('id', exercises.id, 'meta_id', exercises.meta_id, 'order', exercises.exercise_order, 'sets', exercises.sets, 'rest_duration', exercises.rest_duration, 'note', exercises.note)) end as exercises 
-from workouts left join exercises on workouts.id = exercises.workout_id where ${predicate} group by 1 order by 3 ASC
+from workouts left join exercises on workouts.id = exercises.workout_id where ${predicate} group by 1 order by 3 ${isAsc ? "ASC" : "DESC"} ${limit !== undefined ? `limit ${limit}` : ""}
 `;
 
 export const GET_COMPLETED_WORKOUTS_BETWEEN_TIME = WORKOUT_SELECTION_SQL(
@@ -76,3 +76,10 @@ export const DELETE_ROUTINE = "DELETE FROM routines where id=$routine_id";
 
 export const GET_COMPLETED_WORKOUT_COUNT_BEFORE =
   "select count(*) as workout_count from workouts where ended_at is not null and ended_at <= $before";
+
+export const GET_RECENTLY_COMPLETED_WORKOUTS =
+  WORKOUT_SELECTION_SQL(
+    "ended_at is not null",
+    false,
+    7
+  );

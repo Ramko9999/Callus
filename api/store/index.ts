@@ -22,6 +22,7 @@ import {
   METADATA_TABLE_CREATION,
   GET_WORKOUT,
   GET_ROUTINE,
+  GET_RECENTLY_COMPLETED_WORKOUTS,
 } from "./sql";
 import {
   CompletedExercise,
@@ -339,5 +340,10 @@ export class Store {
     if (result != null) {
       return result.value as string;
     }
+  }
+
+  async getRecentlyCompletedWorkouts(): Promise<Workout[]> {
+    return (await this.db.getAllAsync(GET_RECENTLY_COMPLETED_WORKOUTS))
+      .map(toWorkout);
   }
 }

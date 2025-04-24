@@ -108,4 +108,21 @@ export class WorkoutApi {
   static async getCompletedWorkoutsBefore(before: number): Promise<number> {
     return await Store.instance().getCompletedWorkoutCountsBefore(before);
   }
+
+  static async getRecentlyCompletedWorkouts(): Promise<Workout[]> {
+    const allWorkouts = await Store.instance().getRecentlyCompletedWorkouts();
+
+    const seen = new Set<string>();
+
+    return [...allWorkouts]
+      .sort((a, b) => b.startedAt - a.startedAt)
+      .filter((workout) => {
+        const name = workout.name || "Unnamed workout";
+        if (seen.has(name)) {
+          return false;
+        }
+        seen.add(name);
+        return true;
+      });
+  }
 }

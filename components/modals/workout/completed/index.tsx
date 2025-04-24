@@ -32,7 +32,6 @@ import {
   RepeatWorkoutConfirmation,
 } from "@/components/popup/workout/common/modals";
 import { WorkoutApi } from "@/api/workout";
-import { createWorkoutFromWorkout } from "@/util/workout";
 import { useUserDetails } from "@/components/user-details";
 import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
 import { ExercisesFilter } from "@/components/popup/exercises/filters";
@@ -49,6 +48,7 @@ import { CompletedWorkoutExercise } from "../../common/exercise/item";
 import { SetEditor } from "../../common/set";
 import { CompletedWorkoutSet } from "../../common/set/item";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { WorkoutActions } from "@/api/model/workout";
 
 type CompletedWorkoutStackParamList = {
   exercises: undefined;
@@ -104,7 +104,7 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
       );
     } else {
       actions.startWorkout(
-        createWorkoutFromWorkout(workout, userDetails?.bodyweight as number)
+        WorkoutActions.createFromWorkout(workout, userDetails?.bodyweight as number)
       );
       navigation.goBack();
     }

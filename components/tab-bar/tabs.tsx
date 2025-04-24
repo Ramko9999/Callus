@@ -10,6 +10,7 @@ const tabStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(2),
     alignItems: "center",
+    flex: 1
   },
 });
 
@@ -46,7 +47,7 @@ function Tab({ title, isFocused, renderIcon, onPress }: TabProps) {
 const tabsStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexRow(),
-    paddingHorizontal: "8%",
+    paddingHorizontal: "2%",
     justifyContent: "space-between",
     paddingTop: "2%",
   },

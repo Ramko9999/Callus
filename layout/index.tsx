@@ -48,7 +48,9 @@ function Tabs() {
         component={Home}
         options={{
           title: "History",
-          tabBarIcon: ({ color }) => <HistoryTabIcon color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <HistoryTabIcon color={color} focused={focused} />
+          ),
         }}
       />
       <Tab.Screen
@@ -56,7 +58,9 @@ function Tabs() {
         component={Exercises}
         options={{
           title: "Exercises",
-          tabBarIcon: ({ color }) => <ExerciseTabIcon color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <ExerciseTabIcon color={color} focused={focused} />
+          ),
         }}
       />
 
@@ -65,7 +69,9 @@ function Tabs() {
         component={Routines}
         options={{
           title: "Routines",
-          tabBarIcon: ({ color }) => <RoutinesTabIcon color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <RoutinesTabIcon color={color} focused={focused} />
+          ),
         }}
       />
 
@@ -74,7 +80,9 @@ function Tabs() {
         component={Profile}
         options={{
           title: "Profile",
-          tabBarIcon: ({ color }) => <ProfileTabIcon color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <ProfileTabIcon color={color} focused={focused} />
+          ),
         }}
       />
     </Tab.Navigator>
