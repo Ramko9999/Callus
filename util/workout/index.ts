@@ -1,4 +1,4 @@
-import { Workout, WorkoutPlan, Set, SetStatus, Exercise } from "@/interface";
+import { Workout, Set, SetStatus, Exercise } from "@/interface";
 import { generateRandomId } from "../misc";
 
 function generateSetId() {
@@ -28,6 +28,7 @@ export function createWorkoutFromWorkout(
     return {
       id: generateExerciseId(),
       name: exercise.name,
+      metaId: exercise.metaId,
       sets,
       restDuration: exercise.restDuration,
     };

@@ -31,10 +31,12 @@ import {
   WorkoutLifetimeStats,
   Set as ISet,
   SetStatus,
+  ExerciseMeta,
 } from "@/interface";
 import { truncTime } from "@/util/date";
+import { getMeta, ID_TO_EXERCISE_META } from "../exercise";
 
-const DB_VERSION = "v5";
+const DB_VERSION = "v6-test-4/23-4";
 export const DB_NAME = `store-${DB_VERSION}.db`;
 
 const TABLE_CREATIONS = [
@@ -52,9 +54,10 @@ export async function migrateTables(db: SQLiteDatabase) {
   await db.execAsync(TABLE_CREATIONS);
 }
 
-function toExercise({ name, id, sets, rest_duration, note }: any): Exercise {
+function toExercise({ meta_id, id, sets, rest_duration, note }: any): Exercise {
   return {
-    name,
+    name: (ID_TO_EXERCISE_META.get(meta_id) as ExerciseMeta).name,
+    metaId: meta_id,
     id,
     sets: JSON.parse(sets),
     restDuration: rest_duration,
@@ -63,8 +66,8 @@ function toExercise({ name, id, sets, rest_duration, note }: any): Exercise {
 }
 
 function toCompletedExercise({
-  name,
   id,
+  meta_id,
   sets,
   rest_duration,
   note,
@@ -74,7 +77,8 @@ function toCompletedExercise({
   const parsedSets: ISet[] = JSON.parse(sets);
 
   return {
-    name,
+    name: (ID_TO_EXERCISE_META.get(meta_id) as ExerciseMeta).name,
+    metaId: meta_id,
     id,
     sets: parsedSets.filter((set) => set.status === SetStatus.FINISHED),
     restDuration: rest_duration,
@@ -93,7 +97,13 @@ function toRoutine({ id, name, plan }: any): Routine {
   return {
     id,
     name,
-    plan: JSON.parse(plan),
+    plan: JSON.parse(plan).map((exercisePlan: any) => ({
+      id: exercisePlan.id,
+      metaId: exercisePlan.metaId,
+      name: (ID_TO_EXERCISE_META.get(exercisePlan.metaId) as ExerciseMeta).name,
+      rest: exercisePlan.rest,
+      sets: exercisePlan.sets,
+    })),
   };
 }
 
@@ -165,10 +175,10 @@ export class Store {
         exercise,
         order: index,
       }))) {
-        const { id, name, sets, restDuration, note } = exercise;
+        const { id, metaId, sets, restDuration, note } = exercise;
         await txn.runAsync(UPSERT_EXERCISE, {
           $id: id,
-          $name: name,
+          $meta_id: metaId,
           $sets: JSON.stringify(sets),
           $workout_id: workoutId,
           $exercise_order: order,
@@ -217,10 +227,17 @@ export class Store {
   }
 
   async saveRoutine({ id, name, plan }: Routine) {
+    const planWithMetaIds = plan.map((exercisePlan) => ({
+      id: exercisePlan.id,
+      metaId: exercisePlan.metaId,
+      rest: exercisePlan.rest,
+      sets: exercisePlan.sets,
+    }));
+
     await this.db.runAsync(UPSERT_ROUTINE, {
       $id: id,
       $name: name,
-      $plan: JSON.stringify(plan),
+      $plan: JSON.stringify(planWithMetaIds),
     });
   }
 
@@ -236,6 +253,7 @@ export class Store {
   async saveWorkouts(workouts: Workout[]) {
     const start = Date.now();
     for (const workout of workouts) {
+      console.log("saving workout", workout.name, new Date(workout.startedAt).toLocaleString());
       await this.saveWorkout(workout);
     }
     const elapsed = Date.now() - start;
@@ -289,12 +307,13 @@ export class Store {
     after: number,
     exerciseName: string
   ): Promise<CompletedExercise[]> {
+    const metaId = getMeta(exerciseName).metaId;
     const completions: any[] = await this.db.getAllAsync(
       GET_COMPLETED_EXERCISE,
       {
         $after: after,
         $before: Date.now(),
-        $exercise_name: exerciseName,
+        $meta_id: metaId,
       }
     );
     return toCompletedExercises(completions);

@@ -1,10 +1,10 @@
 import { RootStackParamList } from "@/layout/types";
 import { CompositeScreenProps } from "@react-navigation/native";
 import {
-  createStackNavigator,
   StackScreenProps,
   TransitionPresets,
 } from "@react-navigation/stack";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Platform, StyleSheet } from "react-native";
 import { ModalWrapper } from "../../common";
 import { contentStyles } from "../../common/styles";
@@ -70,7 +70,7 @@ type LiveWorkoutStackParamList = {
   exerciseInsight: { name: string };
 };
 
-const Stack = createStackNavigator<LiveWorkoutStackParamList>();
+const Stack = createNativeStackNavigator<LiveWorkoutStackParamList>();
 
 const playerStyles = StyleSheet.create({
   timer: {

@@ -163,7 +163,7 @@ export function Onboarding() {
       <StatusBar backgroundColor={useThemeColoring("appBackground")} />
       <OnboardingIntro
         onStart={() => {
-          navigation.navigate("sign-up" as never);
+          navigation.navigate("signUp" as never);
         }}
       />
     </View>

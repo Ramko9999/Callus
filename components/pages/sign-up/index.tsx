@@ -95,6 +95,19 @@ export function SignUp() {
   const navigation = useNavigation();
   const hasEnteredAllDetails = name != undefined && bodyweight != undefined;
 
+  const finalizeOnboarding = async () => {
+    if (name === undefined || bodyweight === undefined) return;
+
+    Keyboard.dismiss();
+    await UserApi.upsertUserDetails({
+      name: name,
+      bodyweight: bodyweight,
+    });
+
+    setUserDetails({ name, bodyweight });
+    navigation.navigate("tabs" as never);
+  };
+
   return (
     <HeaderPage title="Register">
       <Pressable style={signUpStyles.container} onPress={Keyboard.dismiss}>
@@ -124,19 +137,7 @@ export function SignUp() {
         />
 
         {hasEnteredAllDetails ? (
-          <SignificantAction
-            text="Register"
-            onClick={() => {
-              Keyboard.dismiss();
-              UserApi.upsertUserDetails({
-                name: name as string,
-                bodyweight: bodyweight as number,
-              }).then(() => {
-                setUserDetails({ name, bodyweight });
-                navigation.navigate("tabs" as never);
-              });
-            }}
-          />
+          <SignificantAction text="Register" onClick={finalizeOnboarding} />
         ) : (
           <NeutralAction text="Register" />
         )}

@@ -6,6 +6,7 @@ export type UserDetails = {
 };
 
 const USER_DETAILS_KEY = "user_details";
+const HAS_LOADED_INITIAL_ROUTINES_KEY = "has_loaded_initial_routines";
 
 async function getUserDetails() {
   const details = await Store.instance().readMetadata(USER_DETAILS_KEY);
@@ -19,7 +20,22 @@ async function upsertUserDetails(details: UserDetails) {
   );
 }
 
+async function hasLoadedInitialRoutines() {
+  const hasLoaded = await Store.instance().readMetadata(HAS_LOADED_INITIAL_ROUTINES_KEY);
+  return hasLoaded ? (JSON.parse(hasLoaded) as boolean) : false;
+}
+
+async function markInitialRoutinesLoaded() {
+  await Store.instance().upsertMetadata(
+    HAS_LOADED_INITIAL_ROUTINES_KEY,
+    JSON.stringify(true)
+  );
+}
+
+
 export const UserApi = {
   getUserDetails,
   upsertUserDetails,
+  hasLoadedInitialRoutines,
+  markInitialRoutinesLoaded,
 };

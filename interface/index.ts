@@ -35,6 +35,7 @@ export type ExerciseMeta = {
   difficultyType: DifficultyType;
   demoUrl: string;
   muscles: string[];
+  metaId: string;
 };
 
 export type SetPlan = {
@@ -44,6 +45,7 @@ export type SetPlan = {
 
 export type ExercisePlan = {
   id: string;
+  metaId: string;
   name: string;
   rest: number;
   sets: SetPlan[];
@@ -88,6 +90,7 @@ export type Set = {
 export type Exercise = {
   id: string;
   name: string;
+  metaId: string;
   sets: Set[];
   restDuration: number;
   note?: string;

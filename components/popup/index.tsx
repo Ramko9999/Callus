@@ -69,7 +69,6 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
         { type: "danger" }
       );
     } else {
-      console.log("Starting new workout");
       actions.startWorkout(
         WorkoutActions.createFromQuickStart(userDetails?.bodyweight as number)
       );

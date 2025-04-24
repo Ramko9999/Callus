@@ -14,10 +14,9 @@ import {
   AssistedBodyWeightDifficulty,
   WeightDifficulty,
 } from "@/interface";
-import { createContext, useState, useContext, useEffect } from "react";
-import { generateRandomId, timeout } from "@/util/misc";
+import { createContext, useState, useContext } from "react";
+import { generateRandomId } from "@/util/misc";
 import { WorkoutApi } from "@/api/workout";
-import { Audio } from "expo-av";
 import { NAME_TO_EXERCISE_META } from "@/api/exercise";
 import { useDebounce } from "@/components/hooks/use-debounce";
 

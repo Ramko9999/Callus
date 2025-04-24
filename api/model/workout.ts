@@ -1,17 +1,18 @@
-import { Exercise, Routine, Set, SetStatus, Workout } from "@/interface";
+import { Exercise, ExerciseMeta, Routine, Set, SetStatus, Workout } from "@/interface";
 import {
   generateExerciseId,
   getQuickstartWorkoutName,
   generateSetId,
   generateWorkoutId,
 } from "./util";
+import { ID_TO_EXERCISE_META } from "../exercise";
 
 function createWorkoutFromRoutine(
   routine: Routine,
   bodyweight: number
 ): Workout {
   const exercises: Exercise[] = routine.plan.map(
-    ({ name, rest, sets: routineSets }) => {
+    ({ metaId, rest, sets: routineSets }) => {
       const sets: Set[] = routineSets.map((set) => ({
         ...set,
         id: generateSetId(),
@@ -20,7 +21,8 @@ function createWorkoutFromRoutine(
       }));
 
       return {
-        name,
+        metaId,
+        name: (ID_TO_EXERCISE_META.get(metaId) as ExerciseMeta).name,
         restDuration: rest,
         sets,
         id: generateExerciseId(),

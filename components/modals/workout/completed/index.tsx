@@ -2,11 +2,8 @@ import { MetaEditor, NoteEditor } from "@/components/popup/workout/common/meta";
 import { RootStackParamList } from "@/layout/types";
 import { CompositeScreenProps } from "@react-navigation/native";
 import {
-  createStackNavigator,
   StackScreenProps,
-  TransitionPresets,
 } from "@react-navigation/stack";
-import { Platform } from "react-native";
 import { useCompletedWorkout, CompletedWorkoutProvider } from "./context";
 import {
   addExercise,

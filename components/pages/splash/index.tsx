@@ -1,4 +1,6 @@
 import { UserApi } from "@/api/user";
+import { WorkoutApi } from "@/api/workout";
+import { INITIAL_ROUTINES } from "@/api/model/routine";
 import { AppIcon } from "@/components/theme/custom-svg";
 import { useThemeColoring, View } from "@/components/Themed";
 import { useUserDetails } from "@/components/user-details";
@@ -25,7 +27,19 @@ export function Splash() {
   const appBgColor = useThemeColoring("appBackground");
 
   useEffect(() => {
-    UserApi.getUserDetails().then((userDetails) => {
+    UserApi.getUserDetails().then(async (userDetails) => {
+      // Check if initial routines have been loaded
+      const hasLoadedRoutines = await UserApi.hasLoadedInitialRoutines();
+
+      if (!hasLoadedRoutines) {
+        try {
+          await WorkoutApi.importRoutines(INITIAL_ROUTINES);
+          await UserApi.markInitialRoutinesLoaded();
+        } catch (error) {
+          console.error("Error importing initial routines:", error);
+        }
+      }
+
       if (userDetails) {
         setUserDetails(userDetails);
         navigator.navigate("tabs" as never);

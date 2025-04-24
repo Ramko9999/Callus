@@ -8,6 +8,11 @@ export const EXERCISE_REPOSITORY: ExerciseMeta[] =
       DifficultyType[staticMeta.difficultyType as keyof typeof DifficultyType],
   }));
 
+
+export const ID_TO_EXERCISE_META: Map<string, ExerciseMeta> = new Map(
+  EXERCISE_REPOSITORY.map((meta) => [meta.metaId, meta])
+);
+
 export const NAME_TO_EXERCISE_META: Map<string, ExerciseMeta> = new Map(
   EXERCISE_REPOSITORY.map((meta) => [meta.name, meta])
 );

@@ -37,6 +37,7 @@ function addExercisePlan(routine: Routine, meta: ExerciseMeta) {
   const exercisePlan: ExercisePlan = {
     sets: [generateDefaultSet(meta)],
     rest: DEFAULT_REST_DURATION,
+    metaId: meta.metaId,
     name: meta.name,
     id: generateExercisePlanId(),
   };
@@ -140,3 +141,160 @@ function makeEmptyRoutine(): Routine {
 export const RoutineActions = {
   makeEmptyRoutine,
 };
+
+
+export const INITIAL_ROUTINES: Routine[] = [
+  {
+    id: generateRoutineId(),
+    name: "Pull Day",
+    plan: [
+      {
+        id: generateExercisePlanId(),
+        metaId: getMeta("Pull-Up").metaId,
+        name: "Pull-Up",
+        rest: 60,
+        sets: [
+          { id: generateSetPlanId(), difficulty: { reps: 7 } },
+          { id: generateSetPlanId(), difficulty: { reps: 7 } },
+          { id: generateSetPlanId(), difficulty: { reps: 7 } },
+          { id: generateSetPlanId(), difficulty: { reps: 7 } },
+          { id: generateSetPlanId(), difficulty: { reps: 7 } },
+        ],
+      },
+      { 
+        id: generateExercisePlanId(),
+        metaId: getMeta("Ring Pull-Up").metaId,
+        name: "Ring Pull-Up",
+        rest: 60,
+        sets: [
+          { id: generateSetPlanId(), difficulty: { reps: 8 } },
+          { id: generateSetPlanId(), difficulty: { reps: 8 } },
+          { id: generateSetPlanId(), difficulty: { reps: 8 } },
+        ],
+      },
+      {
+        id: generateExercisePlanId(),
+        metaId: getMeta("Ring Row").metaId,
+        name: "Ring Row",
+        rest: 60,
+        sets: [
+          { id: generateSetPlanId(), difficulty: { reps: 12 } },
+          { id: generateSetPlanId(), difficulty: { reps: 12 } },
+          { id: generateSetPlanId(), difficulty: { reps: 12 } },
+          { id: generateSetPlanId(), difficulty: { reps: 12 } },
+        ],
+      },
+      {
+        id: generateExercisePlanId(),
+        metaId: getMeta("Cable Row").metaId,
+        name: "Cable Row",
+        rest: 60,
+        sets: [
+          { id: generateSetPlanId(), difficulty: { weight: 35, reps: 8 } },
+          { id: generateSetPlanId(), difficulty: { weight: 35, reps: 8 } },
+          { id: generateSetPlanId(), difficulty: { weight: 35, reps: 8 } },
+          { id: generateSetPlanId(), difficulty: { weight: 35, reps: 8 } },
+        ],
+      },
+    ],
+  },
+  {
+    id: generateRoutineId(),
+    name: "Push Day",
+    plan: [
+      { 
+        id: generateExercisePlanId(),
+        metaId: getMeta("Dip").metaId,
+        name: "Dip",
+        rest: 60,
+        sets: [
+          { id: generateSetPlanId(), difficulty: { reps: 9 } },
+          { id: generateSetPlanId(), difficulty: { reps: 9 } },
+          { id: generateSetPlanId(), difficulty: { reps: 9 } },
+          { id: generateSetPlanId(), difficulty: { reps: 9 } },
+          { id: generateSetPlanId(), difficulty: { reps: 9 } },
+        ],
+      },
+      {
+        id: generateExercisePlanId(),
+        metaId: getMeta("Pike Push-Up").metaId,
+        name: "Pike Push-Up",
+        rest: 60,
+        sets: [
+          { id: generateSetPlanId(), difficulty: { reps: 8 } },
+          { id: generateSetPlanId(), difficulty: { reps: 8 } },
+          { id: generateSetPlanId(), difficulty: { reps: 8 } },
+          { id: generateSetPlanId(), difficulty: { reps: 8 } },
+        ],
+      },
+      { 
+        id: generateExercisePlanId(),
+        metaId: getMeta("Machine Shoulder Press").metaId,
+        name: "Machine Shoulder Press",
+        rest: 60,
+        sets: [
+          { id: generateSetPlanId(), difficulty: { weight: 30, reps: 6 } },
+          { id: generateSetPlanId(), difficulty: { weight: 30, reps: 6 } },
+          { id: generateSetPlanId(), difficulty: { weight: 30, reps: 6 } },
+          { id: generateSetPlanId(), difficulty: { weight: 30, reps: 6 } },
+        ],
+      },
+      {
+        id: generateExercisePlanId(),
+        metaId: getMeta("Tricep Extension").metaId,
+        name: "Tricep Extension",
+        rest: 60,
+        sets: [
+          { id: generateSetPlanId(), difficulty: { weight: 15, reps: 20 } },
+          { id: generateSetPlanId(), difficulty: { weight: 15, reps: 20 } },
+          { id: generateSetPlanId(), difficulty: { weight: 15, reps: 20 } },
+          { id: generateSetPlanId(), difficulty: { weight: 15, reps: 20 } },
+        ],
+      },
+    ],
+  },
+  {
+    id: generateRoutineId(),
+    name: "Leg Day",
+    plan: [
+      {
+        id: generateExercisePlanId(),
+        metaId: getMeta("Leg Extension").metaId,
+        name: "Leg Extension",
+        rest: 60,
+        sets: [
+          { id: generateSetPlanId(), difficulty: { weight: 50, reps: 12 } },
+          { id: generateSetPlanId(), difficulty: { weight: 50, reps: 12 } },
+          { id: generateSetPlanId(), difficulty: { weight: 50, reps: 12 } },
+          { id: generateSetPlanId(), difficulty: { weight: 50, reps: 12 } },
+        ]
+      },
+      {
+        id: generateExercisePlanId(),
+        metaId: getMeta("Squat").metaId,
+        name: "Squat",
+        rest: 60,
+        sets: [
+          { id: generateSetPlanId(), difficulty: { weight: 85, reps: 6 } },
+          { id: generateSetPlanId(), difficulty: { weight: 85, reps: 6 } },
+          { id: generateSetPlanId(), difficulty: { weight: 85, reps: 6 } },
+          { id: generateSetPlanId(), difficulty: { weight: 85, reps: 6 } },
+          { id: generateSetPlanId(), difficulty: { weight: 85, reps: 6 } },
+        ],
+      },
+      {
+        id: generateExercisePlanId(),
+        metaId: getMeta("Nordic Hamstring Curl").metaId,
+        name: "Nordic Hamstring Curl",
+        rest: 60,
+        sets: [
+          { id: generateSetPlanId(), difficulty: { reps: 8 } },
+          { id: generateSetPlanId(), difficulty: { reps: 8 } },
+          { id: generateSetPlanId(), difficulty: { reps: 8 } },
+          { id: generateSetPlanId(), difficulty: { reps: 8 } },
+        ]
+      }
+    ],
+  },
+];
+
