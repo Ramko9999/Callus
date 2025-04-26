@@ -128,4 +128,10 @@ function sumBy<T>(arr: T[], valueExtractor: (item: T) => number) {
   return arr.map(valueExtractor).reduce((total, current) => total + current);
 }
 
+
+export async function artificallyDelay<T>(promise: Promise<T>, delay: number) {
+  await timeout(delay);
+  return await promise;
+}
+
 export const ArrayUtils = { minBy, maxBy, groupBy, sortBy, sumBy, last };

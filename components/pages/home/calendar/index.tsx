@@ -116,7 +116,9 @@ function Month({ year, month, selectedDate, onDayClick }: MonthProps) {
     const monthStart = new Date(year, month, 1).getTime();
     const monthEnd = new Date(year, month + 1, 0).getTime();
 
-    WorkoutApi.getWorkedOutDays(monthEnd, monthStart).then(setWorkedOutDays);
+    WorkoutApi.getWorkedOutDays(monthEnd, monthStart).then((days) => {
+      setWorkedOutDays(new Set(days.map(({ day }) => day)));
+    });
   }, [year, month]);
 
   useFocusEffect(
@@ -124,7 +126,9 @@ function Month({ year, month, selectedDate, onDayClick }: MonthProps) {
       const monthStart = new Date(year, month, 1).getTime();
       const monthEnd = new Date(year, month + 1, 0).getTime();
 
-      WorkoutApi.getWorkedOutDays(monthEnd, monthStart).then(setWorkedOutDays);
+      WorkoutApi.getWorkedOutDays(monthEnd, monthStart).then((days) => {
+        setWorkedOutDays(new Set(days.map(({ day }) => day)));
+      });
     }, [year, month])
   );
 

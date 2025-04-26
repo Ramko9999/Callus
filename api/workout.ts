@@ -4,6 +4,7 @@ import {
   SearchExerciseSummary,
   Routine,
   CompletedExercise,
+  WorkedOutDay,
 } from "@/interface";
 import { addDays } from "@/util/date";
 import { Store } from "./store";
@@ -70,7 +71,10 @@ export class WorkoutApi {
     await Store.instance().saveRoutines(routines);
   }
 
-  static async getWorkedOutDays(before: number, after: number) {
+  static async getWorkedOutDays(
+    before: number,
+    after: number
+  ): Promise<WorkedOutDay[]> {
     return await Store.instance().getWorkedOutDays(before, after);
   }
 
@@ -80,14 +84,16 @@ export class WorkoutApi {
 
   static async getTrends(after: number): Promise<Trend[]> {
     const completedExercises = await Store.instance().getAllCompletedExercises(
-      after
+      after,
+      Date.now()
     );
     return TrendApi.getTrends(completedExercises);
   }
 
   static async getExerciseSummaries(): Promise<SearchExerciseSummary[]> {
     const completedExercises = await Store.instance().getAllCompletedExercises(
-      0
+      0,
+      Date.now()
     );
     return ArrayUtils.groupBy(completedExercises, ({ name }) => name).map(
       ({ key, items }) => ({
@@ -97,6 +103,13 @@ export class WorkoutApi {
           .reduce((total, current) => current + total),
       })
     );
+  }
+
+  static async getAllExerciseCompletions(
+    after: number,
+    before: number
+  ): Promise<CompletedExercise[]> {
+    return await Store.instance().getAllCompletedExercises(after, before);
   }
 
   static async getExerciseCompletions(

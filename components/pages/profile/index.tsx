@@ -1,22 +1,22 @@
 import { useThemeColoring } from "@/components/Themed";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import { StyleUtils } from "@/util/styles";
-import { WorkoutStreakGrid } from "./streak-grid";
-import { LifetimeStats } from "./lifetime-stats";
+import { StreakGrid } from "./streak-grid";
 import React from "react";
-import { Trends } from "./trends";
 import { HeaderPage } from "@/components/util/header-page";
 import { Settings } from "lucide-react-native";
 import { useUserDetails } from "@/components/user-details";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackParamList } from "@/layout/types";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { LifetimeSummary } from "./summary/lifetime";
+import { SummaryTrends } from "./summary/trends";
 
 type OpenSettingsActionProps = {
   onClick: () => void;
 };
 
-function OepnSettingsAction({ onClick }: OpenSettingsActionProps) {
+function OpenSettingsAction({ onClick }: OpenSettingsActionProps) {
   return (
     <TouchableOpacity onPress={onClick}>
       <Settings color={useThemeColoring("primaryAction")} />
@@ -26,7 +26,7 @@ function OepnSettingsAction({ onClick }: OpenSettingsActionProps) {
 
 const profileStyles = StyleSheet.create({
   container: {
-    ...StyleUtils.flexColumn(20),
+    ...StyleUtils.flexColumn(10),
     justifyContent: "space-between",
   },
   scroll: {
@@ -36,8 +36,6 @@ const profileStyles = StyleSheet.create({
   },
 });
 
-// todo: figure out how to re-render the stats after settings change
-// todo: add loading skeletons and show trends will be enabled only after 2 weeks of logging the exercise
 export function Profile() {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { userDetails } = useUserDetails();
@@ -47,16 +45,16 @@ export function Profile() {
       <HeaderPage
         title={`Hello ${userDetails?.name as string}!`}
         rightAction={
-          <OepnSettingsAction onClick={() => navigation.navigate("settings")} />
+          <OpenSettingsAction onClick={() => navigation.navigate("settings")} />
         }
       >
         <ScrollView
           style={profileStyles.scroll}
           contentContainerStyle={profileStyles.container}
         >
-          <WorkoutStreakGrid />
-          <LifetimeStats />
-          <Trends />
+          <LifetimeSummary />
+          <StreakGrid />
+          <SummaryTrends />
         </ScrollView>
       </HeaderPage>
     </>

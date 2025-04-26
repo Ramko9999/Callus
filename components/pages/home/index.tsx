@@ -103,9 +103,8 @@ function CompletedWorkoutsSummary({
   });
 
   const formattedDate = calendarItem.day
-    ? `${date.toLocaleString("default", { month: "long" })} ${
-        calendarItem.day
-      }${getNumberSuffix(calendarItem.day)}, ${calendarItem.year}`
+    ? `${date.toLocaleString("default", { month: "long" })} ${calendarItem.day
+    }${getNumberSuffix(calendarItem.day)}, ${calendarItem.year}`
     : monthYear;
 
   return (
@@ -168,31 +167,31 @@ export default function Home() {
   );
 
   return (
-      <HeaderPage
-        title="History"
-        rightAction={<StartWorkoutAction onClick={startWorkout.open} />}
-      >
-        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-          <View style={homeStyles.calendar}>
-            <Calendar onDateChange={setSelectedItem} />
-          </View>
-          <CompletedWorkoutsSummary
+    <HeaderPage
+      title="History"
+      rightAction={<StartWorkoutAction onClick={startWorkout.open} />}
+    >
+      <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+        <View style={homeStyles.calendar}>
+          <Calendar onDateChange={setSelectedItem} />
+        </View>
+        <CompletedWorkoutsSummary
+          workouts={filteredWorkouts}
+          calendarItem={selectedItem}
+        />
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <CompletedWorkouts
             workouts={filteredWorkouts}
-            calendarItem={selectedItem}
+            onSelect={(workout: Workout) => {
+              // @ts-ignore
+              navigation.navigate("completedWorkout", { id: workout.id });
+            }}
           />
-          {isLoading ? (
-            <Loading />
-          ) : (
-            <CompletedWorkouts
-              workouts={filteredWorkouts}
-              onSelect={(workout: Workout) => {
-                // @ts-ignore
-                navigation.navigate("completedWorkout", { id: workout.id });
-              }}
-            />
-          )}
-        </ScrollView>
-      </HeaderPage>
+        )}
+      </ScrollView>
+    </HeaderPage>
   );
 }
 
@@ -219,7 +218,7 @@ function getFilteredWorkouts(
 
 async function getWorkoutHistory(item: CalendarItem): Promise<Workout[]> {
   const startDate = new Date(item.year, item.month, 1);
-  const endDate = new Date(item.year, item.month + 1, 0);
+  const endDate = new Date(item.year, item.month + 1, 1);
   return WorkoutApi.getWorkoutsFromRange(
     truncTime(startDate.getTime()),
     truncTime(endDate.getTime())

@@ -46,7 +46,7 @@ export const GET_IN_PROGRESS_WORKOUTS =
 
 export const DELETE_WORKOUT = "DELETE FROM workouts where id = $workout_id";
 
-export const GET_WORKED_OUT_DAYS = `select started_at as timestamp from workouts where ${COMPLETED_WORKOUTS_PREDICATE}`;
+export const GET_WORKED_OUT_DAYS = `select started_at, ended_at from workouts where ${COMPLETED_WORKOUTS_PREDICATE}`;
 
 export const GET_LIFETIME_STATS =
   "select count(*) as workouts, coalesce(sum(ended_at - started_at), 0) as workout_duration from workouts where ended_at is not null";

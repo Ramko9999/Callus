@@ -111,6 +111,11 @@ export type Workout = {
   exercises: Exercise[];
 };
 
+export type WorkedOutDay = {
+  day: number;
+  totalDurationWorkedOut: number;
+};
+
 export enum WorkoutActivityType {
   EXERCISING,
   RESTING,
@@ -156,7 +161,9 @@ export type WorkoutLifetimeStats = {
   totalWorkoutDuration: number;
 };
 
-export type MetricGenerationFunc = (completion: CompletedExercise) => number | undefined;
+export type MetricGenerationFunc = (
+  completion: CompletedExercise
+) => number | undefined;
 
 export type MetricType =
   | "Average Weight"

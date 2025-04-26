@@ -33,6 +33,7 @@ import {
   Set as ISet,
   SetStatus,
   ExerciseMeta,
+  WorkedOutDay,
 } from "@/interface";
 import { truncTime } from "@/util/date";
 import { getMeta, ID_TO_EXERCISE_META } from "../exercise";
@@ -254,7 +255,6 @@ export class Store {
   async saveWorkouts(workouts: Workout[]) {
     const start = Date.now();
     for (const workout of workouts) {
-      console.log("saving workout", workout.name, new Date(workout.startedAt).toLocaleString());
       await this.saveWorkout(workout);
     }
     const elapsed = Date.now() - start;
@@ -271,15 +271,39 @@ export class Store {
     await this.db.runAsync(DELETE_WORKOUT, { $workout_id: workoutId });
   }
 
-  async getWorkedOutDays(before: number, after: number): Promise<Set<number>> {
-    const workoutStartTimes = await this.db.getAllAsync(GET_WORKED_OUT_DAYS, {
+  async getWorkedOutDays(
+    before: number,
+    after: number
+  ): Promise<WorkedOutDay[]> {
+    const workouts = await this.db.getAllAsync(GET_WORKED_OUT_DAYS, {
       $before: before,
       $after: after,
     });
-    return new Set(
-      workoutStartTimes.map(({ timestamp }: any) =>
-        truncTime(timestamp as number)
-      )
+
+    // Create a map to aggregate durations by day
+    const dayMap = new Map<number, number>();
+
+    // Process each workout and calculate duration
+    workouts.forEach(({ started_at, ended_at }: any) => {
+      if (ended_at && started_at) {
+        const day = truncTime(started_at as number);
+        const duration = (ended_at as number) - (started_at as number);
+
+        // Add duration to the appropriate day
+        if (dayMap.has(day)) {
+          dayMap.set(day, dayMap.get(day)! + duration);
+        } else {
+          dayMap.set(day, duration);
+        }
+      }
+    });
+
+    // Convert map to array of objects
+    return Array.from(dayMap.entries()).map(
+      ([day, totalDurationWorkedOut]) => ({
+        day,
+        totalDurationWorkedOut,
+      })
     );
   }
 
@@ -293,12 +317,12 @@ export class Store {
     };
   }
 
-  async getAllCompletedExercises(after: number): Promise<CompletedExercise[]> {
+  async getAllCompletedExercises(after: number, before: number): Promise<CompletedExercise[]> {
     const completedExercises: any[] = await this.db.getAllAsync(
       GET_COMPLETED_EXERCISES,
       {
         $after: after,
-        $before: Date.now(),
+        $before: before,
       }
     );
     return toCompletedExercises(completedExercises);
@@ -343,7 +367,8 @@ export class Store {
   }
 
   async getRecentlyCompletedWorkouts(): Promise<Workout[]> {
-    return (await this.db.getAllAsync(GET_RECENTLY_COMPLETED_WORKOUTS))
-      .map(toWorkout);
+    return (await this.db.getAllAsync(GET_RECENTLY_COMPLETED_WORKOUTS)).map(
+      toWorkout
+    );
   }
 }

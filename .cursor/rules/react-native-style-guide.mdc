@@ -18,3 +18,5 @@ For example, if we created a component <Week/>, its stylesheet would be `weekSty
 4. When specifying padding or margins, try to use percentiles instead of absolute values.
 
 5. When working shared values from React Native Reanimated, ensure you access the value of the shared value in the right context and blindly in JS context of the component.
+
+6. Please don't over-comment

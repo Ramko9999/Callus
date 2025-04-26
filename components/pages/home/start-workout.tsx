@@ -29,6 +29,7 @@ import Animated, {
   withTiming,
   interpolateColor,
 } from "react-native-reanimated";
+import { PopupBottomSheet } from "@/components/util/popup/sheet";
 
 const startWorkoutInitialPromptStyles = StyleSheet.create({
   container: {
@@ -179,6 +180,12 @@ function PickableRoutine({ routine, onClick }: PickableRoutineProps) {
 }
 
 const pickableSkeletonStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(3),
+    padding: "3%",
+    borderRadius: 12,
+    marginBottom: "2%",
+  },
   title: {
     width: "60%",
     height: 16,
@@ -233,7 +240,7 @@ function PickableSkeleton() {
 
   return (
     <Animated.View
-      style={[pickFromRoutinesStyles.container, animatedBackground]}
+      style={[pickableSkeletonStyles.container, animatedBackground]}
     >
       <Animated.View
         style={[pickableSkeletonStyles.title, animatedTextStyle]}
@@ -480,7 +487,6 @@ export const StartWorkoutSheet = forwardRef(
     ref: ForwardedRef<BottomSheet>
   ) => {
     const sheetColor = useThemeColoring("primaryViewBackground");
-    const textColor = useThemeColoring("primaryText");
     const [showRoutines, setShowRoutines] = useState(false);
     const [showWorkouts, setShowWorkouts] = useState(false);
     const [hasCompletedWorkouts, setHasCompletedWorkouts] = useState(false);
@@ -493,16 +499,6 @@ export const StartWorkoutSheet = forwardRef(
         });
       }
     }, [show]);
-
-    const renderBackground = useCallback(
-      (props: BottomSheetBackgroundProps) => (
-        <View
-          {...props}
-          style={[props.style, { backgroundColor: sheetColor }]}
-        />
-      ),
-      [sheetColor]
-    );
 
     const handleShowRoutines = useCallback(() => {
       setShowRoutines(true);
@@ -520,51 +516,9 @@ export const StartWorkoutSheet = forwardRef(
       onHide();
     }, [onHide]);
 
-    const renderBackdrop = useCallback(
-      (props: any) => (
-        <BottomSheetBackdrop
-          {...props}
-          disappearsOnIndex={-1}
-          appearsOnIndex={0}
-          opacity={0.5}
-        />
-      ),
-      []
-    );
-
-    const renderHandle = useCallback(
-      (props: any) => (
-        <BottomSheetHandle
-          {...props}
-          style={[
-            props.style,
-            {
-              backgroundColor: sheetColor,
-              ...startWorkoutSheetStyles.handle,
-            },
-          ]}
-          indicatorStyle={{
-            backgroundColor: textColor,
-            ...startWorkoutSheetStyles.indicator,
-          }}
-        />
-      ),
-      [sheetColor, textColor]
-    );
-
     return (
-      <BottomSheet
-        ref={ref}
-        snapPoints={[]}
-        enablePanDownToClose
-        enableOverDrag={false}
-        onClose={onHideSheet}
-        index={show ? 0 : -1}
-        backdropComponent={renderBackdrop}
-        handleComponent={renderHandle}
-        backgroundComponent={renderBackground}
-      >
-        <BottomSheetView
+      <PopupBottomSheet ref={ref} show={show} onHide={onHideSheet}>
+        <View
           style={[
             startWorkoutSheetStyles.container,
             { backgroundColor: sheetColor },
@@ -582,8 +536,8 @@ export const StartWorkoutSheet = forwardRef(
               onShowWorkouts={handleShowWorkouts}
             />
           )}
-        </BottomSheetView>
-      </BottomSheet>
+        </View>
+      </PopupBottomSheet>
     );
   }
 );

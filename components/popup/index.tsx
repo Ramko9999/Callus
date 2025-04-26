@@ -12,6 +12,7 @@ import { Routine, Workout } from "@/interface";
 import { WorkoutActions } from "@/api/model/workout";
 import { useUserDetails } from "@/components/user-details";
 import BottomSheet from "@gorhom/bottom-sheet";
+import { TrendsPeriodSelectionSheet } from "@/components/pages/profile/summary/trends-period-selection";
 
 type PopupActions = {
   open: () => void;
@@ -20,6 +21,9 @@ type PopupActions = {
 
 type PopupContext = {
   startWorkout: PopupActions;
+  trendsPeriodSelection: PopupActions & {
+    timeRange: string;
+  };
 };
 
 const PopupContext = createContext<PopupContext>({
@@ -27,19 +31,34 @@ const PopupContext = createContext<PopupContext>({
     open: () => {},
     close: () => {},
   },
+  trendsPeriodSelection: {
+    open: () => {},
+    close: () => {},
+    timeRange: "6w",
+  },
 });
 
 export function PopupProvider({ children }: { children: React.ReactNode }) {
   const { userDetails } = useUserDetails();
   const [isStartWorkoutOpen, setIsStartWorkoutOpen] = useState(false);
+  const [isTrendsPeriodSelectionOpen, setIsTrendsPeriodSelectionOpen] =
+    useState(false);
+  const [selectedTimeRange, setSelectedTimeRange] = useState("6w");
   const { isInWorkout, actions } = useWorkout();
   const startWorkoutSheetRef = useRef<BottomSheet>(null);
+  const trendsPeriodSelectionSheetRef = useRef<BottomSheet>(null);
 
   const toast = useToast();
 
   const startWorkout = {
     open: () => setIsStartWorkoutOpen(true),
     close: () => setIsStartWorkoutOpen(false),
+  };
+
+  const trendsPeriodSelection = {
+    open: () => setIsTrendsPeriodSelectionOpen(true),
+    close: () => setIsTrendsPeriodSelectionOpen(false),
+    timeRange: selectedTimeRange,
   };
 
   const startFromRoutine = useCallback(
@@ -96,8 +115,13 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
     [isInWorkout, toast, actions, userDetails?.bodyweight]
   );
 
+  const setTimeRange = useCallback((range: string) => {
+    setSelectedTimeRange(range);
+    trendsPeriodSelectionSheetRef.current?.close();
+  }, []);
+
   return (
-    <PopupContext.Provider value={{ startWorkout }}>
+    <PopupContext.Provider value={{ startWorkout, trendsPeriodSelection }}>
       {children}
       <StartWorkoutSheet
         ref={startWorkoutSheetRef}
@@ -106,6 +130,13 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
         onQuickStart={quickStart}
         onStartFromRoutine={startFromRoutine}
         onStartFromWorkout={startFromWorkout}
+      />
+      <TrendsPeriodSelectionSheet
+        ref={trendsPeriodSelectionSheetRef}
+        show={isTrendsPeriodSelectionOpen}
+        onHide={trendsPeriodSelection.close}
+        selectedTimeRange={selectedTimeRange}
+        onSelectTimeRange={setTimeRange}
       />
     </PopupContext.Provider>
   );
