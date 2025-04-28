@@ -1,5 +1,5 @@
 import { StyleSheet, TouchableOpacity } from "react-native";
-import { View, Text } from "@/components/Themed";
+import { View, Text, useThemeColoring } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
 import {
   useCallback,
@@ -10,13 +10,7 @@ import {
   useMemo,
 } from "react";
 import { Zap } from "lucide-react-native";
-import { useThemeColoring } from "@/components/Themed";
-import BottomSheet, {
-  BottomSheetView,
-  BottomSheetBackdrop,
-  BottomSheetHandle,
-  BottomSheetBackgroundProps,
-} from "@gorhom/bottom-sheet";
+import BottomSheet from "@gorhom/bottom-sheet";
 import { convertHexToRGBA, tintColor } from "@/util/color";
 import { textTheme } from "@/constants/Themes";
 import * as Haptics from "expo-haptics";
@@ -30,6 +24,8 @@ import Animated, {
   interpolateColor,
 } from "react-native-reanimated";
 import { PopupBottomSheet } from "@/components/util/popup/sheet";
+import { TextSkeleton } from "@/components/util/loading";
+import { artificallyDelay } from "@/util/misc";
 
 const startWorkoutInitialPromptStyles = StyleSheet.create({
   container: {
@@ -130,7 +126,7 @@ function StartWorkoutInitialPrompt({
             startWorkoutInitialPromptStyles.button,
             { backgroundColor: showRoutinesColor },
             !hasCompletedWorkouts &&
-              startWorkoutInitialPromptStyles.disabledButton,
+            startWorkoutInitialPromptStyles.disabledButton,
           ]}
           disabled={!hasCompletedWorkouts}
           onPress={hasCompletedWorkouts ? handleShowWorkouts : undefined}
@@ -186,13 +182,17 @@ const pickableSkeletonStyles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: "2%",
   },
+  titleContainer: {
+    width: "40%"
+  },
+  subtitleContainer: {
+    width: "60%"
+  },
   title: {
-    width: "60%",
     height: 16,
     borderRadius: 4,
   },
   subtitle: {
-    width: "30%",
     height: 12,
     borderRadius: 4,
   },
@@ -222,32 +222,24 @@ function PickableSkeleton() {
     ),
   }));
 
-  const animatedTextStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      backgroundValue.value,
-      [0, 1],
-      [highlightColor, backgroundColor]
-    ),
-  }));
 
-  const animatedSubtitleStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      backgroundValue.value,
-      [0, 1],
-      [highlightColor, backgroundColor]
-    ),
-  }));
 
   return (
     <Animated.View
       style={[pickableSkeletonStyles.container, animatedBackground]}
     >
-      <Animated.View
-        style={[pickableSkeletonStyles.title, animatedTextStyle]}
-      />
-      <Animated.View
-        style={[pickableSkeletonStyles.subtitle, animatedSubtitleStyle]}
-      />
+      <View style={pickableSkeletonStyles.titleContainer}>
+        <TextSkeleton
+          text="Workout Title"
+          style={pickableSkeletonStyles.title}
+        />
+      </View>
+      <View style={pickableSkeletonStyles.subtitleContainer}>
+        <TextSkeleton
+          text="Subtitle goes here"
+          style={pickableSkeletonStyles.subtitle}
+        />
+      </View>
     </Animated.View>
   );
 }

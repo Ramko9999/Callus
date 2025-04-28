@@ -146,7 +146,6 @@ export function StreakGroup({ group, date, groupIndex }: StreakGroupProps) {
 const workoutStreakGridStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(15),
-    marginBottom: "2%",
   },
   header: {
     ...StyleUtils.flexColumn(2),

@@ -11,6 +11,7 @@ import { RootStackParamList } from "@/layout/types";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { LifetimeSummary } from "./summary/lifetime";
 import { SummaryTrends } from "./summary/trends";
+import { PersonalRecords } from "./personal-records";
 
 type OpenSettingsActionProps = {
   onClick: () => void;
@@ -26,8 +27,9 @@ function OpenSettingsAction({ onClick }: OpenSettingsActionProps) {
 
 const profileStyles = StyleSheet.create({
   container: {
-    ...StyleUtils.flexColumn(10),
+    ...StyleUtils.flexColumn(20),
     justifyContent: "space-between",
+    paddingBottom: "30%"
   },
   scroll: {
     flex: 1,
@@ -50,11 +52,13 @@ export function Profile() {
       >
         <ScrollView
           style={profileStyles.scroll}
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={profileStyles.container}
         >
           <LifetimeSummary />
           <StreakGrid />
           <SummaryTrends />
+          <PersonalRecords />
         </ScrollView>
       </HeaderPage>
     </>

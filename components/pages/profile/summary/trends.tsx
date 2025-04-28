@@ -10,7 +10,7 @@ import {
 import { truncTime, addDays, removeDays } from "@/util/date";
 import { NAME_TO_EXERCISE_META } from "@/api/exercise";
 import { useUserDetails } from "@/components/user-details";
-import { useCallback, useMemo, useState, useEffect } from "react";
+import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { WorkoutApi } from "@/api/workout";
 import { View, Text, useThemeColoring } from "@/components/Themed";
@@ -25,7 +25,7 @@ import * as d3 from "d3";
 import Svg, { Rect, Text as SvgText, Line, G } from "react-native-svg";
 import { textTheme } from "@/constants/Themes";
 import * as Haptics from "expo-haptics";
-import { ArrayUtils, getNumberSuffix } from "@/util/misc";
+import { ArrayUtils, artificallyDelay, getNumberSuffix } from "@/util/misc";
 import { ChevronDown } from "lucide-react-native";
 import { usePopup } from "@/components/popup";
 import Animated, {
@@ -33,7 +33,16 @@ import Animated, {
   withTiming,
   useAnimatedProps,
   SharedValue,
+  withRepeat,
+  interpolateColor,
+  useAnimatedStyle,
 } from "react-native-reanimated";
+import { convertHexToRGBA } from "@/util/color";
+import { TextSkeleton } from "@/components/util/loading";
+
+const CHART_HEIGHT_MULTIPLIER = 0.17;
+const CHART_WIDTH_MULTIPLIER = 0.96;
+const PADDING = { top: 10, right: 20, bottom: 30, left: 55 };
 
 type DataPoint = {
   date: number;
@@ -89,7 +98,6 @@ function formatXAxisLabel(timestamp: number): string {
 
 function generateVolumeTrends(
   exercises: CompletedExercise[],
-  bodyweight: number,
   startDate: number,
   endDate: number
 ): DataPoint[] {
@@ -115,12 +123,12 @@ function generateVolumeTrends(
       switch (difficultyType) {
         case DifficultyType.BODYWEIGHT:
           const bwReps = (set.difficulty as BodyWeightDifficulty).reps;
-          dayVolume += bodyweight * bwReps;
+          dayVolume += exercise.bodyweight * bwReps;
           break;
 
         case DifficultyType.WEIGHTED_BODYWEIGHT:
           const wbwDiff = set.difficulty as WeightDifficulty;
-          dayVolume += (bodyweight + wbwDiff.weight) * wbwDiff.reps;
+          dayVolume += (exercise.bodyweight + wbwDiff.weight) * wbwDiff.reps;
           break;
 
         case DifficultyType.WEIGHT:
@@ -130,7 +138,7 @@ function generateVolumeTrends(
 
         case DifficultyType.ASSISTED_BODYWEIGHT:
           const abwDiff = set.difficulty as AssistedBodyWeightDifficulty;
-          dayVolume += (bodyweight - abwDiff.assistanceWeight) * abwDiff.reps;
+          dayVolume += (exercise.bodyweight - abwDiff.assistanceWeight) * abwDiff.reps;
           break;
       }
     });
@@ -211,7 +219,6 @@ function getTwoMonthPeriodStartDate(timestamp: number): number {
 type SummaryMetric = {
   name: string;
   generateData: (
-    bodyweight: number,
     startDate: number,
     endDate: number
   ) => Promise<DataPoint[]>;
@@ -221,13 +228,13 @@ type SummaryMetric = {
 
 const volumeMetric: SummaryMetric = {
   name: "Volume",
-  generateData: async (bodyweight, startDate, endDate) => {
+  generateData: async (startDate, endDate) => {
     const exercises = await WorkoutApi.getAllExerciseCompletions(
       startDate,
       endDate
     );
 
-    return generateVolumeTrends(exercises, bodyweight, startDate, endDate);
+    return generateVolumeTrends(exercises, startDate, endDate);
   },
   formatYAxisLabel: formatVolume,
   formatTitleValue: formatTotalVolume,
@@ -235,7 +242,7 @@ const volumeMetric: SummaryMetric = {
 
 const durationMetric: SummaryMetric = {
   name: "Duration",
-  generateData: async (bodyweight, startDate, endDate) => {
+  generateData: async (startDate, endDate) => {
     const workedOutDays = await WorkoutApi.getWorkedOutDays(endDate, startDate);
     return generateDurationTrends(workedOutDays, startDate, endDate);
   },
@@ -287,7 +294,7 @@ type SummaryBarChartProps = {
   data: DataPoint[];
   formatYAxisLabel: (value: number) => string;
   formatTitleValue: (value: number) => string;
-  height?: number;
+  height: number;
   metricType: string;
   timeRange: string;
 };
@@ -474,15 +481,14 @@ function SummaryBarChart({
     );
   }
 
-  const chartHeight = height || width * 0.3;
-  const chartWidth = width * 0.96;
-  const padding = { top: 10, right: 20, bottom: 30, left: 55 };
+  const chartHeight = height;
+  const chartWidth = width * CHART_WIDTH_MULTIPLIER;
   const barPadding = 0.2;
 
   const xScale = d3
     .scaleBand()
     .domain(groupedData.map((d) => d.date.toString()))
-    .range([padding.left, chartWidth - padding.right])
+    .range([PADDING.left, chartWidth - PADDING.right])
     .padding(barPadding);
 
   const maxValue = Math.max(...groupedData.map((d) => d.value));
@@ -493,7 +499,7 @@ function SummaryBarChart({
   const yScale = d3
     .scaleLinear()
     .domain([0, yMax])
-    .range([chartHeight - padding.bottom, padding.top]);
+    .range([chartHeight - PADDING.bottom, PADDING.top]);
 
   // Create exactly 5 evenly spaced ticks starting at 0
   const yTicks = [0, tickStep, tickStep * 2, tickStep * 3, tickStep * 4];
@@ -530,21 +536,22 @@ function SummaryBarChart({
         {yTicks.map((tick, i) => (
           <Line
             key={`grid-${i}`}
-            x1={padding.left}
-            x2={chartWidth - padding.right}
+            x1={PADDING.left}
+            x2={chartWidth - PADDING.right}
             y1={yScale(tick)}
             y2={yScale(tick)}
             stroke={gridColor}
+            strokeOpacity={0.5}
             strokeDasharray="3,3"
             strokeWidth={1}
           />
         ))}
 
         <Line
-          x1={padding.left}
-          x2={chartWidth - padding.right}
-          y1={chartHeight - padding.bottom}
-          y2={chartHeight - padding.bottom}
+          x1={PADDING.left}
+          x2={chartWidth - PADDING.right}
+          y1={chartHeight - PADDING.bottom}
+          y2={chartHeight - PADDING.bottom}
           stroke={gridColor}
           strokeWidth={1}
         />
@@ -555,7 +562,7 @@ function SummaryBarChart({
               x={xScale(d.date.toString())}
               y={yScale(d.value)}
               width={barWidth}
-              height={chartHeight - padding.bottom - yScale(d.value)}
+              height={chartHeight - PADDING.bottom - yScale(d.value)}
               color={barColor}
               barSelectionProgress={barSelectionProgress}
               isSelected={i === selectedBarIndex}
@@ -568,7 +575,7 @@ function SummaryBarChart({
           <SvgText
             key={`x-label-${i}`}
             x={xScale(d.date.toString())! + barWidth / 2}
-            y={chartHeight - padding.bottom + 15}
+            y={chartHeight - PADDING.bottom + 15}
             fontSize={textTheme.small.fontSize}
             fill={axisTextColor}
             textAnchor="middle"
@@ -580,7 +587,7 @@ function SummaryBarChart({
         {yTicks.map((tick, i) => (
           <SvgText
             key={`y-label-${i}`}
-            x={padding.left - 5}
+            x={PADDING.left - 5}
             y={yScale(tick)}
             fontSize={textTheme.small.fontSize}
             fill={axisTextColor}
@@ -604,8 +611,8 @@ const summaryMetricSelectorStyles = StyleSheet.create({
     ...StyleUtils.flexRow(),
     justifyContent: "center",
     alignItems: "center",
-    paddingVertical: "4%",
-    paddingHorizontal: "8%",
+    paddingVertical: "1%",
+    paddingHorizontal: "5%",
     borderRadius: 12,
     marginRight: 8,
   },
@@ -650,11 +657,7 @@ function SummaryMetricSelector({
   onSelectMetric,
 }: SummaryMetricSelectorProps) {
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      style={summaryMetricSelectorStyles.container}
-    >
+    <View style={summaryMetricSelectorStyles.container}>
       <SummaryMetricOption
         name="Volume"
         isSelected={selectedMetric === "Volume"}
@@ -665,7 +668,7 @@ function SummaryMetricSelector({
         isSelected={selectedMetric === "Duration"}
         onSelect={() => onSelectMetric("Duration")}
       />
-    </ScrollView>
+    </View>
   );
 }
 
@@ -722,6 +725,183 @@ function getSummaryDateRange(timeRange: string) {
   return { startDate: truncTime(startDate), endDate: endDate.valueOf() };
 }
 
+
+type SummaryBarChartSkeletonProps = {
+  startDate: number;
+  endDate: number;
+  timeRange: string;
+};
+
+function SummaryBarChartSkeleton({ startDate, endDate, timeRange }: SummaryBarChartSkeletonProps) {
+  const { width, height } = useWindowDimensions();
+  const accentColor = useThemeColoring("primaryAction");
+  const gridColor = useThemeColoring("dynamicHeaderBorder");
+  const axisTextColor = useThemeColoring("lightText");
+  const fromBarColor = convertHexToRGBA(accentColor, 0.1);
+  const toBarColor = convertHexToRGBA(accentColor, 0.3);
+
+  const animationProgress = useSharedValue(0);
+  const chartHeight = height * CHART_HEIGHT_MULTIPLIER;
+  const chartWidth = width * CHART_WIDTH_MULTIPLIER;
+  const numBars = 6;
+  const barPadding = 0.2;
+  const timeRangeDuration = endDate - startDate;
+  const dateStep = timeRangeDuration / (numBars - 1);
+
+  const skeletonData = Array.from({ length: numBars }, (_, i) => ({
+    date: startDate + (i * dateStep),
+    value: 0 // Value will be ignored, we'll use height factors for visualization
+  }));
+
+  // Format date range text using the actual dates
+  const dateRangeText = formatTitleDateRange(startDate, endDate);
+
+  useEffect(() => {
+    // Start the animation
+    animationProgress.value = withRepeat(
+      withTiming(1, { duration: 1000 }),
+      -1,
+      true
+    );
+  }, []);
+
+  // Animated props for SVG elements
+  const animatedProps = useAnimatedProps(() => ({
+    fill: interpolateColor(
+      animationProgress.value,
+      [0, 1],
+      [fromBarColor, toBarColor]
+    ),
+  }));
+
+  // Use D3 scales exactly like in SummaryBarChart
+  const xScale = d3
+    .scaleBand()
+    .domain(skeletonData.map(d => d.date.toString()))
+    .range([PADDING.left, chartWidth - PADDING.right])
+    .padding(barPadding);
+
+  // Calculate a reasonable max value for the y-axis
+  const yMax = 100000; // Some reasonable default max value
+  const yScale = d3
+    .scaleLinear()
+    .domain([0, yMax])
+    .range([chartHeight - PADDING.bottom, PADDING.top]);
+
+  // Create exactly 5 evenly spaced ticks starting at 0
+  const tickStep = yMax / 4;
+  const yTicks = [0, tickStep, tickStep * 2, tickStep * 3, tickStep * 4];
+
+  // Get bar width from xScale bandwidth
+  const barWidth = xScale.bandwidth();
+
+  const getTimeRangeLabel = () => {
+    return timeRangeOptions.find(
+      (o) => o.value === timeRange
+    )!.label;
+  };
+
+  return (
+    <View style={summaryBarChartStyles.container}>
+      <View style={summaryBarChartStyles.header}>
+        <View style={summaryBarChartStyles.headerRow}>
+          <TextSkeleton text="100,000 lbs" />
+          <TouchableOpacity
+            style={summaryBarChartStyles.timeFilterButton}
+            onPress={() => { }}
+          >
+            <Text
+              style={[
+                summaryBarChartStyles.timeFilterText,
+                { color: accentColor },
+              ]}
+            >
+              {getTimeRangeLabel()}
+            </Text>
+            <ChevronDown size={16} color={accentColor} />
+          </TouchableOpacity>
+        </View>
+
+        <Text light sneutral>
+          {dateRangeText}
+        </Text>
+      </View>
+
+      <Svg width={chartWidth} height={chartHeight}>
+        {/* Y-axis ticks */}
+        {yTicks.map((tick, i) => (
+          <G key={`y-tick-${i}`}>
+            {/* Horizontal grid line */}
+            <Line
+              key={`grid-${i}`}
+              x1={PADDING.left}
+              x2={chartWidth - PADDING.right}
+              y1={yScale(tick)}
+              y2={yScale(tick)}
+              stroke={gridColor}
+              strokeOpacity={0.5}
+              strokeDasharray="3,3"
+            />
+
+            {/* Y-axis label as AnimatedRect skeleton */}
+            <AnimatedRect
+              x={PADDING.left - 45}
+              y={yScale(tick) - 8}
+              width={40}
+              height={16}
+              rx={2}
+              animatedProps={animatedProps}
+            />
+          </G>
+        ))}
+
+        {/* Bottom axis line */}
+        <Line
+          x1={PADDING.left}
+          x2={chartWidth - PADDING.right}
+          y1={chartHeight - PADDING.bottom}
+          y2={chartHeight - PADDING.bottom}
+          stroke={gridColor}
+          strokeWidth={1}
+        />
+
+        {/* Bar skeletons - with predictable height pattern */}
+        {skeletonData.map((d, i) => {
+          // Create a more realistic pattern for bar heights (tall, medium, short)
+          const heightFactors = [0.7, 0.6, 0.4, 0.8, 0.5, 0.3];
+          const maxBarHeight = chartHeight - PADDING.top - PADDING.bottom - 10;
+          const barHeight = maxBarHeight * heightFactors[i];
+
+          return (
+            <G key={`bar-${i}`}>
+              {/* Bar skeleton */}
+              <AnimatedRect
+                x={xScale(d.date.toString())}
+                y={chartHeight - PADDING.bottom - barHeight}
+                width={barWidth}
+                height={barHeight}
+                rx={4}
+                animatedProps={animatedProps}
+              />
+
+              {/* X-axis label with real date */}
+              <SvgText
+                x={xScale(d.date.toString())! + barWidth / 2}
+                y={chartHeight - PADDING.bottom + 15}
+                fontSize={textTheme.small.fontSize}
+                fill={axisTextColor}
+                textAnchor="middle"
+              >
+                {formatXAxisLabel(d.date)}
+              </SvgText>
+            </G>
+          );
+        })}
+      </Svg>
+    </View>
+  );
+}
+
 export function SummaryTrends() {
   const [barChartData, setBarChartData] = useState<DataPoint[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -742,33 +922,31 @@ export function SummaryTrends() {
 
   useFocusEffect(
     useCallback(() => {
-      setIsLoading(true);
       metric
-        .generateData(userDetails!.bodyweight, startDate, addDays(endDate, 1))
-        .then(setBarChartData)
-        .catch(console.error)
-        .finally(() => setIsLoading(false));
-    }, [userDetails?.bodyweight, startDate, endDate, metric])
+        .generateData(startDate, addDays(endDate, 1))
+      .then(setBarChartData)
+      .finally(() => setIsLoading(false));
+    }, [startDate, endDate, metric])
   );
-
-  if (isLoading && barChartData.length === 0) {
-    return (
-      <View style={summaryTrendsStyles.container}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
 
   return (
     <View style={summaryTrendsStyles.container}>
-      <SummaryBarChart
-        data={barChartData}
-        formatYAxisLabel={metric.formatYAxisLabel}
-        formatTitleValue={metric.formatTitleValue}
-        height={height * 0.17}
-        metricType={selectedMetricName}
-        timeRange={trendsPeriodSelection.timeRange}
-      />
+      {isLoading ? (
+        <SummaryBarChartSkeleton
+          startDate={startDate}
+          endDate={endDate}
+          timeRange={trendsPeriodSelection.timeRange}
+        />
+      ) : (
+        <SummaryBarChart
+          data={barChartData}
+          formatYAxisLabel={metric.formatYAxisLabel}
+          formatTitleValue={metric.formatTitleValue}
+          height={height * CHART_HEIGHT_MULTIPLIER}
+          metricType={selectedMetricName}
+          timeRange={trendsPeriodSelection.timeRange}
+        />
+      )}
       <SummaryMetricSelector
         selectedMetric={selectedMetricName}
         onSelectMetric={setSelectedMetricName}

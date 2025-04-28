@@ -1,12 +1,85 @@
+import React, { useState, useCallback, ReactNode } from "react";
 import { useThemeColoring, View, Text } from "@/components/Themed";
 import { StyleSheet } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import { Clock, Dumbbell } from "lucide-react-native";
-import { useState, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { WorkoutApi } from "@/api/workout";
 import { WorkoutLifetimeStats } from "@/interface";
 import { convertHexToRGBA } from "@/util/color";
+import { TextSkeleton } from "@/components/util/loading";
+
+
+type LifetimeSummaryStatProps = {
+  value: string;
+  label: string;
+  icon: ReactNode;
+  isLoading?: boolean;
+};
+
+const lifetimeStatStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(2),
+    alignItems: "center",
+    padding: "3%",
+    borderRadius: 12,
+    width: "45%",
+  },
+  value: {
+    fontSize: 22,
+    fontWeight: "bold",
+  },
+  label: {
+    fontSize: 14,
+    opacity: 0.8,
+    textAlign: "center",
+  },
+  iconContainer: {
+    marginBottom: 5,
+  }
+});
+
+function LifetimeSummaryStat({ value, label, icon, isLoading = false }: LifetimeSummaryStatProps) {
+  const accentColor = useThemeColoring("primaryAction");
+  const statItemColor = convertHexToRGBA(accentColor, 0.1);
+
+
+  return (
+    <View
+      style={[
+        lifetimeStatStyles.container,
+        { backgroundColor: statItemColor },
+      ]}
+    >
+      <View style={lifetimeStatStyles.iconContainer}>
+        {icon}
+      </View>
+
+      {isLoading ? (
+        <TextSkeleton
+          text="1000"
+          style={lifetimeStatStyles.value}
+        />
+      ) : (
+        <Text style={lifetimeStatStyles.value}>
+          {value}
+        </Text>
+      )}
+
+      {isLoading ? (
+        <TextSkeleton
+          text={label}
+          style={lifetimeStatStyles.label}
+        />
+      ) : (
+        <Text style={lifetimeStatStyles.label}>
+          {label}
+        </Text>
+      )}
+    </View>
+  );
+}
+
 
 const lifetimeSummaryStyles = StyleSheet.create({
   container: {
@@ -20,25 +93,6 @@ const lifetimeSummaryStyles = StyleSheet.create({
     ...StyleUtils.flexRow(15),
     justifyContent: "space-around",
   },
-  statItem: {
-    ...StyleUtils.flexColumn(2),
-    alignItems: "center",
-    padding: "3%",
-    borderRadius: 12,
-    width: "45%",
-  },
-  statValue: {
-    fontSize: 22,
-    fontWeight: "bold",
-  },
-  statLabel: {
-    fontSize: 14,
-    opacity: 0.8,
-    textAlign: "center",
-  },
-  iconContainer: {
-    marginBottom: 5,
-  },
 });
 
 export function LifetimeSummary() {
@@ -46,12 +100,16 @@ export function LifetimeSummary() {
     totalWorkouts: 0,
     totalWorkoutDuration: 0,
   });
+  const [isLoading, setIsLoading] = useState(true);
   const accentColor = useThemeColoring("primaryAction");
-  const statItemColor = convertHexToRGBA(accentColor, 0.1);
 
   useFocusEffect(
     useCallback(() => {
-      WorkoutApi.getLifetimeStats().then(setStats);
+      WorkoutApi.getLifetimeStats()
+        .then((data) => {
+          setStats(data);
+          setIsLoading(false);
+        });
     }, [])
   );
 
@@ -67,33 +125,19 @@ export function LifetimeSummary() {
       </View>
 
       <View style={lifetimeSummaryStyles.statsContainer}>
-        <View
-          style={[
-            lifetimeSummaryStyles.statItem,
-            { backgroundColor: statItemColor },
-          ]}
-        >
-          <View style={lifetimeSummaryStyles.iconContainer}>
-            <Dumbbell size={20} color={accentColor} />
-          </View>
-          <Text style={lifetimeSummaryStyles.statValue}>
-            {stats.totalWorkouts}
-          </Text>
-          <Text style={lifetimeSummaryStyles.statLabel}>Workouts</Text>
-        </View>
+        <LifetimeSummaryStat
+          value={String(stats.totalWorkouts)}
+          label="Workouts"
+          icon={<Dumbbell size={20} color={accentColor} />}
+          isLoading={isLoading}
+        />
 
-        <View
-          style={[
-            lifetimeSummaryStyles.statItem,
-            { backgroundColor: statItemColor },
-          ]}
-        >
-          <View style={lifetimeSummaryStyles.iconContainer}>
-            <Clock size={20} color={accentColor} />
-          </View>
-          <Text style={lifetimeSummaryStyles.statValue}>{hoursWorkedOut}h</Text>
-          <Text style={lifetimeSummaryStyles.statLabel}>Time Logged</Text>
-        </View>
+        <LifetimeSummaryStat
+          value={`${hoursWorkedOut}h`}
+          label="Time Logged"
+          icon={<Clock size={20} color={accentColor} />}
+          isLoading={isLoading}
+        />
       </View>
     </View>
   );

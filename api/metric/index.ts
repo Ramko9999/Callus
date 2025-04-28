@@ -1,89 +1,13 @@
 import {
-  BodyWeightDifficulty,
   CompletedExercise,
   DifficultyType,
   Metric,
   MetricConfig,
   MetricType,
-  TimeDifficulty,
-  WeightDifficulty,
 } from "@/interface";
 import { truncTime } from "@/util/date";
 import { ArrayUtils } from "@/util/misc";
-
-function getBrzyckiMaxEstimate(weight: number, reps: number): number {
-  return (weight * 36) / (37 - reps);
-}
-
-function getOneRepMaxEstimate(completion: CompletedExercise) {
-  const bestSet = Math.max(
-    ...completion.sets.map(({ difficulty }) => {
-      const { weight, reps } = difficulty as WeightDifficulty;
-      return getBrzyckiMaxEstimate(weight, reps);
-    })
-  );
-
-  return Math.round(bestSet * 10) / 10;
-}
-
-function getOneRepMaxEstimateForWeightedBodyWeight(
-  completion: CompletedExercise
-) {
-  const bestSet = Math.max(
-    ...completion.sets.map(({ difficulty }) => {
-      const { weight, reps } = difficulty as WeightDifficulty;
-      return (
-        getBrzyckiMaxEstimate(weight + completion.bodyweight, reps) -
-        completion.bodyweight
-      );
-    })
-  );
-
-  return Math.round(bestSet * 10) / 10;
-}
-
-function getAverageRepsPerSet(completion: CompletedExercise) {
-  const average =
-    ArrayUtils.sumBy(
-      completion.sets,
-      ({ difficulty }) => (difficulty as BodyWeightDifficulty).reps
-    ) / completion.sets.length;
-  return Math.round(average * 10) / 10;
-}
-
-function getAverageWeightPerSet(completion: CompletedExercise) {
-  const average =
-    ArrayUtils.sumBy(
-      completion.sets,
-      ({ difficulty }) => (difficulty as WeightDifficulty).weight
-    ) / completion.sets.length;
-  return Math.round(average * 10) / 10;
-}
-
-function getAverageDurationPerSet(completion: CompletedExercise) {
-  const average =
-    ArrayUtils.sumBy(
-      completion.sets,
-      ({ difficulty }) => (difficulty as TimeDifficulty).duration
-    ) / completion.sets.length;
-  return Math.round(average * 10) / 10;
-}
-
-function getAverageRestDurationPerSet(completion: CompletedExercise) {
-  const setsWithRest = completion.sets.filter(
-    ({ restStartedAt, restEndedAt }) =>
-      restStartedAt != undefined && restEndedAt != undefined
-  );
-  if (setsWithRest.length === 0) {
-    return;
-  }
-
-  const average =
-    ArrayUtils.sumBy(setsWithRest, ({ restStartedAt, restEndedAt }) =>
-      Math.floor(((restEndedAt as number) - (restStartedAt as number)) / 1000)
-    ) / setsWithRest.length;
-  return Math.round(average * 10) / 10;
-}
+import { getAverageDurationPerSet, getAverageRepsPerSet, getAverageRestDurationPerSet, getAverageWeightPerSet, getOneRepMaxEstimate, getOneRepMaxEstimateForWeightedBodyWeight } from "./util"
 
 function displayWeight(weight: number) {
   return `${weight} lbs`;

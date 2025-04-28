@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import { StyleSheet } from "react-native";
-import { View, useThemeColoring } from "@/components/Themed";
+import { StyleSheet, StyleProp, TextStyle } from "react-native";
+import { View, Text, useThemeColoring } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
 import Animated, {
   useAnimatedStyle,
@@ -10,7 +10,9 @@ import Animated, {
   withDelay,
   withTiming,
   Easing,
+  interpolateColor
 } from "react-native-reanimated";
+import { convertHexToRGBA } from "@/util/color";
 
 const loadingStyles = StyleSheet.create({
   container: {
@@ -27,6 +29,20 @@ const loadingStyles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
+  },
+  skeletonContainer: {
+    position: "relative",
+  },
+  skeletonOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 4,
+  },
+  hiddenText: {
+    opacity: 0,
   },
 });
 
@@ -79,3 +95,54 @@ export function Loading() {
     </View>
   );
 }
+
+
+type TextSkeletonProps = {
+  text: string;
+  style?: StyleProp<TextStyle>;
+  animationDuration?: number;
+};
+
+export function TextSkeleton({
+  text,
+  style,
+  animationDuration = 1000,
+}: TextSkeletonProps) {
+  const accentColor = useThemeColoring("primaryAction");
+
+  const fromColor = convertHexToRGBA(accentColor, 0.2);
+  const toColor = convertHexToRGBA(accentColor, 0.3);
+
+  const animationProgress = useSharedValue(0);
+
+  useEffect(() => {
+    animationProgress.value = withRepeat(
+      withTiming(1, { duration: animationDuration }),
+      -1,
+      true
+    );
+  }, [animationDuration]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      animationProgress.value,
+      [0, 1],
+      [fromColor, toColor]
+    ),
+  }));
+
+  return (
+    <View style={loadingStyles.skeletonContainer}>
+      <Text style={[style, loadingStyles.hiddenText]}>
+        {text}
+      </Text>
+      <Animated.View
+        style={[
+          loadingStyles.skeletonOverlay,
+          animatedStyle
+        ]}
+      />
+    </View>
+  );
+}
+
