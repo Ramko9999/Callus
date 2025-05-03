@@ -13,6 +13,7 @@ type ModalParamsList = {
   completedWorkout: { id: string };
   liveWorkout: {};
   routine: { id: string };
+  congratulations: { id: string };
 };
 
 export type RootStackParamList = {

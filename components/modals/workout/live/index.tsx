@@ -95,7 +95,11 @@ function Player({ navigation }: PlayerProps) {
   const forceFinish = () => {
     WorkoutApi.saveWorkout(finish(wrapUpSets(workout as Workout))).then(() => {
       editorActions.stopCurrentWorkout();
-      navigation.goBack();
+      if ((workout as Workout).exercises.length > 0) {
+        navigation.replace("congratulations", { id: (workout as Workout).id });
+      } else {
+        navigation.goBack();
+      }
     });
   };
 
@@ -167,8 +171,12 @@ function ExercisesEditor({ navigation }: ExercisesEditorProps) {
   const forceFinish = () => {
     WorkoutApi.saveWorkout(finish(wrapUpSets(workout as Workout))).then(() => {
       actions.stopCurrentWorkout();
-      navigation.goBack();
-      navigation.goBack();
+      if ((workout as Workout).exercises.length > 0) {
+        navigation.goBack();
+        navigation.replace("congratulations", { id: (workout as Workout).id });
+      } else {
+        navigation.goBack();
+      }
     });
   };
 
@@ -405,9 +413,6 @@ export function LiveWorkoutModal() {
       initialRouteName="player"
       screenOptions={{
         headerShown: false,
-        ...(Platform.OS === "android"
-          ? TransitionPresets.SlideFromRightIOS
-          : {}),
       }}
     >
       <Stack.Screen name={"player"} component={Player} />
