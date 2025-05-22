@@ -33,8 +33,8 @@ export type Difficulty =
 export type ExerciseMeta = {
   name: string;
   difficultyType: DifficultyType;
-  demoUrl: string;
-  muscles: string[];
+  primaryMuscles: string[];
+  secondaryMuscles: string[];
   metaId: string;
 };
 

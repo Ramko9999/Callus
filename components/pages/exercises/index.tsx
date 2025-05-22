@@ -62,7 +62,6 @@ const exercisesStyles = StyleSheet.create({
   },
 });
 
-// todo: reconsider which exercises to include initially and actually create the gifs and getting the correct muscles
 // todo: give first class treatment to the assistance exercises
 export function Exercises() {
   const navigation = useNavigation();

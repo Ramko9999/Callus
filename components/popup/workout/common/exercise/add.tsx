@@ -265,11 +265,11 @@ function getResultsToDisplay(
   exerciseTypeFilter?: string
 ): ExerciseAdderResult[] {
   const relevantMetas = exerciseMetas.filter(
-    ({ name, muscles, difficultyType }) => {
+    ({ name, primaryMuscles, difficultyType }) => {
       if (!name.includes(query.trim())) {
         return false;
       }
-      if (muscleFilter && muscles[0] !== muscleFilter) {
+      if (muscleFilter && primaryMuscles[0] !== muscleFilter) {
         return false;
       }
       if (

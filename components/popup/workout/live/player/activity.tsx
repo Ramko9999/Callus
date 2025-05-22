@@ -13,7 +13,10 @@ import {
   useWindowDimensions,
   TouchableOpacity,
 } from "react-native";
-import { getDifficultyType, getMeta } from "@/api/exercise";
+import {
+  getDifficultyType,
+  getExerciseDemonstration,
+} from "@/api/exercise";
 import { EDITOR_SET_HEIGHT, StyleUtils } from "@/util/styles";
 import { Set } from "@/interface";
 import {
@@ -206,15 +209,16 @@ function ExercisingActivity({
   const { exercise, set } = activityData;
 
   const setIndex = exercise.sets.findIndex((s) => s.id === set.id);
-  const meta = getMeta(exercise.name);
+  const trueDemo = getExerciseDemonstration(exercise.name);
+
   const { width } = useWindowDimensions();
 
-  // todo: use our own graphics
   return (
     <View style={activityStyles.container}>
       <Text extraLarge>{exercise.name}</Text>
       <Image
-        source={{ uri: meta.demoUrl || "" }}
+        alt={exercise.name}
+        source={trueDemo}
         style={[
           exercisingActivityStyles.demo,
           {

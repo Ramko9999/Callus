@@ -142,7 +142,6 @@ export const RoutineActions = {
   makeEmptyRoutine,
 };
 
-
 export const INITIAL_ROUTINES: Routine[] = [
   {
     id: generateRoutineId(),
@@ -161,7 +160,7 @@ export const INITIAL_ROUTINES: Routine[] = [
           { id: generateSetPlanId(), difficulty: { reps: 7 } },
         ],
       },
-      { 
+      {
         id: generateExercisePlanId(),
         metaId: getMeta("Ring Pull-Up").metaId,
         name: "Ring Pull-Up",
@@ -186,8 +185,8 @@ export const INITIAL_ROUTINES: Routine[] = [
       },
       {
         id: generateExercisePlanId(),
-        metaId: getMeta("Cable Row").metaId,
-        name: "Cable Row",
+        metaId: getMeta("Seated Cable Row").metaId,
+        name: "Seated Cable Row",
         rest: 60,
         sets: [
           { id: generateSetPlanId(), difficulty: { weight: 35, reps: 8 } },
@@ -202,7 +201,7 @@ export const INITIAL_ROUTINES: Routine[] = [
     id: generateRoutineId(),
     name: "Push Day",
     plan: [
-      { 
+      {
         id: generateExercisePlanId(),
         metaId: getMeta("Dip").metaId,
         name: "Dip",
@@ -227,10 +226,10 @@ export const INITIAL_ROUTINES: Routine[] = [
           { id: generateSetPlanId(), difficulty: { reps: 8 } },
         ],
       },
-      { 
+      {
         id: generateExercisePlanId(),
-        metaId: getMeta("Machine Shoulder Press").metaId,
-        name: "Machine Shoulder Press",
+        metaId: getMeta("Military Press").metaId,
+        name: "Military Press",
         rest: 60,
         sets: [
           { id: generateSetPlanId(), difficulty: { weight: 30, reps: 6 } },
@@ -241,8 +240,8 @@ export const INITIAL_ROUTINES: Routine[] = [
       },
       {
         id: generateExercisePlanId(),
-        metaId: getMeta("Tricep Extension").metaId,
-        name: "Tricep Extension",
+        metaId: getMeta("Ring Tricep Extension").metaId,
+        name: "Ring Tricep Extension",
         rest: 60,
         sets: [
           { id: generateSetPlanId(), difficulty: { weight: 15, reps: 20 } },
@@ -267,12 +266,12 @@ export const INITIAL_ROUTINES: Routine[] = [
           { id: generateSetPlanId(), difficulty: { weight: 50, reps: 12 } },
           { id: generateSetPlanId(), difficulty: { weight: 50, reps: 12 } },
           { id: generateSetPlanId(), difficulty: { weight: 50, reps: 12 } },
-        ]
+        ],
       },
       {
         id: generateExercisePlanId(),
-        metaId: getMeta("Squat").metaId,
-        name: "Squat",
+        metaId: getMeta("Barbell Squat").metaId,
+        name: "Barbell Squat",
         rest: 60,
         sets: [
           { id: generateSetPlanId(), difficulty: { weight: 85, reps: 6 } },
@@ -292,9 +291,8 @@ export const INITIAL_ROUTINES: Routine[] = [
           { id: generateSetPlanId(), difficulty: { reps: 8 } },
           { id: generateSetPlanId(), difficulty: { reps: 8 } },
           { id: generateSetPlanId(), difficulty: { reps: 8 } },
-        ]
-      }
+        ],
+      },
     ],
   },
 ];
-

@@ -65,7 +65,7 @@ export function SearchExercise({ meta, description }: SearchExerciseProps) {
       <View style={searchExerciseStyles.content}>
         <Text neutral>{meta.name}</Text>
         <View style={searchExerciseStyles.description}>
-          <Text light>{meta.muscles[0]}</Text>
+          <Text light>{meta.primaryMuscles[0]}</Text>
           {description && <Text light>{description}</Text>}
         </View>
       </View>
@@ -230,11 +230,11 @@ export function filterExerciseResultGroups(
   exerciseTypeFilter?: string
 ) {
   const relevantMetas = exerciseMetas.filter(
-    ({ name, muscles, difficultyType }) => {
+    ({ name, primaryMuscles, difficultyType }) => {
       if (!name.includes(query.trim())) {
         return false;
       }
-      if (muscleFilter && muscles[0] !== muscleFilter) {
+      if (muscleFilter && primaryMuscles[0] !== muscleFilter) {
         return false;
       }
       if (

@@ -1,7 +1,8 @@
 import { CompletedExercise, SetStatus } from "@/interface";
 import { addDays, removeDays, truncTime } from "@/util/date";
+import { getMeta } from ".";
 
-export const MOCK_EXERCISE = "Squat";
+export const MOCK_EXERCISE = "Barbell Squat";
 
 export function getMockCompletions(
   completionCount: number
@@ -11,6 +12,7 @@ export function getMockCompletions(
   return Array.from({ length: completionCount }).map((_, index) => ({
     id: `${index}`,
     name: MOCK_EXERCISE,
+    metaId: getMeta(MOCK_EXERCISE).metaId,
     restDuration: 60,
     bodyweight: 150,
     workoutStartedAt: addDays(originTimestamp, index),

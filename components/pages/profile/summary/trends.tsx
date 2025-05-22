@@ -18,14 +18,13 @@ import {
   StyleSheet,
   useWindowDimensions,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import * as d3 from "d3";
 import Svg, { Rect, Text as SvgText, Line, G } from "react-native-svg";
 import { textTheme } from "@/constants/Themes";
 import * as Haptics from "expo-haptics";
-import { ArrayUtils, artificallyDelay, getNumberSuffix } from "@/util/misc";
+import { ArrayUtils, getNumberSuffix } from "@/util/misc";
 import { ChevronDown } from "lucide-react-native";
 import { usePopup } from "@/components/popup";
 import Animated, {
@@ -35,7 +34,6 @@ import Animated, {
   SharedValue,
   withRepeat,
   interpolateColor,
-  useAnimatedStyle,
 } from "react-native-reanimated";
 import { convertHexToRGBA } from "@/util/color";
 import { TextSkeleton } from "@/components/util/loading";
@@ -358,6 +356,7 @@ function SummaryBarChart({
   metricType,
   timeRange,
 }: SummaryBarChartProps) {
+
   const { width } = useWindowDimensions();
   const accentColor = useThemeColoring("primaryAction");
   const gridColor = useThemeColoring("dynamicHeaderBorder");
@@ -907,7 +906,6 @@ export function SummaryTrends() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedMetricName, setSelectedMetricName] =
     useState<string>("Volume");
-  const { userDetails } = useUserDetails();
   const { trendsPeriodSelection } = usePopup();
   const { height } = useWindowDimensions();
 
@@ -925,6 +923,7 @@ export function SummaryTrends() {
       metric
         .generateData(startDate, addDays(endDate, 1))
       .then(setBarChartData)
+      .catch((error) => console.error(error)) // we need to safely handl
       .finally(() => setIsLoading(false));
     }, [startDate, endDate, metric])
   );
