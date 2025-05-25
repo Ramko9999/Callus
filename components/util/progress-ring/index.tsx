@@ -24,18 +24,18 @@ export function ProgressRing({
   const { width } = useWindowDimensions();
 
   const svgDimension = dimension ?? width * 0.9;
-  const radius = svgDimension / 3;
+  const radius = svgDimension / 2.2;
   const circumference = Math.PI * 2 * radius;
 
   const ringProps = {
     cx: "50%",
     cy: "50%",
     r: radius,
-    strokeWidth: 15,
+    strokeWidth: 10,
   };
 
   return (
-    <View style={{ ...StyleUtils.flexRowCenterAll() }}>
+    <View style={{ ...StyleUtils.flexRowCenterAll()}}>
       <Svg height={svgDimension} width={svgDimension}>
         <Circle
           {...ringProps}

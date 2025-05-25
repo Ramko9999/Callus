@@ -1,22 +1,36 @@
-import { View, Text } from "@/components/Themed";
+import { View, Text, useThemeColoring } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
-import { StyleSheet, useWindowDimensions } from "react-native";
+import {
+  StyleSheet,
+  useWindowDimensions,
+  TouchableOpacity,
+} from "react-native";
 import {
   DangerAction,
-  NeutralAction,
   SignificantAction,
 } from "@/components/theme/actions";
 import { ProgressRing } from "@/components/util/progress-ring";
 import { getDurationDisplay } from "@/util/date";
 import * as Haptics from "expo-haptics";
-import { TimestampRangeEditor } from "@/components/util/timestamp-editor";
 import { SimpleModal } from "../../common";
+import { PopupBottomSheet } from "@/components/util/popup/sheet";
+import { forwardRef, ForwardedRef } from "react";
+import BottomSheet from "@gorhom/bottom-sheet";
 
 const modalActionsStyles = StyleSheet.create({
   actions: {
     paddingTop: "3%",
     ...StyleUtils.flexRow(10),
     alignSelf: "center",
+  },
+  container: {
+    padding: 20,
+  },
+  title: {
+    marginBottom: 20,
+  },
+  description: {
+    marginBottom: 20,
   },
 });
 
@@ -145,6 +159,21 @@ export function DiscardSetsAndFinishConfirmation({
   );
 }
 
+const editRestDurationStyles = StyleSheet.create({
+  container: {
+    paddingBottom: "5%"
+  },
+  action: {
+    aspectRatio: 1,
+    padding: "2%",
+    borderRadius: "50%",
+    ...StyleUtils.flexRowCenterAll(),
+  },
+  duration: {
+    fontSize: 80,
+  },
+});
+
 type EditRestDurationProps = {
   show: boolean;
   hide: () => void;
@@ -152,82 +181,50 @@ type EditRestDurationProps = {
   onUpdateDuration: (duration: number) => void;
 };
 
-export function EditRestDuration({
-  show,
-  hide,
-  duration,
-  onUpdateDuration,
-}: EditRestDurationProps) {
-  const { width } = useWindowDimensions();
+export const EditRestDuration = forwardRef(
+  (
+    { show, hide, duration, onUpdateDuration }: EditRestDurationProps,
+    ref: ForwardedRef<BottomSheet>
+  ) => {
+    const { width } = useWindowDimensions();
+    const actionBackgroundColor = useThemeColoring("calendarDayBackground");
 
-  return (
-    <SimpleModal
-      show={show}
-      onHide={hide}
-      title="Edit rest?"
-      description="After each set is completed, the rest timer will automatically start. Add or reduce rest in 15 second increments."
-    >
-      <ProgressRing dimension={width * 0.7} progress={1}>
-        <Text extraLarge>{getDurationDisplay(duration)}</Text>
-      </ProgressRing>
-      <View style={modalActionsStyles.actions}>
-        <NeutralAction
-          onClick={() => {
-            onUpdateDuration(Math.max(duration - 15, 0));
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
-          }}
-          text="-15s"
-        />
-        <NeutralAction
-          onClick={() => {
-            onUpdateDuration(duration + 15);
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
-          }}
-          text="+15s"
-        />
-      </View>
-    </SimpleModal>
-  );
-}
-
-type AdjustStartEndTimeProps = {
-  show: boolean;
-  hide: () => void;
-  startTime: number;
-  endTime?: number;
-  updateStartTime: (startTime: number) => void;
-  updateEndTime: (endTime: number) => void;
-};
-
-export function AdjustStartEndTime({
-  show,
-  hide,
-  startTime,
-  endTime,
-  updateStartTime,
-  updateEndTime,
-}: AdjustStartEndTimeProps) {
-  const { width } = useWindowDimensions();
-  const description =
-    "Adjust when your workout started and ended" +
-    (endTime == undefined
-      ? " Since you are in a live workout, the end time cannot edited."
-      : "");
-
-  return (
-    <SimpleModal
-      show={show}
-      onHide={hide}
-      title="Adjust start/end time?"
-      description={description}
-      containerStyle={{ width: width * 0.8 }}
-    >
-      <TimestampRangeEditor
-        startTime={startTime}
-        endTime={endTime}
-        onUpdateEndTime={updateEndTime}
-        onUpdateStartTime={updateStartTime}
-      />
-    </SimpleModal>
-  );
-}
+    return (
+      <PopupBottomSheet ref={ref} show={show} onHide={hide}>
+        <View style={editRestDurationStyles.container}>
+          <ProgressRing dimension={width * 0.7} progress={1}>
+            <Text style={editRestDurationStyles.duration}>
+              {getDurationDisplay(duration)}
+            </Text>
+          </ProgressRing>
+          <View style={modalActionsStyles.actions}>
+            <TouchableOpacity
+              style={[
+                editRestDurationStyles.action,
+                { backgroundColor: actionBackgroundColor },
+              ]}
+              onPress={() => {
+                onUpdateDuration(Math.max(duration - 15, 0));
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
+              }}
+            >
+              <Text large>-15s</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                editRestDurationStyles.action,
+                { backgroundColor: actionBackgroundColor },
+              ]}
+              onPress={() => {
+                onUpdateDuration(duration + 15);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
+              }}
+            >
+              <Text large>+15s</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </PopupBottomSheet>
+    );
+  }
+);

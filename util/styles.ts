@@ -10,6 +10,16 @@ function flexRowCenterAll(gap?: number): ViewStyle {
   };
 }
 
+function flexColumnCenterAll(gap?: number): ViewStyle {
+  return {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    gap,
+  };
+}
+
 function flexRow(gap?: number): ViewStyle {
   return {
     display: "flex",
@@ -35,6 +45,7 @@ function expansive(): ViewStyle {
 
 export const StyleUtils = {
   flexRowCenterAll,
+  flexColumnCenterAll,
   flexRow,
   flexColumn,
   expansive,

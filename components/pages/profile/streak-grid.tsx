@@ -7,12 +7,15 @@ import { WorkedOutDay } from "@/interface";
 import { addDays, removeDays, truncTime } from "@/util/date";
 import { batch } from "@/util/misc";
 import { useFocusEffect } from "@react-navigation/native";
-import { tintColor } from "@/util/color";
+import { tintColor, convertHexToRGBA } from "@/util/color";
 import Animated, {
   withSpring,
   withDelay,
   useSharedValue,
   useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  interpolateColor,
 } from "react-native-reanimated";
 
 const STREAK_COLUMN_GROUP_SIZE = 7;
@@ -79,18 +82,29 @@ function StreakTile({ duration, index, isLoading }: StreakTileProps) {
   const accentColor = useThemeColoring("primaryAction");
   const inactiveColor = useThemeColoring("inactiveTileColor");
   const animationProgress = useSharedValue(0);
+  const loadingAnimationProgress = useSharedValue(0);
 
   const backgroundColor = useMemo(
     () => getStreakColorFromDuration(duration, accentColor, inactiveColor),
     [duration, accentColor, inactiveColor]
   );
 
+  const loadingFromColor = convertHexToRGBA(inactiveColor, 0.3);
+  const loadingToColor = convertHexToRGBA(inactiveColor, 0.6);
+
   useEffect(() => {
-    if (!isLoading) {
+    if (isLoading) {
+      loadingAnimationProgress.value = withRepeat(
+        withTiming(1, { duration: 1000 }),
+        -1,
+        true
+      );
+    } else {
       animationProgress.value = withDelay(
         index * 10,
         withSpring(1, { duration: 1000 })
       );
+      loadingAnimationProgress.value = 2;
     }
   }, [isLoading]);
 
@@ -100,15 +114,28 @@ function StreakTile({ duration, index, isLoading }: StreakTileProps) {
     };
   });
 
+  const loadingAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      backgroundColor:
+        loadingAnimationProgress.value > 1
+          ? inactiveColor
+          : interpolateColor(
+              loadingAnimationProgress.value,
+              [0, 1],
+              [loadingFromColor, loadingToColor]
+            ),
+    };
+  });
+
   return (
-    <View
+    <Animated.View
       key={index}
-      style={[streakTileStyles.container, { backgroundColor: inactiveColor }]}
+      style={[streakTileStyles.container, loadingAnimatedStyle]}
     >
       <Animated.View
         style={[streakTileStyles.tile, { backgroundColor }, animatedStyle]}
       />
-    </View>
+    </Animated.View>
   );
 }
 

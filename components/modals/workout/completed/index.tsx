@@ -1,9 +1,7 @@
 import { MetaEditor, NoteEditor } from "@/components/popup/workout/common/meta";
 import { RootStackParamList } from "@/layout/types";
 import { CompositeScreenProps } from "@react-navigation/native";
-import {
-  StackScreenProps,
-} from "@react-navigation/stack";
+import { StackScreenProps } from "@react-navigation/stack";
 import { useCompletedWorkout, CompletedWorkoutProvider } from "./context";
 import {
   addExercise,
@@ -14,7 +12,7 @@ import {
   updateSet,
   useWorkout,
 } from "@/context/WorkoutContext";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useToast } from "react-native-toast-notifications";
 import {
   DifficultyType,
@@ -28,7 +26,6 @@ import { getDifficultyType } from "@/api/exercise";
 import { PerformantExerciseAdder } from "@/components/popup/workout/common/exercise/add";
 import {
   WorkoutDeleteConfirmation,
-  AdjustStartEndTime,
   RepeatWorkoutConfirmation,
 } from "@/components/popup/workout/common/modals";
 import { WorkoutApi } from "@/api/workout";
@@ -49,6 +46,8 @@ import { SetEditor } from "../../common/set";
 import { CompletedWorkoutSet } from "../../common/set/item";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { WorkoutActions } from "@/api/model/workout";
+import { AdjustStartEndTime } from "@/components/popup/workout/common/adjust-start-end-time";
+import BottomSheet from "@gorhom/bottom-sheet";
 
 type CompletedWorkoutStackParamList = {
   exercises: undefined;
@@ -68,6 +67,7 @@ type ExerciseEditorProps = CompositeScreenProps<
 function ExercisesEditor({ navigation }: ExerciseEditorProps) {
   const { workout, onSave } = useCompletedWorkout();
   const { isInWorkout, actions } = useWorkout();
+  const adjustStartEndTimeSheetRef = useRef<BottomSheet>(null);
 
   const { userDetails } = useUserDetails();
 
@@ -104,7 +104,10 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
       );
     } else {
       actions.startWorkout(
-        WorkoutActions.createFromWorkout(workout, userDetails?.bodyweight as number)
+        WorkoutActions.createFromWorkout(
+          workout,
+          userDetails?.bodyweight as number
+        )
       );
       navigation.goBack();
     }
@@ -145,12 +148,13 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
         }}
       />
       <AdjustStartEndTime
+        ref={adjustStartEndTimeSheetRef}
         show={isEditingTimes}
-        hide={() => setIsEditingTimes(false)}
-        startTime={workout.startedAt}
-        endTime={workout.endedAt}
-        updateEndTime={(endedAt) => onUpdateMeta({ endedAt })}
-        updateStartTime={(startedAt) => onUpdateMeta({ startedAt })}
+        onHide={() => setIsEditingTimes(false)}
+        startedAt={workout.startedAt}
+        endedAt={workout.endedAt ?? null}
+        onUpdate={(update) => onUpdateMeta(update)}
+        hide={() => adjustStartEndTimeSheetRef.current?.close()}
       />
       <RepeatWorkoutConfirmation
         show={isRepeating}

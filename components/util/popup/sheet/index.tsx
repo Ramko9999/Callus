@@ -13,13 +13,6 @@ const popupBottomSheetStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
   },
-  header: {
-    ...StyleUtils.flexRow(),
-    justifyContent: "space-between",
-    marginBottom: 20,
-    paddingHorizontal: "5%",
-    paddingTop: "5%",
-  },
   handle: {
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
@@ -81,7 +74,6 @@ export const PopupBottomSheet = forwardRef(
           style={[
             props.style,
             {
-              backgroundColor: sheetColor,
               ...popupBottomSheetStyles.handle,
             },
           ]}

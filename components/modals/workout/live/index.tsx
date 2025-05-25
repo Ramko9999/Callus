@@ -1,11 +1,8 @@
 import { RootStackParamList } from "@/layout/types";
 import { CompositeScreenProps } from "@react-navigation/native";
-import {
-  StackScreenProps,
-  TransitionPresets,
-} from "@react-navigation/stack";
+import { StackScreenProps } from "@react-navigation/stack";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { ModalWrapper } from "../../common";
 import { contentStyles } from "../../common/styles";
 import { View, Text } from "@/components/Themed";
@@ -16,7 +13,6 @@ import {
 } from "./top-actions";
 import { MetaEditor, NoteEditor } from "@/components/popup/workout/common/meta";
 import {
-  getCurrentWorkoutActivity,
   hasUnstartedSets,
   removeExercise,
   useWorkout,
@@ -36,9 +32,8 @@ import {
   WorkoutActivity,
   Exercise,
 } from "@/interface";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
-  AdjustStartEndTime,
   DiscardSetsAndFinishConfirmation,
   EditRestDuration,
 } from "@/components/popup/workout/common/modals";
@@ -61,6 +56,8 @@ import { ExerciseEditor } from "../../common/exercise";
 import { LiveWorkoutExercise } from "../../common/exercise/item";
 import { SetEditor } from "../../common/set";
 import { LiveWorkoutSet } from "../../common/set/item";
+import { AdjustStartEndTime } from "@/components/popup/workout/common/adjust-start-end-time";
+import BottomSheet from "@gorhom/bottom-sheet";
 
 type LiveWorkoutStackParamList = {
   player: undefined;
@@ -163,6 +160,7 @@ function ExercisesEditor({ navigation }: ExercisesEditorProps) {
 
   const [isFinishing, setIsFinishing] = useState(false);
   const [isEditingDates, setIsEditingDates] = useState(false);
+  const adjustStartEndTimeSheetRef = useRef<BottomSheet>(null);
 
   const updateMeta = (update: Partial<Workout>) => {
     actions.updateWorkout({ ...workout, ...update });
@@ -226,12 +224,13 @@ function ExercisesEditor({ navigation }: ExercisesEditorProps) {
           onDiscard={forceFinish}
         />
         <AdjustStartEndTime
+          ref={adjustStartEndTimeSheetRef}
           show={isEditingDates}
-          hide={() => setIsEditingDates(false)}
-          startTime={workout.startedAt}
-          endTime={workout.endedAt}
-          updateEndTime={(endedAt) => updateMeta({ endedAt })}
-          updateStartTime={(startedAt) => updateMeta({ startedAt })}
+          onHide={() => setIsEditingDates(false)}
+          startedAt={workout.startedAt}
+          endedAt={workout.endedAt ?? null}
+          onUpdate={(update) => updateMeta(update)}
+          hide={() => adjustStartEndTimeSheetRef.current?.close()}
         />
       </ModalWrapper>
     </>
@@ -252,9 +251,6 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
   const exercise = workout?.exercises.find(
     ({ id }) => id === route.params.exerciseId
   );
-  const currentSet = workout
-    ? getCurrentWorkoutActivity(workout).activityData.set
-    : undefined;
 
   const onAddSet = () => {
     actions.updateWorkout(
