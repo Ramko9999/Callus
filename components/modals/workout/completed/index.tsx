@@ -27,7 +27,8 @@ import { PerformantExerciseAdder } from "@/components/popup/workout/common/exerc
 import {
   WorkoutDeleteConfirmation,
   RepeatWorkoutConfirmation,
-} from "@/components/popup/workout/common/modals";
+  EditStartEndTimes,
+} from "@/components/sheets";
 import { WorkoutApi } from "@/api/workout";
 import { useUserDetails } from "@/components/user-details";
 import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
@@ -46,7 +47,6 @@ import { SetEditor } from "../../common/set";
 import { CompletedWorkoutSet } from "../../common/set/item";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { WorkoutActions } from "@/api/model/workout";
-import { AdjustStartEndTime } from "@/components/popup/workout/common/adjust-start-end-time";
 import BottomSheet from "@gorhom/bottom-sheet";
 
 type CompletedWorkoutStackParamList = {
@@ -68,6 +68,8 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
   const { workout, onSave } = useCompletedWorkout();
   const { isInWorkout, actions } = useWorkout();
   const adjustStartEndTimeSheetRef = useRef<BottomSheet>(null);
+  const workoutDeleteConfirmationSheetRef = useRef<BottomSheet>(null);
+  const repeatWorkoutConfirmationSheetRef = useRef<BottomSheet>(null);
 
   const { userDetails } = useUserDetails();
 
@@ -140,14 +142,16 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
         </View>
       </ModalWrapper>
       <WorkoutDeleteConfirmation
+        ref={workoutDeleteConfirmationSheetRef}
         show={isTrashingWorkout}
-        hide={() => setIsTrashingWorkout(false)}
+        hide={() => workoutDeleteConfirmationSheetRef.current?.close()}
+        onHide={() => setIsTrashingWorkout(false)}
         onDelete={() => {
           setIsTrashingWorkout(false);
           trash();
         }}
       />
-      <AdjustStartEndTime
+      <EditStartEndTimes
         ref={adjustStartEndTimeSheetRef}
         show={isEditingTimes}
         onHide={() => setIsEditingTimes(false)}
@@ -157,8 +161,10 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
         hide={() => adjustStartEndTimeSheetRef.current?.close()}
       />
       <RepeatWorkoutConfirmation
+        ref={repeatWorkoutConfirmationSheetRef}
         show={isRepeating}
-        hide={() => setIsRepeating(false)}
+        hide={() => repeatWorkoutConfirmationSheetRef.current?.close()}
+        onHide={() => setIsRepeating(false)}
         onRepeat={() => {
           setIsRepeating(false);
           repeat();

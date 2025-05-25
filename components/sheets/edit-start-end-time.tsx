@@ -23,7 +23,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Gesture, GestureDetector, State } from "react-native-gesture-handler";
 import { convertHexToRGBA } from "@/util/color";
-import { X as LucideX, ArrowLeft } from "lucide-react-native";
+import { SheetX, SheetArrowLeft, commonSheetStyles } from "./common";
 
 const ITEM_HEIGHT = 35;
 const VISIBLE_ITEMS = 5;
@@ -358,22 +358,92 @@ function DatetimePicker({ timestamp, onSelect }: DatetimePickerProps) {
   );
 }
 
+const editTimeStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(10),
+    paddingBottom: "10%",
+  },
+  highlight: {
+    position: "absolute",
+    borderRadius: 10,
+    left: 0,
+    right: 0,
+    top: "50%",
+    height: ITEM_HEIGHT,
+    backgroundColor: "rgba(255,255,255,0.12)",
+  },
+  pickerContainer: {
+    paddingHorizontal: "5%",
+  },
+});
+
+type EditTimeProps = {
+  title: string;
+  timestamp: number;
+  onUpdate: (timestamp: number) => void;
+  onBack: () => void;
+};
+
+function EditTime({ title, timestamp, onUpdate, onBack }: EditTimeProps) {
+  const actionColor = useThemeColoring("primaryAction");
+  const [currentTimestamp, setCurrentTimestamp] = useState(timestamp);
+  const isUnchanged = currentTimestamp === timestamp;
+
+  const handleUpdate = useCallback(() => {
+    onUpdate(currentTimestamp);
+    onBack();
+  }, [onUpdate, currentTimestamp, onBack]);
+
+  return (
+    <View style={editTimeStyles.container}>
+      <View style={commonSheetStyles.sheetHeader}>
+        <Text action style={{ fontWeight: 600 }}>
+          {title}
+        </Text>
+        <TouchableOpacity onPress={onBack}>
+          <SheetArrowLeft />
+        </TouchableOpacity>
+      </View>
+      <View style={editTimeStyles.pickerContainer}>
+        <DatetimePicker
+          timestamp={currentTimestamp}
+          onSelect={setCurrentTimestamp}
+        />
+        <TouchableOpacity
+          style={[
+            commonSheetStyles.sheetButton,
+            {
+              backgroundColor: actionColor,
+              opacity: isUnchanged ? 0.5 : 1,
+            },
+          ]}
+          disabled={isUnchanged}
+          onPress={handleUpdate}
+        >
+          <Text neutral emphasized>
+            Update
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
 const startEndTimeDisplayStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
-    paddingHorizontal: "5%",
-    paddingTop: "2%",
     paddingBottom: "10%",
   },
   times: {
     ...StyleUtils.flexColumn(),
-    paddingTop: "6%",
+    paddingTop: "3%",
+    paddingHorizontal: "5%",
   },
   timeRow: {
     ...StyleUtils.flexRow(),
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: "3%",
+    paddingVertical: "5%",
   },
   divider: {
     height: 2,
@@ -397,7 +467,6 @@ function StartEndTimeDisplay({
   hide,
 }: StartEndTimeDisplayProps) {
   const borderColor = convertHexToRGBA(useThemeColoring("lightText"), 0.12);
-  const calendarDayBackground = useThemeColoring("calendarDayBackground");
 
   const handleStartTimePress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -413,18 +482,12 @@ function StartEndTimeDisplay({
 
   return (
     <View style={startEndTimeDisplayStyles.container}>
-      <View style={adjustStartEndTimeStyles.headerRow}>
+      <View style={commonSheetStyles.sheetHeader}>
         <Text action style={{ fontWeight: 600 }}>
-          Edit start/end time
+          Edit start and end time
         </Text>
-        <TouchableOpacity
-          onPress={hide}
-          style={[
-            adjustStartEndTimeStyles.headerX,
-            { backgroundColor: calendarDayBackground },
-          ]}
-        >
-          <LucideX size={14} color={useThemeColoring("primaryText")} />
+        <TouchableOpacity onPress={hide}>
+          <SheetX />
         </TouchableOpacity>
       </View>
       <View style={startEndTimeDisplayStyles.times}>
@@ -458,101 +521,7 @@ function StartEndTimeDisplay({
   );
 }
 
-const editTimeStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexColumn(10),
-    paddingHorizontal: "5%",
-    paddingBottom: "10%",
-  },
-  highlight: {
-    position: "absolute",
-    borderRadius: 10,
-    left: 0,
-    right: 0,
-    top: "50%",
-    height: ITEM_HEIGHT,
-    backgroundColor: "rgba(255,255,255,0.12)", // white with opacity
-  },
-  updateButton: {
-    borderRadius: 10,
-    paddingVertical: "2%",
-    ...StyleUtils.flexRowCenterAll(),
-  },
-});
-
-type EditTimeProps = {
-  title: string;
-  timestamp: number;
-  onUpdate: (timestamp: number) => void;
-  onBack: () => void;
-};
-
-function EditTime({ title, timestamp, onUpdate, onBack }: EditTimeProps) {
-  const calendarDayBackground = useThemeColoring("calendarDayBackground");
-  const actionColor = useThemeColoring("primaryAction");
-  const [currentTimestamp, setCurrentTimestamp] = useState(timestamp);
-  const isUnchanged = currentTimestamp === timestamp;
-
-  const handleUpdate = useCallback(() => {
-    onUpdate(currentTimestamp);
-    onBack();
-  }, [onUpdate, currentTimestamp, onBack]);
-
-  return (
-    <View style={editTimeStyles.container}>
-      <View style={adjustStartEndTimeStyles.headerRow}>
-        <Text action style={{ fontWeight: 600 }}>
-          {title}
-        </Text>
-        <TouchableOpacity
-          onPress={onBack}
-          style={[
-            adjustStartEndTimeStyles.headerX,
-            { backgroundColor: calendarDayBackground },
-          ]}
-        >
-          <ArrowLeft size={14} color={useThemeColoring("primaryText")} />
-        </TouchableOpacity>
-      </View>
-      <DatetimePicker
-        timestamp={currentTimestamp}
-        onSelect={setCurrentTimestamp}
-      />
-      <TouchableOpacity
-        style={[
-          editTimeStyles.updateButton,
-          {
-            backgroundColor: actionColor,
-            opacity: isUnchanged ? 0.5 : 1,
-          },
-        ]}
-        disabled={isUnchanged}
-        onPress={handleUpdate}
-      >
-        <Text neutral emphasized>
-          Update
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-const adjustStartEndTimeStyles = StyleSheet.create({
-  headerRow: {
-    ...StyleUtils.flexRow(),
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  headerX: {
-    ...StyleUtils.flexRowCenterAll(),
-    borderRadius: "50%",
-    padding: "2%",
-    backgroundColor: undefined, // will be set inline
-  },
-});
-
-type AdjustStartEndTimeProps = {
+type EditStartEndTimesProps = {
   show: boolean;
   hide: () => void;
   onHide: () => void;
@@ -561,7 +530,7 @@ type AdjustStartEndTimeProps = {
   onUpdate: (update: Partial<{ startedAt: number; endedAt: number }>) => void;
 };
 
-export const AdjustStartEndTime = forwardRef(
+export const EditStartEndTimes = forwardRef(
   (
     {
       show,
@@ -570,7 +539,7 @@ export const AdjustStartEndTime = forwardRef(
       startedAt,
       endedAt,
       onUpdate,
-    }: AdjustStartEndTimeProps,
+    }: EditStartEndTimesProps,
     ref: ForwardedRef<BottomSheet>
   ) => {
     const [isEditingStartTime, setIsEditingStartTime] = useState(false);

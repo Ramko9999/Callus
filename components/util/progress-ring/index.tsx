@@ -14,12 +14,14 @@ type ProgressRingProps = {
   progress: number;
   dimension?: number;
   children?: React.ReactNode;
+  strokeWidth?: number;
 };
 
 export function ProgressRing({
   progress,
   dimension,
   children,
+  strokeWidth = 10,
 }: ProgressRingProps) {
   const { width } = useWindowDimensions();
 
@@ -31,7 +33,7 @@ export function ProgressRing({
     cx: "50%",
     cy: "50%",
     r: radius,
-    strokeWidth: 10,
+    strokeWidth
   };
 
   return (

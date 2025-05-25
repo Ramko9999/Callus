@@ -18,8 +18,8 @@ import {
   EditRestDuration,
   RoutineDeleteConfirmation,
   RoutineStartConfirmation,
-} from "@/components/popup/workout/common/modals";
-import { useState } from "react";
+} from "@/components/sheets";
+import { useRef, useState } from "react";
 import { SetsEditorTopActions } from "./top-actions";
 import { getDifficultyType } from "@/api/exercise";
 import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
@@ -35,6 +35,7 @@ import { RoutineExercise } from "../common/exercise/item";
 import { SetEditor } from "../common/set";
 import { RoutineSet } from "../common/set/item";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import BottomSheet from "@gorhom/bottom-sheet";
 
 type RoutineStackParamList = {
   exercises: undefined;
@@ -57,6 +58,8 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
 
   const [isTrashing, setIsTrashing] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
+  const routineDeleteConfirmationSheetRef = useRef<BottomSheet>(null);
+  const routineStartConfirmationSheetRef = useRef<BottomSheet>(null);
 
   const { userDetails } = useUserDetails();
 
@@ -110,13 +113,17 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
         </View>
       </ModalWrapper>
       <RoutineDeleteConfirmation
+        ref={routineDeleteConfirmationSheetRef}
         show={isTrashing}
-        hide={() => setIsTrashing(false)}
+        hide={() => routineDeleteConfirmationSheetRef.current?.close()}
+        onHide={() => setIsTrashing(false)}
         onDelete={trash}
       />
       <RoutineStartConfirmation
+        ref={routineStartConfirmationSheetRef}
         show={isStarting}
-        hide={() => setIsStarting(false)}
+        hide={() => routineStartConfirmationSheetRef.current?.close()}
+        onHide={() => setIsStarting(false)}
         onStart={start}
       />
     </>
@@ -131,6 +138,7 @@ type SetsEditorProps = CompositeScreenProps<
 function SetsEditor({ route, navigation }: SetsEditorProps) {
   const { routine, onSave } = useRoutine();
   const [isEditingRest, setIsEditingRest] = useState(false);
+  const editRestDurationSheetRef = useRef<BottomSheet>(null);
   const exercisePlan = routine.plan.find(
     ({ id }) => id === route.params.exerciseId
   );
@@ -176,8 +184,10 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
         </View>
       </ModalWrapper>
       <EditRestDuration
+        ref={editRestDurationSheetRef}
         show={isEditingRest}
-        hide={() => setIsEditingRest(false)}
+        hide={() => editRestDurationSheetRef.current?.close()}
+        onHide={() => setIsEditingRest(false)}
         duration={exercisePlan?.rest ?? 60}
         onUpdateDuration={(rest) =>
           onSave(exercisePlanActions.update(route.params.exerciseId, { rest }))

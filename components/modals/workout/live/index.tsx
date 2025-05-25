@@ -33,10 +33,7 @@ import {
   Exercise,
 } from "@/interface";
 import { useRef, useState } from "react";
-import {
-  DiscardSetsAndFinishConfirmation,
-  EditRestDuration,
-} from "@/components/popup/workout/common/modals";
+import { DiscardSetsAndFinishConfirmation } from "@/components/sheets";
 import { getDifficultyType } from "@/api/exercise";
 import { updateExerciseRest } from "@/util/workout/update";
 import { ExerciseInsights } from "@/components/popup/exercises/insights";
@@ -56,8 +53,9 @@ import { ExerciseEditor } from "../../common/exercise";
 import { LiveWorkoutExercise } from "../../common/exercise/item";
 import { SetEditor } from "../../common/set";
 import { LiveWorkoutSet } from "../../common/set/item";
-import { AdjustStartEndTime } from "@/components/popup/workout/common/adjust-start-end-time";
+import { EditStartEndTimes } from "@/components/sheets/edit-start-end-time";
 import BottomSheet from "@gorhom/bottom-sheet";
+import { EditRestDuration } from "@/components/sheets/edit-rest-duration";
 
 type LiveWorkoutStackParamList = {
   player: undefined;
@@ -86,6 +84,7 @@ function Player({ navigation }: PlayerProps) {
   const { activity, actions, editor } = useWorkout();
   const { workout, actions: editorActions } = editor;
   const [isFinishing, setIsFinishing] = useState(false);
+  const discardSetsAndFinishConfirmationSheetRef = useRef<BottomSheet>(null);
 
   useRefresh({ period: 1000 });
 
@@ -138,8 +137,10 @@ function Player({ navigation }: PlayerProps) {
         </View>
       </ModalWrapper>
       <DiscardSetsAndFinishConfirmation
+        ref={discardSetsAndFinishConfirmationSheetRef}
         show={isFinishing}
-        hide={() => setIsFinishing(false)}
+        hide={() => discardSetsAndFinishConfirmationSheetRef.current?.close()}
+        onHide={() => setIsFinishing(false)}
         onDiscard={forceFinish}
       />
     </InputsPadProvider>
@@ -161,6 +162,7 @@ function ExercisesEditor({ navigation }: ExercisesEditorProps) {
   const [isFinishing, setIsFinishing] = useState(false);
   const [isEditingDates, setIsEditingDates] = useState(false);
   const adjustStartEndTimeSheetRef = useRef<BottomSheet>(null);
+  const discardSetsAndFinishConfirmationSheetRef = useRef<BottomSheet>(null);
 
   const updateMeta = (update: Partial<Workout>) => {
     actions.updateWorkout({ ...workout, ...update });
@@ -219,11 +221,13 @@ function ExercisesEditor({ navigation }: ExercisesEditorProps) {
           />
         </View>
         <DiscardSetsAndFinishConfirmation
+          ref={discardSetsAndFinishConfirmationSheetRef}
           show={isFinishing}
-          hide={() => setIsFinishing(false)}
+          hide={() => discardSetsAndFinishConfirmationSheetRef.current?.close()}
+          onHide={() => setIsFinishing(false)}
           onDiscard={forceFinish}
         />
-        <AdjustStartEndTime
+        <EditStartEndTimes
           ref={adjustStartEndTimeSheetRef}
           show={isEditingDates}
           onHide={() => setIsEditingDates(false)}
@@ -246,6 +250,7 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
   const { editor } = useWorkout();
 
   const [isEditingRest, setIsEditingRest] = useState(false);
+  const editRestDurationSheetRef = useRef<BottomSheet>(null);
 
   const { workout, actions } = editor;
   const exercise = workout?.exercises.find(
@@ -307,8 +312,10 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
         </View>
       </ModalWrapper>
       <EditRestDuration
+        ref={editRestDurationSheetRef}
         show={isEditingRest}
-        hide={() => setIsEditingRest(false)}
+        hide={() => editRestDurationSheetRef.current?.close()}
+        onHide={() => setIsEditingRest(false)}
         duration={exercise?.restDuration ?? 0}
         onUpdateDuration={(duration) =>
           actions.updateWorkout(
