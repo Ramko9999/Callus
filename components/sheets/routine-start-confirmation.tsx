@@ -7,7 +7,7 @@ import { forwardRef, ForwardedRef } from "react";
 import { tintColor } from "@/util/color";
 import { commonSheetStyles, SheetProps, SheetX } from "./common";
 
-const confirmationModalStyles = StyleSheet.create({
+const routineStartConfirmationStyles = StyleSheet.create({
   actions: {
     ...StyleUtils.flexColumnCenterAll(20),
     paddingTop: "3%",
@@ -42,7 +42,7 @@ export const RoutineStartConfirmation = forwardRef(
             <SheetX size={14} />
           </TouchableOpacity>
         </View>
-        <View style={confirmationModalStyles.actions}>
+        <View style={routineStartConfirmationStyles.actions}>
           <TouchableOpacity
             style={[
               commonSheetStyles.sheetButton,

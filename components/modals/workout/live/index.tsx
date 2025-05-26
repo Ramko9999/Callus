@@ -2,7 +2,7 @@ import { RootStackParamList } from "@/layout/types";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { StackScreenProps } from "@react-navigation/stack";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { StyleSheet } from "react-native";
+import { Keyboard, StyleSheet } from "react-native";
 import { ModalWrapper } from "../../common";
 import { contentStyles } from "../../common/styles";
 import { View, Text } from "@/components/Themed";
@@ -32,8 +32,11 @@ import {
   WorkoutActivity,
   Exercise,
 } from "@/interface";
-import { useRef, useState } from "react";
-import { DiscardSetsAndFinishConfirmation } from "@/components/sheets";
+import { useCallback, useRef, useState } from "react";
+import {
+  DiscardSetsAndFinishConfirmation,
+  FilterExercises,
+} from "@/components/sheets";
 import { getDifficultyType } from "@/api/exercise";
 import { updateExerciseRest } from "@/util/workout/update";
 import { ExerciseInsights } from "@/components/popup/exercises/insights";
@@ -41,8 +44,7 @@ import {
   AddExercisesTopActions,
   ExerciseInsightTopActions,
 } from "../../common/top-actions";
-import { PerformantExerciseAdder } from "@/components/popup/workout/common/exercise/add";
-import { ExercisesFilter } from "@/components/popup/exercises/filters";
+import { ExerciseAdder } from "@/components/popup/workout/common/exercise/add";
 import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
 import { Activity } from "@/components/popup/workout/live/player/activity";
 import { getTimePeriodDisplay } from "@/util/date";
@@ -56,6 +58,7 @@ import { LiveWorkoutSet } from "../../common/set/item";
 import { EditStartEndTimes } from "@/components/sheets/edit-start-end-time";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { EditRestDuration } from "@/components/sheets/edit-rest-duration";
+import React from "react";
 
 type LiveWorkoutStackParamList = {
   player: undefined;
@@ -356,8 +359,9 @@ function AddExercises({ navigation }: AddExercisesProps) {
   const { editor } = useWorkout();
   const { workout, actions } = editor;
   const [isFiltering, setIsFiltering] = useState(false);
-  const [muscleFilter, setMuscleFilter] = useState<string>();
-  const [exerciseTypeFilter, setExerciseTypeFilter] = useState<string>();
+  const [muscleFilters, setMuscleFilters] = useState<string[]>([]);
+  const [exerciseTypeFilters, setExerciseTypeFilters] = useState<string[]>([]);
+  const filterExercisesSheetRef = useRef<BottomSheet>(null);
 
   const onAddExercises = (metas: ExerciseMeta[]) => {
     let updatedWorkout = JSON.parse(JSON.stringify(workout));
@@ -367,31 +371,35 @@ function AddExercises({ navigation }: AddExercisesProps) {
     actions.updateWorkout(updatedWorkout);
   };
 
+  const onShowFilters = useCallback(() => {
+    setIsFiltering(true);
+    Keyboard.dismiss();
+  }, []);
+
   return (
     <>
       <ModalWrapper>
         <View style={contentStyles.container}>
-          <AddExercisesTopActions
-            onBack={navigation.goBack}
-            onFilter={() => setIsFiltering(true)}
-            hasFilters={
-              muscleFilter != undefined || exerciseTypeFilter != undefined
-            }
-          />
-          <PerformantExerciseAdder
+          <AddExercisesTopActions onBack={navigation.goBack} />
+          <ExerciseAdder
             onClose={navigation.goBack}
             onAdd={onAddExercises}
-            muscleFilter={muscleFilter}
-            exerciseTypeFilter={exerciseTypeFilter}
+            muscleFilters={muscleFilters}
+            exerciseTypeFilters={exerciseTypeFilters}
+            onShowFilters={onShowFilters}
+            onUpdateMuscleFilters={setMuscleFilters}
+            onUpdateExerciseTypeFilters={setExerciseTypeFilters}
           />
         </View>
-        <ExercisesFilter
+        <FilterExercises
+          ref={filterExercisesSheetRef}
           show={isFiltering}
-          hide={() => setIsFiltering(false)}
-          muscleFilter={muscleFilter}
-          exerciseTypeFilter={exerciseTypeFilter}
-          onUpdateExerciseTypeFilter={setExerciseTypeFilter}
-          onUpdateMuscleFilter={setMuscleFilter}
+          hide={() => filterExercisesSheetRef.current?.close()}
+          onHide={() => setIsFiltering(false)}
+          muscleFilters={muscleFilters}
+          exerciseTypeFilters={exerciseTypeFilters}
+          onUpdateMuscleFilters={setMuscleFilters}
+          onUpdateExerciseTypeFilters={setExerciseTypeFilters}
         />
       </ModalWrapper>
     </>

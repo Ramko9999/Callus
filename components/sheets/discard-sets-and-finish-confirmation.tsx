@@ -7,7 +7,7 @@ import { forwardRef, ForwardedRef } from "react";
 import { tintColor } from "@/util/color";
 import { commonSheetStyles, SheetProps, SheetX } from "./common";
 
-const confirmationModalStyles = StyleSheet.create({
+const discardSetsAndFinishConfirmationStyles = StyleSheet.create({
   actions: {
     ...StyleUtils.flexColumnCenterAll(20),
     paddingTop: "3%",
@@ -42,7 +42,7 @@ export const DiscardSetsAndFinishConfirmation = forwardRef(
             <SheetX size={14} />
           </TouchableOpacity>
         </View>
-        <View style={confirmationModalStyles.actions}>
+        <View style={discardSetsAndFinishConfirmationStyles.actions}>
           <Text>
             There are still sets remaining in your workout. Do you want to
             discard them and finish the workout?

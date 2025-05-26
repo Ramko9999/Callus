@@ -1,5 +1,6 @@
 import STATIC_EXERCISE_REPOSITORY from "@/assets/exercises/exerciseMetas.json";
 import { DifficultyType, ExerciseMeta } from "@/interface";
+import { ArrayUtils } from "@/util/misc";
 import { ImageRequireSource } from "react-native";
 
 export const EXERCISE_REPOSITORY: ExerciseMeta[] =
@@ -46,6 +47,83 @@ export function getExerciseDemonstration(
 ): ImageRequireSource | undefined {
   const meta = getMeta(name);
   return EXERCISE_DEMONSTRATIONS[meta.metaId];
+}
+
+export function isMuscleUpperBody(muscle: string) {
+  return (
+    [
+      "Abs",
+      "Chest",
+      "Lats",
+      "Lower Back",
+      "Neck Extensors",
+      "Neck Flexors",
+      "Obliques",
+      "Traps",
+    ].indexOf(muscle) > -1
+  );
+}
+
+export function isMusclePartOfArms(muscle: string) {
+  return (
+    [
+      "Biceps",
+      "Forearm Flexors",
+      "Front Delts",
+      "Rear Delts",
+      "Side Delts",
+      "Triceps",
+    ].indexOf(muscle) > -1
+  );
+}
+
+export function isMuscleLowerBody(muscle: string) {
+  return (
+    [
+      "Calves",
+      "Glutes",
+      "Hamstrings",
+      "Hip Flexors",
+      "Quads",
+      "Tibialis Anterior",
+    ].indexOf(muscle) > -1
+  );
+}
+
+export function queryExercises(
+  query: string,
+  exerciseMetas: ExerciseMeta[],
+  muscleFilters: string[],
+  exerciseTypeFilters: string[]
+): ExerciseMeta[] {
+  const relevantMetas = exerciseMetas.filter(
+    ({ name, primaryMuscles, secondaryMuscles, difficultyType }) => {
+      if (!name.toUpperCase().includes(query.trim().toUpperCase())) {
+        return false;
+      }
+
+      // Check if all muscle filters are present in either primary or secondary muscles
+      const allMuscles = [...primaryMuscles, ...secondaryMuscles];
+      const hasAllMuscleFilters = muscleFilters.every((filter) =>
+        allMuscles.includes(filter)
+      );
+      if (muscleFilters.length > 0 && !hasAllMuscleFilters) {
+        return false;
+      }
+
+      // Check if exercise type matches any of the filters
+      if (
+        exerciseTypeFilters.length > 0 &&
+        !exerciseTypeFilters.includes(difficultyType)
+      ) {
+        return false;
+      }
+
+      return true;
+    }
+  );
+
+  return ArrayUtils.sortBy(relevantMetas, (meta) => meta.name);
 }
 
 const EXERCISE_DEMONSTRATIONS: Record<string, ImageRequireSource> = {

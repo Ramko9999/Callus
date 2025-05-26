@@ -18,13 +18,13 @@ import {
   EditRestDuration,
   RoutineDeleteConfirmation,
   RoutineStartConfirmation,
+  FilterExercises,
 } from "@/components/sheets";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { SetsEditorTopActions } from "./top-actions";
 import { getDifficultyType } from "@/api/exercise";
 import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
-import { PerformantExerciseAdder } from "@/components/popup/workout/common/exercise/add";
-import { ExercisesFilter } from "@/components/popup/exercises/filters";
+import { ExerciseAdder } from "@/components/popup/workout/common/exercise/add";
 import { ExerciseInsights } from "@/components/popup/exercises/insights";
 import {
   AddExercisesTopActions,
@@ -36,6 +36,8 @@ import { SetEditor } from "../common/set";
 import { RoutineSet } from "../common/set/item";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BottomSheet from "@gorhom/bottom-sheet";
+import React from "react";
+import { Keyboard } from "react-native";
 
 type RoutineStackParamList = {
   exercises: undefined;
@@ -205,41 +207,47 @@ type AddExerciseProps = CompositeScreenProps<
 function AddExercises({ navigation }: AddExerciseProps) {
   const { routine, onSave } = useRoutine();
   const [isFiltering, setIsFiltering] = useState(false);
-  const [muscleFilter, setMuscleFilter] = useState<string>();
-  const [exerciseTypeFilter, setExerciseTypeFilter] = useState<string>();
+  const [muscleFilters, setMuscleFilters] = useState<string[]>([]);
+  const [exerciseTypeFilters, setExerciseTypeFilters] = useState<string[]>([]);
+  const filterExercisesSheetRef = useRef<BottomSheet>(null);
 
   const exercisePlanActions = ExercisePlanActions(routine);
+
+  const onShowFilters = useCallback(() => {
+    setIsFiltering(true);
+    Keyboard.dismiss();
+  }, []);
 
   return (
     <>
       <ModalWrapper>
         <View style={contentStyles.container}>
-          <AddExercisesTopActions
-            onBack={navigation.goBack}
-            onFilter={() => setIsFiltering(true)}
-            hasFilters={
-              muscleFilter != undefined || exerciseTypeFilter != undefined
-            }
-          />
-          <PerformantExerciseAdder
+          <AddExercisesTopActions onBack={navigation.goBack} />
+          <ExerciseAdder
             onClose={navigation.goBack}
             onAdd={(metas) => onSave(exercisePlanActions.add(metas))}
-            muscleFilter={muscleFilter}
-            exerciseTypeFilter={exerciseTypeFilter}
+            muscleFilters={muscleFilters}
+            exerciseTypeFilters={exerciseTypeFilters}
+            onShowFilters={onShowFilters}
+            onUpdateMuscleFilters={setMuscleFilters}
+            onUpdateExerciseTypeFilters={setExerciseTypeFilters}
           />
         </View>
-        <ExercisesFilter
+        <FilterExercises
+          ref={filterExercisesSheetRef}
           show={isFiltering}
-          hide={() => setIsFiltering(false)}
-          muscleFilter={muscleFilter}
-          exerciseTypeFilter={exerciseTypeFilter}
-          onUpdateExerciseTypeFilter={setExerciseTypeFilter}
-          onUpdateMuscleFilter={setMuscleFilter}
+          hide={() => filterExercisesSheetRef.current?.close()}
+          onHide={() => setIsFiltering(false)}
+          muscleFilters={muscleFilters}
+          exerciseTypeFilters={exerciseTypeFilters}
+          onUpdateMuscleFilters={setMuscleFilters}
+          onUpdateExerciseTypeFilters={setExerciseTypeFilters}
         />
       </ModalWrapper>
     </>
   );
 }
+
 type ExerciseInsightProps = CompositeScreenProps<
   StackScreenProps<RoutineStackParamList, "exerciseInsight">,
   StackScreenProps<RootStackParamList>

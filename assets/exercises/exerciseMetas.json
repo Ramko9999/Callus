@@ -161,7 +161,7 @@
   },
   {
     "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Reat Delt", "Traps"],
+    "primaryMuscles": ["Rear Delt", "Traps"],
     "secondaryMuscles": [],
     "name": "Ring Face Pull",
     "metaId": "180"
@@ -210,7 +210,7 @@
   },
   {
     "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Reat Delt"],
+    "primaryMuscles": ["Rear Delt"],
     "secondaryMuscles": [],
     "name": "Machine Rear Delt Fly",
     "metaId": "145"

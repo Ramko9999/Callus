@@ -1,26 +1,27 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
-import { View } from "@/components/Themed";
-import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { StyleSheet, TouchableOpacity, Keyboard } from "react-native";
+import { useThemeColoring, View } from "@/components/Themed";
+import { TAB_BAR_HEIGHT } from "@/util/styles";
+import { useCallback, useRef, useState } from "react";
 import { ExerciseMeta, SearchExerciseSummary } from "@/interface";
 import { WorkoutApi } from "@/api/workout";
 import React from "react";
 import { EXERCISE_REPOSITORY } from "@/api/exercise";
 import { HeaderPage } from "@/components/util/header-page";
-import { CollapsableSearchScroll } from "@/components/util/collapsable-search-scroll";
-import Animated from "react-native-reanimated";
-import { ExercisesFilter } from "@/components/popup/exercises/filters";
-import { useTabBar } from "@/components/tab-bar/context";
-import { SEARCH_BAR_HEIGHT } from "@/components/util/collapsable-search-scroll/search";
-import {
-  computeOffsetToScrollTo,
-  filterExerciseResultGroups,
-  SearchExercise,
-  SearchExerciseFilterAction,
-  SearchExerciseGroup,
-  SearchExerciseGroupNav,
-} from "./search";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { FlatList } from "react-native-gesture-handler";
+import {
+  FilterActions,
+  getResultsToDisplay,
+  SearchExercise,
+  SearchExerciseGrouping,
+  ExerciseDisplayResult,
+  SearchBar,
+  SearchExerciseGroupNav,
+  SEARCH_EXERCISE_HEIGHT,
+} from "@/components/exercise/search/common";
+import * as Haptics from "expo-haptics";
+import { tintColor } from "@/util/color";
+import { usePopup } from "@/components/popup";
 
 type SearchExerciseWithSummaryProps = {
   meta: ExerciseMeta;
@@ -43,40 +44,35 @@ function SearchExerciseWithSummary({
 }
 
 const exercisesStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexColumn(5),
-    paddingBottom: SEARCH_BAR_HEIGHT,
-  },
   scroll: {
     flex: 1,
-    marginTop: "3%",
     paddingHorizontal: "3%",
+  },
+  content: {
+    paddingBottom: "10%",
   },
   groupNavigation: {
     position: "absolute",
     left: "97%",
     bottom: TAB_BAR_HEIGHT + 20,
   },
-  filters: {
-    ...StyleUtils.flexRow(5),
+  search: {
+    paddingHorizontal: "3%",
   },
 });
 
-// todo: give first class treatment to the assistance exercises
 export function Exercises() {
   const navigation = useNavigation();
-  const tabBarActions = useTabBar();
-  const scrollRef = useRef<Animated.ScrollView>(null);
+  const flatListRef = useRef<FlatList>(null);
+  const { filterExercises } = usePopup();
 
   const [performedExerciseSummaries, setPerformedExerciseSummaries] = useState<
     SearchExerciseSummary[]
   >([]);
 
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [showExercisesFilter, setShowExercisesFilter] =
-    useState<boolean>(false);
-  const [muscleFilter, setMuscleFilter] = useState<string>();
-  const [exerciseTypeFilter, setExerciseTypeFilter] = useState<string>();
+
+  const barColor = tintColor(useThemeColoring("primaryViewBackground"), 0.05);
 
   useFocusEffect(
     useCallback(() => {
@@ -84,20 +80,16 @@ export function Exercises() {
     }, [])
   );
 
-  useEffect(() => {
-    if (showExercisesFilter) {
-      tabBarActions.close();
-    } else {
-      tabBarActions.open();
-    }
-  }, [showExercisesFilter]);
-
-  const exerciseResultGroups = filterExerciseResultGroups(
+  const results = getResultsToDisplay(
     searchQuery,
     EXERCISE_REPOSITORY,
-    muscleFilter,
-    exerciseTypeFilter
+    filterExercises.muscleFilters,
+    filterExercises.exerciseTypeFilters
   );
+
+  const groups = results
+    .filter(({ resultType }) => resultType === "group")
+    .map(({ group }) => group) as string[];
 
   const getSummary = (meta: ExerciseMeta) => {
     const summaryIndex = performedExerciseSummaries
@@ -108,71 +100,97 @@ export function Exercises() {
     }
   };
 
+  const renderItem = useCallback(
+    ({ item }: { item: ExerciseDisplayResult }) =>
+      item.resultType === "group" ? (
+        <SearchExerciseGrouping group={item.group as string} />
+      ) : (
+        <SearchExerciseWithSummary
+          meta={item.exercise as ExerciseMeta}
+          summary={getSummary(item.exercise as ExerciseMeta)}
+          onClick={() => {
+            // @ts-ignore
+            navigation.navigate("exerciseInsight", {
+              name: (item.exercise as ExerciseMeta).name,
+            });
+          }}
+        />
+      ),
+    [performedExerciseSummaries, navigation]
+  );
+
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: SEARCH_EXERCISE_HEIGHT,
+      offset: SEARCH_EXERCISE_HEIGHT * index,
+      index,
+    }),
+    []
+  );
+
+  const keyExtractor = useCallback(
+    ({ resultType, exercise, group }: ExerciseDisplayResult) =>
+      exercise ? `${resultType}-${exercise.name}` : `${resultType}-${group}`,
+    []
+  );
+
+  const onShowFilters = useCallback(() => {
+    Keyboard.dismiss();
+    filterExercises.open();
+  }, [filterExercises]);
+
+  const hasFilters =
+    filterExercises.muscleFilters.length > 0 ||
+    filterExercises.exerciseTypeFilters.length > 0;
+
   return (
     <>
-      <HeaderPage
-        title="Exercises"
-        rightAction={
-          <SearchExerciseFilterAction
-            hasFilters={
-              muscleFilter != undefined || exerciseTypeFilter != undefined
-            }
-            onClick={() => setShowExercisesFilter(true)}
+      <HeaderPage title="Exercises">
+        <View style={exercisesStyles.search}>
+          <SearchBar
+            onChangeSearchQuery={setSearchQuery}
+            style={{ backgroundColor: barColor }}
           />
-        }
-      >
-        <CollapsableSearchScroll
-          contentStyle={exercisesStyles.container}
-          scrollStyle={exercisesStyles.scroll}
-          scrollRef={scrollRef}
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        >
-          {exerciseResultGroups.map((exerciseResultGroup, index) => (
-            <SearchExerciseGroup
-              key={index}
-              grouping={exerciseResultGroup}
-              renderExercise={(meta, index) => (
-                <SearchExerciseWithSummary
-                  meta={meta}
-                  summary={getSummary(meta)}
-                  key={index}
-                  onClick={() => {
-                    // @ts-ignore
-                    navigation.navigate("exerciseInsight", { name: meta.name });
-                  }}
-                />
-              )}
-            />
-          ))}
-        </CollapsableSearchScroll>
+        </View>
+        <FilterActions
+          hasFilters={hasFilters}
+          muscleFilters={filterExercises.muscleFilters}
+          exerciseTypeFilters={filterExercises.exerciseTypeFilters}
+          onUpdateMuscleFilters={filterExercises.onUpdateMuscleFilters}
+          onUpdateExerciseTypeFilters={
+            filterExercises.onUpdateExerciseTypeFilters
+          }
+          onShowFilters={onShowFilters}
+        />
+        <FlatList
+          ref={flatListRef}
+          style={exercisesStyles.scroll}
+          contentContainerStyle={exercisesStyles.content}
+          showsVerticalScrollIndicator={false}
+          data={results}
+          getItemLayout={getItemLayout}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+        />
       </HeaderPage>
 
       <View style={exercisesStyles.groupNavigation}>
         <SearchExerciseGroupNav
-          enabledGroups={exerciseResultGroups.map(({ group }) => group)}
+          enabledGroups={groups}
           onClick={(selectedGroup) => {
-            const index = exerciseResultGroups.findIndex(
-              ({ group }) => group === selectedGroup
-            );
-            if (index >= 0 && scrollRef.current) {
-              const offset = computeOffsetToScrollTo(
-                exerciseResultGroups,
-                selectedGroup
-              );
-              scrollRef.current.scrollTo({ animated: true, y: offset });
-            }
+            const scrollIndex = results
+              .map(({ resultType, group }) =>
+                resultType === "group" ? group : ""
+              )
+              .indexOf(selectedGroup);
+            flatListRef.current?.scrollToIndex({
+              animated: true,
+              index: scrollIndex,
+            });
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
           }}
         />
       </View>
-      <ExercisesFilter
-        show={showExercisesFilter}
-        hide={() => setShowExercisesFilter(false)}
-        muscleFilter={muscleFilter}
-        exerciseTypeFilter={exerciseTypeFilter}
-        onUpdateExerciseTypeFilter={setExerciseTypeFilter}
-        onUpdateMuscleFilter={setMuscleFilter}
-      />
     </>
   );
 }
