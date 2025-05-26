@@ -5,6 +5,8 @@ import { Check } from "lucide-react-native";
 import { forwardRef, ForwardedRef, useCallback } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { PopupBottomSheet } from "@/components/util/popup/sheet";
+import { commonSheetStyles, SheetProps, SheetX } from "./common";
+import { tintColor } from "@/util/color";
 
 // Time range options
 const timeRangeOptions = [
@@ -16,18 +18,19 @@ const timeRangeOptions = [
 const trendsPeriodSelectionStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(20),
-    padding: "5%",
+    paddingBottom: "4%",
   },
   optionsContainer: {
     ...StyleUtils.flexColumn(15),
+    paddingHorizontal: "5%",
+    paddingBottom: "6%",
   },
   optionItem: {
     ...StyleUtils.flexRow(),
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(150, 150, 150, 0.2)",
+    paddingVertical: "5%",
+    borderBottomWidth: 2,
   },
   optionText: {
     fontSize: 16,
@@ -35,23 +38,40 @@ const trendsPeriodSelectionStyles = StyleSheet.create({
 });
 
 type TrendsPeriodSelectionProps = {
+  hide: () => void;
   selectedTimeRange: string;
   onSelectTimeRange: (value: string) => void;
 };
 
 export function TrendsPeriodSelection({
+  hide,
   selectedTimeRange,
   onSelectTimeRange,
 }: TrendsPeriodSelectionProps) {
   const accentColor = useThemeColoring("primaryAction");
+  const borderColor = tintColor(
+    useThemeColoring("primaryViewBackground"),
+    0.05
+  );
 
   return (
     <View style={trendsPeriodSelectionStyles.container}>
+      <View style={commonSheetStyles.sheetHeader}>
+        <Text action style={{ fontWeight: 600 }}>
+          Select time period
+        </Text>
+        <TouchableOpacity onPress={hide}>
+          <SheetX />
+        </TouchableOpacity>
+      </View>
       <View style={trendsPeriodSelectionStyles.optionsContainer}>
         {timeRangeOptions.map((option) => (
           <TouchableOpacity
             key={option.value}
-            style={trendsPeriodSelectionStyles.optionItem}
+            style={[
+              trendsPeriodSelectionStyles.optionItem,
+              { borderBottomColor: borderColor },
+            ]}
             onPress={() => onSelectTimeRange(option.value)}
           >
             <Text style={trendsPeriodSelectionStyles.optionText}>
@@ -67,9 +87,7 @@ export function TrendsPeriodSelection({
   );
 }
 
-type TrendsPeriodSelectionSheetProps = {
-  show: boolean;
-  onHide: () => void;
+type TrendsPeriodSelectionSheetProps = SheetProps & {
   selectedTimeRange: string;
   onSelectTimeRange: (value: string) => void;
 };
@@ -78,20 +96,17 @@ export const TrendsPeriodSelectionSheet = forwardRef(
   (
     {
       show,
+      hide,
       onHide,
       selectedTimeRange,
       onSelectTimeRange,
     }: TrendsPeriodSelectionSheetProps,
     ref: ForwardedRef<BottomSheet>
   ) => {
-
     return (
-      <PopupBottomSheet
-        ref={ref}
-        show={show}
-        onHide={onHide}
-      >
+      <PopupBottomSheet ref={ref} show={show} onHide={onHide}>
         <TrendsPeriodSelection
+          hide={hide}
           selectedTimeRange={selectedTimeRange}
           onSelectTimeRange={onSelectTimeRange}
         />

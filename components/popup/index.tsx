@@ -5,14 +5,14 @@ import {
   useRef,
   useState,
 } from "react";
-import { StartWorkoutSheet } from "../pages/home/start-workout";
+import { StartWorkoutSheet } from "../sheets/start-workout";
 import { useWorkout } from "@/context/WorkoutContext";
 import { useToast } from "react-native-toast-notifications";
 import { Routine, Workout } from "@/interface";
 import { WorkoutActions } from "@/api/model/workout";
 import { useUserDetails } from "@/components/user-details";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { TrendsPeriodSelectionSheet } from "@/components/pages/profile/summary/trends-period-selection";
+import { TrendsPeriodSelectionSheet } from "@/components/sheets/trends-period-selection";
 import { FilterExercises } from "@/components/sheets/filter-exercises";
 
 type PopupActions = {
@@ -154,11 +154,14 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <PopupContext.Provider value={{ startWorkout, trendsPeriodSelection, filterExercises }}>
+    <PopupContext.Provider
+      value={{ startWorkout, trendsPeriodSelection, filterExercises }}
+    >
       {children}
       <StartWorkoutSheet
         ref={startWorkoutSheetRef}
         show={isStartWorkoutOpen}
+        hide={() => startWorkoutSheetRef.current?.close()}
         onHide={startWorkout.close}
         onQuickStart={quickStart}
         onStartFromRoutine={startFromRoutine}
@@ -167,6 +170,7 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
       <TrendsPeriodSelectionSheet
         ref={trendsPeriodSelectionSheetRef}
         show={isTrendsPeriodSelectionOpen}
+        hide={() => trendsPeriodSelectionSheetRef.current?.close()}
         onHide={trendsPeriodSelection.close}
         selectedTimeRange={selectedTimeRange}
         onSelectTimeRange={setTimeRange}

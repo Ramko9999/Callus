@@ -116,7 +116,8 @@ const exerciseAdderStyles = StyleSheet.create({
   },
   groupNavigation: {
     position: "absolute",
-    left: "97%",
+    left: "95%",
+    bottom: "10%",
   },
 });
 
@@ -228,12 +229,7 @@ export function ExerciseAdder({
         renderItem={renderItem}
         keyExtractor={keyExtractor}
       />
-      <View
-        style={[
-          exerciseAdderStyles.groupNavigation,
-          { bottom: insets.bottom + 10 },
-        ]}
-      >
+      <View style={exerciseAdderStyles.groupNavigation}>
         <SearchExerciseGroupNav
           enabledGroups={groups}
           onClick={(selectedGroup) => {
