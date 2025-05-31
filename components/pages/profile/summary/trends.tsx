@@ -136,7 +136,8 @@ function generateVolumeTrends(
 
         case DifficultyType.ASSISTED_BODYWEIGHT:
           const abwDiff = set.difficulty as AssistedBodyWeightDifficulty;
-          dayVolume += (exercise.bodyweight - abwDiff.assistanceWeight) * abwDiff.reps;
+          dayVolume +=
+            (exercise.bodyweight - abwDiff.assistanceWeight) * abwDiff.reps;
           break;
       }
     });
@@ -216,10 +217,7 @@ function getTwoMonthPeriodStartDate(timestamp: number): number {
 
 type SummaryMetric = {
   name: string;
-  generateData: (
-    startDate: number,
-    endDate: number
-  ) => Promise<DataPoint[]>;
+  generateData: (startDate: number, endDate: number) => Promise<DataPoint[]>;
   formatYAxisLabel: (value: number) => string;
   formatTitleValue: (value: number) => string;
 };
@@ -295,6 +293,7 @@ type SummaryBarChartProps = {
   height: number;
   metricType: string;
   timeRange: string;
+  defaultMaxYValue: number;
 };
 
 // Create animated version of SVG Rect component
@@ -311,7 +310,6 @@ type BarProps = {
   onPress: () => void;
 };
 
-
 function Bar({
   x,
   y,
@@ -320,15 +318,16 @@ function Bar({
   color,
   barSelectionProgress,
   isSelected,
-  onPress
+  onPress,
 }: BarProps) {
   // Use useAnimatedProps for SVG property animation
   const animatedProps = useAnimatedProps(() => {
     // When barSelectionProgress is 0, all bars are at opacity 1
     // When barSelectionProgress is 1, selected bar is at opacity 1, others at 0.4
-    const opacity = isSelected || barSelectionProgress.value === 0
-      ? 1
-      : 1 - (0.6 * barSelectionProgress.value);
+    const opacity =
+      isSelected || barSelectionProgress.value === 0
+        ? 1
+        : 1 - 0.6 * barSelectionProgress.value;
 
     return { opacity };
   });
@@ -355,8 +354,8 @@ function SummaryBarChart({
   height,
   metricType,
   timeRange,
+  defaultMaxYValue,
 }: SummaryBarChartProps) {
-
   const { width } = useWindowDimensions();
   const accentColor = useThemeColoring("primaryAction");
   const gridColor = useThemeColoring("dynamicHeaderBorder");
@@ -381,12 +380,10 @@ function SummaryBarChart({
     }
   }, [data, timeRange]);
 
-
   useEffect(() => {
-    barSelectionProgress.value = withTiming(
-      selectedBarIndex !== null ? 1 : 0,
-      { duration: 250 }
-    );
+    barSelectionProgress.value = withTiming(selectedBarIndex !== null ? 1 : 0, {
+      duration: 250,
+    });
   }, [selectedBarIndex]);
 
   useEffect(() => {
@@ -415,11 +412,14 @@ function SummaryBarChart({
   }, [selectedBarIndex, groupedData]);
 
   const dateRangeText = useMemo(() => {
-    const startDateTimestamp = selectedBarData ? selectedBarData.date : groupedData[0].date;
-    let endingDateTimestamp = selectedBarData ? selectedBarData.date : ArrayUtils.last(groupedData).date;
+    const startDateTimestamp = selectedBarData
+      ? selectedBarData.date
+      : groupedData[0].date;
+    let endingDateTimestamp = selectedBarData
+      ? selectedBarData.date
+      : ArrayUtils.last(groupedData).date;
 
     const endingDate = new Date(endingDateTimestamp);
-
 
     if (timeRange === "6m") {
       endingDateTimestamp = new Date(
@@ -437,7 +437,10 @@ function SummaryBarChart({
       endingDateTimestamp = addDays(endingDateTimestamp, 7);
     }
 
-    return formatTitleDateRange(startDateTimestamp, removeDays(endingDateTimestamp, 1));
+    return formatTitleDateRange(
+      startDateTimestamp,
+      removeDays(endingDateTimestamp, 1)
+    );
   }, [selectedBarData, groupedData, timeRange]);
 
   const getTimeRangeLabel = () => {
@@ -490,7 +493,10 @@ function SummaryBarChart({
     .range([PADDING.left, chartWidth - PADDING.right])
     .padding(barPadding);
 
-  const maxValue = Math.max(...groupedData.map((d) => d.value));
+  const maxValue = Math.max(
+    Math.max(...groupedData.map((d) => d.value)),
+    defaultMaxYValue
+  );
   // Ensure we have exactly 5 ticks with first at 0
   const tickStep = Math.ceil(maxValue / 4);
   const yMax = tickStep * 4;
@@ -724,14 +730,17 @@ function getSummaryDateRange(timeRange: string) {
   return { startDate: truncTime(startDate), endDate: endDate.valueOf() };
 }
 
-
 type SummaryBarChartSkeletonProps = {
   startDate: number;
   endDate: number;
   timeRange: string;
 };
 
-function SummaryBarChartSkeleton({ startDate, endDate, timeRange }: SummaryBarChartSkeletonProps) {
+function SummaryBarChartSkeleton({
+  startDate,
+  endDate,
+  timeRange,
+}: SummaryBarChartSkeletonProps) {
   const { width, height } = useWindowDimensions();
   const accentColor = useThemeColoring("primaryAction");
   const gridColor = useThemeColoring("dynamicHeaderBorder");
@@ -748,8 +757,8 @@ function SummaryBarChartSkeleton({ startDate, endDate, timeRange }: SummaryBarCh
   const dateStep = timeRangeDuration / (numBars - 1);
 
   const skeletonData = Array.from({ length: numBars }, (_, i) => ({
-    date: startDate + (i * dateStep),
-    value: 0 // Value will be ignored, we'll use height factors for visualization
+    date: startDate + i * dateStep,
+    value: 0, // Value will be ignored, we'll use height factors for visualization
   }));
 
   // Format date range text using the actual dates
@@ -776,7 +785,7 @@ function SummaryBarChartSkeleton({ startDate, endDate, timeRange }: SummaryBarCh
   // Use D3 scales exactly like in SummaryBarChart
   const xScale = d3
     .scaleBand()
-    .domain(skeletonData.map(d => d.date.toString()))
+    .domain(skeletonData.map((d) => d.date.toString()))
     .range([PADDING.left, chartWidth - PADDING.right])
     .padding(barPadding);
 
@@ -795,9 +804,7 @@ function SummaryBarChartSkeleton({ startDate, endDate, timeRange }: SummaryBarCh
   const barWidth = xScale.bandwidth();
 
   const getTimeRangeLabel = () => {
-    return timeRangeOptions.find(
-      (o) => o.value === timeRange
-    )!.label;
+    return timeRangeOptions.find((o) => o.value === timeRange)!.label;
   };
 
   return (
@@ -807,7 +814,7 @@ function SummaryBarChartSkeleton({ startDate, endDate, timeRange }: SummaryBarCh
           <TextSkeleton text="100,000 lbs" />
           <TouchableOpacity
             style={summaryBarChartStyles.timeFilterButton}
-            onPress={() => { }}
+            onPress={() => {}}
           >
             <Text
               style={[
@@ -913,7 +920,6 @@ export function SummaryTrends() {
     return getSummaryDateRange(trendsPeriodSelection.timeRange);
   }, [trendsPeriodSelection.timeRange]);
 
-
   const metric = useMemo(() => {
     return selectedMetricName === "Volume" ? volumeMetric : durationMetric;
   }, [selectedMetricName]);
@@ -922,9 +928,9 @@ export function SummaryTrends() {
     useCallback(() => {
       metric
         .generateData(startDate, addDays(endDate, 1))
-      .then(setBarChartData)
-      .catch((error) => console.error(error)) // we need to safely handl
-      .finally(() => setIsLoading(false));
+        .then(setBarChartData)
+        .catch((error) => console.error(error)) // we need to safely handl
+        .finally(() => setIsLoading(false));
     }, [startDate, endDate, metric])
   );
 
@@ -944,6 +950,9 @@ export function SummaryTrends() {
           height={height * CHART_HEIGHT_MULTIPLIER}
           metricType={selectedMetricName}
           timeRange={trendsPeriodSelection.timeRange}
+          defaultMaxYValue={
+            selectedMetricName === "Volume" ? 10000 : 5 * 60 * 60 * 1000 // 5 hrs
+          }
         />
       )}
       <SummaryMetricSelector

@@ -1,6 +1,5 @@
 import { useThemeColoring, View, Text } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
-import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { StyleSheet } from "react-native";
 

@@ -9,7 +9,6 @@ import { WorkoutLifetimeStats } from "@/interface";
 import { convertHexToRGBA } from "@/util/color";
 import { TextSkeleton } from "@/components/util/loading";
 
-
 type LifetimeSummaryStatProps = {
   value: string;
   label: string;
@@ -36,50 +35,38 @@ const lifetimeStatStyles = StyleSheet.create({
   },
   iconContainer: {
     marginBottom: 5,
-  }
+  },
 });
 
-function LifetimeSummaryStat({ value, label, icon, isLoading = false }: LifetimeSummaryStatProps) {
+function LifetimeSummaryStat({
+  value,
+  label,
+  icon,
+  isLoading = false,
+}: LifetimeSummaryStatProps) {
   const accentColor = useThemeColoring("primaryAction");
   const statItemColor = convertHexToRGBA(accentColor, 0.1);
 
-
   return (
     <View
-      style={[
-        lifetimeStatStyles.container,
-        { backgroundColor: statItemColor },
-      ]}
+      style={[lifetimeStatStyles.container, { backgroundColor: statItemColor }]}
     >
-      <View style={lifetimeStatStyles.iconContainer}>
-        {icon}
-      </View>
+      <View style={lifetimeStatStyles.iconContainer}>{icon}</View>
 
       {isLoading ? (
-        <TextSkeleton
-          text="1000"
-          style={lifetimeStatStyles.value}
-        />
+        <TextSkeleton text="1000" style={lifetimeStatStyles.value} />
       ) : (
-        <Text style={lifetimeStatStyles.value}>
-          {value}
-        </Text>
+        <Text style={lifetimeStatStyles.value}>{value}</Text>
       )}
 
       {isLoading ? (
-        <TextSkeleton
-          text={label}
-          style={lifetimeStatStyles.label}
-        />
+        <TextSkeleton text={label} style={lifetimeStatStyles.label} />
       ) : (
-        <Text style={lifetimeStatStyles.label}>
-          {label}
-        </Text>
+        <Text style={lifetimeStatStyles.label}>{label}</Text>
       )}
     </View>
   );
 }
-
 
 const lifetimeSummaryStyles = StyleSheet.create({
   container: {
@@ -105,11 +92,10 @@ export function LifetimeSummary() {
 
   useFocusEffect(
     useCallback(() => {
-      WorkoutApi.getLifetimeStats()
-        .then((data) => {
-          setStats(data);
-          setIsLoading(false);
-        });
+      WorkoutApi.getLifetimeStats().then((data) => {
+        setStats(data);
+        setIsLoading(false);
+      });
     }, [])
   );
 

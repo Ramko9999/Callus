@@ -177,7 +177,7 @@ export const TextInput = React.forwardRef(
     return (
       <DefaultTextInput
         ref={ref}
-        style={[{ color }, fontStyle]}
+        style={[{ color }, fontStyle, style]}
         {...otherProps}
       />
     );

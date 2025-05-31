@@ -1,8 +1,6 @@
 import { Exercises } from "@/components/pages/exercises";
-import { Onboarding } from "@/components/pages/onboarding";
 import { Profile } from "@/components/pages/profile";
 import { Routines } from "@/components/pages/routine";
-import { SignUp } from "@/components/pages/sign-up";
 import { Splash } from "@/components/pages/splash";
 import {
   HistoryTabIcon,
@@ -17,6 +15,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import {
   createStackNavigator,
+  StackScreenProps,
   TransitionPresets,
 } from "@react-navigation/stack";
 import Home from "@/components/pages/home";
@@ -28,66 +27,110 @@ import { RoutineModal } from "@/components/modals/routine";
 import { LiveWorkoutModal } from "@/components/modals/workout/live";
 import { SettingsModal } from "@/components/modals/settings";
 import { Congratulations } from "@/components/modals/congratulations";
+import { Onboarding } from "@/components/pages/onboarding";
+import { StyleSheet } from "react-native";
+import { StyleUtils } from "@/util/styles";
+import Animated, {
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
+import { useEffect } from "react";
+import React from "react";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
 
-function Tabs() {
+const tabsStyles = StyleSheet.create({
+  flicker: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    ...StyleUtils.expansive(),
+  },
+});
+
+type TabsProps = StackScreenProps<RootStackParamList, "tabs">;
+
+function Tabs({ route }: TabsProps) {
+  const fromOnboarding = route.params?.fromOnboarding ?? false;
+  const flickerAnimation = useSharedValue(fromOnboarding ? 1 : 0);
   const colorScheme = useColorScheme();
+  const primaryAction = useThemeColoring("primaryAction");
+
+  useEffect(() => {
+    if (fromOnboarding) {
+      flickerAnimation.value = withTiming(0, { duration: 2000 });
+    }
+  }, [fromOnboarding]);
+
+  const flickerAnimationStyle = useAnimatedStyle(() => {
+    return {
+      display: flickerAnimation.value === 0 ? "none" : "flex",
+      backgroundColor: interpolateColor(
+        flickerAnimation.value,
+        [0, 1],
+        ["transparent", primaryAction]
+      ),
+    };
+  });
+
   return (
-    <Tab.Navigator
-      initialRouteName="history"
-      tabBar={(props) => <TabBar {...props} />}
-      screenOptions={{
-        tabBarActiveTintColor: getTabActiveTintColor(colorScheme ?? "light"),
-        headerShown: false,
-        lazy: false,
-        animation: "shift",
-      }}
-    >
-      <Tab.Screen
-        name="history"
-        component={Home}
-        options={{
-          title: "History",
-          tabBarIcon: ({ color, focused }) => (
-            <HistoryTabIcon color={color} focused={focused} />
-          ),
+    <>
+      <Tab.Navigator
+        initialRouteName="profile"
+        tabBar={(props) => <TabBar {...props} />}
+        screenOptions={{
+          tabBarActiveTintColor: getTabActiveTintColor(colorScheme ?? "light"),
+          headerShown: false,
+          lazy: false,
+          animation: "shift",
         }}
-      />
-      <Tab.Screen
-        name="exercises"
-        component={Exercises}
-        options={{
-          title: "Exercises",
-          tabBarIcon: ({ color, focused }) => (
-            <ExerciseTabIcon color={color} focused={focused} />
-          ),
-        }}
-      />
-
-      <Tab.Screen
-        name="routines"
-        component={Routines}
-        options={{
-          title: "Routines",
-          tabBarIcon: ({ color, focused }) => (
-            <RoutinesTabIcon color={color} focused={focused} />
-          ),
-        }}
-      />
-
-      <Tab.Screen
-        name="profile"
-        component={Profile}
-        options={{
-          title: "Profile",
-          tabBarIcon: ({ color, focused }) => (
-            <ProfileTabIcon color={color} focused={focused} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+      >
+        <Tab.Screen
+          name="profile"
+          component={Profile}
+          options={{
+            title: "Profile",
+            tabBarIcon: ({ color, focused }) => (
+              <ProfileTabIcon color={color} focused={focused} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="history"
+          component={Home}
+          options={{
+            title: "History",
+            tabBarIcon: ({ color, focused }) => (
+              <HistoryTabIcon color={color} focused={focused} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="routines"
+          component={Routines}
+          options={{
+            title: "Routines",
+            tabBarIcon: ({ color, focused }) => (
+              <RoutinesTabIcon color={color} focused={focused} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="exercises"
+          component={Exercises}
+          options={{
+            title: "Exercises",
+            tabBarIcon: ({ color, focused }) => (
+              <ExerciseTabIcon color={color} focused={focused} />
+            ),
+          }}
+        />
+      </Tab.Navigator>
+      <Animated.View style={[tabsStyles.flicker, flickerAnimationStyle]} />
+    </>
   );
 }
 
@@ -96,40 +139,32 @@ type LayoutProps = {
 };
 
 export function Layout({ onReady }: LayoutProps) {
-  const background = useThemeColoring("appBackground");
+  const appBgColor = useThemeColoring("appBackground");
 
   return (
     <NavigationContainer
       onReady={onReady}
       theme={{
         ...DefaultTheme,
-        colors: { ...DefaultTheme.colors, background },
+        colors: { ...DefaultTheme.colors, background: appBgColor },
       }}
     >
-      <Stack.Navigator initialRouteName="splash">
-        <Stack.Screen
-          name="splash"
-          component={Splash}
-          options={{ headerShown: false }}
-        />
+      <Stack.Navigator
+        initialRouteName="splash"
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="splash" component={Splash} />
         <Stack.Screen
           name="tabs"
           component={Tabs}
-          options={{ headerShown: false }}
+          options={({ route }) => ({
+            headerShown: false,
+            animation: route.params?.fromOnboarding ? "none" : "default",
+          })}
         />
-        <Stack.Screen
-          name="onboarding"
-          component={Onboarding}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="signUp"
-          component={SignUp}
-          options={{ headerShown: false }}
-        />
+        <Stack.Screen name="onboarding" component={Onboarding} />
         <Stack.Group
           screenOptions={{
-            headerShown: false,
             presentation: "modal",
             gestureEnabled: true,
             ...(Platform.OS === "android"

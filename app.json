@@ -48,6 +48,7 @@
           "image": "./assets/icon/splash/light.png"
         }
       },
+      "softwareKeyboardLayoutMode": "pan",
       "package": "com.ramko9999.callus"
     },
     "web": {
@@ -57,7 +58,15 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
+      "expo-font",
+      [
+        "react-native-edge-to-edge",
+        {
+          "android": {
+            "enforceNavigationBarContrast": false
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

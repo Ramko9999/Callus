@@ -1,14 +1,12 @@
 import { UserApi } from "@/api/user";
-import { WorkoutApi } from "@/api/workout";
-import { INITIAL_ROUTINES } from "@/api/model/routine";
 import { AppIcon } from "@/components/theme/custom-svg";
 import { useThemeColoring, View } from "@/components/Themed";
 import { useUserDetails } from "@/components/user-details";
 import { StyleUtils } from "@/util/styles";
 import { useNavigation } from "@react-navigation/native";
-import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import { Appearance, StyleSheet } from "react-native";
+import { SystemBars } from "react-native-edge-to-edge";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const splashStyles = StyleSheet.create({
@@ -28,18 +26,6 @@ export function Splash() {
 
   useEffect(() => {
     UserApi.getUserDetails().then(async (userDetails) => {
-      // Check if initial routines have been loaded
-      const hasLoadedRoutines = await UserApi.hasLoadedInitialRoutines();
-
-      if (!hasLoadedRoutines) {
-        try {
-          await WorkoutApi.importRoutines(INITIAL_ROUTINES);
-          await UserApi.markInitialRoutinesLoaded();
-        } catch (error) {
-          console.error("Error importing initial routines:", error);
-        }
-      }
-
       if (userDetails) {
         setUserDetails(userDetails);
         navigator.navigate("tabs" as never);
@@ -51,7 +37,7 @@ export function Splash() {
 
   return (
     <>
-      <StatusBar backgroundColor={appBgColor} />
+        <SystemBars style="light" />
       <View
         style={[
           splashStyles.container,

@@ -19,6 +19,7 @@ type ModalParamsList = {
 export type RootStackParamList = {
   splash: undefined;
   onboarding: undefined;
+  trueOnboarding: undefined;
   signUp: undefined;
-  tabs: NavigatorScreenParams<TabParamList>;
+  tabs: NavigatorScreenParams<TabParamList> & { fromOnboarding?: boolean };
 } & ModalParamsList;

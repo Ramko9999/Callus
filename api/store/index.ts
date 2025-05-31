@@ -38,7 +38,7 @@ import {
 import { truncTime } from "@/util/date";
 import { getMeta, ID_TO_EXERCISE_META } from "../exercise";
 
-const DB_VERSION = "v6-test-4/23-4";
+const DB_VERSION = "v8";
 export const DB_NAME = `store-${DB_VERSION}.db`;
 
 const TABLE_CREATIONS = [
@@ -317,7 +317,10 @@ export class Store {
     };
   }
 
-  async getAllCompletedExercises(after: number, before: number): Promise<CompletedExercise[]> {
+  async getAllCompletedExercises(
+    after: number,
+    before: number
+  ): Promise<CompletedExercise[]> {
     const completedExercises: any[] = await this.db.getAllAsync(
       GET_COMPLETED_EXERCISES,
       {
