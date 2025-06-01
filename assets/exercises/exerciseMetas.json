@@ -1,5 +1,45 @@
 [
   {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Chest", "Front Delts", "Triceps"],
+    "secondaryMuscles": [],
+    "name": "Dip",
+    "metaId": "10"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Biceps"],
+    "secondaryMuscles": ["Forearm Flexors"],
+    "name": "Barbell Curl",
+    "metaId": "11"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Biceps"],
+    "secondaryMuscles": ["Forearm Flexors"],
+    "name": "Barbell Preacher Curl",
+    "metaId": "14"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Lats", "Traps"],
+    "secondaryMuscles": [
+      "Rear Delts",
+      "Biceps",
+      "Forearm Flexors",
+      "Lower Back"
+    ],
+    "name": "Barbell Row",
+    "metaId": "16"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Traps"],
+    "secondaryMuscles": ["Forearm Flexors"],
+    "name": "Barbell Shrug",
+    "metaId": "17"
+  },
+  {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Chest"],
     "secondaryMuscles": ["Front Delts", "Triceps"],
@@ -7,11 +47,25 @@
     "metaId": "22"
   },
   {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Biceps"],
+    "secondaryMuscles": ["Forearm Flexors"],
+    "name": "Cable Curl",
+    "metaId": "34"
+  },
+  {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Lats", "Traps"],
     "secondaryMuscles": ["Biceps", "Forearm Flexors", "Rear Delts"],
     "name": "Chin-Up",
     "metaId": "40"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Abs"],
+    "secondaryMuscles": ["Obliques"],
+    "name": "Crunch",
+    "metaId": "47"
   },
   {
     "difficultyType": "WEIGHT",
@@ -27,18 +81,25 @@
     "metaId": "49"
   },
   {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Chest", "Front Delts", "Triceps"],
-    "secondaryMuscles": [],
-    "name": "Dip",
-    "metaId": "10"
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Biceps"],
+    "secondaryMuscles": ["Forearm Flexors"],
+    "name": "Dumbbell Bicep Curl",
+    "metaId": "55"
   },
   {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Abs"],
-    "secondaryMuscles": ["Obliques"],
-    "name": "Crunch",
-    "metaId": "47"
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Side Delts"],
+    "secondaryMuscles": ["Front Delts"],
+    "name": "Dumbell Lateral Raise",
+    "metaId": "61"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Front Delts", "Side Delts", "Rear Delts"],
+    "secondaryMuscles": ["Triceps", "Traps"],
+    "name": "Dumbell Overhead Press",
+    "metaId": "67"
   },
   {
     "difficultyType": "WEIGHT",
@@ -46,6 +107,188 @@
     "secondaryMuscles": ["Forearm Flexors"],
     "name": "Hammer Curl",
     "metaId": "80"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Abs"],
+    "secondaryMuscles": ["Obliques"],
+    "name": "Hanging Knee Raise",
+    "metaId": "85"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Glutes"],
+    "secondaryMuscles": ["Hamstrings", "Lower Back"],
+    "name": "Barbell Hip Thrust",
+    "metaId": "91"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Lats", "Traps"],
+    "secondaryMuscles": ["Rear Delts", "Biceps", "Forearm Flexors"],
+    "name": "Inverted Row",
+    "metaId": "97"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Lats", "Traps"],
+    "secondaryMuscles": ["Rear Delts", "Forearm Flexors"],
+    "name": "Lat Pull-Down",
+    "metaId": "105"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Biceps"],
+    "secondaryMuscles": [],
+    "name": "Machine Bicep Curl",
+    "metaId": "111"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Chest"],
+    "secondaryMuscles": [],
+    "name": "Machine Chest Fly",
+    "metaId": "112"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Chest"],
+    "secondaryMuscles": ["Front Delts", "Triceps"],
+    "name": "Machine Chest Press",
+    "metaId": "113"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Front Delts"],
+    "secondaryMuscles": ["Triceps", "Traps"],
+    "name": "Machine Shoulder Press",
+    "metaId": "116"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Front Delts", "Side Delts"],
+    "secondaryMuscles": ["Triceps", "Traps"],
+    "name": "Military Press",
+    "metaId": "127"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Lats", "Traps"],
+    "secondaryMuscles": ["Forearm Flexors", "Rear Delts"],
+    "name": "Pull-Up",
+    "metaId": "137"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Front Delts", "Side Delts", "Glutes", "Quads"],
+    "secondaryMuscles": ["Lower Back", "Triceps", "Traps"],
+    "name": "Push Press",
+    "metaId": "139"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Chest", "Front Delts", "Triceps"],
+    "secondaryMuscles": ["Abs"],
+    "name": "Push-Up",
+    "metaId": "140"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Rear Delt"],
+    "secondaryMuscles": [],
+    "name": "Machine Rear Delt Fly",
+    "metaId": "145"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Lats", "Traps"],
+    "secondaryMuscles": ["Rear Delts", "Biceps", "Forearm Flexors"],
+    "name": "Ring Pull-Up",
+    "metaId": "146"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Lats", "Traps"],
+    "secondaryMuscles": ["Rear Delts", "Biceps", "Forearm Flexors"],
+    "name": "Ring Inverted Row",
+    "metaId": "147"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Glutes", "Lower Back", "Hamstrings"],
+    "secondaryMuscles": ["Traps", "Forearm Flexors"],
+    "name": "Romanian Deadlift",
+    "metaId": "148"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Quads", "Glutes"],
+    "secondaryMuscles": ["Lower Back", "Calves"],
+    "name": "Barbell Squat",
+    "metaId": "163"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Quads", "Glutes"],
+    "secondaryMuscles": ["Lower Back", "Calves"],
+    "name": "Zercher Squat",
+    "metaId": "172"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Front Delts", "Side Delts"],
+    "secondaryMuscles": ["Triceps", "Traps"],
+    "name": "Pike Push-Up",
+    "metaId": "173"
+  },
+  {
+    "difficultyType": "WEIGHTED_BODYWEIGHT",
+    "primaryMuscles": ["Chest", "Triceps", "Front Delts"],
+    "secondaryMuscles": [],
+    "name": "Weighted Dip",
+    "metaId": "174"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Front Delts", "Triceps", "Chest"],
+    "secondaryMuscles": [],
+    "name": "Ring Push-Up",
+    "metaId": "175"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Triceps"],
+    "secondaryMuscles": [],
+    "name": "Ring Tricep Extension",
+    "metaId": "176"
+  },
+  {
+    "difficultyType": "WEIGHTED_BODYWEIGHT",
+    "primaryMuscles": ["Lats", "Traps"],
+    "secondaryMuscles": ["Biceps", "Forearm Flexors", "Rear Delts"],
+    "name": "Weighted Pull-Up",
+    "metaId": "177"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Lats"],
+    "secondaryMuscles": ["Traps", "Rear Delts"],
+    "name": "Ring Arc Row",
+    "metaId": "179"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Rear Delt", "Traps"],
+    "secondaryMuscles": [],
+    "name": "Ring Face Pull",
+    "metaId": "180"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Quads", "Glutes"],
+    "secondaryMuscles": ["Calves"],
+    "name": "Pistol Squat",
+    "metaId": "181"
   },
   {
     "difficultyType": "TIME",
@@ -84,38 +327,31 @@
   },
   {
     "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Quads", "Glutes"],
-    "secondaryMuscles": ["Calves"],
-    "name": "Pistol Squat",
-    "metaId": "181"
+    "primaryMuscles": ["Chest", "Front Delts", "Triceps"],
+    "secondaryMuscles": [],
+    "name": "Ring Dip",
+    "metaId": "187"
   },
   {
     "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Front Delts", "Side Delts"],
-    "secondaryMuscles": ["Triceps", "Traps"],
-    "name": "Pike Push-Up",
-    "metaId": "173"
+    "primaryMuscles": ["Biceps"],
+    "secondaryMuscles": [],
+    "name": "Ring Curl",
+    "metaId": "188"
   },
   {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Lats", "Traps"],
-    "secondaryMuscles": ["Forearm Flexors", "Rear Delts"],
-    "name": "Pull-Up",
-    "metaId": "137"
+    "difficultyType": "TIME",
+    "primaryMuscles": ["Abs", "Hip Flexors"],
+    "secondaryMuscles": [],
+    "name": "L-Sit",
+    "metaId": "189"
   },
   {
     "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Front Delts", "Side Delts", "Glutes", "Quads"],
-    "secondaryMuscles": ["Lower Back", "Triceps", "Traps"],
-    "name": "Push Press",
-    "metaId": "139"
-  },
-  {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Chest", "Front Delts", "Triceps"],
-    "secondaryMuscles": ["Abs"],
-    "name": "Push-Up",
-    "metaId": "140"
+    "primaryMuscles": ["Triceps"],
+    "secondaryMuscles": [],
+    "name": "Cable Tricep Extension",
+    "metaId": "190"
   },
   {
     "difficultyType": "WEIGHT",
@@ -132,74 +368,11 @@
     "metaId": "192"
   },
   {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Glutes", "Lower Back", "Hamstrings"],
-    "secondaryMuscles": ["Traps", "Forearm Flexors"],
-    "name": "Romanian Deadlift",
-    "metaId": "148"
-  },
-  {
     "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Lats", "Traps"],
-    "secondaryMuscles": ["Rear Delts", "Biceps", "Forearm Flexors"],
-    "name": "Ring Row",
-    "metaId": "147"
-  },
-  {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Lats", "Traps"],
-    "secondaryMuscles": ["Rear Delts", "Biceps", "Forearm Flexors"],
-    "name": "Ring Inverted Row",
-    "metaId": "178"
-  },
-  {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Lats"],
-    "secondaryMuscles": ["Traps", "Rear Delts"],
-    "name": "Ring Arc Row",
-    "metaId": "179"
-  },
-  {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Rear Delt", "Traps"],
-    "secondaryMuscles": [],
-    "name": "Ring Face Pull",
-    "metaId": "180"
-  },
-  {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Chest", "Front Delts", "Triceps"],
-    "secondaryMuscles": [],
-    "name": "Ring Dip",
-    "metaId": "187"
-  },
-  {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Front Delts", "Triceps", "Chest"],
-    "secondaryMuscles": [],
-    "name": "Ring Push-Up",
-    "metaId": "175"
-  },
-  {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Biceps"],
-    "secondaryMuscles": [],
-    "name": "Ring Curl",
-    "metaId": "188"
-  },
-  {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Lats", "Traps"],
-    "secondaryMuscles": ["Rear Delts", "Biceps", "Forearm Flexors"],
-    "name": "Ring Pull-Up",
-    "metaId": "146"
-  },
-  {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Triceps"],
-    "secondaryMuscles": [],
-    "name": "Ring Tricep Extension",
-    "metaId": "176"
+    "primaryMuscles": ["Hamstrings"],
+    "secondaryMuscles": ["Glutes", "Lower Back"],
+    "name": "Nordic Hamstring Curl",
+    "metaId": "193"
   },
   {
     "difficultyType": "WEIGHT",
@@ -209,59 +382,11 @@
     "metaId": "194"
   },
   {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Rear Delt"],
-    "secondaryMuscles": [],
-    "name": "Machine Rear Delt Fly",
-    "metaId": "145"
-  },
-  {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Chest"],
-    "secondaryMuscles": ["Front Delts", "Triceps"],
-    "name": "Machine Chest Press",
-    "metaId": "113"
-  },
-  {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Chest"],
-    "secondaryMuscles": [],
-    "name": "Machine Chest Fly",
-    "metaId": "112"
-  },
-  {
-    "difficultyType": "TIME",
-    "primaryMuscles": ["Abs", "Hip Flexors"],
-    "secondaryMuscles": [],
-    "name": "L-Sit",
-    "metaId": "189"
-  },
-  {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Lats", "Traps"],
-    "secondaryMuscles": [
-      "Abs",
-      "Hip Flexors",
-      "Biceps",
-      "Forearm Flexors",
-      "Rear Delts"
-    ],
+    "secondaryMuscles": ["Abs", "Hip Flexors", "Forearm Flexors", "Rear Delts"],
     "name": "L-Sit Pull-Up",
     "metaId": "195"
-  },
-  {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Lats", "Traps"],
-    "secondaryMuscles": ["Rear Delts", "Biceps", "Forearm Flexors"],
-    "name": "Inverted Row",
-    "metaId": "97"
-  },
-  {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Abs"],
-    "secondaryMuscles": ["Obliques"],
-    "name": "Hanging Knee Raise",
-    "metaId": "85"
   },
   {
     "difficultyType": "BODYWEIGHT",
@@ -286,71 +411,10 @@
   },
   {
     "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Front Delts", "Side Delts", "Rear Delts"],
-    "secondaryMuscles": ["Triceps", "Traps"],
-    "name": "Dumbell Overhead Press",
-    "metaId": "67"
-  },
-  {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Side Delts"],
-    "secondaryMuscles": ["Front Delts"],
-    "name": "Dumbell Lateral Raise",
-    "metaId": "61"
-  },
-  {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Biceps"],
-    "secondaryMuscles": ["Forearm Flexors"],
-    "name": "Cable Curl",
-    "metaId": "34"
-  },
-  {
-    "difficultyType": "WEIGHT",
     "primaryMuscles": ["Quads", "Glutes"],
     "secondaryMuscles": [],
     "name": "Bulgarian Split Squat",
     "metaId": "199"
-  },
-  {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Quads", "Glutes"],
-    "secondaryMuscles": ["Lower Back", "Calves"],
-    "name": "Barbell Squat",
-    "metaId": "163"
-  },
-  {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Traps"],
-    "secondaryMuscles": ["Forearm Flexors"],
-    "name": "Barbell Shrug",
-    "metaId": "17"
-  },
-  {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Lats", "Traps"],
-    "secondaryMuscles": [
-      "Rear Delts",
-      "Biceps",
-      "Forearm Flexors",
-      "Lower Back"
-    ],
-    "name": "Barbell Row",
-    "metaId": "16"
-  },
-  {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Glutes"],
-    "secondaryMuscles": ["Hamstrings", "Lower Back"],
-    "name": "Barbell Hip Thrust",
-    "metaId": "91"
-  },
-  {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Biceps"],
-    "secondaryMuscles": ["Forearm Flexors"],
-    "name": "Barbell Curl",
-    "metaId": "11"
   },
   {
     "difficultyType": "WEIGHT",
@@ -360,34 +424,6 @@
     "metaId": "200"
   },
   {
-    "difficultyType": "BODYWEIGHT",
-    "primaryMuscles": ["Hamstrings"],
-    "secondaryMuscles": ["Glutes", "Lower Back"],
-    "name": "Nordic Hamstring Curl",
-    "metaId": "193"
-  },
-  {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Quads", "Glutes"],
-    "secondaryMuscles": ["Lower Back", "Calves"],
-    "name": "Zercher Squat",
-    "metaId": "172"
-  },
-  {
-    "difficultyType": "WEIGHTED_BODYWEIGHT",
-    "primaryMuscles": ["Lats", "Traps"],
-    "secondaryMuscles": ["Biceps", "Forearm Flexors", "Rear Delts"],
-    "name": "Weighted Pull-Up",
-    "metaId": "177"
-  },
-  {
-    "difficultyType": "WEIGHTED_BODYWEIGHT",
-    "primaryMuscles": ["Chest", "Triceps", "Front Delts"],
-    "secondaryMuscles": [],
-    "name": "Weighted Dip",
-    "metaId": "174"
-  },
-  {
     "difficultyType": "WEIGHTED_BODYWEIGHT",
     "primaryMuscles": ["Chest", "Front Delts", "Triceps"],
     "secondaryMuscles": [],
@@ -395,11 +431,24 @@
     "metaId": "201"
   },
   {
-    "difficultyType": "WEIGHT",
-    "primaryMuscles": ["Front Delts", "Side Delts"],
-    "secondaryMuscles": ["Triceps", "Traps"],
-    "name": "Military Press",
-    "metaId": "127"
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Abs"],
+    "secondaryMuscles": ["Obliques", "Hip Flexors"],
+    "name": "Vertical Knee Raise",
+    "metaId": "202"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Abs"],
+    "secondaryMuscles": ["Obliques", "Hip Flexors"],
+    "name": "Vertical Leg Raise",
+    "metaId": "203"
+  },
+  {
+    "difficultyType": "BODYWEIGHT",
+    "primaryMuscles": ["Lats", "Traps"],
+    "secondaryMuscles": ["Abs", "Hip Flexors", "Forearm Flexors", "Rear Delts"],
+    "name": "Hollow Body Pull-Up",
+    "metaId": "204"
   }
 ]
-

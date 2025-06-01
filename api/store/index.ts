@@ -38,7 +38,7 @@ import {
 import { truncTime } from "@/util/date";
 import { getMeta, ID_TO_EXERCISE_META } from "../exercise";
 
-const DB_VERSION = "v8";
+const DB_VERSION = "v9";
 export const DB_NAME = `store-${DB_VERSION}.db`;
 
 const TABLE_CREATIONS = [

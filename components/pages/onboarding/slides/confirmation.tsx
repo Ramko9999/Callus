@@ -256,7 +256,7 @@ const onboardingConfirmationStyles = StyleSheet.create({
     ...StyleUtils.flexColumn(20),
   },
   slideUpText: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: "600",
   },
   point: {

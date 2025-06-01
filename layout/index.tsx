@@ -89,22 +89,22 @@ function Tabs({ route }: TabsProps) {
         }}
       >
         <Tab.Screen
-          name="profile"
-          component={Profile}
-          options={{
-            title: "Profile",
-            tabBarIcon: ({ color, focused }) => (
-              <ProfileTabIcon color={color} focused={focused} />
-            ),
-          }}
-        />
-        <Tab.Screen
           name="history"
           component={Home}
           options={{
             title: "History",
             tabBarIcon: ({ color, focused }) => (
               <HistoryTabIcon color={color} focused={focused} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="exercises"
+          component={Exercises}
+          options={{
+            title: "Exercises",
+            tabBarIcon: ({ color, focused }) => (
+              <ExerciseTabIcon color={color} focused={focused} />
             ),
           }}
         />
@@ -119,12 +119,12 @@ function Tabs({ route }: TabsProps) {
           }}
         />
         <Tab.Screen
-          name="exercises"
-          component={Exercises}
+          name="profile"
+          component={Profile}
           options={{
-            title: "Exercises",
+            title: "Profile",
             tabBarIcon: ({ color, focused }) => (
-              <ExerciseTabIcon color={color} focused={focused} />
+              <ProfileTabIcon color={color} focused={focused} />
             ),
           }}
         />

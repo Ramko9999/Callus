@@ -37,7 +37,7 @@ export function Splash() {
 
   return (
     <>
-        <SystemBars style="light" />
+      <SystemBars style="light" />
       <View
         style={[
           splashStyles.container,

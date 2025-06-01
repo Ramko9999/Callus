@@ -205,7 +205,7 @@ export function Onboarding({ navigation }: OnboardingProps) {
       .then(() => {
         setUserDetails(userData);
         navigation.replace("tabs", {
-          screen: "profile",
+          screen: "history",
           fromOnboarding: true,
         });
       })

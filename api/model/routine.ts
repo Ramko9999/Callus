@@ -144,7 +144,7 @@ export const RoutineActions = {
 
 export const INITIAL_ROUTINES: Routine[] = [
   {
-    id: generateRoutineId(),
+    id: "ro_pull-day",
     name: "Pull Day",
     plan: [
       {
@@ -173,7 +173,7 @@ export const INITIAL_ROUTINES: Routine[] = [
       },
       {
         id: generateExercisePlanId(),
-        metaId: getMeta("Ring Row").metaId,
+        metaId: getMeta("Ring Inverted Row").metaId,
         name: "Ring Row",
         rest: 60,
         sets: [
@@ -198,7 +198,7 @@ export const INITIAL_ROUTINES: Routine[] = [
     ],
   },
   {
-    id: generateRoutineId(),
+    id: "ro_push-day",
     name: "Push Day",
     plan: [
       {
@@ -253,7 +253,7 @@ export const INITIAL_ROUTINES: Routine[] = [
     ],
   },
   {
-    id: generateRoutineId(),
+    id: "ro_leg-day",
     name: "Leg Day",
     plan: [
       {
