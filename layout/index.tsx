@@ -25,7 +25,7 @@ import { ExerciseInsightsOverviewModal } from "@/components/modals/exercise/insi
 import { CompletedWorkoutModal } from "@/components/modals/workout/completed";
 import { RoutineModal } from "@/components/modals/routine";
 import { LiveWorkoutModal } from "@/components/modals/workout/live";
-import { SettingsModal } from "@/components/modals/settings";
+import { Settings } from "@/components/pages/settings";
 import { Congratulations } from "@/components/modals/congratulations";
 import { Onboarding } from "@/components/pages/onboarding";
 import { StyleSheet } from "react-native";
@@ -79,7 +79,7 @@ function Tabs({ route }: TabsProps) {
   return (
     <>
       <Tab.Navigator
-        initialRouteName="profile"
+        initialRouteName="history"
         tabBar={(props) => <TabBar {...props} />}
         screenOptions={{
           tabBarActiveTintColor: getTabActiveTintColor(colorScheme ?? "light"),
@@ -162,6 +162,7 @@ export function Layout({ onReady }: LayoutProps) {
             animation: route.params?.fromOnboarding ? "none" : "default",
           })}
         />
+        <Stack.Screen name="settings" component={Settings} />
         <Stack.Screen name="onboarding" component={Onboarding} />
         <Stack.Group
           screenOptions={{
@@ -176,7 +177,6 @@ export function Layout({ onReady }: LayoutProps) {
             name="exerciseInsight"
             component={ExerciseInsightsOverviewModal}
           />
-          <Stack.Screen name="settings" component={SettingsModal} />
           <Stack.Screen
             name="completedWorkout"
             component={CompletedWorkoutModal}

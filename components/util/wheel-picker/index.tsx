@@ -4,6 +4,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useRef,
+  memo,
 } from "react";
 import { View, Text } from "@/components/Themed";
 import { StyleSheet, TextStyle } from "react-native";
@@ -83,11 +84,12 @@ function WheelPickerItem({
 
 const wheelPickerStyles = StyleSheet.create({
   container: {
+    width: "100%",
     overflow: "hidden",
     alignItems: "center",
   },
   picker: {
-    paddingHorizontal: "15%",
+    width: "100%",
     alignItems: "center",
   },
 });
@@ -104,121 +106,132 @@ export type WheelPickerRef = {
   setIndex: (index: number) => void;
 };
 
-export const WheelPicker = forwardRef<WheelPickerRef, WheelPickerProps>(
-  ({ values, onSelect, defaultIndex = 0, itemHeight, labelStyle }, ref) => {
-    const translateY = useSharedValue(-defaultIndex * itemHeight);
-    const startY = useSharedValue(-defaultIndex * itemHeight);
-    const velocity = useSharedValue<number>(0);
-    const gestureState = useSharedValue<State>(State.UNDETERMINED);
+export const WheelPicker = memo(
+  forwardRef<WheelPickerRef, WheelPickerProps>(
+    ({ values, onSelect, defaultIndex = 0, itemHeight, labelStyle }, ref) => {
+      const translateY = useSharedValue(-defaultIndex * itemHeight);
+      const startY = useSharedValue(-defaultIndex * itemHeight);
+      const velocity = useSharedValue<number>(0);
+      const gestureState = useSharedValue<State>(State.UNDETERMINED);
 
-    const lastSelectedIndex = useRef<number>(defaultIndex);
+      const lastSelectedIndex = useRef<number>(defaultIndex);
 
-    const snapPoints = values.map((_, index) => -index * itemHeight);
+      const snapPoints = values.map((_, index) => -index * itemHeight);
 
-    useEffect(() => {
-      if (lastSelectedIndex.current >= values.length) {
-        translateY.value = -(values.length - 1) * itemHeight;
-        handleSelect(values[values.length - 1], values.length - 1);
-      }
-    }, [values.length]);
-
-    const handleSelect = useCallback(
-      (value: string, index: number) => {
-        lastSelectedIndex.current = index;
-        onSelect(value, index);
-      },
-      [onSelect]
-    );
-
-    const onEnd = (translation: number, velocity: number) => {
-      const targetTranslation = snapPoint(translation, velocity, snapPoints);
-      const duration = Math.max(Math.abs(velocity / 30), 500);
-      translateY.value = withTiming(
-        targetTranslation,
-        { duration, easing: Easing.bezier(0.25, 0.1, 0.25, 1.0) },
-        (finished) => {
-          if (finished) {
-            runOnJS(handleSelect)(
-              values[snapPoints.indexOf(targetTranslation)],
-              snapPoints.indexOf(targetTranslation)
-            );
-          }
+      useEffect(() => {
+        if (lastSelectedIndex.current >= values.length) {
+          translateY.value = -(values.length - 1) * itemHeight;
+          handleSelect(values[values.length - 1], values.length - 1);
         }
-      );
-    };
+      }, [values.length]);
 
-    const panGesture = Gesture.Pan()
-      .onStart(() => {
-        startY.value = translateY.value;
-        velocity.value = 0;
-        gestureState.value = State.BEGAN;
-      })
-      .onUpdate((event) => {
-        translateY.value = startY.value + event.translationY;
-        gestureState.value = State.ACTIVE;
-      })
-      .onEnd(({ velocityY }) => {
-        velocity.value = velocityY;
-        gestureState.value = State.END;
-        runOnJS(onEnd)(translateY.value, velocity.value);
+      const handleSelect = useCallback(
+        (value: string, index: number) => {
+          lastSelectedIndex.current = index;
+          onSelect(value, index);
+        },
+        [onSelect]
+      );
+
+      const onEnd = (translation: number, velocity: number) => {
+        const targetTranslation = snapPoint(translation, velocity, snapPoints);
+        const duration = Math.max(Math.abs(velocity / 30), 500);
+        translateY.value = withTiming(
+          targetTranslation,
+          { duration, easing: Easing.bezier(0.25, 0.1, 0.25, 1.0) },
+          (finished) => {
+            if (finished) {
+              runOnJS(handleSelect)(
+                values[snapPoints.indexOf(targetTranslation)],
+                snapPoints.indexOf(targetTranslation)
+              );
+            }
+          }
+        );
+      };
+
+      const panGesture = Gesture.Pan()
+        .onStart(() => {
+          startY.value = translateY.value;
+          velocity.value = 0;
+          gestureState.value = State.BEGAN;
+        })
+        .onUpdate((event) => {
+          translateY.value = startY.value + event.translationY;
+          gestureState.value = State.ACTIVE;
+        })
+        .onEnd(({ velocityY }) => {
+          velocity.value = velocityY;
+          gestureState.value = State.END;
+          runOnJS(onEnd)(translateY.value, velocity.value);
+        });
+
+      const pickerAnimatedStyle = useAnimatedStyle(() => {
+        return {
+          transform: [{ translateY: translateY.value }],
+        };
       });
 
-    const pickerAnimatedStyle = useAnimatedStyle(() => {
-      return {
-        transform: [{ translateY: translateY.value }],
-      };
-    });
+      useImperativeHandle(ref, () => ({
+        setIndex: (index: number) => {
+          lastSelectedIndex.current = index;
+          translateY.value = -index * itemHeight;
+        },
+      }));
 
-    useImperativeHandle(ref, () => ({
-      setIndex: (index: number) => {
-        translateY.value = -index * itemHeight;
-      },
-    }));
-
-    useAnimatedReaction(
-      () =>
-        Math.max(
-          Math.min(
-            Math.round(-translateY.value / itemHeight),
-            values.length - 1
+      useAnimatedReaction(
+        () =>
+          Math.max(
+            Math.min(
+              Math.round(-translateY.value / itemHeight),
+              values.length - 1
+            ),
+            0
           ),
-          0
-        ),
-      (current: number, previous: number | null) => {
-        if (current !== previous && previous !== null) {
-          runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
-        }
-      },
-      [values.length, itemHeight]
-    );
+        (current: number, previous: number | null) => {
+          if (current !== previous && previous !== null) {
+            runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
+          }
+        },
+        [values.length, itemHeight]
+      );
 
-    return (
-      <View
-        style={[
-          wheelPickerStyles.container,
-          { height: itemHeight * VISIBLE_ITEMS },
-        ]}
-      >
-        <GestureDetector gesture={panGesture}>
-          <Animated.View
-            style={[wheelPickerStyles.picker, pickerAnimatedStyle]}
-          >
-            <View
-              style={{ height: itemHeight * Math.floor(VISIBLE_ITEMS / 2) }}
-            />
-            {values.map((label, i) => (
-              <WheelPickerItem
-                key={i}
-                label={label}
-                translateY={translateY}
-                offset={i * itemHeight}
-                itemHeight={itemHeight}
-                labelStyle={labelStyle}
+      return (
+        <View
+          style={[
+            wheelPickerStyles.container,
+            { height: itemHeight * VISIBLE_ITEMS},
+          ]}
+        >
+          <GestureDetector gesture={panGesture}>
+            <Animated.View
+              style={[wheelPickerStyles.picker, pickerAnimatedStyle]}
+            >
+              <View
+                style={{ height: itemHeight * Math.floor(VISIBLE_ITEMS / 2) }}
               />
-            ))}
-          </Animated.View>
-        </GestureDetector>
-      </View>
-    );
-  }
+              {values.map((label, i) => (
+                <WheelPickerItem
+                  key={i}
+                  label={label}
+                  translateY={translateY}
+                  offset={i * itemHeight}
+                  itemHeight={itemHeight}
+                  labelStyle={labelStyle}
+                />
+              ))}
+              <View
+                style={{ height: itemHeight * Math.floor(VISIBLE_ITEMS / 2) }}
+              />
+            </Animated.View>
+          </GestureDetector>
+        </View>
+      );
+    }
+  ),
+  (prev: WheelPickerProps, next: WheelPickerProps) =>
+    prev.values === next.values &&
+    prev.onSelect === next.onSelect &&
+    prev.itemHeight === next.itemHeight &&
+    JSON.stringify(prev.labelStyle) === JSON.stringify(next.labelStyle)
 );

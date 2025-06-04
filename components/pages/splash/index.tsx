@@ -2,8 +2,9 @@ import { UserApi } from "@/api/user";
 import { AppIcon } from "@/components/theme/custom-svg";
 import { useThemeColoring, View } from "@/components/Themed";
 import { useUserDetails } from "@/components/user-details";
+import { RootStackParamList } from "@/layout/types";
 import { StyleUtils } from "@/util/styles";
-import { useNavigation } from "@react-navigation/native";
+import { StackScreenProps } from "@react-navigation/stack";
 import React, { useEffect } from "react";
 import { Appearance, StyleSheet } from "react-native";
 import { SystemBars } from "react-native-edge-to-edge";
@@ -18,8 +19,9 @@ const splashStyles = StyleSheet.create({
 
 Appearance.setColorScheme("dark");
 
-export function Splash() {
-  const navigator = useNavigation();
+type SplashProps = StackScreenProps<RootStackParamList, "splash">;
+
+export function Splash({ navigation }: SplashProps) {
   const insets = useSafeAreaInsets();
   const { setUserDetails } = useUserDetails();
   const appBgColor = useThemeColoring("appBackground");
@@ -28,9 +30,9 @@ export function Splash() {
     UserApi.getUserDetails().then(async (userDetails) => {
       if (userDetails) {
         setUserDetails(userDetails);
-        navigator.navigate("tabs" as never);
+        navigation.replace("tabs", { screen: "history" });
       } else {
-        navigator.navigate("onboarding" as never);
+        navigation.replace("onboarding");
       }
     });
   }, []);

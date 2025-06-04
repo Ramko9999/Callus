@@ -42,7 +42,12 @@ async function onboardUser(details: UserDetails) {
   }
 }
 
+async function updateUserDetails(details: UserDetails) {
+  await Store.instance().upsertMetadata(USER_DETAILS_KEY, JSON.stringify(details));
+}
+
 export const UserApi = {
   getUserDetails,
   onboardUser,
+  updateUserDetails,
 };

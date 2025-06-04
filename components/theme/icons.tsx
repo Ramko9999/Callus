@@ -155,6 +155,7 @@ type WeightMetaIconProps = {
 };
 
 export function WeightMetaIcon({ weight }: WeightMetaIconProps) {
+  const weightDisplay = Math.round(weight);
   return (
     <View style={summaryIconStyles.container}>
       <MaterialCommunityIcons
@@ -162,7 +163,7 @@ export function WeightMetaIcon({ weight }: WeightMetaIconProps) {
         color={useThemeColoring("lightText")}
         size={textTheme.neutral.fontSize}
       />
-      <Text neutral light>{`${weight} lb`}</Text>
+      <Text neutral light>{`${weightDisplay} lb`}</Text>
     </View>
   );
 }

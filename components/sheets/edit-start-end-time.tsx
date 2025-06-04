@@ -6,44 +6,106 @@ import {
   getRouletteDateDisplay,
   truncTime,
   removeDays,
+  MONTHS,
+  getHour,
+  getAmOrPm,
 } from "@/util/date";
+import { getNumberSuffix } from "@/util/misc";
 import { PopupBottomSheet } from "@/components/util/popup/sheet";
 import { forwardRef, ForwardedRef, useState, useCallback } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 import * as Haptics from "expo-haptics";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  interpolate,
-  SharedValue,
-  runOnJS,
-  withTiming,
-  Easing,
-  useAnimatedReaction,
-} from "react-native-reanimated";
-import { Gesture, GestureDetector, State } from "react-native-gesture-handler";
-import { convertHexToRGBA } from "@/util/color";
 import { SheetX, SheetArrowLeft, commonSheetStyles } from "./common";
+import { WheelPicker } from "@/components/util/wheel-picker";
+import { convertHexToRGBA } from "@/util/color";
+import Animated from "react-native-reanimated";
 
-const ITEM_HEIGHT = 35;
-const VISIBLE_ITEMS = 5;
+const WHEEL_ITEM_HEIGHT = 40;
 const LOOKBACK_DAYS = 30;
 
-const snapPoint = (
-  value: number,
-  velocity: number,
-  points: number[]
-): number => {
-  "worklet";
-  const point = value + velocity * 0.2;
-  const deltas = points.map((p) => Math.abs(point - p));
-  const minDelta = Math.min.apply(null, deltas);
-  return points[deltas.indexOf(minDelta)];
+// Generate hours (1-12)
+const HOURS = Array.from({ length: 12 }, (_, i) =>
+  (i + 1).toString().padStart(2, "0")
+);
+
+// Generate minutes (00-59)
+const MINUTES = Array.from({ length: 60 }, (_, i) =>
+  i.toString().padStart(2, "0")
+);
+
+// AM/PM options
+const MERIDIEM = ["AM", "PM"];
+
+const TODAY = truncTime(Date.now());
+const DATES = Array.from({ length: LOOKBACK_DAYS }, (_, i) =>
+  removeDays(TODAY, i)
+).reverse();
+
+const ROULETTE_DATES = DATES.map((d) => getRouletteDateDisplay(d));
+
+type Time = {
+  hour: number; // 1-12
+  minute: number; // 0-59
+  isPM: boolean; // true for PM, false for AM
+  daysFromToday: number; // 0 for today, positive number for past days
 };
+
+function timestampToTime(timestamp: number): Time {
+  const date = new Date(timestamp);
+  const today = truncTime(Date.now());
+  const daysFromToday = (today - truncTime(timestamp)) / (24 * 60 * 60 * 1000);
+  const hours = date.getHours();
+
+  return {
+    hour: hours % 12 === 0 ? 12 : hours % 12,
+    minute: date.getMinutes(),
+    isPM: hours >= 12,
+    daysFromToday,
+  };
+}
+
+function timeToTimestamp(time: Time): number {
+  const today = truncTime(Date.now());
+  const date = new Date(removeDays(today, time.daysFromToday));
+  const hours = time.isPM ? (time.hour % 12) + 12 : time.hour % 12;
+  date.setHours(hours);
+  date.setMinutes(time.minute);
+  return date.getTime();
+}
+
+function formatDateTime(timestamp: number): string {
+  const date = new Date(timestamp);
+  const month = MONTHS[date.getMonth()];
+  const day = date.getDate();
+  const year = date.getFullYear();
+  const hour = getHour(timestamp);
+  const minute = date.getMinutes().toString().padStart(2, "0");
+  const ampm = getAmOrPm(timestamp).toLowerCase();
+
+  return `${month}. ${day}${getNumberSuffix(
+    day
+  )}, ${year} ${hour}:${minute} ${ampm}`;
+}
+
+type ValidationResult = {
+  isValid: boolean;
+  error?: string;
+};
+
+function validateFutureTime(timestamp: number): ValidationResult {
+  if (timestamp > Date.now()) {
+    const timeStr = formatDateTime(timestamp);
+    return {
+      isValid: false,
+      error: `Time cannot be set in the future '${timeStr}'`,
+    };
+  }
+  return { isValid: true };
+}
 
 const timeColonStyles = StyleSheet.create({
   colon: {
-    height: ITEM_HEIGHT,
+    height: WHEEL_ITEM_HEIGHT,
     paddingHorizontal: "3%",
     ...StyleUtils.flexRowCenterAll(),
   },
@@ -70,310 +132,45 @@ function TimeColon() {
   );
 }
 
-const rouletteItemStyles = StyleSheet.create({
-  item: {
-    height: ITEM_HEIGHT,
-    justifyContent: "center",
-  },
-});
-
-type RouletteItemProps = {
-  label: string;
-  translateY: SharedValue<number>;
-  offset: number;
-};
-
-function RouletteItem({ label, translateY, offset }: RouletteItemProps) {
-  const style = useAnimatedStyle(() => {
-    const maxAngle = 60;
-    const angle = interpolate(
-      translateY.value + offset,
-      [-ITEM_HEIGHT * 2, 0, ITEM_HEIGHT * 2],
-      [maxAngle, 0, -maxAngle]
-    );
-    const opacity = interpolate(
-      Math.abs(translateY.value + offset),
-      [0, ITEM_HEIGHT * 2],
-      [1, 0.3]
-    );
-    return {
-      transform: [{ perspective: 400 }, { rotateX: `${angle}deg` }],
-      opacity,
-    };
-  });
-
-  return (
-    <Animated.View style={[rouletteItemStyles.item, style]}>
-      <Text neutral>{label}</Text>
-    </Animated.View>
-  );
-}
-
-type RouletteProps = {
-  values: string[];
-  onSelect: (value: string, index: number) => void;
-  defaultIndex?: number;
-};
-
-const rouletteStyles = StyleSheet.create({
-  container: {
-    height: ITEM_HEIGHT * VISIBLE_ITEMS,
-    overflow: "hidden",
-    alignItems: "center",
-  },
-  picker: {
-    alignItems: "center",
-  },
-  spacer: {
-    height: ITEM_HEIGHT * Math.floor(VISIBLE_ITEMS / 2),
-  },
-});
-
-function Roulette({ values, onSelect, defaultIndex = 0 }: RouletteProps) {
-  const translateY = useSharedValue(-defaultIndex * ITEM_HEIGHT);
-  const startY = useSharedValue(-defaultIndex * ITEM_HEIGHT);
-  const velocity = useSharedValue<number>(0);
-  const gestureState = useSharedValue<State>(State.UNDETERMINED);
-
-  const snapPoints = values.map((_, index) => -index * ITEM_HEIGHT);
-
-  const onEnd = (translation: number, velocity: number) => {
-    const targetTranslation = snapPoint(translation, velocity, snapPoints);
-    const duration = Math.max(Math.abs(velocity / 30), 500);
-    translateY.value = withTiming(
-      targetTranslation,
-      { duration, easing: Easing.bezier(0.25, 0.1, 0.25, 1.0) },
-      (finished) => {
-        if (finished) {
-          runOnJS(onSelect)(
-            values[snapPoints.indexOf(targetTranslation)],
-            snapPoints.indexOf(targetTranslation)
-          );
-        }
-      }
-    );
-  };
-
-  const panGesture = Gesture.Pan()
-    .onStart(() => {
-      startY.value = translateY.value;
-      velocity.value = 0;
-      gestureState.value = State.BEGAN;
-    })
-    .onUpdate((event) => {
-      translateY.value = startY.value + event.translationY;
-      gestureState.value = State.ACTIVE;
-    })
-    .onEnd(({ velocityY }) => {
-      velocity.value = velocityY;
-      gestureState.value = State.END;
-      runOnJS(onEnd)(translateY.value, velocity.value);
-    });
-
-  const pickerAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateY: translateY.value }],
-    };
-  });
-
-  useAnimatedReaction(
-    () =>
-      Math.max(
-        Math.min(
-          Math.round(-translateY.value / ITEM_HEIGHT),
-          values.length - 1
-        ),
-        0
-      ),
-    (current, previous) => {
-      if (current !== previous && previous !== null) {
-        runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
-      }
-    },
-    [values.length]
-  );
-
-  return (
-    <View style={rouletteStyles.container}>
-      <GestureDetector gesture={panGesture}>
-        <Animated.View style={[rouletteStyles.picker, pickerAnimatedStyle]}>
-          <View style={rouletteStyles.spacer} />
-          {values.map((label, i) => (
-            <RouletteItem
-              key={i}
-              label={label}
-              translateY={translateY}
-              offset={i * ITEM_HEIGHT}
-            />
-          ))}
-        </Animated.View>
-      </GestureDetector>
-    </View>
-  );
-}
-
-const timePickerStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRowCenterAll(),
-  },
-  pickerContainer: {
-    height: ITEM_HEIGHT * VISIBLE_ITEMS,
-    ...StyleUtils.flexRowCenterAll(),
-    paddingHorizontal: "3%",
-  },
-  ampmContainer: {
-    height: ITEM_HEIGHT * VISIBLE_ITEMS,
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: 12,
-  },
-});
-
-type TimePickerProps = {
-  timestamp: number;
-  onSelect: (timestamp: number) => void;
-};
-
-function TimePicker({ timestamp, onSelect }: TimePickerProps) {
-  const date = new Date(timestamp);
-
-  // Generate hours (1-12)
-  const hours = Array.from({ length: 12 }, (_, i) =>
-    (i + 1).toString().padStart(2, "0")
-  );
-
-  // Generate minutes (00-59)
-  const minutes = Array.from({ length: 60 }, (_, i) =>
-    i.toString().padStart(2, "0")
-  );
-
-  // AM/PM options
-  const meridiem = ["AM", "PM"];
-
-  const handleHourSelect = (value: string) => {
-    const newDate = new Date(timestamp);
-    const hour = parseInt(value);
-    const isPM = newDate.getHours() >= 12;
-    newDate.setHours(isPM ? hour + 12 : hour);
-    onSelect(newDate.getTime());
-  };
-
-  const handleMinuteSelect = (value: string) => {
-    const newDate = new Date(timestamp);
-    newDate.setMinutes(parseInt(value));
-    onSelect(newDate.getTime());
-  };
-
-  const handleMeridiemSelect = (value: string) => {
-    const newDate = new Date(timestamp);
-    const currentHour = newDate.getHours();
-    const isPM = value === "PM";
-    const newHour = isPM ? (currentHour % 12) + 12 : currentHour % 12;
-    newDate.setHours(newHour);
-    onSelect(newDate.getTime());
-  };
-
-  const getSelectedHours = (timestamp: number) => {
-    const date = new Date(timestamp);
-    const hours = date.getHours() % 12;
-    return hours === 0 ? 11 : hours - 1;
-  };
-
-  return (
-    <View style={timePickerStyles.container}>
-      <View style={timePickerStyles.pickerContainer}>
-        <Roulette
-          values={hours}
-          onSelect={handleHourSelect}
-          defaultIndex={getSelectedHours(timestamp)}
-        />
-      </View>
-      <TimeColon />
-      <View style={timePickerStyles.pickerContainer}>
-        <Roulette
-          values={minutes}
-          onSelect={handleMinuteSelect}
-          defaultIndex={date.getMinutes()}
-        />
-      </View>
-      <View style={timePickerStyles.ampmContainer}>
-        <Roulette
-          values={meridiem}
-          onSelect={handleMeridiemSelect}
-          defaultIndex={date.getHours() >= 12 ? 1 : 0}
-        />
-      </View>
-    </View>
-  );
-}
-
-const datetimePickerStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRow(10),
-  },
-  highlight: {
-    position: "absolute",
-    borderRadius: 10,
-    left: 0,
-    right: 0,
-    top: "50%",
-    height: ITEM_HEIGHT,
-    marginTop: -ITEM_HEIGHT / 2,
-    backgroundColor: "rgba(255,255,255,0.12)",
-    zIndex: 1,
-    paddingHorizontal: "2%",
-  },
-});
-
-type DatetimePickerProps = {
-  timestamp: number;
-  onSelect: (timestamp: number) => void;
-};
-
-function DatetimePicker({ timestamp, onSelect }: DatetimePickerProps) {
-  const today = truncTime(Date.now());
-  const dates = Array.from({ length: LOOKBACK_DAYS }, (_, i) =>
-    removeDays(today, i)
-  ).reverse();
-
-  const handleDateSelect = (value: string, index: number) => {
-    const newDate = new Date(timestamp);
-    const selectedDate = new Date(dates[index]);
-    newDate.setFullYear(selectedDate.getFullYear());
-    newDate.setMonth(selectedDate.getMonth());
-    newDate.setDate(selectedDate.getDate());
-    onSelect(newDate.getTime());
-  };
-
-  return (
-    <View style={datetimePickerStyles.container}>
-      <View style={datetimePickerStyles.highlight} pointerEvents="none" />
-      <Roulette
-        values={dates.map((d) => getRouletteDateDisplay(d))}
-        onSelect={handleDateSelect}
-        defaultIndex={dates.findIndex((d) => d === truncTime(timestamp))}
-      />
-      <TimePicker timestamp={timestamp} onSelect={onSelect} />
-    </View>
-  );
-}
-
 const editTimeStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(10),
     paddingBottom: "10%",
   },
-  highlight: {
-    position: "absolute",
-    borderRadius: 10,
-    left: 0,
-    right: 0,
-    top: "50%",
-    height: ITEM_HEIGHT,
-    backgroundColor: "rgba(255,255,255,0.12)",
-  },
   pickerContainer: {
     paddingHorizontal: "5%",
+  },
+  timePickerContainer: {
+    ...StyleUtils.flexRowCenterAll(),
+  },
+  datePickerWrapper: {
+    flex: 2.5,
+    alignItems: "center",
+  },
+  timePickerWrapper: {
+    flex: 0.8,
+    alignItems: "center",
+  },
+  meridiemWrapper: {
+    flex: 0.6,
+    alignItems: "center",
+    marginLeft: 12,
+  },
+  labelStyle: {
+    fontSize: 20,
+    fontWeight: "600",
+  },
+  errorContainer: {
+    marginTop: "4%",
+    marginBottom: "4%",
+    paddingHorizontal: "4%",
+    paddingVertical: "3%",
+    borderRadius: 8,
+  },
+  errorText: {
+    color: "#FF3B30",
+    fontSize: 14,
+    textAlign: "center",
   },
 });
 
@@ -382,17 +179,57 @@ type EditTimeProps = {
   timestamp: number;
   onUpdate: (timestamp: number) => void;
   onBack: () => void;
+  validate: (timestamp: number) => ValidationResult;
 };
 
-function EditTime({ title, timestamp, onUpdate, onBack }: EditTimeProps) {
+function EditTime({
+  title,
+  timestamp,
+  onUpdate,
+  onBack,
+  validate,
+}: EditTimeProps) {
   const actionColor = useThemeColoring("primaryAction");
-  const [currentTimestamp, setCurrentTimestamp] = useState(timestamp);
+  const errorColor = useThemeColoring("dangerAction");
+  const [time, setTime] = useState<Time>(() => timestampToTime(timestamp));
+  const currentTimestamp = timeToTimestamp(time);
   const isUnchanged = currentTimestamp === timestamp;
 
+  const validation = validate(currentTimestamp);
+  const isDisabled = isUnchanged || !validation.isValid;
+
+  const handleDateSelect = useCallback((_: string, index: number) => {
+    setTime((prev) => ({
+      ...prev,
+      daysFromToday: LOOKBACK_DAYS - 1 - index,
+    }));
+  }, []);
+
+  const handleHourSelect = useCallback((value: string) => {
+    setTime((prev) => ({
+      ...prev,
+      hour: parseInt(value),
+    }));
+  }, []);
+
+  const handleMinuteSelect = useCallback((value: string) => {
+    setTime((prev) => ({
+      ...prev,
+      minute: parseInt(value),
+    }));
+  }, []);
+
+  const handleMeridiemSelect = useCallback((value: string) => {
+    setTime((prev) => ({
+      ...prev,
+      isPM: value === "PM",
+    }));
+  }, []);
+
   const handleUpdate = useCallback(() => {
-    onUpdate(currentTimestamp);
+    onUpdate(timeToTimestamp(time));
     onBack();
-  }, [onUpdate, currentTimestamp, onBack]);
+  }, [time, onUpdate, onBack]);
 
   return (
     <View style={editTimeStyles.container}>
@@ -404,27 +241,75 @@ function EditTime({ title, timestamp, onUpdate, onBack }: EditTimeProps) {
           <SheetArrowLeft />
         </TouchableOpacity>
       </View>
-      <View style={editTimeStyles.pickerContainer}>
-        <DatetimePicker
-          timestamp={currentTimestamp}
-          onSelect={setCurrentTimestamp}
-        />
+      <Animated.View style={editTimeStyles.pickerContainer}>
+        <View style={editTimeStyles.timePickerContainer}>
+          <View style={editTimeStyles.datePickerWrapper}>
+            <WheelPicker
+              values={ROULETTE_DATES}
+              onSelect={handleDateSelect}
+              defaultIndex={LOOKBACK_DAYS - 1 - time.daysFromToday}
+              itemHeight={WHEEL_ITEM_HEIGHT}
+              labelStyle={editTimeStyles.labelStyle}
+            />
+          </View>
+          <View style={editTimeStyles.timePickerWrapper}>
+            <WheelPicker
+              values={HOURS}
+              onSelect={handleHourSelect}
+              defaultIndex={time.hour - 1}
+              itemHeight={WHEEL_ITEM_HEIGHT}
+              labelStyle={editTimeStyles.labelStyle}
+            />
+          </View>
+          <TimeColon />
+          <View style={editTimeStyles.timePickerWrapper}>
+            <WheelPicker
+              values={MINUTES}
+              onSelect={handleMinuteSelect}
+              defaultIndex={time.minute}
+              itemHeight={WHEEL_ITEM_HEIGHT}
+              labelStyle={editTimeStyles.labelStyle}
+            />
+          </View>
+          <View style={editTimeStyles.meridiemWrapper}>
+            <WheelPicker
+              values={MERIDIEM}
+              onSelect={handleMeridiemSelect}
+              defaultIndex={time.isPM ? 1 : 0}
+              itemHeight={WHEEL_ITEM_HEIGHT}
+              labelStyle={editTimeStyles.labelStyle}
+            />
+          </View>
+        </View>
+        {validation.error && (
+          <Animated.View
+            key={"error"}
+            style={[
+              editTimeStyles.errorContainer,
+              { backgroundColor: convertHexToRGBA(errorColor, 0.1) },
+            ]}
+          >
+            <Text style={[editTimeStyles.errorText, { color: errorColor }]}>
+              {validation.error}
+            </Text>
+          </Animated.View>
+        )}
         <TouchableOpacity
           style={[
             commonSheetStyles.sheetButton,
             {
               backgroundColor: actionColor,
-              opacity: isUnchanged ? 0.5 : 1,
+              opacity: isDisabled ? 0.5 : 1,
             },
           ]}
-          disabled={isUnchanged}
+          disabled={isDisabled}
           onPress={handleUpdate}
         >
           <Text neutral emphasized>
             Update
           </Text>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -545,6 +430,44 @@ export const EditStartEndTimes = forwardRef(
     const [isEditingStartTime, setIsEditingStartTime] = useState(false);
     const [isEditingEndTime, setIsEditingEndTime] = useState(false);
 
+    const validateStart = useCallback(
+      (timestamp: number): ValidationResult => {
+        const futureValidation = validateFutureTime(timestamp);
+        if (!futureValidation.isValid) return futureValidation;
+
+        if (endedAt && timestamp > endedAt) {
+          const startTimeStr = formatDateTime(timestamp);
+          const endTimeStr = formatDateTime(endedAt);
+          return {
+            isValid: false,
+            error: `Start time '${startTimeStr}' cannot be set after the end time '${endTimeStr}'`,
+          };
+        }
+
+        return { isValid: true };
+      },
+      [endedAt]
+    );
+
+    const validateEnd = useCallback(
+      (timestamp: number): ValidationResult => {
+        const futureValidation = validateFutureTime(timestamp);
+        if (!futureValidation.isValid) return futureValidation;
+
+        if (timestamp < startedAt) {
+          const endTimeStr = formatDateTime(timestamp);
+          const startTimeStr = formatDateTime(startedAt);
+          return {
+            isValid: false,
+            error: `End time '${endTimeStr}' cannot be set before the start time '${startTimeStr}'`,
+          };
+        }
+
+        return { isValid: true };
+      },
+      [startedAt]
+    );
+
     const handleStartTimePress = useCallback(() => {
       setIsEditingStartTime(true);
       setIsEditingEndTime(false);
@@ -596,6 +519,7 @@ export const EditStartEndTimes = forwardRef(
             timestamp={startedAt}
             onUpdate={handleUpdateStartTime}
             onBack={handleBack}
+            validate={validateStart}
           />
         ) : isEditingEndTime ? (
           <EditTime
@@ -603,6 +527,7 @@ export const EditStartEndTimes = forwardRef(
             timestamp={endedAt as number}
             onUpdate={handleUpdateEndTime}
             onBack={handleBack}
+            validate={validateEnd}
           />
         ) : (
           <StartEndTimeDisplay

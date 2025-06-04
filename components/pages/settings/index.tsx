@@ -1,4 +1,4 @@
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { SETTING_HEIGHT, StyleUtils } from "@/util/styles";
 import { View, Text, useThemeColoring } from "@/components/Themed";
 import * as FileSystem from "expo-file-system";
@@ -7,11 +7,19 @@ import * as DocumentPicker from "expo-document-picker";
 import { WorkoutApi } from "@/api/workout";
 import { Routine, Workout } from "@/interface";
 import { useToast } from "react-native-toast-notifications";
-import { RootStackParamList } from "@/layout/types";
-import { StackScreenProps } from "@react-navigation/stack";
-import { contentStyles, topActionsStyles } from "../common/styles";
-import { Close } from "@/components/theme/actions";
-import { ModalWrapper } from "../common";
+import { HeaderPage } from "@/components/util/header-page";
+import { tintColor } from "@/util/color";
+import { GoBackAction, SectionHeader, SettingsRow } from "./common";
+import {
+  ChevronRight,
+  Download,
+  Palette,
+  Upload,
+  User,
+} from "lucide-react-native";
+import React from "react";
+import { AccountSettings } from "./account";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 type ImportExport = {
   workouts: Workout[];
@@ -116,53 +124,75 @@ function ImportSetting() {
   );
 }
 
-const settingsStyle = StyleSheet.create({
+const rootSettingsStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
     flex: 1,
-  },
-  head: {
-    ...StyleUtils.flexColumn(),
-    paddingLeft: "3%",
+    paddingHorizontal: "5%",
+    paddingTop: "3%",
   },
 });
 
-function Settings() {
+
+function RootSettings({ navigation }: any) {
+  const appBgColor = useThemeColoring("appBackground");
+  const accent = tintColor(appBgColor, 0.3);
+  // Handlers (replace with real navigation/actions)
+  const goToEditProfile = () => {};
+  const goToAccountSettings = () => {};
+  const goToPayment = () => {};
+  const goToNotifications = () => {};
+  const goToAppearance = () => {};
+  const goToContactSupport = () => {};
+  const goToRateApp = () => {};
+  const goToFollow = () => {};
+  const goToSignOut = () => {};
+
   return (
-    <View background style={settingsStyle.container}>
-      <View background style={settingsStyle.head}>
-        <Text extraLarge>Settings</Text>
-        <Text neutral light>
-          Configure how the app tracks your workouts
-        </Text>
-      </View>
-      <ImportSetting />
-      <ExportSetting />
-    </View>
+    <HeaderPage
+      title="Settings"
+      leftAction={<GoBackAction onClick={navigation.goBack} />}
+    >
+      <ScrollView contentContainerStyle={rootSettingsStyles.container}>
+        <SettingsRow
+          icon={<User color={accent} size={22} />}
+          label="Account"
+          onPress={() => navigation.navigate("account")}
+          rightIcon={<ChevronRight color={accent} size={20} />}
+        />
+        <SectionHeader title="Preferences" />
+        <SettingsRow
+          icon={<Palette color={accent} size={22} />}
+          label="Appearance"
+          onPress={goToAppearance}
+          rightIcon={<ChevronRight color={accent} size={20} />}
+        />
+        <SectionHeader title="Data" />
+        <SettingsRow
+          icon={<Upload color={accent} size={22} />}
+          label="Import"
+          onPress={goToContactSupport}
+        />
+        <SettingsRow
+          icon={<Download color={accent} size={22} />}
+          label="Export"
+          onPress={goToRateApp}
+        />
+      </ScrollView>
+    </HeaderPage>
   );
 }
 
-type SettingsTopActionsProps = {
-  onClose: () => void;
-};
+const Stack = createNativeStackNavigator();
 
-function SettingsTopActions({ onClose }: SettingsTopActionsProps) {
+export function Settings() {
   return (
-    <View style={topActionsStyles.container}>
-      <Close onClick={onClose} />
-    </View>
-  );
-}
-
-type SettingsModalProps = StackScreenProps<RootStackParamList, "settings">;
-
-export function SettingsModal({ route, navigation }: SettingsModalProps) {
-  return (
-    <ModalWrapper>
-      <View style={contentStyles.container}>
-        <SettingsTopActions onClose={navigation.goBack} />
-        <Settings />
-      </View>
-    </ModalWrapper>
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName="root"
+    >
+      <Stack.Screen name="root" component={RootSettings} />
+      <Stack.Screen name="account" component={AccountSettings} />
+    </Stack.Navigator>
   );
 }
