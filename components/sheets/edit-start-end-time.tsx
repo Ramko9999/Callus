@@ -15,7 +15,7 @@ import { PopupBottomSheet } from "@/components/util/popup/sheet";
 import { forwardRef, ForwardedRef, useState, useCallback } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 import * as Haptics from "expo-haptics";
-import { SheetX, SheetArrowLeft, commonSheetStyles } from "./common";
+import { SheetX, SheetArrowLeft, commonSheetStyles, SheetError } from "./common";
 import { WheelPicker } from "@/components/util/wheel-picker";
 import { convertHexToRGBA } from "@/util/color";
 import Animated from "react-native-reanimated";
@@ -103,35 +103,6 @@ function validateFutureTime(timestamp: number): ValidationResult {
   return { isValid: true };
 }
 
-const timeColonStyles = StyleSheet.create({
-  colon: {
-    height: WHEEL_ITEM_HEIGHT,
-    paddingHorizontal: "3%",
-    ...StyleUtils.flexRowCenterAll(),
-  },
-  colonInner: {
-    ...StyleUtils.flexColumnCenterAll(),
-  },
-  colonDot: {
-    width: 3,
-    height: 3,
-    borderRadius: 4,
-  },
-});
-
-function TimeColon() {
-  const color = useThemeColoring("primaryText");
-  return (
-    <View style={timeColonStyles.colon}>
-      <View style={timeColonStyles.colonInner}>
-        <View style={[timeColonStyles.colonDot, { backgroundColor: color }]} />
-        <View style={{ height: 3 }} />
-        <View style={[timeColonStyles.colonDot, { backgroundColor: color }]} />
-      </View>
-    </View>
-  );
-}
-
 const editTimeStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(10),
@@ -154,23 +125,10 @@ const editTimeStyles = StyleSheet.create({
   meridiemWrapper: {
     flex: 0.6,
     alignItems: "center",
-    marginLeft: 12,
   },
   labelStyle: {
     fontSize: 20,
     fontWeight: "600",
-  },
-  errorContainer: {
-    marginTop: "4%",
-    marginBottom: "4%",
-    paddingHorizontal: "4%",
-    paddingVertical: "3%",
-    borderRadius: 8,
-  },
-  errorText: {
-    color: "#FF3B30",
-    fontSize: 14,
-    textAlign: "center",
   },
 });
 
@@ -190,7 +148,6 @@ function EditTime({
   validate,
 }: EditTimeProps) {
   const actionColor = useThemeColoring("primaryAction");
-  const errorColor = useThemeColoring("dangerAction");
   const [time, setTime] = useState<Time>(() => timestampToTime(timestamp));
   const currentTimestamp = timeToTimestamp(time);
   const isUnchanged = currentTimestamp === timestamp;
@@ -261,7 +218,6 @@ function EditTime({
               labelStyle={editTimeStyles.labelStyle}
             />
           </View>
-          <TimeColon />
           <View style={editTimeStyles.timePickerWrapper}>
             <WheelPicker
               values={MINUTES}
@@ -281,19 +237,7 @@ function EditTime({
             />
           </View>
         </View>
-        {validation.error && (
-          <Animated.View
-            key={"error"}
-            style={[
-              editTimeStyles.errorContainer,
-              { backgroundColor: convertHexToRGBA(errorColor, 0.1) },
-            ]}
-          >
-            <Text style={[editTimeStyles.errorText, { color: errorColor }]}>
-              {validation.error}
-            </Text>
-          </Animated.View>
-        )}
+        {validation.error && <SheetError text={validation.error} />}
         <TouchableOpacity
           style={[
             commonSheetStyles.sheetButton,

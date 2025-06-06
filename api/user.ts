@@ -37,7 +37,9 @@ async function onboardUser(details: UserDetails) {
     JSON.stringify(details)
   );
   if (!(await hasLoadedInitialRoutines())) {
-    await WorkoutApi.importRoutines(INITIAL_ROUTINES);
+    for(const routine of INITIAL_ROUTINES) {
+      await WorkoutApi.saveRoutine(routine);
+    }
     await markInitialRoutinesLoaded();
   }
 }

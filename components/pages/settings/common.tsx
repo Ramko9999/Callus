@@ -9,15 +9,9 @@ type GoBackActionProps = {
   onClick: () => void;
 };
 
-const styles = StyleSheet.create({
-  backButton: {
-    paddingHorizontal: "4%",
-  },
-});
-
 export function GoBackAction({ onClick }: GoBackActionProps) {
   return (
-    <TouchableOpacity onPress={onClick} style={styles.backButton}>
+    <TouchableOpacity onPress={onClick}>
       <ChevronLeft color={useThemeColoring("primaryAction")} />
     </TouchableOpacity>
   );

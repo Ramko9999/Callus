@@ -252,21 +252,6 @@ export class Store {
     return rawSqlRecord != null ? toWorkout(rawSqlRecord) : undefined;
   }
 
-  async saveWorkouts(workouts: Workout[]) {
-    const start = Date.now();
-    for (const workout of workouts) {
-      await this.saveWorkout(workout);
-    }
-    const elapsed = Date.now() - start;
-    console.log(`[STORE] saveWorkouts took ${elapsed}ms`);
-  }
-
-  async saveRoutines(routines: Routine[]) {
-    for (const routine of routines) {
-      await this.saveRoutine(routine);
-    }
-  }
-
   async deleteWorkout(workoutId: string) {
     await this.db.runAsync(DELETE_WORKOUT, { $workout_id: workoutId });
   }

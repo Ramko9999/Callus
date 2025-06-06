@@ -1,8 +1,9 @@
 import { StyleSheet, View } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import { X as LucideX, ArrowLeft } from "lucide-react-native";
-import { useThemeColoring } from "@/components/Themed";
+import { useThemeColoring, Text } from "@/components/Themed";
 import { tintColor } from "@/util/color";
+import { convertHexToRGBA } from "@/util/color";
 
 export const commonSheetStyles = StyleSheet.create({
   sheetHeader: {
@@ -26,6 +27,17 @@ export const commonSheetStyles = StyleSheet.create({
     aspectRatio: 1,
     padding: "2%",
   },
+  errorContainer: {
+    marginTop: "4%",
+    marginBottom: "4%",
+    paddingHorizontal: "4%",
+    paddingVertical: "3%",
+    borderRadius: 8,
+  },
+  errorText: {
+    fontSize: 14,
+    textAlign: "center",
+  },
 });
 
 export function SheetX({ size = 14 }: { size?: number }) {
@@ -44,6 +56,27 @@ export function SheetArrowLeft({ size = 14 }: { size?: number }) {
   return (
     <View style={[commonSheetStyles.sheetIcon, { backgroundColor: bg }]}>
       <ArrowLeft size={size} color={color} />
+    </View>
+  );
+}
+
+type SheetErrorProps = {
+  text: string;
+};
+
+export function SheetError({ text }: SheetErrorProps) {
+  const errorColor = useThemeColoring("dangerAction");
+  
+  return (
+    <View
+      style={[
+        commonSheetStyles.errorContainer,
+        { backgroundColor: convertHexToRGBA(errorColor, 0.1) },
+      ]}
+    >
+      <Text style={[commonSheetStyles.errorText, { color: errorColor }]}>
+        {text}
+      </Text>
     </View>
   );
 }

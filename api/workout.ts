@@ -63,14 +63,6 @@ export class WorkoutApi {
     return await Store.instance().getRoutines();
   }
 
-  static async importWorkouts(workouts: Workout[]): Promise<void> {
-    await Store.instance().saveWorkouts(workouts);
-  }
-
-  static async importRoutines(routines: Routine[]): Promise<void> {
-    await Store.instance().saveRoutines(routines);
-  }
-
   static async getWorkedOutDays(
     before: number,
     after: number

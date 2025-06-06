@@ -167,7 +167,7 @@ const EXERCISE_DEMONSTRATIONS: Record<string, ImageRequireSource> = {
   "198": require("../../assets/exercises/images/front-leg-elevated-split-squat.png"),
   "67": require("../../assets/exercises/images/dumbbell-overhead-press.png"),
   "61": require("../../assets/exercises/images/dumbbell-lateral-raise.png"),
-  "33": require("../../assets/exercises/images/cable-curl.png"),
+  "34": require("../../assets/exercises/images/cable-curl.png"),
   "199": require("../../assets/exercises/images/bulgarian-split-squat.png"),
   "163": require("../../assets/exercises/images/barbell-squat.png"),
   "17": require("../../assets/exercises/images/barbell-shrug.png"),
