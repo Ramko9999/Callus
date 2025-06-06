@@ -1,7 +1,7 @@
 import { StyleUtils } from "@/util/styles";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { useThemeColoring, View, Text } from "@/components/Themed";
-import { useCallback, useState, useMemo, useEffect } from "react";
+import { useCallback, useState, useMemo, useEffect, memo } from "react";
 import { WorkoutApi } from "@/api/workout";
 import { WorkedOutDay } from "@/interface";
 import { addDays, removeDays, truncTime } from "@/util/date";
@@ -80,7 +80,7 @@ const streakTileStyles = StyleSheet.create({
 
 function StreakTile({ duration, index, isLoading }: StreakTileProps) {
   const accentColor = useThemeColoring("primaryAction");
-  const inactiveColor = useThemeColoring("inactiveTileColor");
+  const inactiveColor = tintColor(useThemeColoring("appBackground"), 0.2);
   const animationProgress = useSharedValue(0);
   const loadingAnimationProgress = useSharedValue(0);
 
@@ -191,32 +191,54 @@ const streakGroupStyles = StyleSheet.create({
   },
 });
 
-export function StreakGroup({
-  group,
-  date,
-  groupIndex,
-  isLoading,
-}: StreakGroupProps) {
-  const columns = batch(group, STREAK_COLUMN_GROUP_SIZE);
+export const StreakGroup = memo(
+  function StreakGroup({
+    group,
+    date,
+    groupIndex,
+    isLoading,
+  }: StreakGroupProps) {
+    const columns = batch(group, STREAK_COLUMN_GROUP_SIZE);
 
-  return (
-    <View key={groupIndex} style={streakGroupStyles.container}>
-      <Text small light>
-        {date}
-      </Text>
-      <View style={streakGroupStyles.columnsContainer}>
-        {columns.map((column, columnIndex) => (
-          <StreakColumn
-            key={columnIndex}
-            streakData={column}
-            columnIndex={groupIndex * columns.length + columnIndex}
-            isLoading={isLoading}
-          />
-        ))}
+    return (
+      <View key={groupIndex} style={streakGroupStyles.container}>
+        <Text small light>
+          {date}
+        </Text>
+        <View style={streakGroupStyles.columnsContainer}>
+          {columns.map((column, columnIndex) => (
+            <StreakColumn
+              key={columnIndex}
+              streakData={column}
+              columnIndex={groupIndex * columns.length + columnIndex}
+              isLoading={isLoading}
+            />
+          ))}
+        </View>
       </View>
-    </View>
-  );
-}
+    );
+  },
+  (prevProps: StreakGroupProps, nextProps: StreakGroupProps) => {
+    // Check if arrays have same length
+    if (prevProps.group.length !== nextProps.group.length) {
+      return false;
+    }
+
+    // Check each value in the array
+    for (let i = 0; i < prevProps.group.length; i++) {
+      if (prevProps.group[i] !== nextProps.group[i]) {
+        return false;
+      }
+    }
+
+    // Check other props
+    return (
+      prevProps.date === nextProps.date &&
+      prevProps.groupIndex === nextProps.groupIndex &&
+      prevProps.isLoading === nextProps.isLoading
+    );
+  }
+);
 
 const workoutStreakGridStyles = StyleSheet.create({
   container: {
@@ -250,7 +272,6 @@ export function StreakGrid() {
 
   useFocusEffect(
     useCallback(() => {
-      setIsLoading(true);
       const gridEnd = addDays(truncTime(Date.now()), 1);
       const gridStart = removeDays(gridEnd, LOOK_BACK_DAYS);
 
