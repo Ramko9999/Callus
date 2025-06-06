@@ -1,4 +1,8 @@
-import { StyleSheet, TouchableOpacity, Keyboard } from "react-native";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  Keyboard,
+} from "react-native";
 import { useThemeColoring, View } from "@/components/Themed";
 import { TAB_BAR_HEIGHT } from "@/util/styles";
 import { useCallback, useRef, useState } from "react";
@@ -18,10 +22,12 @@ import {
   SearchBar,
   SearchExerciseGroupNav,
   SEARCH_EXERCISE_HEIGHT,
+  ExerciseGridItem,
 } from "@/components/exercise/search/common";
 import * as Haptics from "expo-haptics";
 import { tintColor } from "@/util/color";
 import { usePopup } from "@/components/popup";
+import { LayoutGrid, List } from "lucide-react-native";
 
 type SearchExerciseWithSummaryProps = {
   meta: ExerciseMeta;
@@ -44,6 +50,12 @@ function SearchExerciseWithSummary({
 }
 
 const exercisesStyles = StyleSheet.create({
+  search: {
+    paddingHorizontal: "3%",
+  },
+});
+
+const verticalViewStyles = StyleSheet.create({
   scroll: {
     flex: 1,
     paddingHorizontal: "3%",
@@ -56,40 +68,20 @@ const exercisesStyles = StyleSheet.create({
     left: "97%",
     bottom: TAB_BAR_HEIGHT + 20,
   },
-  search: {
-    paddingHorizontal: "3%",
-  },
 });
 
-export function Exercises() {
-  const navigation = useNavigation();
+type VerticalViewProps = {
+  results: ExerciseDisplayResult[];
+  performedExerciseSummaries: SearchExerciseSummary[];
+  onExercisePress: (exercise: ExerciseMeta) => void;
+};
+
+function VerticalView({
+  results,
+  performedExerciseSummaries,
+  onExercisePress,
+}: VerticalViewProps) {
   const flatListRef = useRef<FlatList>(null);
-  const { filterExercises } = usePopup();
-
-  const [performedExerciseSummaries, setPerformedExerciseSummaries] = useState<
-    SearchExerciseSummary[]
-  >([]);
-
-  const [searchQuery, setSearchQuery] = useState<string>("");
-
-  const barColor = tintColor(useThemeColoring("primaryViewBackground"), 0.05);
-
-  useFocusEffect(
-    useCallback(() => {
-      WorkoutApi.getExerciseSummaries().then(setPerformedExerciseSummaries);
-    }, [])
-  );
-
-  const results = getResultsToDisplay(
-    searchQuery,
-    EXERCISE_REPOSITORY,
-    filterExercises.muscleFilters,
-    filterExercises.exerciseTypeFilters
-  );
-
-  const groups = results
-    .filter(({ resultType }) => resultType === "group")
-    .map(({ group }) => group) as string[];
 
   const getSummary = (meta: ExerciseMeta) => {
     const summaryIndex = performedExerciseSummaries
@@ -108,15 +100,10 @@ export function Exercises() {
         <SearchExerciseWithSummary
           meta={item.exercise as ExerciseMeta}
           summary={getSummary(item.exercise as ExerciseMeta)}
-          onClick={() => {
-            // @ts-ignore
-            navigation.navigate("exerciseInsight", {
-              name: (item.exercise as ExerciseMeta).name,
-            });
-          }}
+          onClick={() => onExercisePress(item.exercise as ExerciseMeta)}
         />
       ),
-    [performedExerciseSummaries, navigation]
+    [performedExerciseSummaries, onExercisePress]
   );
 
   const getItemLayout = useCallback(
@@ -134,47 +121,23 @@ export function Exercises() {
     []
   );
 
-  const onShowFilters = useCallback(() => {
-    Keyboard.dismiss();
-    filterExercises.open();
-  }, [filterExercises]);
-
-  const hasFilters =
-    filterExercises.muscleFilters.length > 0 ||
-    filterExercises.exerciseTypeFilters.length > 0;
+  const groups = results
+    .filter(({ resultType }) => resultType === "group")
+    .map(({ group }) => group) as string[];
 
   return (
     <>
-      <HeaderPage title="Exercises">
-        <View style={exercisesStyles.search}>
-          <SearchBar
-            onChangeSearchQuery={setSearchQuery}
-            style={{ backgroundColor: barColor }}
-          />
-        </View>
-        <FilterActions
-          hasFilters={hasFilters}
-          muscleFilters={filterExercises.muscleFilters}
-          exerciseTypeFilters={filterExercises.exerciseTypeFilters}
-          onUpdateMuscleFilters={filterExercises.onUpdateMuscleFilters}
-          onUpdateExerciseTypeFilters={
-            filterExercises.onUpdateExerciseTypeFilters
-          }
-          onShowFilters={onShowFilters}
-        />
-        <FlatList
-          ref={flatListRef}
-          style={exercisesStyles.scroll}
-          contentContainerStyle={exercisesStyles.content}
-          showsVerticalScrollIndicator={false}
-          data={results}
-          getItemLayout={getItemLayout}
-          renderItem={renderItem}
-          keyExtractor={keyExtractor}
-        />
-      </HeaderPage>
-
-      <View style={exercisesStyles.groupNavigation}>
+      <FlatList
+        ref={flatListRef}
+        style={verticalViewStyles.scroll}
+        contentContainerStyle={verticalViewStyles.content}
+        showsVerticalScrollIndicator={false}
+        data={results}
+        getItemLayout={getItemLayout}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+      />
+      <View style={verticalViewStyles.groupNavigation}>
         <SearchExerciseGroupNav
           enabledGroups={groups}
           onClick={(selectedGroup) => {
@@ -192,5 +155,187 @@ export function Exercises() {
         />
       </View>
     </>
+  );
+}
+
+const gridViewStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: "3%",
+  },
+  content: {
+    paddingBottom: "10%",
+  },
+  item: {
+    margin: 3,
+    overflow: "hidden",
+    borderRadius: 4,
+  },
+});
+
+type GridViewProps = {
+  results: ExerciseDisplayResult[];
+  performedExerciseSummaries: SearchExerciseSummary[];
+  onExercisePress: (exercise: ExerciseMeta) => void;
+};
+
+function GridView({
+  results,
+  performedExerciseSummaries,
+  onExercisePress,
+}: GridViewProps) {
+  const imageBackgroundColor = tintColor(
+    useThemeColoring("appBackground"),
+    0.1
+  );
+
+  const exercises = results.filter(
+    (result) => result.resultType === "exercise"
+  ) as { resultType: "exercise"; exercise: ExerciseMeta }[];
+
+  const getSummary = useCallback(
+    (meta: ExerciseMeta) => {
+      const summaryIndex = performedExerciseSummaries
+        .map(({ name }) => name)
+        .indexOf(meta.name);
+      if (summaryIndex > -1) {
+        return `${performedExerciseSummaries[summaryIndex].totalSetsCompleted} sets`;
+      }
+      return "No sets completed";
+    },
+    [performedExerciseSummaries]
+  );
+
+  const renderGridItem = useCallback(
+    ({
+      item,
+      index,
+    }: {
+      item: { resultType: "exercise"; exercise: ExerciseMeta };
+      index: number;
+    }) => {
+      const shouldHaveHalfFlex =
+        index === exercises.length - 1 && exercises.length % 2 === 1;
+
+      return (
+        <TouchableOpacity
+          style={[gridViewStyles.item, { flex: shouldHaveHalfFlex ? 0.5 : 1 }]}
+          onPress={() => onExercisePress(item.exercise)}
+        >
+          <ExerciseGridItem
+            exercise={item.exercise}
+            summary={getSummary(item.exercise)}
+          />
+        </TouchableOpacity>
+      );
+    },
+    [exercises.length, getSummary, onExercisePress]
+  );
+
+  return (
+    <FlatList
+      style={gridViewStyles.container}
+      contentContainerStyle={gridViewStyles.content}
+      data={exercises}
+      renderItem={renderGridItem}
+      keyExtractor={(item) => item.exercise.name}
+      numColumns={2}
+      showsVerticalScrollIndicator={false}
+    />
+  );
+}
+
+export function Exercises() {
+  const navigation = useNavigation();
+  const { filterExercises } = usePopup();
+  const [isGridView, setIsGridView] = useState(true);
+
+  const [performedExerciseSummaries, setPerformedExerciseSummaries] = useState<
+    SearchExerciseSummary[]
+  >([]);
+
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const barColor = tintColor(useThemeColoring("primaryViewBackground"), 0.05);
+
+  useFocusEffect(
+    useCallback(() => {
+      WorkoutApi.getExerciseSummaries().then(setPerformedExerciseSummaries);
+    }, [])
+  );
+
+  const results = getResultsToDisplay(
+    searchQuery,
+    EXERCISE_REPOSITORY,
+    filterExercises.muscleFilters,
+    filterExercises.exerciseTypeFilters
+  );
+
+  const onShowFilters = useCallback(() => {
+    Keyboard.dismiss();
+    filterExercises.open();
+  }, [filterExercises]);
+
+  const handleExercisePress = useCallback(
+    (exercise: ExerciseMeta) => {
+      // @ts-ignore
+      navigation.navigate("exerciseInsight", {
+        name: exercise.name,
+      });
+    },
+    [navigation]
+  );
+
+  const toggleView = useCallback(() => {
+    setIsGridView((prev) => !prev);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, []);
+
+  const hasFilters =
+    filterExercises.muscleFilters.length > 0 ||
+    filterExercises.exerciseTypeFilters.length > 0;
+
+  return (
+    <HeaderPage
+      title="Exercises"
+      rightAction={
+        <TouchableOpacity onPress={toggleView}>
+          {isGridView ? (
+            <List size={24} color={useThemeColoring("primaryAction")} />
+          ) : (
+            <LayoutGrid size={24} color={useThemeColoring("primaryAction")} />
+          )}
+        </TouchableOpacity>
+      }
+    >
+      <View style={exercisesStyles.search}>
+        <SearchBar
+          onChangeSearchQuery={setSearchQuery}
+          style={{ backgroundColor: barColor }}
+        />
+      </View>
+      <FilterActions
+        hasFilters={hasFilters}
+        muscleFilters={filterExercises.muscleFilters}
+        exerciseTypeFilters={filterExercises.exerciseTypeFilters}
+        onUpdateMuscleFilters={filterExercises.onUpdateMuscleFilters}
+        onUpdateExerciseTypeFilters={
+          filterExercises.onUpdateExerciseTypeFilters
+        }
+        onShowFilters={onShowFilters}
+      />
+      {isGridView ? (
+        <GridView
+          results={results}
+          performedExerciseSummaries={performedExerciseSummaries}
+          onExercisePress={handleExercisePress}
+        />
+      ) : (
+        <VerticalView
+          results={results}
+          performedExerciseSummaries={performedExerciseSummaries}
+          onExercisePress={handleExercisePress}
+        />
+      )}
+    </HeaderPage>
   );
 }

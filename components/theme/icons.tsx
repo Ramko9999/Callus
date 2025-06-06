@@ -28,6 +28,7 @@ import {
   User,
 } from "lucide-react-native";
 import { Dumbbell } from "./custom-svg";
+import Svg, { Path } from "react-native-svg";
 
 const dragIndicatorStyles = StyleSheet.create({
   container: {
@@ -310,52 +311,21 @@ export function Star({ size, color }: StarProps) {
   );
 }
 
-export function OnboardingWeightIcon() {
+type TwitterXProps = {
+  size?: number;
+  color?: string;
+};
+
+export function TwitterX({ size = 24, color = "#FFFFFF" }: TwitterXProps) {
   return (
-    <Dumbbell
-      color={useThemeColoring("primaryAction")}
-      size={64}
-      fill={useThemeColoring("primaryAction")}
-      viewBox="0 0 48 48"
-      strokeWidth={1}
-    />
-  );
-}
-
-export function OnboardingProgressIcon() {
-  return (
-    <ChartNoAxesColumnIncreasing
-      color={useThemeColoring("primaryAction")}
-      strokeWidth={3}
-      size={40}
-    />
-  );
-}
-
-const onboardingFreeIconStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRowCenterAll(),
-  },
-  overlay: {
-    position: "absolute",
-  },
-});
-
-export function OnboardingFreeIcon() {
-  const overlayColor = useThemeColoring("primaryViewBackground");
-
-  return (
-    <View style={onboardingFreeIconStyles.container}>
-      <Badge
-        color={useThemeColoring("primaryAction")}
-        size={52}
-        fill={useThemeColoring("primaryAction")}
+    <Svg width={size} height={size} viewBox="0 0 1200 1227" fill="none">
+      <Path
+        d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.137 519.284H714.163ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"
+        fill={color}
       />
-      <View style={onboardingFreeIconStyles.overlay}>
-        <Text small style={{ color: overlayColor }}>
-          FREE
-        </Text>
-      </View>
-    </View>
+    </Svg>
   );
 }
+
+
+

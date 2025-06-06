@@ -94,60 +94,6 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
     onUpdateExerciseTypeFilters: setExerciseTypeFilters,
   };
 
-  const startFromRoutine = useCallback(
-    (routine: Routine) => {
-      if (isInWorkout) {
-        toast.show(
-          "Please finish your current workout before trying to start another workout",
-          { type: "danger" }
-        );
-      } else {
-        actions.startWorkout(
-          WorkoutActions.createFromRoutine(
-            routine,
-            userDetails?.bodyweight as number
-          )
-        );
-        startWorkoutSheetRef.current?.close();
-      }
-    },
-    [isInWorkout, toast, actions, userDetails?.bodyweight]
-  );
-
-  const quickStart = useCallback(() => {
-    if (isInWorkout) {
-      toast.show(
-        "Please finish your current workout before trying to start another workout",
-        { type: "danger" }
-      );
-    } else {
-      actions.startWorkout(
-        WorkoutActions.createFromQuickStart(userDetails?.bodyweight as number)
-      );
-      startWorkoutSheetRef.current?.close();
-    }
-  }, [isInWorkout, toast, actions, userDetails?.bodyweight]);
-
-  const startFromWorkout = useCallback(
-    (workout: Workout) => {
-      if (isInWorkout) {
-        toast.show(
-          "Please finish your current workout before trying to start another workout",
-          { type: "danger" }
-        );
-      } else {
-        actions.startWorkout(
-          WorkoutActions.createFromWorkout(
-            workout,
-            userDetails?.bodyweight as number
-          )
-        );
-        startWorkoutSheetRef.current?.close();
-      }
-    },
-    [isInWorkout, toast, actions, userDetails?.bodyweight]
-  );
-
   const setTimeRange = useCallback((range: string) => {
     setSelectedTimeRange(range);
     trendsPeriodSelectionSheetRef.current?.close();
@@ -163,9 +109,6 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
         show={isStartWorkoutOpen}
         hide={() => startWorkoutSheetRef.current?.close()}
         onHide={startWorkout.close}
-        onQuickStart={quickStart}
-        onStartFromRoutine={startFromRoutine}
-        onStartFromWorkout={startFromWorkout}
       />
       <TrendsPeriodSelectionSheet
         ref={trendsPeriodSelectionSheetRef}

@@ -134,11 +134,12 @@ function Tabs({ route }: TabsProps) {
   );
 }
 
-type LayoutProps = {
+type NavigationProviderProps = {
+  children: React.ReactNode;
   onReady: () => void;
 };
 
-export function Layout({ onReady }: LayoutProps) {
+export function NavigationProvider({ children, onReady }: NavigationProviderProps) {
   const appBgColor = useThemeColoring("appBackground");
 
   return (
@@ -149,6 +150,14 @@ export function Layout({ onReady }: LayoutProps) {
         colors: { ...DefaultTheme.colors, background: appBgColor },
       }}
     >
+      {children}
+    </NavigationContainer>
+  );
+}
+
+export function Layout() {
+
+  return (
       <Stack.Navigator
         initialRouteName="splash"
         screenOptions={{ headerShown: false }}
@@ -186,6 +195,5 @@ export function Layout({ onReady }: LayoutProps) {
           <Stack.Screen name="congratulations" component={Congratulations} />
         </Stack.Group>
       </Stack.Navigator>
-    </NavigationContainer>
   );
 }

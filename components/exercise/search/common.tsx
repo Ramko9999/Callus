@@ -9,13 +9,14 @@ import {
   TouchableWithoutFeedback,
   GestureResponderEvent,
   Pressable,
+  Image,
 } from "react-native";
 import { View, Text, useThemeColoring, TextInput } from "@/components/Themed";
 import { tintColor } from "@/util/color";
 import { X, Plus, Search } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { DifficultyType, ExerciseMeta } from "@/interface";
-import { queryExercises } from "@/api/exercise";
+import { getExerciseDemonstration, queryExercises } from "@/api/exercise";
 import { ArrayUtils } from "@/util/misc";
 
 // Constants
@@ -392,5 +393,61 @@ export function SearchExerciseGroupNav({
         </TouchableWithoutFeedback>
       ))}
     </View>
+  );
+}
+
+const exerciseGridItemStyles = StyleSheet.create({
+  textContainer: {
+    padding: 10,
+  },
+  imageContainer: {
+    ...StyleUtils.flexRowCenterAll(),
+    paddingVertical: "10%",
+  },
+});
+
+type ExerciseGridItemProps = {
+  exercise: ExerciseMeta;
+  summary: string;
+};
+
+export function ExerciseGridItem({
+  exercise,
+  summary,
+}: ExerciseGridItemProps) {
+  const { height } = useWindowDimensions();
+  const imageBackgroundColor = tintColor(
+    useThemeColoring("appBackground"),
+    0.1
+  );
+  const descriptionColor = tintColor(useThemeColoring("appBackground"), 0.15);
+  const demonstration = getExerciseDemonstration(exercise.name);
+
+  return (
+    <>
+      <View style={[exerciseGridItemStyles.imageContainer, { backgroundColor: imageBackgroundColor }]}>
+        {demonstration && (
+          <Image
+            source={demonstration}
+            style={{ height: height * 0.2 }}
+            resizeMode="contain"
+          />
+        )}
+      </View>
+      <View
+        style={[
+          exerciseGridItemStyles.textContainer,
+          { backgroundColor: descriptionColor },
+        ]}
+      >
+        <Text>{exercise.name}</Text>
+        <Text light small numberOfLines={1} ellipsizeMode="tail">
+          {exercise.primaryMuscles.join(", ")}
+        </Text>
+        <Text light small>
+          {summary}
+        </Text>
+      </View>
+    </>
   );
 }

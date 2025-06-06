@@ -8,6 +8,8 @@ import {
   ChartNoAxesColumnIncreasing,
   Check,
   Flag,
+  LayoutGrid,
+  List as LucideList,
   ListFilter,
   Repeat as LucideRepeat,
   Timer as LucideTimer,
@@ -104,6 +106,38 @@ export function Add({ onClick, style }: ActionProps) {
         ]}
       >
         <Plus strokeWidth={3} color={useThemeColoring("primaryText")} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+export function Grid({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("calendarDayBackground") },
+          style,
+        ]}
+      >
+        <LayoutGrid strokeWidth={2} color={useThemeColoring("primaryText")} />
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+export function List({ onClick, style }: ActionProps) {
+  return (
+    <TouchableOpacity onPress={onClick}>
+      <View
+        style={[
+          iconActionStyles.container,
+          { backgroundColor: useThemeColoring("calendarDayBackground") },
+          style,
+        ]}
+      >
+        <LucideList strokeWidth={3} color={useThemeColoring("primaryText")} />
       </View>
     </TouchableOpacity>
   );

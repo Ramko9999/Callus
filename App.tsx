@@ -8,7 +8,10 @@ import {
 } from "react-native-reanimated";
 import { darkNavigationColorTheme } from "./constants/Themes";
 import { useColorScheme } from "react-native";
-import { ThemeProvider, DefaultTheme } from "@react-navigation/native";
+import {
+  ThemeProvider,
+  DefaultTheme,
+} from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ToastProvider } from "react-native-toast-notifications";
@@ -16,7 +19,7 @@ import { Preloader } from "./components/preload";
 import { UserDetailsProvider } from "./components/user-details";
 import { TabBarProvider } from "./components/tab-bar/context";
 import { WorkoutProvider } from "./context/WorkoutContext";
-import { Layout } from "./layout";
+import { Layout, NavigationProvider } from "./layout";
 import { SoundProvider } from "./components/sounds";
 import { PopupProvider } from "./components/popup";
 
@@ -41,11 +44,13 @@ function RootLayoutNav() {
               <SoundProvider>
                 <UserDetailsProvider>
                   <WorkoutProvider>
-                    <PopupProvider>
-                      <Preloader>
-                        <Layout onReady={SplashScreen.hideAsync} />
-                      </Preloader>
-                    </PopupProvider>
+                    <NavigationProvider onReady={SplashScreen.hideAsync}>
+                      <PopupProvider>
+                        <Preloader>
+                          <Layout />
+                        </Preloader>
+                      </PopupProvider>
+                    </NavigationProvider>
                   </WorkoutProvider>
                 </UserDetailsProvider>
               </SoundProvider>

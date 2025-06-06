@@ -1,6 +1,6 @@
 import { MetaEditor, NoteEditor } from "@/components/popup/workout/common/meta";
 import { RootStackParamList } from "@/layout/types";
-import { CompositeScreenProps } from "@react-navigation/native";
+import { CompositeScreenProps, useNavigation } from "@react-navigation/native";
 import { StackScreenProps } from "@react-navigation/stack";
 import { useCompletedWorkout, CompletedWorkoutProvider } from "./context";
 import {
@@ -12,7 +12,7 @@ import {
   updateSet,
   useWorkout,
 } from "@/context/WorkoutContext";
-import { useCallback, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { useToast } from "react-native-toast-notifications";
 import {
   DifficultyType,
@@ -66,6 +66,7 @@ type ExerciseEditorProps = CompositeScreenProps<
 
 // todo: fix the lag in which it takes for the exercises to show up
 function ExercisesEditor({ navigation }: ExerciseEditorProps) {
+  const rootNavigation = useNavigation();
   const { workout, onSave } = useCompletedWorkout();
   const { isInWorkout, actions } = useWorkout();
   const adjustStartEndTimeSheetRef = useRef<BottomSheet>(null);
@@ -112,7 +113,8 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
           userDetails?.bodyweight as number
         )
       );
-      navigation.goBack();
+      //@ts-ignore
+      rootNavigation.replace("liveWorkout");
     }
   };
 
@@ -249,6 +251,7 @@ function AddExercises({ navigation }: AddExercisesProps) {
   const [isFiltering, setIsFiltering] = useState(false);
   const [muscleFilters, setMuscleFilters] = useState<string[]>([]);
   const [exerciseTypeFilters, setExerciseTypeFilters] = useState<string[]>([]);
+  const [isGridView, setIsGridView] = useState(true);
   const filterExercisesSheetRef = useRef<BottomSheet>(null);
 
   const onAddExercises = (metas: ExerciseMeta[]) => {
@@ -268,7 +271,11 @@ function AddExercises({ navigation }: AddExercisesProps) {
     <>
       <ModalWrapper>
         <View style={contentStyles.container}>
-          <AddExercisesTopActions onBack={navigation.goBack} />
+          <AddExercisesTopActions 
+            onBack={navigation.goBack} 
+            isGridView={isGridView}
+            onToggleView={() => setIsGridView((prev) => !prev)}
+          />
           <ExerciseAdder
             onClose={navigation.goBack}
             onAdd={onAddExercises}
@@ -277,6 +284,7 @@ function AddExercises({ navigation }: AddExercisesProps) {
             onShowFilters={onShowFilters}
             onUpdateMuscleFilters={setMuscleFilters}
             onUpdateExerciseTypeFilters={setExerciseTypeFilters}
+            isGridView={isGridView}
           />
         </View>
         <FilterExercises

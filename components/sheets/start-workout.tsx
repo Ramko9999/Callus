@@ -30,6 +30,11 @@ import {
   SheetX,
   commonSheetStyles,
 } from "./common";
+import { useWorkout } from "@/context/WorkoutContext";
+import { useToast } from "react-native-toast-notifications";
+import { WorkoutActions } from "@/api/model/workout";
+import { useUserDetails } from "@/components/user-details";
+import { useNavigation } from "@react-navigation/native";
 
 const startWorkoutInitialPromptStyles = StyleSheet.create({
   container: {
@@ -465,28 +470,84 @@ function PickFromWorkouts({
   );
 }
 
-type StartWorkoutSheetProps = SheetProps & {
-  onQuickStart: () => void;
-  onStartFromRoutine: (routine: Routine) => void;
-  onStartFromWorkout: (workout: Workout) => void;
-};
+type StartWorkoutSheetProps = SheetProps;
 
 export const StartWorkoutSheet = forwardRef(
   (
-    {
-      show,
-      hide,
-      onHide,
-      onQuickStart,
-      onStartFromRoutine,
-      onStartFromWorkout,
-    }: StartWorkoutSheetProps,
+    { show, hide, onHide }: StartWorkoutSheetProps,
     ref: ForwardedRef<BottomSheet>
   ) => {
-    const sheetColor = useThemeColoring("primaryViewBackground");
+    const { userDetails } = useUserDetails();
+    const { isInWorkout, actions } = useWorkout();
+    const toast = useToast();
+    const navigation = useNavigation();
     const [showRoutines, setShowRoutines] = useState(false);
     const [showWorkouts, setShowWorkouts] = useState(false);
     const [hasCompletedWorkouts, setHasCompletedWorkouts] = useState(false);
+
+    const quickStart = useCallback(() => {
+      if (isInWorkout) {
+        toast.show(
+          "Please finish your current workout before trying to start another workout",
+          { type: "danger" }
+        );
+      } else {
+        actions.startWorkout(
+          WorkoutActions.createFromQuickStart(userDetails?.bodyweight as number)
+        );
+        hide();
+        navigation.navigate("liveWorkout" as never);
+      }
+    }, [
+      isInWorkout,
+      toast,
+      actions,
+      userDetails?.bodyweight,
+      hide,
+      navigation,
+    ]);
+
+    const startFromRoutine = useCallback(
+      (routine: Routine) => {
+        if (isInWorkout) {
+          toast.show(
+            "Please finish your current workout before trying to start another workout",
+            { type: "danger" }
+          );
+        } else {
+          actions.startWorkout(
+            WorkoutActions.createFromRoutine(
+              routine,
+              userDetails?.bodyweight as number
+            )
+          );
+          hide();
+          navigation.navigate("liveWorkout" as never);
+        }
+      },
+      [isInWorkout, toast, actions, userDetails?.bodyweight, hide, navigation]
+    );
+
+    const startFromWorkout = useCallback(
+      (workout: Workout) => {
+        if (isInWorkout) {
+          toast.show(
+            "Please finish your current workout before trying to start another workout",
+            { type: "danger" }
+          );
+        } else {
+          actions.startWorkout(
+            WorkoutActions.createFromWorkout(
+              workout,
+              userDetails?.bodyweight as number
+            )
+          );
+          hide();
+          navigation.navigate("liveWorkout" as never);
+        }
+      },
+      [isInWorkout, toast, actions, userDetails?.bodyweight, hide, navigation]
+    );
 
     useEffect(() => {
       if (show) {
@@ -522,18 +583,18 @@ export const StartWorkoutSheet = forwardRef(
       <PopupBottomSheet ref={ref} show={show} onHide={onHideSheet}>
         {showRoutines ? (
           <PickFromRoutines
-            onStartFromRoutine={onStartFromRoutine}
+            onStartFromRoutine={startFromRoutine}
             onBack={handleBack}
           />
         ) : showWorkouts ? (
           <PickFromWorkouts
-            onStartFromWorkout={onStartFromWorkout}
+            onStartFromWorkout={startFromWorkout}
             onBack={handleBack}
           />
         ) : (
           <StartWorkoutInitialPrompt
             hasCompletedWorkouts={hasCompletedWorkouts}
-            onQuickStart={onQuickStart}
+            onQuickStart={quickStart}
             onShowRoutines={handleShowRoutines}
             onShowWorkouts={handleShowWorkouts}
             hide={hide}

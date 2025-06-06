@@ -361,6 +361,7 @@ function AddExercises({ navigation }: AddExercisesProps) {
   const [isFiltering, setIsFiltering] = useState(false);
   const [muscleFilters, setMuscleFilters] = useState<string[]>([]);
   const [exerciseTypeFilters, setExerciseTypeFilters] = useState<string[]>([]);
+  const [isGridView, setIsGridView] = useState(true);
   const filterExercisesSheetRef = useRef<BottomSheet>(null);
 
   const onAddExercises = (metas: ExerciseMeta[]) => {
@@ -380,7 +381,11 @@ function AddExercises({ navigation }: AddExercisesProps) {
     <>
       <ModalWrapper>
         <View style={contentStyles.container}>
-          <AddExercisesTopActions onBack={navigation.goBack} />
+          <AddExercisesTopActions
+            onBack={navigation.goBack}
+            isGridView={isGridView}
+            onToggleView={() => setIsGridView((prev) => !prev)}
+          />
           <ExerciseAdder
             onClose={navigation.goBack}
             onAdd={onAddExercises}
@@ -389,6 +394,7 @@ function AddExercises({ navigation }: AddExercisesProps) {
             onShowFilters={onShowFilters}
             onUpdateMuscleFilters={setMuscleFilters}
             onUpdateExerciseTypeFilters={setExerciseTypeFilters}
+            isGridView={isGridView}
           />
         </View>
         <FilterExercises
