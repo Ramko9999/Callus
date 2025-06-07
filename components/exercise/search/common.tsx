@@ -10,6 +10,7 @@ import {
   GestureResponderEvent,
   Pressable,
   Image,
+  Platform,
 } from "react-native";
 import { View, Text, useThemeColoring, TextInput } from "@/components/Themed";
 import { tintColor } from "@/util/color";
@@ -314,6 +315,11 @@ const searchBarStyles = StyleSheet.create({
     ...StyleUtils.flexRow(5),
     alignItems: "center",
   },
+  clear: {
+    height: "100%",
+    width: "7%",
+    ...StyleUtils.flexRowCenterAll(),
+  },
 });
 
 type SearchBarProps = {
@@ -322,7 +328,6 @@ type SearchBarProps = {
 };
 
 export function SearchBar({ onChangeSearchQuery, style }: SearchBarProps) {
-  const { height } = useWindowDimensions();
   const inputRef = React.useRef<RNTextInput>(null);
   const lightText = useThemeColoring("lightText");
 
@@ -336,7 +341,11 @@ export function SearchBar({ onChangeSearchQuery, style }: SearchBarProps) {
 
   return (
     <Pressable
-      style={[searchBarStyles.container, style, { height: height * 0.04 }]}
+      style={[
+        searchBarStyles.container,
+        Platform.OS === "ios" ? { paddingVertical: "2%" } : {},
+        style,
+      ]}
       onPress={() => {
         inputRef.current?.focus();
       }}
@@ -348,11 +357,15 @@ export function SearchBar({ onChangeSearchQuery, style }: SearchBarProps) {
           placeholder="Search for an exercise"
           placeholderTextColor={lightText}
           onChangeText={onChangeSearchQuery}
+          autoCorrect={false}
+          autoComplete="off"
+          spellCheck={false}
           ref={inputRef}
+          multiline={false}
         />
       </View>
-      <TouchableOpacity onPress={clearSearch}>
-        <X size={16} color={lightText} />
+      <TouchableOpacity style={searchBarStyles.clear} onPress={clearSearch}>
+        <X size={16} color={lightText} strokeWidth={3} />
       </TouchableOpacity>
     </Pressable>
   );
@@ -408,13 +421,11 @@ const exerciseGridItemStyles = StyleSheet.create({
 
 type ExerciseGridItemProps = {
   exercise: ExerciseMeta;
+
   summary: string;
 };
 
-export function ExerciseGridItem({
-  exercise,
-  summary,
-}: ExerciseGridItemProps) {
+export function ExerciseGridItem({ exercise, summary }: ExerciseGridItemProps) {
   const { height } = useWindowDimensions();
   const imageBackgroundColor = tintColor(
     useThemeColoring("appBackground"),
@@ -425,7 +436,12 @@ export function ExerciseGridItem({
 
   return (
     <>
-      <View style={[exerciseGridItemStyles.imageContainer, { backgroundColor: imageBackgroundColor }]}>
+      <View
+        style={[
+          exerciseGridItemStyles.imageContainer,
+          { backgroundColor: imageBackgroundColor },
+        ]}
+      >
         {demonstration && (
           <Image
             source={demonstration}

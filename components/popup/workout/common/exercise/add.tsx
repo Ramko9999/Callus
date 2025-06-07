@@ -115,57 +115,68 @@ const selectableExerciseGridItemStyles = StyleSheet.create({
 
 type SelectableExerciseGridItemProps = {
   exercise: ExerciseMeta;
-  index: number;
-  totalCount: number;
-  summary: string;
+  halfFlex: boolean;
   isSelected: boolean;
   onToggle: (exercise: ExerciseMeta) => void;
 };
 
-function SelectableExerciseGridItem({
-  exercise,
-  index,
-  totalCount,
-  summary,
-  isSelected,
-  onToggle,
-}: SelectableExerciseGridItemProps) {
-  const selectionProgress = useSharedValue(isSelected ? 1 : 0);
-  const primaryAction = useThemeColoring("primaryAction");
-  const shouldHaveHalfFlex = index === totalCount - 1 && totalCount % 2 === 1;
+const SelectableExerciseGridItem = React.memo(
+  function SelectableExerciseGridItem({
+    exercise,
+    halfFlex,
+    isSelected,
+    onToggle,
+  }: SelectableExerciseGridItemProps) {
+    const selectionProgress = useSharedValue(isSelected ? 1 : 0);
+    const primaryAction = useThemeColoring("primaryAction");
 
-  useEffect(() => {
-    selectionProgress.value = withTiming(isSelected ? 1 : 0, { duration: 150 });
-  }, [isSelected]);
+    useEffect(() => {
+      selectionProgress.value = withTiming(isSelected ? 1 : 0, {
+        duration: 150,
+      });
+    }, [isSelected]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: selectionProgress.value * 0.2,
-    backgroundColor: primaryAction,
-    borderColor: interpolateColor(
-      selectionProgress.value,
-      [0, 1],
-      ["transparent", primaryAction]
-    ),
-  }));
+    const animatedStyle = useAnimatedStyle(() => ({
+      opacity: selectionProgress.value * 0.2,
+      backgroundColor: primaryAction,
+      borderColor: interpolateColor(
+        selectionProgress.value,
+        [0, 1],
+        ["transparent", primaryAction]
+      ),
+    }));
 
-  return (
-    <TouchableOpacity
-      style={[
-        selectableExerciseGridItemStyles.container,
-        { flex: shouldHaveHalfFlex ? 0.5 : 1 },
-      ]}
-      onPress={() => onToggle(exercise)}
-    >
-      <Animated.View
+    return (
+      <TouchableOpacity
         style={[
-          selectableExerciseGridItemStyles.selectionOverlay,
-          animatedStyle,
+          selectableExerciseGridItemStyles.container,
+          { flex: halfFlex ? 0.5 : 1 },
         ]}
-      />
-      <ExerciseGridItem exercise={exercise} summary={summary} />
-    </TouchableOpacity>
-  );
-}
+        onPress={() => onToggle(exercise)}
+      >
+        <Animated.View
+          style={[
+            selectableExerciseGridItemStyles.selectionOverlay,
+            animatedStyle,
+          ]}
+        />
+        <ExerciseGridItem
+          exercise={exercise}
+          summary={isSelected ? "Selected" : "Tap to select"}
+        />
+      </TouchableOpacity>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      JSON.stringify(prevProps.exercise) ===
+        JSON.stringify(nextProps.exercise) &&
+      prevProps.halfFlex === nextProps.halfFlex &&
+      prevProps.isSelected === nextProps.isSelected &&
+      prevProps.onToggle === nextProps.onToggle
+    );
+  }
+);
 
 const verticalViewStyles = StyleSheet.create({
   container: {
@@ -289,24 +300,21 @@ function GridView({ exercises, exercisesToAdd, onToggle }: GridViewProps) {
     }: {
       item: { resultType: "exercise"; exercise: ExerciseMeta };
       index: number;
-    }) => (
-      <SelectableExerciseGridItem
-        exercise={item.exercise}
-        index={index}
-        totalCount={exercises.length}
-        summary={`${
-          exercisesToAdd.map(({ name }) => name).indexOf(item.exercise.name) >
-          -1
-            ? "Selected"
-            : "Tap to select"
-        }`}
-        isSelected={
-          exercisesToAdd.map(({ name }) => name).indexOf(item.exercise.name) >
-          -1
-        }
-        onToggle={onToggle}
-      />
-    ),
+    }) => {
+      const shouldHaveHalfFlex =
+        index === exercises.length - 1 && exercises.length % 2 === 1;
+      const isSelected =
+        exercisesToAdd.map(({ name }) => name).indexOf(item.exercise.name) > -1;
+
+      return (
+        <SelectableExerciseGridItem
+          exercise={item.exercise}
+          halfFlex={shouldHaveHalfFlex}
+          isSelected={isSelected}
+          onToggle={onToggle}
+        />
+      );
+    },
     [exercises.length, exercisesToAdd, onToggle]
   );
 

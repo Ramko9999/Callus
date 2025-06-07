@@ -13,6 +13,7 @@ import {
   ArrowUpRight,
   ChevronRight,
   Download,
+  Newspaper,
   Upload,
   User,
 } from "lucide-react-native";
@@ -22,6 +23,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ImportProgressSheet } from "@/components/sheets/import-progress";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { TwitterX } from "@/components/theme/icons";
+import { usePopup } from "@/components/popup";
 
 async function exportAppData() {
   const exportFileUri = `${
@@ -57,6 +59,7 @@ function RootSettings({ navigation }: any) {
   const importSheetRef = useRef<BottomSheet>(null);
   const appBgColor = useThemeColoring("appBackground");
   const accent = tintColor(appBgColor, 0.3);
+  const { whatsNew } = usePopup();
 
   const handleImportPress = async () => {
     const result = await DocumentPicker.getDocumentAsync({
@@ -105,12 +108,17 @@ function RootSettings({ navigation }: any) {
           <SettingsRow
             icon={
               <View style={{ marginLeft: 4 }}>
-                <TwitterX color={accent} size={20} />
+                <TwitterX color={accent} size={18} />
               </View>
             }
             label="Follow"
             onPress={() => Linking.openURL("https://x.com/ramkoo9999")}
             rightIcon={<ArrowUpRight color={accent} size={20} />}
+          />
+          <SettingsRow
+            icon={<Newspaper color={accent} size={20} />}
+            label="What's New"
+            onPress={whatsNew.open}
           />
           <View style={rootSettingsStyles.versionContainer}>
             <Text large light style={rootSettingsStyles.versionText}>

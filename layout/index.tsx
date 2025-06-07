@@ -1,4 +1,4 @@
-import { Exercises } from "@/components/pages/exercises";
+import { Exercises } from "@/components/pages/onboarding/exercises";
 import { Profile } from "@/components/pages/profile";
 import { Routines } from "@/components/pages/routine";
 import { Splash } from "@/components/pages/splash";
@@ -38,6 +38,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import React from "react";
+import { usePopup } from "@/components/popup";
 
 const Tab = createBottomTabNavigator<TabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
@@ -58,12 +59,19 @@ function Tabs({ route }: TabsProps) {
   const flickerAnimation = useSharedValue(fromOnboarding ? 1 : 0);
   const colorScheme = useColorScheme();
   const primaryAction = useThemeColoring("primaryAction");
+  const { whatsNew } = usePopup();
 
   useEffect(() => {
     if (fromOnboarding) {
       flickerAnimation.value = withTiming(0, { duration: 2000 });
     }
   }, [fromOnboarding]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      whatsNew.checkWhatsNew();
+    }, 100);
+  }, []);
 
   const flickerAnimationStyle = useAnimatedStyle(() => {
     return {
@@ -139,7 +147,10 @@ type NavigationProviderProps = {
   onReady: () => void;
 };
 
-export function NavigationProvider({ children, onReady }: NavigationProviderProps) {
+export function NavigationProvider({
+  children,
+  onReady,
+}: NavigationProviderProps) {
   const appBgColor = useThemeColoring("appBackground");
 
   return (
@@ -156,44 +167,43 @@ export function NavigationProvider({ children, onReady }: NavigationProviderProp
 }
 
 export function Layout() {
-
   return (
-      <Stack.Navigator
-        initialRouteName="splash"
-        screenOptions={{ headerShown: false }}
+    <Stack.Navigator
+      initialRouteName="splash"
+      screenOptions={{ headerShown: false }}
+    >
+      <Stack.Screen name="splash" component={Splash} />
+      <Stack.Screen
+        name="tabs"
+        component={Tabs}
+        options={({ route }) => ({
+          headerShown: false,
+          animation: route.params?.fromOnboarding ? "none" : "default",
+        })}
+      />
+      <Stack.Screen name="settings" component={Settings} />
+      <Stack.Screen name="onboarding" component={Onboarding} />
+      <Stack.Group
+        screenOptions={{
+          presentation: "modal",
+          gestureEnabled: true,
+          ...(Platform.OS === "android"
+            ? TransitionPresets.ModalPresentationIOS
+            : {}),
+        }}
       >
-        <Stack.Screen name="splash" component={Splash} />
         <Stack.Screen
-          name="tabs"
-          component={Tabs}
-          options={({ route }) => ({
-            headerShown: false,
-            animation: route.params?.fromOnboarding ? "none" : "default",
-          })}
+          name="exerciseInsight"
+          component={ExerciseInsightsOverviewModal}
         />
-        <Stack.Screen name="settings" component={Settings} />
-        <Stack.Screen name="onboarding" component={Onboarding} />
-        <Stack.Group
-          screenOptions={{
-            presentation: "modal",
-            gestureEnabled: true,
-            ...(Platform.OS === "android"
-              ? TransitionPresets.ModalPresentationIOS
-              : {}),
-          }}
-        >
-          <Stack.Screen
-            name="exerciseInsight"
-            component={ExerciseInsightsOverviewModal}
-          />
-          <Stack.Screen
-            name="completedWorkout"
-            component={CompletedWorkoutModal}
-          />
-          <Stack.Screen name="routine" component={RoutineModal} />
-          <Stack.Screen name="liveWorkout" component={LiveWorkoutModal} />
-          <Stack.Screen name="congratulations" component={Congratulations} />
-        </Stack.Group>
-      </Stack.Navigator>
+        <Stack.Screen
+          name="completedWorkout"
+          component={CompletedWorkoutModal}
+        />
+        <Stack.Screen name="routine" component={RoutineModal} />
+        <Stack.Screen name="liveWorkout" component={LiveWorkoutModal} />
+        <Stack.Screen name="congratulations" component={Congratulations} />
+      </Stack.Group>
+    </Stack.Navigator>
   );
 }

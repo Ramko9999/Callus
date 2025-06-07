@@ -92,8 +92,8 @@ android {
         applicationId 'com.ramko9999.callus'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
-        versionName "1.0.0"
+        versionCode 4
+        versionName "1.0.1"
     }
     signingConfigs {
         debug {

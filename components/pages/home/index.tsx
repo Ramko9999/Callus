@@ -103,8 +103,9 @@ function CompletedWorkoutsSummary({
   });
 
   const formattedDate = calendarItem.day
-    ? `${date.toLocaleString("default", { month: "long" })} ${calendarItem.day
-    }${getNumberSuffix(calendarItem.day)}, ${calendarItem.year}`
+    ? `${date.toLocaleString("default", { month: "long" })} ${
+        calendarItem.day
+      }${getNumberSuffix(calendarItem.day)}, ${calendarItem.year}`
     : monthYear;
 
   return (

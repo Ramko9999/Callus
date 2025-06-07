@@ -5,15 +5,12 @@ import {
   useRef,
   useState,
 } from "react";
-import { StartWorkoutSheet } from "../sheets/start-workout";
-import { useWorkout } from "@/context/WorkoutContext";
-import { useToast } from "react-native-toast-notifications";
-import { Routine, Workout } from "@/interface";
-import { WorkoutActions } from "@/api/model/workout";
-import { useUserDetails } from "@/components/user-details";
+import { StartWorkoutSheet } from "../sheets/start-workout";;
 import BottomSheet from "@gorhom/bottom-sheet";
 import { TrendsPeriodSelectionSheet } from "@/components/sheets/trends-period-selection";
 import { FilterExercises } from "@/components/sheets/filter-exercises";
+import { WhatsNewSheet } from "@/components/sheets/whats-new";
+import { WhatsNewApi } from "@/api/whats-new";
 
 type PopupActions = {
   open: () => void;
@@ -34,6 +31,7 @@ type PopupContext = {
     timeRange: string;
   };
   filterExercises: FilterExercisesActions;
+  whatsNew: PopupActions & { checkWhatsNew: () => void };
 };
 
 const PopupContext = createContext<PopupContext>({
@@ -55,23 +53,30 @@ const PopupContext = createContext<PopupContext>({
     onUpdateMuscleFilters: () => {},
     onUpdateExerciseTypeFilters: () => {},
   },
+  whatsNew: {
+    open: () => {},
+    close: () => {},
+    checkWhatsNew: () => {},
+  },
 });
 
-export function PopupProvider({ children }: { children: React.ReactNode }) {
-  const { userDetails } = useUserDetails();
+type PopupProviderProps = {
+  children: React.ReactNode;
+};
+
+export function PopupProvider({ children }: PopupProviderProps) {
   const [isStartWorkoutOpen, setIsStartWorkoutOpen] = useState(false);
   const [isTrendsPeriodSelectionOpen, setIsTrendsPeriodSelectionOpen] =
     useState(false);
   const [isFilterExercisesOpen, setIsFilterExercisesOpen] = useState(false);
+  const [isWhatsNewOpen, setIsWhatsNewOpen] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState("6w");
   const [muscleFilters, setMuscleFilters] = useState<string[]>([]);
   const [exerciseTypeFilters, setExerciseTypeFilters] = useState<string[]>([]);
-  const { isInWorkout, actions } = useWorkout();
   const startWorkoutSheetRef = useRef<BottomSheet>(null);
   const trendsPeriodSelectionSheetRef = useRef<BottomSheet>(null);
   const filterExercisesSheetRef = useRef<BottomSheet>(null);
-
-  const toast = useToast();
+  const whatsNewSheetRef = useRef<BottomSheet>(null);
 
   const startWorkout = {
     open: () => setIsStartWorkoutOpen(true),
@@ -94,6 +99,15 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
     onUpdateExerciseTypeFilters: setExerciseTypeFilters,
   };
 
+  const whatsNew = {
+    open: () => setIsWhatsNewOpen(true),
+    close: () => whatsNewSheetRef.current?.close(),
+    checkWhatsNew: async () => {
+      const hasSeenWhatsNew = await WhatsNewApi.hasSeenWhatsNew();
+      setIsWhatsNewOpen(!hasSeenWhatsNew);
+    },
+  };
+
   const setTimeRange = useCallback((range: string) => {
     setSelectedTimeRange(range);
     trendsPeriodSelectionSheetRef.current?.close();
@@ -101,7 +115,7 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <PopupContext.Provider
-      value={{ startWorkout, trendsPeriodSelection, filterExercises }}
+      value={{ startWorkout, trendsPeriodSelection, filterExercises, whatsNew }}
     >
       {children}
       <StartWorkoutSheet
@@ -127,6 +141,12 @@ export function PopupProvider({ children }: { children: React.ReactNode }) {
         exerciseTypeFilters={exerciseTypeFilters}
         onUpdateMuscleFilters={setMuscleFilters}
         onUpdateExerciseTypeFilters={setExerciseTypeFilters}
+      />
+      <WhatsNewSheet
+        ref={whatsNewSheetRef}
+        show={isWhatsNewOpen}
+        hide={whatsNew.close}
+        onHide={() => setIsWhatsNewOpen(false)}
       />
     </PopupContext.Provider>
   );

@@ -450,5 +450,40 @@
     "secondaryMuscles": ["Abs", "Hip Flexors", "Forearm Flexors", "Rear Delts"],
     "name": "Hollow Body Pull-Up",
     "metaId": "204"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Chest"],
+    "secondaryMuscles": [],
+    "name": "Cable Fly",
+    "metaId": "205"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Chest"],
+    "secondaryMuscles": [],
+    "name": "Cable High-Low Fly",
+    "metaId": "206"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Chest"],
+    "secondaryMuscles": [],
+    "name": "Cable Low-High Fly",
+    "metaId": "207"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Chest"],
+    "secondaryMuscles": ["Front Delts", "Triceps"],
+    "name": "Dumbell Bench Press",
+    "metaId": "208"
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Traps"],
+    "secondaryMuscles": ["Forearm Flexors"],
+    "name": "Machine Shrug",
+    "metaId": "209"
   }
 ]

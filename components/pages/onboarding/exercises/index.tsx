@@ -1,6 +1,7 @@
 import {
   StyleSheet,
   TouchableOpacity,
+  FlatList,
   Keyboard,
 } from "react-native";
 import { useThemeColoring, View } from "@/components/Themed";
@@ -12,7 +13,6 @@ import React from "react";
 import { EXERCISE_REPOSITORY } from "@/api/exercise";
 import { HeaderPage } from "@/components/util/header-page";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { FlatList } from "react-native-gesture-handler";
 import {
   FilterActions,
   getResultsToDisplay,
@@ -173,6 +173,37 @@ const gridViewStyles = StyleSheet.create({
   },
 });
 
+type GridItemProps = {
+  exercise: ExerciseMeta;
+  halfFlex: boolean;
+  summary: string;
+  onPress: (exerciseMeta: ExerciseMeta) => void;
+};
+
+const GridItem = React.memo(
+  function GridItem({ exercise, halfFlex, summary, onPress }: GridItemProps){
+    return (
+      <TouchableOpacity
+        style={[gridViewStyles.item, { flex: halfFlex ? 0.5 : 1 }]}
+        onPress={() => onPress(exercise)}
+      >
+        <ExerciseGridItem
+          exercise={exercise}
+          summary={summary}
+        />
+      </TouchableOpacity>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      JSON.stringify(prevProps.exercise) === JSON.stringify(nextProps.exercise) &&
+      prevProps.halfFlex === nextProps.halfFlex &&
+      prevProps.summary === nextProps.summary &&
+      prevProps.onPress === nextProps.onPress
+    );
+  }
+);
+
 type GridViewProps = {
   results: ExerciseDisplayResult[];
   performedExerciseSummaries: SearchExerciseSummary[];
@@ -184,11 +215,6 @@ function GridView({
   performedExerciseSummaries,
   onExercisePress,
 }: GridViewProps) {
-  const imageBackgroundColor = tintColor(
-    useThemeColoring("appBackground"),
-    0.1
-  );
-
   const exercises = results.filter(
     (result) => result.resultType === "exercise"
   ) as { resultType: "exercise"; exercise: ExerciseMeta }[];
@@ -207,26 +233,15 @@ function GridView({
   );
 
   const renderGridItem = useCallback(
-    ({
-      item,
-      index,
-    }: {
-      item: { resultType: "exercise"; exercise: ExerciseMeta };
-      index: number;
-    }) => {
-      const shouldHaveHalfFlex =
-        index === exercises.length - 1 && exercises.length % 2 === 1;
-
+    ({ item, index }: { item: { resultType: "exercise"; exercise: ExerciseMeta }; index: number }) => {
+      const shouldHaveHalfFlex = index === exercises.length - 1 && exercises.length % 2 === 1;
       return (
-        <TouchableOpacity
-          style={[gridViewStyles.item, { flex: shouldHaveHalfFlex ? 0.5 : 1 }]}
-          onPress={() => onExercisePress(item.exercise)}
-        >
-          <ExerciseGridItem
-            exercise={item.exercise}
-            summary={getSummary(item.exercise)}
-          />
-        </TouchableOpacity>
+        <GridItem
+          exercise={item.exercise}
+          halfFlex={shouldHaveHalfFlex}
+          summary={getSummary(item.exercise)}
+          onPress={onExercisePress}
+        />
       );
     },
     [exercises.length, getSummary, onExercisePress]
@@ -236,6 +251,8 @@ function GridView({
     <FlatList
       style={gridViewStyles.container}
       contentContainerStyle={gridViewStyles.content}
+      windowSize={100}
+      removeClippedSubviews={false}
       data={exercises}
       renderItem={renderGridItem}
       keyExtractor={(item) => item.exercise.name}
