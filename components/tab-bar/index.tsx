@@ -1,4 +1,4 @@
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { MaterialTopTabBarProps } from "@react-navigation/material-top-tabs";
 import {
   StyleSheet,
   TouchableOpacity,
@@ -142,7 +142,7 @@ const tabBarStyles = StyleSheet.create({
 
 const TO_HIDE_TRANSLATION_MULTIPLIER = 0.14;
 
-export function TabBar(props: BottomTabBarProps) {
+export function TabBar(props: MaterialTopTabBarProps) {
   const navigation = useNavigation();
   const { isOpen } = useTabBar();
   const { isInWorkout, editor } = useWorkout();
@@ -168,9 +168,6 @@ export function TabBar(props: BottomTabBarProps) {
     <Animated.View
       style={[
         tabBarStyles.container,
-        {
-          backgroundColor: useThemeColoring("primaryViewBackground"),
-        },
         animatedStyle,
       ]}
     >
