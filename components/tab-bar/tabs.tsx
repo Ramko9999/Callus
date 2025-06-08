@@ -1,46 +1,63 @@
-import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { MaterialTopTabBarProps } from "@react-navigation/material-top-tabs";
 import { View, Text, useThemeColoring } from "../Themed";
-import React from "react";
-import { TouchableWithoutFeedback, StyleSheet } from "react-native";
+import React, { useCallback, useState } from "react";
+import { StyleSheet, Platform, Pressable } from "react-native";
 import { StyleUtils } from "@/util/styles";
-import { textTheme } from "@/constants/Themes";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { convertHexToRGBA } from "@/util/color";
+import { TabIcon } from "./icons";
 
 const tabStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(2),
     alignItems: "center",
-    flex: 1
+    paddingVertical: "2%",
+    flex: 1,
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 10,
   },
 });
 
 type TabProps = {
   title: string;
   isFocused: boolean;
-  renderIcon: (color: string) => React.ReactNode;
   onPress: () => void;
 };
 
-function Tab({ title, isFocused, renderIcon, onPress }: TabProps) {
-  const focusedColor = useThemeColoring("primaryAction");
-  const unfocusedColor = useThemeColoring("lightText");
+function Tab({ title, isFocused, onPress }: TabProps) {
+  const focusedTextColor = useThemeColoring("primaryAction");
+  const unfocusedTextColor = useThemeColoring("lightText");
+  const overlayColor = convertHexToRGBA(useThemeColoring("primaryAction"), 0.1);
+  const [taps, setTaps] = useState(0);
 
-  const color = isFocused ? focusedColor : unfocusedColor;
+  const handlePress = useCallback(() => {
+    onPress();
+    setTaps((taps) => taps + 1);
+  }, [onPress]);
+
+  const color = isFocused ? focusedTextColor : unfocusedTextColor;
 
   return (
-    <TouchableWithoutFeedback onPress={onPress}>
-      <View style={tabStyles.container}>
-        {renderIcon(color)}
-        <Text
-          tab
-          style={{
-            color,
-          }}
-        >
-          {title}
-        </Text>
-      </View>
-    </TouchableWithoutFeedback>
+    <Pressable onPress={handlePress} style={tabStyles.container}>
+      <TabIcon color={color} focused={isFocused} title={title} taps={taps} />
+      <Text
+        tab
+        style={{
+          color,
+        }}
+      >
+        {title}
+      </Text>
+      {isFocused && (
+        <View style={[tabStyles.overlay, { backgroundColor: overlayColor }]} />
+      )}
+    </Pressable>
   );
 }
 
@@ -50,44 +67,54 @@ const tabsStyles = StyleSheet.create({
     paddingHorizontal: "2%",
     justifyContent: "space-between",
     paddingTop: "2%",
+    borderTopWidth: 1,
   },
 });
 
-export function Tabs({ state, descriptors, navigation }: BottomTabBarProps) {
+export function Tabs({
+  state,
+  descriptors,
+  navigation,
+  position,
+}: MaterialTopTabBarProps) {
+  const backgroundColor = useThemeColoring("appBackground");
   const insets = useSafeAreaInsets();
+  const paddingBottom =
+    Platform.OS === "android" ? insets.bottom + 20 : insets.bottom;
+  const borderColor = convertHexToRGBA(useThemeColoring("lightText"), 0.15);
+
+  const onTabPress = useCallback(
+    (routeKey: string, routeName: string, isFocused: boolean) => {
+      const event = navigation.emit({
+        type: "tabPress",
+        target: routeKey,
+        canPreventDefault: true,
+      });
+      if (!isFocused && !event.defaultPrevented) {
+        navigation.navigate(routeName);
+      }
+    },
+    [navigation]
+  );
 
   return (
-    <View style={[tabsStyles.container, { paddingBottom: insets.bottom }]}>
+    <View
+      style={[
+        tabsStyles.container,
+        { paddingBottom, backgroundColor, borderColor },
+      ]}
+    >
       {state.routes.map((route, index) => {
         const { options } = descriptors[route.key];
 
         const isFocused = state.index === index;
-
-        const onPress = () => {
-          const event = navigation.emit({
-            type: "tabPress",
-            target: route.key,
-            canPreventDefault: true,
-          });
-
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name, route.params);
-          }
-        };
 
         return (
           <Tab
             key={options.title as string}
             title={options.title as string}
             isFocused={isFocused}
-            renderIcon={(color) =>
-              options.tabBarIcon!({
-                focused: isFocused,
-                color,
-                size: textTheme.action.fontSize,
-              })
-            }
-            onPress={onPress}
+            onPress={() => onTabPress(route.key, route.name, isFocused)}
           />
         );
       })}
