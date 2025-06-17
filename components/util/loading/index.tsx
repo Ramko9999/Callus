@@ -10,7 +10,7 @@ import Animated, {
   withDelay,
   withTiming,
   Easing,
-  interpolateColor
+  interpolateColor,
 } from "react-native-reanimated";
 import { convertHexToRGBA } from "@/util/color";
 
@@ -96,22 +96,23 @@ export function Loading() {
   );
 }
 
-
 type TextSkeletonProps = {
   text: string;
   style?: StyleProp<TextStyle>;
   animationDuration?: number;
+  color?: string;
 };
 
 export function TextSkeleton({
   text,
   style,
+  color,
   animationDuration = 1000,
 }: TextSkeletonProps) {
-  const accentColor = useThemeColoring("primaryAction");
+  const skeletonColor = color ?? useThemeColoring("primaryAction");
 
-  const fromColor = convertHexToRGBA(accentColor, 0.2);
-  const toColor = convertHexToRGBA(accentColor, 0.3);
+  const fromColor = convertHexToRGBA(skeletonColor, 0.2);
+  const toColor = convertHexToRGBA(skeletonColor, 0.3);
 
   const animationProgress = useSharedValue(0);
 
@@ -133,16 +134,8 @@ export function TextSkeleton({
 
   return (
     <View style={loadingStyles.skeletonContainer}>
-      <Text style={[style, loadingStyles.hiddenText]}>
-        {text}
-      </Text>
-      <Animated.View
-        style={[
-          loadingStyles.skeletonOverlay,
-          animatedStyle
-        ]}
-      />
+      <Text style={[style, loadingStyles.hiddenText]}>{text}</Text>
+      <Animated.View style={[loadingStyles.skeletonOverlay, animatedStyle]} />
     </View>
   );
 }
-

@@ -4,21 +4,24 @@
     "primaryMuscles": ["Chest", "Front Delts", "Triceps"],
     "secondaryMuscles": [],
     "name": "Dip",
-    "metaId": "10"
+    "metaId": "10",
+    "description": "Dips are like squats for the upper body, blasting your chest, shoulders, and triceps with just your own bodyweight. Their unique pushing motion builds serious strength and stability, making them a gym classic for a reason."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Biceps"],
     "secondaryMuscles": ["Forearm Flexors"],
     "name": "Barbell Curl",
-    "metaId": "11"
+    "metaId": "11",
+    "description": "Barbell curls are the ultimate arm sculptor, honing in on your biceps and forearms for that classic \u2018gun show\u2019 look. The straight bar keeps both arms working together, making each rep count."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Biceps"],
     "secondaryMuscles": ["Forearm Flexors"],
     "name": "Barbell Preacher Curl",
-    "metaId": "14"
+    "metaId": "14",
+    "description": "Barbell preacher curls lock your arms in place, forcing your biceps to do all the work for a serious pump. The preacher bench\u2019s unique angle helps you focus on perfect form and peak contraction."
   },
   {
     "difficultyType": "WEIGHT",
@@ -30,42 +33,48 @@
       "Lower Back"
     ],
     "name": "Barbell Row",
-    "metaId": "16"
+    "metaId": "16",
+    "description": "Barbell rows are the back-builder\u2019s best friend, targeting your lats, traps, and rear delts for a thick, strong upper body. The bent-over position also challenges your lower back and grip."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Traps"],
     "secondaryMuscles": ["Forearm Flexors"],
     "name": "Barbell Shrug",
-    "metaId": "17"
+    "metaId": "17",
+    "description": "Barbell shrugs are all about building monstrous traps, giving you that powerful, broad-shouldered look. The simple up-and-down motion is deceptively tough, and your grip gets a workout too."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Chest"],
     "secondaryMuscles": ["Front Delts", "Triceps"],
     "name": "Bench Press",
-    "metaId": "22"
+    "metaId": "22",
+    "description": "Bench press is the king of chest day, firing up your pecs, shoulders, and triceps for serious pushing power. It\u2019s the go-to move for building upper body strength and confidence."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Biceps"],
     "secondaryMuscles": ["Forearm Flexors"],
     "name": "Cable Curl",
-    "metaId": "34"
+    "metaId": "34",
+    "description": "Cable curls keep constant tension on your biceps throughout the entire range of motion, making every rep count. The smooth cable action lets you focus on perfect form and a killer squeeze."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Lats", "Traps"],
     "secondaryMuscles": ["Biceps", "Forearm Flexors", "Rear Delts"],
     "name": "Chin-Up",
-    "metaId": "40"
+    "metaId": "40",
+    "description": "Chin-ups are the ultimate bodyweight exercise for your biceps and back, lighting up your lats, traps, and arms with every rep. Their underhand grip gives your biceps extra love and makes you feel like a true gym warrior."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Abs"],
     "secondaryMuscles": ["Obliques"],
     "name": "Crunch",
-    "metaId": "47"
+    "metaId": "47",
+    "description": "Crunches are the classic core move, targeting your abs and obliques for a tight, strong midsection. They\u2019re perfect for beginners and pros alike, and you can do them anywhere."
   },
   {
     "difficultyType": "WEIGHT",
@@ -78,412 +87,471 @@
       "Lats"
     ],
     "name": "Deadlift",
-    "metaId": "49"
+    "metaId": "49",
+    "description": "Deadlifts are the full-body beast, working your glutes, lower back, and legs for unmatched strength and power. Their unique pulling motion makes you feel unstoppable from the ground up."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Biceps"],
     "secondaryMuscles": ["Forearm Flexors"],
     "name": "Dumbbell Bicep Curl",
-    "metaId": "55"
+    "metaId": "55",
+    "description": "Dumbbell bicep curls let you focus on each arm individually, helping you build balanced strength and definition. The free weights add a fun challenge as you work towards bigger, stronger arms."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Side Delts"],
     "secondaryMuscles": ["Front Delts"],
-    "name": "Dumbell Lateral Raise",
-    "metaId": "61"
+    "name": "Dumbbell Lateral Raise",
+    "metaId": "61",
+    "description": "Dumbbell lateral raises are the secret weapon for wide, sculpted shoulders, directly targeting your side delts and giving you that classic V-shape. The controlled, outward motion makes your shoulders pop."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Front Delts", "Side Delts", "Rear Delts"],
     "secondaryMuscles": ["Triceps", "Traps"],
-    "name": "Dumbell Overhead Press",
-    "metaId": "67"
+    "name": "Dumbbell Overhead Press",
+    "metaId": "67",
+    "description": "Dumbbell overhead presses are a total shoulder blaster, working all three delt heads, triceps, and traps for balanced upper body strength. Their unique free-weight challenge helps you build power and stability from every angle."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Biceps"],
     "secondaryMuscles": ["Forearm Flexors"],
     "name": "Hammer Curl",
-    "metaId": "80"
+    "metaId": "80",
+    "description": "Hammer curls are the arm-thickening move, targeting your brachialis and forearms for a balanced, powerful look. The neutral grip adds a fun twist and builds grip strength for all your lifts."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Abs"],
     "secondaryMuscles": ["Obliques"],
     "name": "Hanging Knee Raise",
-    "metaId": "85"
+    "metaId": "85",
+    "description": "Hanging knee raises are the ultimate core challenge, lighting up your lower abs, hip flexors and obliques while you hang from a bar. Their unique position tests your grip and endurance."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Glutes"],
     "secondaryMuscles": ["Hamstrings", "Lower Back"],
     "name": "Barbell Hip Thrust",
-    "metaId": "91"
+    "metaId": "91",
+    "description": "Barbell hip thrusts are the glute-building powerhouse, firing up your backside while also working your hamstrings and lower back. Their unique setup maximizes glute activation and helps you build strength for real-world movements."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Lats", "Traps"],
     "secondaryMuscles": ["Rear Delts", "Biceps", "Forearm Flexors"],
     "name": "Inverted Row",
-    "metaId": "97"
+    "metaId": "97",
+    "description": "Inverted rows are a fun, scalable bodyweight move that targets your lats, traps, and biceps. The more upright you are, the easier it gets\u2014perfect for all fitness levels."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Lats", "Traps"],
     "secondaryMuscles": ["Rear Delts", "Forearm Flexors"],
     "name": "Lat Pull-Down",
-    "metaId": "105"
+    "metaId": "105",
+    "description": "Lat pull-downs are the go-to for a strong, V-shaped back, working your lats, traps, and rear delts with controlled, heavy resistance. The seated setup lets you safely push your limits and build serious pulling power."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Biceps"],
     "secondaryMuscles": [],
     "name": "Machine Bicep Curl",
-    "metaId": "111"
+    "metaId": "111",
+    "description": "Machine bicep curls isolate your arms with a guided motion, letting you focus purely on building bicep strength and definition. The machine\u2019s stability makes it perfect for perfecting form and squeezing out every rep."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Chest"],
     "secondaryMuscles": [],
     "name": "Machine Chest Fly",
-    "metaId": "112"
+    "metaId": "112",
+    "description": "Machine chest flys isolate your chest muscles, guiding your arms through a wide arc for a deep stretch and strong contraction. The stable seat helps you maintain perfect form and maximize chest activation."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Chest"],
     "secondaryMuscles": ["Front Delts", "Triceps"],
     "name": "Machine Chest Press",
-    "metaId": "113"
+    "metaId": "113",
+    "description": "Machine chest presses efficiently target your chest, shoulders, and triceps with a smooth, guided motion. The machine\u2019s design lets you safely push heavy weights and focus on muscle growth, making it a reliable choice for upper body strength."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Front Delts"],
     "secondaryMuscles": ["Triceps", "Traps"],
     "name": "Machine Shoulder Press",
-    "metaId": "116"
+    "metaId": "116",
+    "description": "Machine shoulder presses target your front delts, triceps, and traps with a stable, controlled movement. The guided path ensures proper form and minimizes injury risk, making it ideal for all experience levels."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Front Delts", "Side Delts"],
     "secondaryMuscles": ["Triceps", "Traps"],
     "name": "Military Press",
-    "metaId": "127"
+    "metaId": "127",
+    "description": "Military presses are the classic overhead move, working your front and side delts, triceps, and traps for total shoulder strength. Their strict, upright posture builds power and stability, setting them apart as a true functional movement."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Lats", "Traps"],
     "secondaryMuscles": ["Forearm Flexors", "Rear Delts"],
     "name": "Pull-Up",
-    "metaId": "137"
+    "metaId": "137",
+    "description": "Pull-ups are the classic test of upper body strength, targeting your lats and traps while also working your forearms and rear delts. Their bodyweight challenge and versatility make them a staple for building a powerful, sculpted back."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Front Delts", "Side Delts", "Glutes", "Quads"],
     "secondaryMuscles": ["Lower Back", "Triceps", "Traps"],
     "name": "Push Press",
-    "metaId": "139"
+    "metaId": "139",
+    "description": "Push presses combine explosive leg power with overhead pressing, working your shoulders, glutes, and quads for total-body strength. This dynamic lift is a favorite among athletes for building power and coordination."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Chest", "Front Delts", "Triceps"],
     "secondaryMuscles": ["Abs"],
     "name": "Push-Up",
-    "metaId": "140"
+    "metaId": "140",
+    "description": "Push-ups are a timeless bodyweight move, firing up your chest, shoulders, and triceps while secretly engaging your core. Their simplicity and effectiveness make them a must for any fitness routine."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Rear Delt"],
     "secondaryMuscles": [],
     "name": "Machine Rear Delt Fly",
-    "metaId": "145"
+    "metaId": "145",
+    "description": "Machine rear delt flys isolate your rear delts, helping to balance shoulder development and improve posture. The guided motion ensures you get the most out of each rep while minimizing injury risk."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Lats", "Traps"],
     "secondaryMuscles": ["Rear Delts", "Biceps", "Forearm Flexors"],
     "name": "Ring Pull-Up",
-    "metaId": "146"
+    "metaId": "146",
+    "description": "Ring pull-ups add another degree of freedom to the classic pull-up, allowing you to change the angle of your wrist. This can be a good option for you if you find the pull-up or chin-up to be too restrictive."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Lats", "Traps"],
     "secondaryMuscles": ["Rear Delts", "Biceps", "Forearm Flexors"],
     "name": "Ring Inverted Row",
-    "metaId": "147"
+    "metaId": "147",
+    "description": "Ring inverted rows, similar to the ring pull-up, add a degree of freedom to the inverted row. This exercise can allow for a deeper range of motion and be easier on your joints compared to the stricter inverted row."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Glutes", "Lower Back", "Hamstrings"],
     "secondaryMuscles": ["Traps", "Forearm Flexors"],
     "name": "Romanian Deadlift",
-    "metaId": "148"
+    "metaId": "148",
+    "description": "Romanian deadlifts focus on your glutes, hamstrings, and lower back, teaching your body to hinge powerfully and safely. Their controlled, smooth motion is ideal for building strength and proper lifting mechanics."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Quads", "Glutes"],
     "secondaryMuscles": ["Lower Back", "Calves"],
     "name": "Barbell Squat",
-    "metaId": "163"
+    "metaId": "163",
+    "description": "Barbell squats are the ultimate leg builder, working your quads, glutes, and core for unmatched lower body strength. Their strict form and full-body engagement make them a gym classic."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Quads", "Glutes"],
     "secondaryMuscles": ["Lower Back", "Calves"],
     "name": "Zercher Squat",
-    "metaId": "172"
+    "metaId": "172",
+    "description": "Zercher squats are a unique squat variation that cradles the bar in your elbows, challenging your quads, glutes, and upper back in one move. Their unconventional setup builds both strength and toughness."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Front Delts", "Side Delts"],
     "secondaryMuscles": ["Triceps", "Traps"],
     "name": "Pike Push-Up",
-    "metaId": "173"
+    "metaId": "173",
+    "description": "Pike push-ups target your shoulders and triceps from a unique upside-down angle, helping you build overhead strength and stability. This bodyweight move is a stepping stone to handstand push-ups."
   },
   {
     "difficultyType": "WEIGHTED_BODYWEIGHT",
     "primaryMuscles": ["Chest", "Triceps", "Front Delts"],
     "secondaryMuscles": [],
     "name": "Weighted Dip",
-    "metaId": "174"
+    "metaId": "174",
+    "description": "Weighted dips take your chest, triceps, and shoulders to the next level, letting you add extra resistance for serious upper body gains. Their versatility and effectiveness make them a favorite for advanced lifters."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Front Delts", "Triceps", "Chest"],
     "secondaryMuscles": [],
     "name": "Ring Push-Up",
-    "metaId": "175"
+    "metaId": "175",
+    "description": "Ring push-ups are a fun challenge for your chest, shoulders, and triceps, with the instability of the rings forcing your core and stabilizers to work overtime. Every rep is a mini-adventure in strength and control."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Triceps"],
     "secondaryMuscles": [],
     "name": "Ring Tricep Extension",
-    "metaId": "176"
+    "metaId": "176",
+    "description": "Ring tricep extensions isolate your triceps while the rings add a fun, unstable element to each rep. This exercise is perfect for building strong, sculpted arms with rings."
   },
   {
     "difficultyType": "WEIGHTED_BODYWEIGHT",
     "primaryMuscles": ["Lats", "Traps"],
     "secondaryMuscles": ["Biceps", "Forearm Flexors", "Rear Delts"],
     "name": "Weighted Pull-Up",
-    "metaId": "177"
+    "metaId": "177",
+    "description": "Weighted pull-ups add extra resistance to the classic pull-up, making your lats, traps, and biceps work even harder. They\u2019re the ultimate badge of upper body strength and endurance."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Lats"],
     "secondaryMuscles": ["Traps", "Rear Delts"],
     "name": "Ring Arc Row",
-    "metaId": "179"
+    "metaId": "179",
+    "description": "Ring arc rows is unique compared to the inverted row or ring inverted row, in that you pull the rings to your hips instead of your chest, frying every inch of your lats. This move is the stepping stone to front lever holds."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Rear Delt", "Traps"],
     "secondaryMuscles": [],
     "name": "Ring Face Pull",
-    "metaId": "180"
+    "metaId": "180",
+    "description": "Ring face pulls are a fun way to target your rear delts and traps, helping you build balanced shoulders and improve posture. The rings allow your joints move freely."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Quads", "Glutes"],
     "secondaryMuscles": ["Calves"],
     "name": "Pistol Squat",
-    "metaId": "181"
+    "metaId": "181",
+    "description": "Pistol squats are the single-leg daredevil of lower body moves, blasting your quads and glutes while testing your balance and mobility. Their unique one-legged stance is perfect for building strength, coordination, and confidence."
   },
   {
     "difficultyType": "TIME",
     "primaryMuscles": ["Abs"],
     "secondaryMuscles": [],
     "name": "Hollow Body Hold",
-    "metaId": "182"
+    "metaId": "182",
+    "description": "The hollow body hold is a core classic, lighting up your abs as you maintain a tight, 'hollow' core. This static move is a staple in gymnastics and fitness for building rock-solid core strength and stability."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Obliques"],
     "secondaryMuscles": ["Abs"],
     "name": "Landmine 180",
-    "metaId": "183"
+    "metaId": "183",
+    "description": "Landmine 180s are a dynamic core crusher, targeting your obliques and abs as you rotate the barbell from side to side. This rotational move is unique for building functional core power and athleticism."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Neck Flexors"],
     "secondaryMuscles": [],
     "name": "Neck Flexion",
-    "metaId": "184"
+    "metaId": "184",
+    "description": "Neck flexion is a simple but effective move for strengthening your neck flexors, helping to support good posture and reduce injury risk."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Neck Extensors"],
     "secondaryMuscles": [],
     "name": "Neck Extension",
-    "metaId": "185"
+    "metaId": "185",
+    "description": "Neck extension targets your neck extensors, building strength and stability for a resilient neck. This move is essential for athletes and anyone looking to keep their neck mobile and strong."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Neck Flexors", "Neck Extensors"],
     "secondaryMuscles": [],
     "name": "Neck Side Flexion",
-    "metaId": "186"
+    "metaId": "186",
+    "description": "Neck side flexion works your neck flexors and extensors together, building balanced neck strength from all angles. It\u2019s a smart move for comprehensive neck health and injury prevention."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Chest", "Front Delts", "Triceps"],
     "secondaryMuscles": [],
     "name": "Ring Dip",
-    "metaId": "187"
+    "metaId": "187",
+    "description": "Ring dips are a next-level upper body challenge, targeting your chest, shoulders, and triceps while the rings add a fun wobble. This move is perfect for those who want to build serious pushing strength and control."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Biceps"],
     "secondaryMuscles": [],
     "name": "Ring Curl",
-    "metaId": "188"
+    "metaId": "188",
+    "description": "Ring curls are a creative twist on the classic bicep move. They\u2019re perfect for building arm strength with a gymnastics flavor."
   },
   {
     "difficultyType": "TIME",
     "primaryMuscles": ["Abs", "Hip Flexors"],
     "secondaryMuscles": [],
     "name": "L-Sit",
-    "metaId": "189"
+    "metaId": "189",
+    "description": "The L-sit is a core and hip flexor test, challenging you to hold your legs straight out in front while supporting yourself with your hands. This static hold is a favorite for building serious core compression and control."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Triceps"],
     "secondaryMuscles": [],
     "name": "Cable Tricep Extension",
-    "metaId": "190"
+    "metaId": "190",
+    "description": "Cable tricep extensions keep constant tension on your triceps for maximum muscle activation. The smooth cable action lets you focus on perfect form and a killer squeeze."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Lats", "Traps"],
     "secondaryMuscles": ["Rear Delts"],
     "name": "Seated Cable Row",
-    "metaId": "191"
+    "metaId": "191",
+    "description": "Seated cable rows are a go-to for a strong, sculpted back, targeting your lats, traps, and rear delts with controlled resistance. This move is perfect for building pulling power and posture."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Quads"],
     "secondaryMuscles": [],
     "name": "Leg Extension",
-    "metaId": "192"
+    "metaId": "192",
+    "description": "Leg extensions isolate your quads for a focused, muscle-building burn. The machine\u2019s guided motion makes it easy to perfect your form and push your limits."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Hamstrings"],
     "secondaryMuscles": ["Glutes", "Lower Back"],
     "name": "Nordic Hamstring Curl",
-    "metaId": "193"
+    "metaId": "193",
+    "description": "Nordic hamstring curls are a bodyweight beast, blasting your hamstrings, glutes, and lower back for serious posterior chain strength. This move is a favorite for athletes and anyone looking to build resilient legs."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Hamstrings"],
     "secondaryMuscles": [],
     "name": "Seated Leg Curl",
-    "metaId": "194"
+    "metaId": "194",
+    "description": "Seated leg curls target your hamstrings with a smooth, controlled motion, making it easy to focus on perfect form. This move is a staple for strong, balanced legs."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Lats", "Traps"],
     "secondaryMuscles": ["Abs", "Hip Flexors", "Forearm Flexors", "Rear Delts"],
     "name": "L-Sit Pull-Up",
-    "metaId": "195"
+    "metaId": "195",
+    "description": "L-sit pull-ups combine the core stability of the L-sit with the pulling power of a pull-up, lighting up your lats, traps, abs, and hip flexors. This advanced move is perfect for those who love a full-body challenge."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Front Delts", "Side Delts", "Rear Delts"],
     "secondaryMuscles": ["Triceps", "Traps"],
     "name": "Handstand Push-Up",
-    "metaId": "196"
+    "metaId": "196",
+    "description": "Handstand push-ups are the ultimate bodyweight shoulder blaster, targeting your front, side, and rear delts, triceps, and traps. This upside-down move is a true test of strength, balance, and technique."
   },
   {
     "difficultyType": "TIME",
     "primaryMuscles": ["Front Delts", "Side Delts", "Rear Delts"],
     "secondaryMuscles": ["Triceps", "Traps"],
     "name": "Handstand Hold",
-    "metaId": "197"
+    "metaId": "197",
+    "description": "Handstand holds are the ultimate test of shoulder strength and stability, lighting up your front, side, and rear delts while also challenging your triceps and traps. This static move is a favorite among gymnasts and fitness enthusiasts for building total upper body control."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Quads", "Glutes"],
     "secondaryMuscles": [],
     "name": "Front Leg Elevated Split Squat",
-    "metaId": "198"
+    "metaId": "198",
+    "description": "Front leg elevated split squats add a twist to the classic lunge, targeting your quads and glutes with a unique balance challenge. This move is perfect for building single-leg strength and mobility."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Quads", "Glutes"],
     "secondaryMuscles": [],
     "name": "Bulgarian Split Squat",
-    "metaId": "199"
+    "metaId": "199",
+    "description": "Bulgarian split squats are the unliateral lower body powerhouse, focusing on your quads and glutes while your back leg rests on a bench. This move is a favorite for building strength, balance, and coordination while addressing any imbalances."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Tibialis Anterior"],
     "secondaryMuscles": [],
-    "name": "Tibalis Curls",
-    "metaId": "200"
+    "name": "Tibialis Curls",
+    "metaId": "200",
+    "description": "Tibialis curls isolate your tibialis anterior, strengthening your shins for better ankle health and injury prevention. This unique move is a secret weapon for athletes and runners."
   },
   {
     "difficultyType": "WEIGHTED_BODYWEIGHT",
     "primaryMuscles": ["Chest", "Front Delts", "Triceps"],
     "secondaryMuscles": [],
     "name": "Weighted Ring Dip",
-    "metaId": "201"
+    "metaId": "201",
+    "description": "Weighted ring dips take upper body pushing to new heights, targeting your chest, shoulders, and triceps while the instability of the rings adds a fun challenge. Strap on some weight and watch your strength soar."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Abs"],
     "secondaryMuscles": ["Obliques", "Hip Flexors"],
     "name": "Vertical Knee Raise",
-    "metaId": "202"
+    "metaId": "202",
+    "description": "Vertical knee raises are a core classic, blasting your abs, obliques, and hip flexors as you lift your knees toward your chest. This move is perfect for building a strong, stable midsection and can help you get your first L-Sit."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Abs"],
     "secondaryMuscles": ["Obliques", "Hip Flexors"],
     "name": "Vertical Leg Raise",
-    "metaId": "203"
+    "metaId": "203",
+    "description": "Vertical leg raises are a step up from the vertical knee raise in intensity. The straight legs demand more from your abs, obliques, and hip flexors. This move is a favorite for building serious abdominal strength."
   },
   {
     "difficultyType": "BODYWEIGHT",
     "primaryMuscles": ["Lats", "Traps"],
     "secondaryMuscles": ["Abs", "Hip Flexors", "Forearm Flexors", "Rear Delts"],
     "name": "Hollow Body Pull-Up",
-    "metaId": "204"
+    "metaId": "204",
+    "description": "Hollow body pull-ups combine the pulling power of a pull-up with the core strength of the hollow body position, lighting up your lats, traps, abs, and hip flexors. This advanced move is perfect for those who love a full-body challenge."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Chest"],
     "secondaryMuscles": [],
     "name": "Cable Fly",
-    "metaId": "205"
+    "metaId": "205",
+    "description": "Cable flies are a chest-building favorite, offering constant tension as you bring your arms together in a smooth arc. This move is perfect for sculpting your pecs and improving muscle symmetry."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Chest"],
     "secondaryMuscles": [],
     "name": "Cable High-Low Fly",
-    "metaId": "206"
+    "metaId": "206",
+    "description": "Cable high-low flies target your chest from a unique angle, starting high and finishing low for a full-range stretch and contraction. This variation keeps your lower chest muscles guessing and growing."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Chest"],
     "secondaryMuscles": [],
     "name": "Cable Low-High Fly",
-    "metaId": "207"
+    "metaId": "207",
+    "description": "Cable low-high flies flip the script, starting low and finishing high for a different chest challenge. This move is perfect for building upper chest strength and definition."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Chest"],
     "secondaryMuscles": ["Front Delts", "Triceps"],
-    "name": "Dumbell Bench Press",
-    "metaId": "208"
+    "name": "Dumbbell Bench Press",
+    "metaId": "208",
+    "description": "Dumbbell bench presses are a versatile chest builder, targeting your pecs, shoulders, and triceps with a greater range of motion. The free weights add a fun stability challenge and promote balanced muscle development."
   },
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Traps"],
     "secondaryMuscles": ["Forearm Flexors"],
     "name": "Machine Shrug",
-    "metaId": "209"
+    "metaId": "209",
+    "description": "Machine shrugs are a trap-building staple, focusing on your upper back while your forearms get a workout too. The guided motion ensures perfect form and maximum muscle engagement."
   }
 ]

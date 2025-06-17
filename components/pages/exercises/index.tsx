@@ -295,7 +295,7 @@ export function Exercises() {
   const handleExercisePress = useCallback(
     (exercise: ExerciseMeta) => {
       // @ts-ignore
-      navigation.navigate("exerciseInsight", {
+      navigation.navigate("exerciseInsightSheet", {
         name: exercise.name,
       });
     },

@@ -23,3 +23,7 @@ export type RootStackParamList = {
   signUp: undefined;
   tabs: NavigatorScreenParams<TabParamList> & { fromOnboarding?: boolean };
 } & ModalParamsList;
+
+export type BottomSheetParamList = {
+  exercise: { name: string };
+};

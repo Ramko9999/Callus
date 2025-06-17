@@ -8,10 +8,7 @@ import {
 } from "react-native-reanimated";
 import { darkNavigationColorTheme } from "./constants/Themes";
 import { useColorScheme } from "react-native";
-import {
-  ThemeProvider,
-  DefaultTheme,
-} from "@react-navigation/native";
+import { ThemeProvider, DefaultTheme } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ToastProvider } from "react-native-toast-notifications";
@@ -22,6 +19,7 @@ import { WorkoutProvider } from "./context/WorkoutContext";
 import { Layout, NavigationProvider } from "./layout";
 import { SoundProvider } from "./components/sounds";
 import { PopupProvider } from "./components/popup";
+import { ExerciseInsightProvider } from "./components/exercise/insight/context";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -45,11 +43,13 @@ function RootLayoutNav() {
                 <UserDetailsProvider>
                   <WorkoutProvider>
                     <NavigationProvider onReady={SplashScreen.hideAsync}>
-                      <PopupProvider>
-                        <Preloader>
-                          <Layout />
-                        </Preloader>
-                      </PopupProvider>
+                      <ExerciseInsightProvider>
+                        <PopupProvider>
+                          <Preloader>
+                            <Layout />
+                          </Preloader>
+                        </PopupProvider>
+                      </ExerciseInsightProvider>
                     </NavigationProvider>
                   </WorkoutProvider>
                 </UserDetailsProvider>

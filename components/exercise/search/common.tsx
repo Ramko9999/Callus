@@ -429,9 +429,9 @@ export function ExerciseGridItem({ exercise, summary }: ExerciseGridItemProps) {
   const { height } = useWindowDimensions();
   const imageBackgroundColor = tintColor(
     useThemeColoring("appBackground"),
-    0.1
+    0.05
   );
-  const descriptionColor = tintColor(useThemeColoring("appBackground"), 0.15);
+  const descriptionColor = tintColor(useThemeColoring("appBackground"), 0.1);
   const demonstration = getExerciseDemonstration(exercise.name);
 
   return (

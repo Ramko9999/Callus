@@ -36,6 +36,7 @@ export type ExerciseMeta = {
   primaryMuscles: string[];
   secondaryMuscles: string[];
   metaId: string;
+  description: string;
 };
 
 export type SetPlan = {
@@ -161,9 +162,14 @@ export type WorkoutLifetimeStats = {
   totalWorkoutDuration: number;
 };
 
+export type MetricGenerationResult = {
+  metric: number;
+  bestSetId?: string;
+}
+
 export type MetricGenerationFunc = (
   completion: CompletedExercise
-) => number | undefined;
+) => MetricGenerationResult | undefined;
 
 export type MetricType =
   | "Average Weight"
@@ -172,12 +178,14 @@ export type MetricType =
   | "Average Duration"
   | "Average Rest Duration";
 
-export type MetricConfig = {
+export interface MetricConfig {
   metricType: MetricType;
   metricGeneration: MetricGenerationFunc;
   format: (value: number) => string;
-  determineHasImproved: (first: number, last: number) => boolean;
-};
+  determineHasImproved: (a: number, b: number) => boolean;
+  description: string;
+  color: string;
+}
 
 export type MetricPoint = {
   value: number;
@@ -190,10 +198,6 @@ export type Metric = {
   points: MetricPoint[];
   low: number;
   high: number;
-  first: number;
-  last: number;
-  hasImproved: boolean;
-  delta: number;
 };
 
 export type Trend = {

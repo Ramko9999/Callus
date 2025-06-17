@@ -8,7 +8,6 @@ import {
 } from "@/interface";
 import { addDays } from "@/util/date";
 import { Store } from "./store";
-import * as TrendApi from "./metric/trend";
 import { ArrayUtils } from "@/util/misc";
 
 export class WorkoutApi {
@@ -72,14 +71,6 @@ export class WorkoutApi {
 
   static async getLifetimeStats() {
     return await Store.instance().getLifetimeStats();
-  }
-
-  static async getTrends(after: number): Promise<Trend[]> {
-    const completedExercises = await Store.instance().getAllCompletedExercises(
-      after,
-      Date.now()
-    );
-    return TrendApi.getTrends(completedExercises);
   }
 
   static async getExerciseSummaries(): Promise<SearchExerciseSummary[]> {

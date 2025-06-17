@@ -1,17 +1,11 @@
-import { Exercises } from "@/components/pages/onboarding/exercises";
+import { Exercises } from "@/components/pages/exercises";
 import { Profile } from "@/components/pages/profile";
 import { Routines } from "@/components/pages/routine";
 import { Splash } from "@/components/pages/splash";
-import {
-  HistoryTabIcon,
-  ExerciseTabIcon,
-  RoutinesTabIcon,
-  ProfileTabIcon,
-} from "@/components/theme/icons";
 import { useThemeColoring } from "@/components/Themed";
 import { TabBar } from "@/components/tab-bar";
 import { getTabActiveTintColor } from "@/constants/Themes";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import {
   createStackNavigator,
@@ -19,9 +13,14 @@ import {
   TransitionPresets,
 } from "@react-navigation/stack";
 import Home from "@/components/pages/home";
-import { Platform, useColorScheme } from "react-native";
-import { RootStackParamList, TabParamList } from "./types";
-import { ExerciseInsightsOverviewModal } from "@/components/modals/exercise/insight";
+import { Platform, useColorScheme, useWindowDimensions } from "react-native";
+import {
+  RootStackParamList,
+  TabParamList,
+} from "./types";
+import {
+  ExerciseInsightsOverviewModal,
+} from "@/components/modals/exercise/insight";
 import { CompletedWorkoutModal } from "@/components/modals/workout/completed";
 import { RoutineModal } from "@/components/modals/routine";
 import { LiveWorkoutModal } from "@/components/modals/workout/live";
@@ -39,9 +38,15 @@ import Animated, {
 import { useEffect } from "react";
 import React from "react";
 import { usePopup } from "@/components/popup";
+import { createBottomSheetNavigator } from "@/components/navigation/bottom-sheet/createBottomSheetNavigator";
+import { BetterExerciseInsight } from "@/components/exercise/insight";
+import {
+  SelectMetricSheet,
+} from "@/components/sheets/select-metric";
 
-const Tab = createBottomTabNavigator<TabParamList>();
+const Tab = createMaterialTopTabNavigator<TabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
+const BottomSheet = createBottomSheetNavigator();
 
 const tabsStyles = StyleSheet.create({
   flicker: {
@@ -89,11 +94,10 @@ function Tabs({ route }: TabsProps) {
       <Tab.Navigator
         initialRouteName="history"
         tabBar={(props) => <TabBar {...props} />}
+        tabBarPosition="bottom"
         screenOptions={{
           tabBarActiveTintColor: getTabActiveTintColor(colorScheme ?? "light"),
-          headerShown: false,
-          lazy: false,
-          animation: "shift",
+          animationEnabled: false,
         }}
       >
         <Tab.Screen
@@ -101,9 +105,6 @@ function Tabs({ route }: TabsProps) {
           component={Home}
           options={{
             title: "History",
-            tabBarIcon: ({ color, focused }) => (
-              <HistoryTabIcon color={color} focused={focused} />
-            ),
           }}
         />
         <Tab.Screen
@@ -111,9 +112,6 @@ function Tabs({ route }: TabsProps) {
           component={Exercises}
           options={{
             title: "Exercises",
-            tabBarIcon: ({ color, focused }) => (
-              <ExerciseTabIcon color={color} focused={focused} />
-            ),
           }}
         />
         <Tab.Screen
@@ -121,9 +119,6 @@ function Tabs({ route }: TabsProps) {
           component={Routines}
           options={{
             title: "Routines",
-            tabBarIcon: ({ color, focused }) => (
-              <RoutinesTabIcon color={color} focused={focused} />
-            ),
           }}
         />
         <Tab.Screen
@@ -131,9 +126,6 @@ function Tabs({ route }: TabsProps) {
           component={Profile}
           options={{
             title: "Profile",
-            tabBarIcon: ({ color, focused }) => (
-              <ProfileTabIcon color={color} focused={focused} />
-            ),
           }}
         />
       </Tab.Navigator>
@@ -166,7 +158,7 @@ export function NavigationProvider({
   );
 }
 
-export function Layout() {
+function InnerLayout() {
   return (
     <Stack.Navigator
       initialRouteName="splash"
@@ -205,5 +197,29 @@ export function Layout() {
         <Stack.Screen name="congratulations" component={Congratulations} />
       </Stack.Group>
     </Stack.Navigator>
+  );
+}
+
+export function Layout() {
+  const { height } = useWindowDimensions();
+  return (
+    <BottomSheet.Navigator>
+      <BottomSheet.Screen name="main" component={InnerLayout} />
+      <BottomSheet.Screen
+        name="exerciseInsightSheet"
+        options={{ enableContentPanningGesture: false, enableBackdrop: false }}
+        component={BetterExerciseInsight}
+      />
+      <BottomSheet.Screen
+        name="selectMetricSheet"
+        options={{
+          enableContentPanningGesture: true,
+          height: height * 0.4,
+          enableBackground: true,
+          enableHandle: true,
+        }}
+        component={SelectMetricSheet}
+      />
+    </BottomSheet.Navigator>
   );
 }
