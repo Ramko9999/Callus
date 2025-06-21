@@ -4,17 +4,18 @@ import React from "react";
 import { StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const HEADER_HEIGHT = 100;
 const ACTION_DIMENSION = 40;
 
 const headerStyles = StyleSheet.create({
   container: {
-    ...StyleUtils.flexRow(),
-    height: HEADER_HEIGHT,
-    alignItems: "center",
-    justifyContent: "space-between",
+    ...StyleUtils.flexColumn(),
     paddingBottom: "3%",
     paddingHorizontal: "3%",
+  },
+  mainRow: {
+    ...StyleUtils.flexRow(),
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   action: {
     height: ACTION_DIMENSION,
@@ -23,24 +24,41 @@ const headerStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  titleContainer: {
+    ...StyleUtils.flexColumn(),
+    alignItems: "center",
+  },
+  subtitleContainer: {
+    ...StyleUtils.flexRowCenterAll()
+  },
 });
 
 type HeaderProps = {
   title: string;
+  subtitle?: string;
   rightAction?: React.ReactNode;
   leftAction: React.ReactNode;
 };
 
-function Header({ title, rightAction, leftAction }: HeaderProps) {
+function Header({ title, subtitle, rightAction, leftAction }: HeaderProps) {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={[headerStyles.container, { paddingTop: insets.top }]}>
-      <View style={headerStyles.action}>{leftAction ? leftAction : null}</View>
-      <Text header>{title}</Text>
-      <View style={headerStyles.action}>
-        {rightAction ? rightAction : null}
+      <View style={headerStyles.mainRow}>
+        <View style={headerStyles.action}>{leftAction ? leftAction : null}</View>
+        <View style={headerStyles.titleContainer}>
+          <Text header>{title}</Text>
+        </View>
+        <View style={headerStyles.action}>
+          {rightAction ? rightAction : null}
+        </View>
       </View>
+      {subtitle && (
+        <View style={headerStyles.subtitleContainer}>
+          <Text light>{subtitle}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -58,6 +76,7 @@ const headerPageStyles = StyleSheet.create({
 
 type HeaderPageProps = {
   title: string;
+  subtitle?: string;
   rightAction?: React.ReactNode;
   leftAction?: React.ReactNode;
   children: React.ReactNode;
@@ -65,6 +84,7 @@ type HeaderPageProps = {
 
 export function HeaderPage({
   title,
+  subtitle,
   rightAction,
   leftAction,
   children,
@@ -75,7 +95,7 @@ export function HeaderPage({
     <View
       style={[headerPageStyles.container, { backgroundColor: pageBgColor }]}
     >
-      <Header title={title} rightAction={rightAction} leftAction={leftAction} />
+      <Header title={title} subtitle={subtitle} rightAction={rightAction} leftAction={leftAction} />
       <View style={headerPageStyles.content}>{children}</View>
     </View>
   );

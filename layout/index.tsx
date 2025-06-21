@@ -13,14 +13,9 @@ import {
   TransitionPresets,
 } from "@react-navigation/stack";
 import Home from "@/components/pages/home";
-import { Platform, useColorScheme, useWindowDimensions } from "react-native";
-import {
-  RootStackParamList,
-  TabParamList,
-} from "./types";
-import {
-  ExerciseInsightsOverviewModal,
-} from "@/components/modals/exercise/insight";
+import { Platform, useColorScheme } from "react-native";
+import { RootStackParamList, TabParamList } from "./types";
+import { ExerciseInsightsOverviewModal } from "@/components/modals/exercise/insight";
 import { CompletedWorkoutModal } from "@/components/modals/workout/completed";
 import { RoutineModal } from "@/components/modals/routine";
 import { LiveWorkoutModal } from "@/components/modals/workout/live";
@@ -38,15 +33,13 @@ import Animated, {
 import { useEffect } from "react";
 import React from "react";
 import { usePopup } from "@/components/popup";
-import { createBottomSheetNavigator } from "@/components/navigation/bottom-sheet/createBottomSheetNavigator";
 import { BetterExerciseInsight } from "@/components/exercise/insight";
-import {
-  SelectMetricSheet,
-} from "@/components/sheets/select-metric";
+import { CompletedWorkout } from "@/components/pages/workout/completed";
+import { createSlideUpModalNavigator } from "@/components/util/slide-up";
 
 const Tab = createMaterialTopTabNavigator<TabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
-const BottomSheet = createBottomSheetNavigator();
+const SlideUpModal = createSlideUpModalNavigator();
 
 const tabsStyles = StyleSheet.create({
   flicker: {
@@ -201,25 +194,19 @@ function InnerLayout() {
 }
 
 export function Layout() {
-  const { height } = useWindowDimensions();
   return (
-    <BottomSheet.Navigator>
-      <BottomSheet.Screen name="main" component={InnerLayout} />
-      <BottomSheet.Screen
+    <SlideUpModal.Navigator>
+      <SlideUpModal.Screen name="main" component={InnerLayout} />
+      <SlideUpModal.Screen
         name="exerciseInsightSheet"
         options={{ enableContentPanningGesture: false, enableBackdrop: false }}
         component={BetterExerciseInsight}
       />
-      <BottomSheet.Screen
-        name="selectMetricSheet"
-        options={{
-          enableContentPanningGesture: true,
-          height: height * 0.4,
-          enableBackground: true,
-          enableHandle: true,
-        }}
-        component={SelectMetricSheet}
+      <SlideUpModal.Screen
+        name="completedWorkoutSheet"
+        options={{ enableContentPanningGesture: false, enableBackdrop: false }}
+        component={CompletedWorkout}
       />
-    </BottomSheet.Navigator>
+    </SlideUpModal.Navigator>
   );
 }

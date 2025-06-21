@@ -54,8 +54,7 @@ type ExerciseEditorProps = CompositeScreenProps<
 >;
 
 // todo: fix the lag in which it takes for the exercises to show up
-function ExercisesEditor({navigation}: ExerciseEditorProps) {
-
+function ExercisesEditor({ navigation }: ExerciseEditorProps) {
   const rootNavigation = useNavigation();
   const { routine, onSave } = useRoutine();
   const { isInWorkout, actions } = useWorkout();
@@ -110,9 +109,7 @@ function ExercisesEditor({navigation}: ExerciseEditorProps) {
             exercises={routine.plan}
             onRemove={(id) => onSave(ExercisePlanActions(routine).remove(id))}
             onEdit={(exerciseId) => navigation.navigate("sets", { exerciseId })}
-            onReorder={(plan) =>
-              onSave(onUpdateMeta({ plan: plan as ExercisePlan[] }))
-            }
+            onReorder={(plan) => onUpdateMeta({ plan: plan as ExercisePlan[] })}
             renderExercise={(props) => <RoutineExercise {...props} />}
           />
         </View>
@@ -226,8 +223,8 @@ function AddExercises({ navigation }: AddExerciseProps) {
     <>
       <ModalWrapper>
         <View style={contentStyles.container}>
-          <AddExercisesTopActions 
-            onBack={navigation.goBack} 
+          <AddExercisesTopActions
+            onBack={navigation.goBack}
             isGridView={isGridView}
             onToggleView={() => setIsGridView((prev) => !prev)}
           />

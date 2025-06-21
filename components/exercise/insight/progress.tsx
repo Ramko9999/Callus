@@ -34,8 +34,6 @@ import * as Haptics from "expo-haptics";
 import { ScrollView } from "react-native-gesture-handler";
 import { tintColor, convertHexToRGBA } from "@/util/color";
 import { ChevronDown } from "lucide-react-native";
-import { useNavigation } from "@react-navigation/native";
-import { useExerciseInsight } from "./context";
 import {
   useSharedValue,
   withRepeat,
@@ -364,11 +362,11 @@ type ChartProps = {
   name: string;
   completions: CompletedExercise[];
   selectedMetricConfig: MetricConfig;
+  showMetricSheet: () => void;
 };
 
 // todo: looking to why the scrollview has bit of extra padding on the bottom
-function Chart({ name, completions, selectedMetricConfig }: ChartProps) {
-  const navigation = useNavigation();
+function Chart({ name, completions, selectedMetricConfig, showMetricSheet }: ChartProps) {
   const [yAxisOffset, setYAxisOffset] = useState<number>();
   const [pointIndex, setPointIndex] = useState<number>();
   const [timeGroup, setTimeGroup] = useState<TimeGroupOption>("1w");
@@ -495,8 +493,7 @@ function Chart({ name, completions, selectedMetricConfig }: ChartProps) {
             style={chartStyles.metricSelector}
             onPress={(event) => {
               event.stopPropagation();
-              // @ts-ignore
-              navigation.navigate("selectMetricSheet");
+              showMetricSheet();
             }}
           >
             <Text style={{ color: accentColor }}>
@@ -845,11 +842,17 @@ type ProgressProps = {
   name: string;
   completions: CompletedExercise[];
   isLoading: boolean;
+  selectedMetricConfig?: MetricConfig;
+  showMetricSheet: () => void;
 };
 
-export function Progress({ name, completions, isLoading }: ProgressProps) {
-  const { selectedMetricConfig } = useExerciseInsight();
-
+export function Progress({ 
+  name, 
+  completions, 
+  isLoading, 
+  selectedMetricConfig, 
+  showMetricSheet 
+}: ProgressProps) {
   if (isLoading || !selectedMetricConfig) {
     return <ChartSkeleton />;
   }
@@ -859,6 +862,7 @@ export function Progress({ name, completions, isLoading }: ProgressProps) {
       name={name}
       completions={completions}
       selectedMetricConfig={selectedMetricConfig}
+      showMetricSheet={showMetricSheet}
     />
   );
 }

@@ -187,7 +187,8 @@ export default function Home() {
             workouts={filteredWorkouts}
             onSelect={(workout: Workout) => {
               // @ts-ignore
-              navigation.navigate("completedWorkout", { id: workout.id });
+              //navigation.navigate("heatmap", { workoutId: workout.id });
+              navigation.navigate("completedWorkoutSheet", { id: workout.id });
             }}
           />
         )}

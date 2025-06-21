@@ -30,3 +30,22 @@ export function tintColor(color: string, tintFactor: number = 0.1): string {
 
   return hasHash ? `#${tintedHex}` : tintedHex;
 }
+
+export function shadeColor(color: string, shadeFactor: number = 0.1): string {
+  const hasHash = color.startsWith('#');
+  const hexColor = hasHash ? color.substring(1) : color;
+
+  const r = parseInt(hexColor.substring(0, 2), 16);
+  const g = parseInt(hexColor.substring(2, 4), 16);
+  const b = parseInt(hexColor.substring(4, 6), 16);
+
+  const newR = Math.round(r * (1 - shadeFactor));
+  const newG = Math.round(g * (1 - shadeFactor));
+  const newB = Math.round(b * (1 - shadeFactor));
+
+  const shadedHex = newR.toString(16).padStart(2, '0') +
+      newG.toString(16).padStart(2, '0') +
+      newB.toString(16).padStart(2, '0');
+
+  return hasHash ? `#${shadedHex}` : shadedHex;
+}

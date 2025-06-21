@@ -5,7 +5,7 @@ import { useThemeColoring, Text, View } from "@/components/Themed";
 import { useNavigation } from "@react-navigation/native";
 import { StyleSheet } from "react-native";
 import { StyleUtils } from "@/util/styles";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { tintColor } from "@/util/color";
 import Animated, {
   useAnimatedStyle,
@@ -18,7 +18,11 @@ import { CompletedExercise } from "@/interface";
 import { WorkoutApi } from "@/api/workout";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Progress } from "./progress";
-import { useExerciseInsight } from "./context";
+import { SelectMetricSheet } from "@/components/sheets/select-metric";
+import BottomSheet from "@gorhom/bottom-sheet";
+import * as MetricApi from "@/api/metric";
+import { getDifficultyType } from "@/api/exercise";
+import { useUserDetails } from "@/components/user-details";
 
 type CloseButtonProps = {
   onClick: () => void;
@@ -117,20 +121,42 @@ const Tab = createMaterialTopTabNavigator();
 
 export function BetterExerciseInsight({ route }: BetterExerciseInsightProps) {
   const { name } = route.params;
-  const { setExerciseName, setSelectedMetricConfigIndex } =
-    useExerciseInsight();
+  const { userDetails } = useUserDetails();
   const navigation = useNavigation();
   const [completions, setCompletions] = useState<CompletedExercise[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedMetricIndex, setSelectedMetricIndex] = useState(0);
+  const [showMetricSheet, setShowMetricSheet] = useState(false);
+  const selectMetricSheetRef = useRef<BottomSheet>(null);
+
+  const type = useMemo(() => (name ? getDifficultyType(name) : null), [name]);
+
+  const metricConfigs = useMemo(
+    () =>
+      type
+        ? MetricApi.getPossibleMetrics(type, userDetails?.bodyweight as number)
+        : [],
+    [type, userDetails?.bodyweight]
+  );
+
+  const selectedMetricConfig = metricConfigs[selectedMetricIndex];
 
   useEffect(() => {
-    setExerciseName(name);
-    setSelectedMetricConfigIndex(0);
+    setSelectedMetricIndex(0);
     WorkoutApi.getExerciseCompletions(name).then((data) => {
       setCompletions(data);
       setIsLoading(false);
     });
   }, [name]);
+
+  const handleMetricSelect = useCallback((index: number) => {
+    setSelectedMetricIndex(index);
+    setShowMetricSheet(false);
+  }, []);
+
+  const handleHide = useCallback(() => {
+    selectMetricSheetRef.current?.close();
+  }, []);
 
   return (
     <View style={{ height: "100%" }}>
@@ -168,11 +194,22 @@ export function BetterExerciseInsight({ route }: BetterExerciseInsightProps) {
                 name={name}
                 completions={completions}
                 isLoading={isLoading}
+                selectedMetricConfig={selectedMetricConfig}
+                showMetricSheet={() => setShowMetricSheet(true)}
               />
             )}
           </Tab.Screen>
         </Tab.Navigator>
       </HeaderPage>
+      <SelectMetricSheet
+        ref={selectMetricSheetRef}
+        show={showMetricSheet}
+        hide={handleHide}
+        onHide={() => setShowMetricSheet(false)}
+        metricConfigs={metricConfigs}
+        selectedMetricConfigIndex={selectedMetricIndex}
+        onSelect={handleMetricSelect}
+      />
     </View>
   );
 }

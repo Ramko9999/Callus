@@ -2,15 +2,13 @@ import { StyleSheet } from "react-native";
 import { View, Text, useThemeColoring } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
 import { TouchableOpacity } from "react-native";
-import { useUserDetails } from "@/components/user-details";
-import * as MetricApi from "@/api/metric";
-import { useCallback, useMemo } from "react";
-import { getDifficultyType } from "@/api/exercise";
-import { useNavigation } from "@react-navigation/native";
+import { useCallback, forwardRef } from "react";
 import { tintColor } from "@/util/color";
+import { PopupBottomSheet } from "@/components/util/popup/sheet";
+import BottomSheet from "@gorhom/bottom-sheet";
+import { commonSheetStyles, SheetProps } from "./common";
 import { SheetX } from "./common";
-import { useExerciseInsight } from "../exercise/insight/context";
-import { commonSheetStyles } from "./common";
+import { MetricConfig } from "@/interface";
 
 const selectMetricSheetStyles = StyleSheet.create({
   container: {
@@ -39,69 +37,77 @@ const selectMetricSheetStyles = StyleSheet.create({
   },
 });
 
-export function SelectMetricSheet() {
-  const { userDetails } = useUserDetails();
-  const { name, setSelectedMetricConfigIndex, selectedMetricConfig } =
-    useExerciseInsight();
-  const type = getDifficultyType(name);
-  const navigation = useNavigation();
-  const borderColor = tintColor(
-    useThemeColoring("primaryViewBackground"),
-    0.05
-  );
+type SelectMetricSheetProps = SheetProps & {
+  metricConfigs: MetricConfig[];
+  selectedMetricConfigIndex: number;
+  onSelect: (index: number) => void;
+};
 
-  const metricConfigs = useMemo(
-    () => MetricApi.getPossibleMetrics(type, userDetails?.bodyweight as number),
-    [type, userDetails?.bodyweight]
-  );
+export const SelectMetricSheet = forwardRef<
+  BottomSheet,
+  SelectMetricSheetProps
+>(
+  (
+    { show, hide, onHide, metricConfigs, selectedMetricConfigIndex, onSelect },
+    ref
+  ) => {
+    const borderColor = tintColor(
+      useThemeColoring("primaryViewBackground"),
+      0.05
+    );
 
-  const handleSelectMetric = useCallback(
-    (index: number) => {
-      setSelectedMetricConfigIndex(index);
-      navigation.goBack();
-    },
-    [setSelectedMetricConfigIndex, navigation]
-  );
+    const handleSelectMetric = useCallback(
+      (index: number) => {
+        onSelect(index);
+        hide();
+      },
+      [onSelect, hide]
+    );
 
-  return (
-    <View style={selectMetricSheetStyles.container}>
-      <View style={commonSheetStyles.sheetHeader}>
-        <Text action style={{ fontWeight: 600 }}>
-          Select metric to view
-        </Text>
-        <TouchableOpacity onPress={navigation.goBack}>
-          <SheetX />
-        </TouchableOpacity>
-      </View>
-      <View style={selectMetricSheetStyles.optionsContainer}>
-        {metricConfigs.map((config, index) => (
-          <TouchableOpacity
-            key={config.metricType}
-            style={[
-              selectMetricSheetStyles.metricOption,
-              { borderBottomColor: borderColor },
-            ]}
-            onPress={() => handleSelectMetric(index)}
-          >
-            <View style={selectMetricSheetStyles.metricContent}>
-              <Text>{config.metricType}</Text>
-              <Text light small>
-                {config.description}
-              </Text>
-            </View>
-            {config.metricType === selectedMetricConfig?.metricType && (
-              <View
+    return (
+      <PopupBottomSheet ref={ref} show={show} onHide={onHide}>
+        <View style={selectMetricSheetStyles.container}>
+          <View style={commonSheetStyles.sheetHeader}>
+            <Text action style={{ fontWeight: 600 }}>
+              Select metric to view
+            </Text>
+            <TouchableOpacity onPress={hide}>
+              <SheetX />
+            </TouchableOpacity>
+          </View>
+          <View style={selectMetricSheetStyles.optionsContainer}>
+            {metricConfigs.map((config, index) => (
+              <TouchableOpacity
+                key={config.metricType}
                 style={[
-                  selectMetricSheetStyles.selectedMetricIndicator,
-                  {
-                    backgroundColor: config.color,
-                  },
+                  selectMetricSheetStyles.metricOption,
+                  { borderBottomColor: borderColor },
                 ]}
-              />
-            )}
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
-  );
-}
+                onPress={() => handleSelectMetric(index)}
+              >
+                <View style={selectMetricSheetStyles.metricContent}>
+                  <Text>{config.metricType}</Text>
+                  <Text light small>
+                    {config.description}
+                  </Text>
+                </View>
+                {index === selectedMetricConfigIndex && (
+                  <View
+                    style={[
+                      selectMetricSheetStyles.selectedMetricIndicator,
+                      {
+                        backgroundColor: config.color,
+                      },
+                    ]}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </PopupBottomSheet>
+    );
+  }
+);
+
+SelectMetricSheet.displayName = "SelectMetricSheet";

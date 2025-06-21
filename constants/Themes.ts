@@ -31,6 +31,9 @@ export const darkColors = {
   padBackground: "black",
   calendarDayBackground: "#2d2c2c",
   calendarDayBackgroundTint: "#424141",
+  popover: "#2c2c2e",
+  separator: "rgba(255,255,255,0.1)",
+  destructive: "#ff453a",
 };
 
 export const lightColors = {
@@ -62,6 +65,9 @@ export const lightColors = {
   padBackground: "black",
   calendarDayBackground: "#2d2c2c",
   calendarDayBackgroundTint: "#424141",
+  popover: "#f2f2f7",
+  separator: "rgba(0,0,0,0.1)",
+  destructive: "#ff3b30",
 };
 
 export type UIColor = keyof typeof darkColors & keyof typeof lightColors;
