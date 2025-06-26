@@ -88,9 +88,7 @@ const editNameStyles = StyleSheet.create({
   },
   buttonContainer: {
     ...StyleUtils.flexColumnCenterAll(20),
-    paddingTop: "3%",
-    paddingHorizontal: "5%",
-    paddingBottom: "6%",
+
     width: "100%",
   },
   keyboardSpacer: {

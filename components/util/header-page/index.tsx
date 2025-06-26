@@ -34,8 +34,8 @@ const headerStyles = StyleSheet.create({
 });
 
 type HeaderProps = {
-  title: string;
-  subtitle?: string;
+  title: string | React.ReactNode;
+  subtitle?: string | React.ReactNode;
   rightAction?: React.ReactNode;
   leftAction: React.ReactNode;
 };
@@ -48,7 +48,7 @@ function Header({ title, subtitle, rightAction, leftAction }: HeaderProps) {
       <View style={headerStyles.mainRow}>
         <View style={headerStyles.action}>{leftAction ? leftAction : null}</View>
         <View style={headerStyles.titleContainer}>
-          <Text header>{title}</Text>
+          {typeof title === 'string' ? <Text header>{title}</Text> : title}
         </View>
         <View style={headerStyles.action}>
           {rightAction ? rightAction : null}
@@ -56,7 +56,7 @@ function Header({ title, subtitle, rightAction, leftAction }: HeaderProps) {
       </View>
       {subtitle && (
         <View style={headerStyles.subtitleContainer}>
-          <Text light>{subtitle}</Text>
+          {typeof subtitle === 'string' ? <Text light>{subtitle}</Text> : subtitle}
         </View>
       )}
     </View>
@@ -75,8 +75,8 @@ const headerPageStyles = StyleSheet.create({
 });
 
 type HeaderPageProps = {
-  title: string;
-  subtitle?: string;
+  title: string | React.ReactNode;
+  subtitle?: string | React.ReactNode;
   rightAction?: React.ReactNode;
   leftAction?: React.ReactNode;
   children: React.ReactNode;

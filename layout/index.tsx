@@ -26,6 +26,7 @@ import { StyleSheet } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import Animated, {
   interpolateColor,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -34,7 +35,7 @@ import { useEffect } from "react";
 import React from "react";
 import { usePopup } from "@/components/popup";
 import { BetterExerciseInsight } from "@/components/exercise/insight";
-import { CompletedWorkout } from "@/components/pages/workout/completed";
+import { CompletedWorkout } from "@/components/pages/workout/completed/index";
 import { createSlideUpModalNavigator } from "@/components/util/slide-up";
 
 const Tab = createMaterialTopTabNavigator<TabParamList>();
@@ -59,17 +60,23 @@ function Tabs({ route }: TabsProps) {
   const primaryAction = useThemeColoring("primaryAction");
   const { whatsNew } = usePopup();
 
-  useEffect(() => {
-    if (fromOnboarding) {
-      flickerAnimation.value = withTiming(0, { duration: 2000 });
-    }
-  }, [fromOnboarding]);
-
-  useEffect(() => {
+  const openWhatsNew = () => {
     setTimeout(() => {
       whatsNew.checkWhatsNew();
-    }, 100);
-  }, []);
+    }, 300);
+  };
+
+  useEffect(() => {
+    if (fromOnboarding) {
+      flickerAnimation.value = withTiming(0, { duration: 2000 }, (done) => {
+        if (done) {
+          runOnJS(openWhatsNew)();
+        }
+      });
+    } else {
+      openWhatsNew();
+    }
+  }, [fromOnboarding]);
 
   const flickerAnimationStyle = useAnimatedStyle(() => {
     return {

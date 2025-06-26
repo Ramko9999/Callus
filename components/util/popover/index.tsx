@@ -4,18 +4,19 @@ import React from "react";
 import {
   StyleSheet,
   TouchableOpacity,
-  Modal,
   Pressable,
   useWindowDimensions,
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
-  useSharedValue,
   withSpring,
   withTiming,
-  runOnJS,
+  SharedValue,
+  interpolate,
 } from "react-native-reanimated";
 import { forwardRef, useImperativeHandle, useState } from "react";
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 const popoverItemStyles = StyleSheet.create({
   container: {
@@ -36,22 +37,11 @@ type PopoverItemProps = {
   label: React.ReactNode;
   icon?: React.ReactNode;
   onClick: () => void;
-  closePopover?: () => void;
 };
 
-export function PopoverItem({
-  label,
-  icon,
-  onClick,
-  closePopover,
-}: PopoverItemProps) {
-  const handlePress = () => {
-    onClick();
-    closePopover?.();
-  };
-
+export function PopoverItem({ label, icon, onClick }: PopoverItemProps) {
   return (
-    <TouchableOpacity style={popoverItemStyles.container} onPress={handlePress}>
+    <TouchableOpacity style={popoverItemStyles.container} onPress={onClick}>
       {typeof label === "string" ? <Text>{label}</Text> : label}
       {icon && <View style={popoverItemStyles.iconContainer}>{icon}</View>}
     </TouchableOpacity>
@@ -76,7 +66,7 @@ type PopoverSectionProps = {
   width?: number;
 };
 
-export function PopoverSection({ children, width }: PopoverSectionProps) {
+function PopoverSection({ children, width }: PopoverSectionProps) {
   const items = React.Children.toArray(children);
   const separatorColor = useThemeColoring("separator");
   const backgroundColor = useThemeColoring("popover");
@@ -112,7 +102,6 @@ export function PopoverBreak() {
 const popoverStyles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.2)",
   },
   popoverContainer: {
     position: "absolute",
@@ -134,86 +123,75 @@ export type PopoverRef = {
 
 type PopoverProps = {
   children: React.ReactNode;
+  progress: SharedValue<number>;
 };
 
 export const Popover = forwardRef<PopoverRef, PopoverProps>(
-  ({ children }, ref) => {
-    const [isVisible, setIsVisible] = useState(false);
+  ({ children, progress }, ref) => {
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const { width: screenWidth } = useWindowDimensions();
     const popoverWidth = screenWidth * 0.65;
 
-    const scale = useSharedValue(0);
-    const opacity = useSharedValue(0);
-
     const close = () => {
-      scale.value = withTiming(0, { duration: 150 });
-      opacity.value = withTiming(0, { duration: 150 }, (finished) => {
-        if (finished) {
-          runOnJS(setIsVisible)(false);
-        }
-      });
+      progress.value = withTiming(0, { duration: 150 });
     };
 
     useImperativeHandle(ref, () => ({
       open: (x, y) => {
         setPosition({ x, y });
-        setIsVisible(true);
-        scale.value = withSpring(1, { damping: 15, stiffness: 200, mass: 0.5 });
-        opacity.value = withTiming(1, { duration: 100 });
+        progress.value = withSpring(1, {
+          damping: 15,
+          stiffness: 250,
+          mass: 0.6,
+        });
       },
       close,
     }));
 
+    const backdropStyle = useAnimatedStyle(() => {
+      return {
+        display: progress.value > 0 ? "flex" : "none",
+      };
+    });
+
     const animatedStyle = useAnimatedStyle(() => {
       return {
-        opacity: opacity.value,
+        opacity: progress.value,
+        height: interpolate(progress.value, [0, 1], [0, 100]),
         transform: [
-          { translateX: -popoverWidth },
+          {
+            translateX: interpolate(
+              progress.value,
+              [0, 1],
+              [-popoverWidth / 2, -popoverWidth]
+            ),
+          },
           { translateY: 10 },
-          { scale: scale.value },
+          { scale: progress.value },
         ],
       };
     });
 
-    const childrenWithProps = React.Children.map(children, (child) => {
-      if (React.isValidElement(child)) {
-        return React.cloneElement(child, {
-          ...(child.props as any),
-          width: popoverWidth,
-          children: React.Children.map(
-            (child.props as any).children,
-            (item) => {
-              if (React.isValidElement(item)) {
-                return React.cloneElement(item, {
-                  ...(item.props as any),
-                  closePopover: close,
-                });
-              }
-              return item;
-            }
-          ),
-        });
-      }
-      return child;
-    });
-
     return (
-      <Modal visible={isVisible} transparent animationType="none">
-        <Pressable style={popoverStyles.backdrop} onPress={close} />
+      <>
+        <AnimatedPressable
+          style={[popoverStyles.backdrop, backdropStyle]}
+          onPress={close}
+        />
         <Animated.View
           style={[
             popoverStyles.popoverContainer,
             {
               top: position.y,
               left: position.x,
+              width: popoverWidth,
             },
             animatedStyle,
           ]}
         >
-          {childrenWithProps}
+          <PopoverSection>{children}</PopoverSection>
         </Animated.View>
-      </Modal>
+      </>
     );
   }
 );

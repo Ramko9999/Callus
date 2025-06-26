@@ -31,11 +31,12 @@ type PopupBottomSheetProps = {
   children: ReactNode;
   show: boolean;
   onHide: () => void;
+  enablePanDownToClose?: boolean;
 };
 
 export const PopupBottomSheet = forwardRef(
   (
-    { children, show, onHide }: PopupBottomSheetProps,
+    { children, show, onHide, enablePanDownToClose = true }: PopupBottomSheetProps,
     ref: ForwardedRef<BottomSheet>
   ) => {
     const sheetColor = useThemeColoring("primaryViewBackground");
@@ -90,7 +91,7 @@ export const PopupBottomSheet = forwardRef(
       <BottomSheet
         ref={ref}
         snapPoints={[]}
-        enablePanDownToClose
+        enablePanDownToClose={enablePanDownToClose}
         enableOverDrag={false}
         onClose={onHide}
         index={show ? 0 : -1}

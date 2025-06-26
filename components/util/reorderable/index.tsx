@@ -197,6 +197,7 @@ export function Reorderable<T>({
       contentContainerStyle={contentStyle}
       style={scrollStyle}
       ref={scrollRef}
+      showsVerticalScrollIndicator={false}
       onLayout={({ nativeEvent }) => {
         scrollHeight.value = nativeEvent.layout.height;
       }}

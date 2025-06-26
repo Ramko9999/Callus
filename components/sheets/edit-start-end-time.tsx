@@ -140,7 +140,7 @@ type EditTimeProps = {
   validate: (timestamp: number) => ValidationResult;
 };
 
-function EditTime({
+export function EditTime({
   title,
   timestamp,
   onUpdate,
