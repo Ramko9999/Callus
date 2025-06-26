@@ -5,12 +5,14 @@ import { ExerciseMeta } from "@/interface";
 import { StyleUtils } from "@/util/styles";
 import React, { useCallback, useEffect } from "react";
 import { useRef, useState } from "react";
-import { Pressable, StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
+  FadeInDown,
+  FadeOutDown,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
@@ -431,11 +433,14 @@ export function ExerciseAdder({
         />
       )}
       {exercisesToAdd.length > 0 && (
-        <View
+        <Animated.View
+          key="action-button"
           style={[
             exerciseAdderStyles.actionContainer,
             { bottom: insets.bottom },
           ]}
+          entering={FadeInDown.springify().damping(15).stiffness(150)}
+          exiting={FadeOutDown.springify().damping(15).stiffness(150)}
         >
           <SignificantAction
             onClick={() => {
@@ -450,7 +455,7 @@ export function ExerciseAdder({
                 : `Add ${exercisesToAdd.length} exercises`
             }
           />
-        </View>
+        </Animated.View>
       )}
     </>
   );

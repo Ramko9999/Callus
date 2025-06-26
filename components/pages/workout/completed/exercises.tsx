@@ -27,13 +27,13 @@ import { convertHexToRGBA } from "@/util/color";
 
 const exerciseListStyles = StyleSheet.create({
   container: {
-    marginTop: 20,
+    marginTop: "3%",
   },
   headerContainer: {
     ...StyleUtils.flexRow(),
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: "2%",
     paddingHorizontal: "3%",
   },
   sectionTitle: {
@@ -65,8 +65,6 @@ const exerciseListStyles = StyleSheet.create({
     paddingRight: "2%",
   },
   skeletonImage: {
-    width: 60,
-    height: 60,
     borderRadius: 8,
     backgroundColor: "rgba(0, 0, 0, 0.1)",
   },
