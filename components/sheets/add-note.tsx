@@ -12,17 +12,17 @@ import {
   TextInput as RNTextInput,
 } from "react-native";
 import { useThemeColoring } from "@/components/Themed";
-import { commonSheetStyles, SheetProps, SheetX } from "./common";
+import {
+  commonSheetStyles,
+  KeyboardSpacer,
+  SheetProps,
+  SheetX,
+} from "./common";
 import { StyleUtils } from "@/util/styles";
 import { PopupBottomSheet } from "@/components/util/popup/sheet";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { tintColor } from "@/util/color";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from "react-native-reanimated";
-import { useKeyboardHeight } from "@/components/hooks/use-keyboard-height";
+
 
 const addNoteStyles = StyleSheet.create({
   container: {
@@ -63,8 +63,6 @@ export const AddNoteSheet = forwardRef<BottomSheet, AddNoteSheetProps>(
     const inputBackgroundColor = tintColor(backgroundColor, 0.05);
     const placeholderColor = useThemeColoring("lightText");
     const [selectedNote, setSelectedNote] = useState("");
-    const { keyboardHeight, isKeyboardOpen } = useKeyboardHeight();
-    const keyboardSpacerHeight = useSharedValue(0);
     const inputRef = useRef<RNTextInput>(null);
 
     useEffect(() => {
@@ -76,30 +74,10 @@ export const AddNoteSheet = forwardRef<BottomSheet, AddNoteSheetProps>(
       }
     }, [show]);
 
-    useEffect(() => {
-      if (isKeyboardOpen) {
-        keyboardSpacerHeight.value = withSpring(keyboardHeight, {
-          damping: 30,
-          stiffness: 400,
-          overshootClamping: false,
-        });
-      } else {
-        keyboardSpacerHeight.value = withSpring(0, {
-          damping: 30,
-          stiffness: 400,
-          overshootClamping: false,
-        });
-      }
-    }, [isKeyboardOpen, keyboardHeight]);
-
     const handleUpdate = useCallback(() => {
       onUpdate(selectedNote.trim());
       hide();
     }, [onUpdate, selectedNote, hide]);
-
-    const keyboardSpacerStyle = useAnimatedStyle(() => ({
-      height: keyboardSpacerHeight.value,
-    }));
 
     const isNoteUnchanged = selectedNote.trim() === note.trim();
 
@@ -114,7 +92,12 @@ export const AddNoteSheet = forwardRef<BottomSheet, AddNoteSheetProps>(
           </TouchableOpacity>
         </View>
         <View style={addNoteStyles.container}>
-          <View style={[addNoteStyles.inputContainer, { backgroundColor: inputBackgroundColor }]}>
+          <View
+            style={[
+              addNoteStyles.inputContainer,
+              { backgroundColor: inputBackgroundColor },
+            ]}
+          >
             <TextInput
               ref={inputRef}
               style={addNoteStyles.input}
@@ -141,14 +124,10 @@ export const AddNoteSheet = forwardRef<BottomSheet, AddNoteSheetProps>(
               onPress={handleUpdate}
               disabled={isNoteUnchanged}
             >
-              <Text emphasized>
-                {"Update"}
-              </Text>
+              <Text emphasized>{"Update"}</Text>
             </TouchableOpacity>
           </View>
-          <Animated.View
-            style={[addNoteStyles.keyboardSpacer, keyboardSpacerStyle]}
-          />
+          <KeyboardSpacer />
         </View>
       </PopupBottomSheet>
     );

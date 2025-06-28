@@ -13,7 +13,7 @@ import {
   TextInput as RNTextInput,
 } from "react-native";
 import { useThemeColoring } from "@/components/Themed";
-import { commonSheetStyles, SheetProps, SheetX } from "./common";
+import { commonSheetStyles, SheetProps, SheetX, KeyboardSpacer } from "./common";
 import { StyleUtils } from "@/util/styles";
 import { PopupBottomSheet } from "@/components/util/popup/sheet";
 import BottomSheet from "@gorhom/bottom-sheet";
@@ -22,9 +22,8 @@ import { Svg, Line } from "react-native-svg";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
 } from "react-native-reanimated";
-import { useKeyboardHeight } from "@/components/hooks/use-keyboard-height";
+
 
 function getInputFontSize(nameLength: number) {
   const MIN_CHARS = 6;
@@ -91,9 +90,6 @@ const editNameStyles = StyleSheet.create({
 
     width: "100%",
   },
-  keyboardSpacer: {
-    width: "100%",
-  },
 });
 
 type EditNameSheetProps = SheetProps & {
@@ -108,8 +104,6 @@ export const EditNameSheet = forwardRef<BottomSheet, EditNameSheetProps>(
     const placeholderColor = tintColor(backgroundColor, 0.2);
     const [selectedName, setSelectedName] = useState("");
     const textInputFontSize = useSharedValue(60);
-    const { keyboardHeight, isKeyboardOpen } = useKeyboardHeight();
-    const keyboardSpacerHeight = useSharedValue(0);
     const { width } = useWindowDimensions();
     const inputRef = useRef<RNTextInput>(null);
 
@@ -126,21 +120,6 @@ export const EditNameSheet = forwardRef<BottomSheet, EditNameSheetProps>(
       textInputFontSize.value = getInputFontSize(selectedName.length);
     }, [selectedName.length]);
 
-    useEffect(() => {
-      if (isKeyboardOpen) {
-        keyboardSpacerHeight.value = withSpring(keyboardHeight, {
-          damping: 30,
-          stiffness: 400,
-          overshootClamping: false,
-        });
-      } else {
-        keyboardSpacerHeight.value = withSpring(0, {
-          damping: 30,
-          stiffness: 400,
-          overshootClamping: false,
-        });
-      }
-    }, [isKeyboardOpen, keyboardHeight]);
 
     const handleUpdate = useCallback(() => {
       onUpdate(selectedName.trim()).then(() => {
@@ -150,10 +129,6 @@ export const EditNameSheet = forwardRef<BottomSheet, EditNameSheetProps>(
 
     const textInputAnimatedStyle = useAnimatedStyle(() => ({
       fontSize: textInputFontSize.value,
-    }));
-
-    const keyboardSpacerStyle = useAnimatedStyle(() => ({
-      height: keyboardSpacerHeight.value,
     }));
 
     const isNameUnchanged = selectedName.trim() === name;
@@ -205,9 +180,7 @@ export const EditNameSheet = forwardRef<BottomSheet, EditNameSheetProps>(
               <Text emphasized>Update</Text>
             </TouchableOpacity>
           </View>
-          <Animated.View
-            style={[editNameStyles.keyboardSpacer, keyboardSpacerStyle]}
-          />
+          <KeyboardSpacer />
         </View>
       </PopupBottomSheet>
     );

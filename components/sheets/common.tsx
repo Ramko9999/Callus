@@ -1,7 +1,13 @@
+import React, { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import { StyleUtils } from "@/util/styles";
 import { X as LucideX, ArrowLeft } from "lucide-react-native";
 import { useThemeColoring, Text } from "@/components/Themed";
+import { useKeyboardHeight } from "@/components/hooks/use-keyboard-height";
 import { tintColor } from "@/util/color";
 import { convertHexToRGBA } from "@/util/color";
 
@@ -66,7 +72,6 @@ type SheetErrorProps = {
 
 export function SheetError({ text }: SheetErrorProps) {
   const errorColor = useThemeColoring("dangerAction");
-  
   return (
     <View
       style={[
@@ -86,3 +91,24 @@ export type SheetProps = {
   hide: () => void;
   onHide: () => void;
 };
+
+export function KeyboardSpacer() {
+  const { keyboardHeight, isKeyboardOpen } = useKeyboardHeight();
+  const keyboardSpacerHeight = useSharedValue(0);
+
+  useEffect(() => {
+    if (isKeyboardOpen) {
+      keyboardSpacerHeight.value = 
+        keyboardHeight
+  
+    } else {
+      keyboardSpacerHeight.value = 0;
+    }
+  }, [isKeyboardOpen, keyboardHeight]);
+
+  const keyboardSpacerStyle = useAnimatedStyle(() => ({
+    height: keyboardSpacerHeight.value,
+  }));
+
+  return <Animated.View style={[{ width: "100%" }, keyboardSpacerStyle]} />;
+}

@@ -9,7 +9,7 @@ type CompletedWorkoutState = {
   onSave: (workout: Workout) => void;
 };
 
-const completedWorkoutContext = createContext<CompletedWorkoutState>({
+const CompletedWorkoutContext = createContext<CompletedWorkoutState>({
   onSave: (workout: Workout) => {},
 });
 
@@ -26,7 +26,7 @@ export function CompletedWorkoutProvider({
   const { invoke } = useDebounce({ delay: 200 });
 
   useEffect(() => {
-    artificallyDelay(WorkoutApi.getWorkout(workoutId), 500).then(setWorkout);
+    artificallyDelay(WorkoutApi.getWorkout(workoutId), 300).then(setWorkout);
   }, [workoutId]);
 
   const onSave = (workout: Workout) => {
@@ -36,13 +36,13 @@ export function CompletedWorkoutProvider({
   };
 
   return (
-    <completedWorkoutContext.Provider value={{ workout, onSave }}>
+    <CompletedWorkoutContext.Provider value={{ workout, onSave }}>
       {children}
-    </completedWorkoutContext.Provider>
+    </CompletedWorkoutContext.Provider>
   );
 }
 
 export function useCompletedWorkout() {
-  return useContext(completedWorkoutContext);
+  return useContext(CompletedWorkoutContext);
 }
 

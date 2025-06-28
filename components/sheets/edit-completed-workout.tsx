@@ -18,6 +18,7 @@ import {
   SheetProps,
   SheetX,
   SheetArrowLeft,
+  KeyboardSpacer,
 } from "./common";
 import { StyleUtils } from "@/util/styles";
 import { PopupBottomSheet } from "@/components/util/popup/sheet";
@@ -27,9 +28,7 @@ import { Svg, Line } from "react-native-svg";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
 } from "react-native-reanimated";
-import { useKeyboardHeight } from "@/components/hooks/use-keyboard-height";
 import { Workout } from "@/interface";
 import { EditTime } from "./edit-start-end-time";
 import { getDateEditDisplay, MONTHS, getHour, getAmOrPm } from "@/util/date";
@@ -133,9 +132,6 @@ const editWorkoutNameStyles = StyleSheet.create({
     paddingTop: "3%",
     width: "100%",
   },
-  keyboardSpacer: {
-    width: "100%",
-  },
 });
 
 
@@ -151,8 +147,6 @@ function EditWorkoutName({ name, onUpdate, onBack }: EditWorkoutNameProps) {
   const placeholderColor = tintColor(backgroundColor, 0.2);
   const [selectedName, setSelectedName] = useState(name);
   const textInputFontSize = useSharedValue(60);
-  const { keyboardHeight, isKeyboardOpen } = useKeyboardHeight();
-  const keyboardSpacerHeight = useSharedValue(0);
   const { width } = useWindowDimensions();
   const inputRef = useRef<RNTextInput>(null);
 
@@ -167,32 +161,12 @@ function EditWorkoutName({ name, onUpdate, onBack }: EditWorkoutNameProps) {
     textInputFontSize.value = getInputFontSize(selectedName.length);
   }, [selectedName.length]);
 
-  useEffect(() => {
-    if (isKeyboardOpen) {
-      keyboardSpacerHeight.value = withSpring(keyboardHeight, {
-        damping: 30,
-        stiffness: 400,
-        overshootClamping: false,
-      });
-    } else {
-      keyboardSpacerHeight.value = withSpring(0, {
-        damping: 30,
-        stiffness: 400,
-        overshootClamping: false,
-      });
-    }
-  }, [isKeyboardOpen, keyboardHeight]);
-
   const handleUpdate = useCallback(() => {
     onUpdate(selectedName.trim());
   }, [onUpdate, selectedName]);
 
   const textInputAnimatedStyle = useAnimatedStyle(() => ({
     fontSize: textInputFontSize.value,
-  }));
-
-  const keyboardSpacerStyle = useAnimatedStyle(() => ({
-    height: keyboardSpacerHeight.value,
   }));
 
   const isNameUnchanged = selectedName.trim() === name;
@@ -246,9 +220,7 @@ function EditWorkoutName({ name, onUpdate, onBack }: EditWorkoutNameProps) {
             </Text>
           </TouchableOpacity>
         </View>
-        <Animated.View
-          style={[editWorkoutNameStyles.keyboardSpacer, keyboardSpacerStyle]}
-        />
+        <KeyboardSpacer />
       </View>
     </>
   );

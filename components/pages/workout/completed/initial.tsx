@@ -371,6 +371,7 @@ function ExerciseSkeleton() {
   const animationProgress = useSharedValue(0);
   const pulsateFromColor = convertHexToRGBA(skeletonColor, 0.2);
   const pulsateToColor = convertHexToRGBA(skeletonColor, 0.3);
+  const { width } = useWindowDimensions();
 
   useEffect(() => {
     animationProgress.value = withRepeat(
@@ -392,7 +393,11 @@ function ExerciseSkeleton() {
     <View style={exerciseListStyles.exerciseItem}>
       <View style={exerciseListStyles.exerciseImage}>
         <Animated.View
-          style={[exerciseListStyles.skeletonImage, animatedImageStyle]}
+          style={[
+            exerciseListStyles.skeletonImage,
+            animatedImageStyle,
+            { width: width * 0.15, height: width * 0.15 },
+          ]}
         />
       </View>
       <View style={exerciseListStyles.exerciseSkeletonContent}>

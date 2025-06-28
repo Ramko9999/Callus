@@ -4,6 +4,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Keyboard,
+  GestureResponderEvent,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import {
@@ -11,7 +12,6 @@ import {
   Plus,
   Check,
   MoreHorizontal,
-  Timer,
   StickyNote,
 } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
@@ -30,11 +30,10 @@ import {
   WeightDifficulty,
   BodyWeightDifficulty,
   TimeDifficulty,
+  Exercise,
 } from "@/interface";
 import { getDifficultyType } from "@/api/exercise";
-import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
 import { StyleUtils } from "@/util/styles";
-import { EDITOR_SET_HEIGHT } from "@/util/styles";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -53,7 +52,11 @@ import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { SwipeableDelete } from "@/components/util/swipeable-delete";
 import { Popover, PopoverItem, PopoverRef } from "@/components/util/popover";
 import { AddNoteSheet } from "@/components/sheets/add-note";
+import { EditSetSheet } from "@/components/sheets/edit-set";
 import BottomSheet from "@gorhom/bottom-sheet";
+import { useSound } from "@/components/sounds";
+
+export type EditField = "weight" | "reps" | "time";
 
 const setStatusInputStyles = StyleSheet.create({
   container: {
@@ -69,7 +72,7 @@ const setStatusInputStyles = StyleSheet.create({
 
 type SetStatusInputProps = {
   isActive: boolean;
-  onToggle: () => void;
+  onToggle: (event: GestureResponderEvent) => void;
 };
 
 function SetStatusInput({ isActive, onToggle }: SetStatusInputProps) {
@@ -199,6 +202,7 @@ const setRowStyles = StyleSheet.create({
   },
   valueColumn: {
     ...StyleUtils.flexRowCenterAll(),
+    paddingVertical: "2%",
     flex: 2,
   },
   checkmarkColumn: {
@@ -213,6 +217,7 @@ type SetRowProps = {
   difficultyType: DifficultyType;
   onUpdateSet: (setId: string, update: Partial<Set>) => void;
   onDelete: (setId: string) => void;
+  onEdit?: (setId: string, field: EditField) => void;
 };
 
 function SetRow({
@@ -221,6 +226,7 @@ function SetRow({
   difficultyType,
   onUpdateSet,
   onDelete,
+  onEdit,
 }: SetRowProps) {
   const appBackgroundColor = useThemeColoring("appBackground");
   const rowTint = tintColor(useThemeColoring("appBackground"), 0.05);
@@ -228,12 +234,14 @@ function SetRow({
   const isAlt = index % 2 === 1;
   const rowBg = isAlt ? rowTint : appBackgroundColor;
   const setAnimationSize = useSharedValue(1);
+  const { play } = useSound();
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: setAnimationSize.value }],
   }));
 
-  const handleToggle = () => {
+  const handleToggle = (event: GestureResponderEvent) => {
+    event.stopPropagation();
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     if (set.status === SetStatus.FINISHED) {
@@ -251,6 +259,7 @@ function SetRow({
         withTiming(1.05, { duration: 200 }),
         withTiming(1, { duration: 200 })
       );
+      play("positive_ring");
     } else {
       onUpdateSet(set.id, {
         status: SetStatus.FINISHED,
@@ -259,6 +268,7 @@ function SetRow({
         withTiming(1.05, { duration: 200 }),
         withTiming(1, { duration: 200 })
       );
+      play("positive_ring");
     }
   };
 
@@ -285,26 +295,38 @@ function SetRow({
         </View>
         {difficultyType === DifficultyType.WEIGHT ||
         difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT ? (
-          <View style={setRowStyles.valueColumn}>
+          <TouchableOpacity
+            style={setRowStyles.valueColumn}
+            onPress={() => onEdit?.(set.id, "weight")}
+          >
             <Text>{values[1]}</Text>
-          </View>
+          </TouchableOpacity>
         ) : null}
         {difficultyType === DifficultyType.WEIGHT ||
         difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT ? (
-          <View style={setRowStyles.valueColumn}>
+          <TouchableOpacity
+            style={setRowStyles.valueColumn}
+            onPress={() => onEdit?.(set.id, "reps")}
+          >
             <Text>{values[2]}</Text>
-          </View>
+          </TouchableOpacity>
         ) : null}
         {(difficultyType === DifficultyType.BODYWEIGHT ||
           difficultyType === DifficultyType.ASSISTED_BODYWEIGHT) && (
-          <View style={setRowStyles.valueColumn}>
+          <TouchableOpacity
+            style={setRowStyles.valueColumn}
+            onPress={() => onEdit?.(set.id, "reps")}
+          >
             <Text>{values[1]}</Text>
-          </View>
+          </TouchableOpacity>
         )}
         {difficultyType === DifficultyType.TIME && (
-          <View style={setRowStyles.valueColumn}>
+          <TouchableOpacity
+            style={setRowStyles.valueColumn}
+            onPress={() => onEdit?.(set.id, "time")}
+          >
             <Text>{values[1]}</Text>
-          </View>
+          </TouchableOpacity>
         )}
         <View style={setRowStyles.checkmarkColumn}>
           <SetStatusInput
@@ -396,9 +418,7 @@ type SetNoteProps = {
 function SetNote({ note, onPress }: SetNoteProps) {
   return (
     <TouchableOpacity onPress={onPress} style={setNoteStyles.container}>
-      <Text light>
-        {note ? `Note: ${note}` : "Add note here..."}
-      </Text>
+      <Text light>{note ? `Note: ${note}` : "Add note here..."}</Text>
     </TouchableOpacity>
   );
 }
@@ -409,9 +429,6 @@ const setsEditorStyles = StyleSheet.create({
   },
   scrollContentContainer: {
     paddingBottom: "30%",
-  },
-  mainContainer: {
-    ...StyleUtils.expansive(),
   },
   addSetButton: {
     ...StyleUtils.flexRowCenterAll(),
@@ -429,11 +446,17 @@ export function SetsEditor() {
   const scrollRef = useRef<ScrollView>(null);
   const scrollContentHeightRef = useRef<number | undefined>(undefined);
   const addNoteSheetRef = useRef<BottomSheet>(null);
+  const editSetSheetRef = useRef<BottomSheet>(null);
   const popoverProgress = useSharedValue(0);
   const [showAddNoteSheet, setShowAddNoteSheet] = useState(false);
+  const [showEditSetSheet, setShowEditSetSheet] = useState(false);
+  const [selectedSetId, setSelectedSetId] = useState<string | undefined>();
+  const [selectedField, setSelectedField] = useState<EditField | undefined>();
 
   const exerciseId = (route.params as any)?.exerciseId as string;
-  const exercise = workout?.exercises.find(({ id }) => exerciseId === id);
+  const exercise = workout?.exercises.find(
+    ({ id }) => exerciseId === id
+  ) as Exercise;
   const difficultyType = exercise
     ? getDifficultyType(exercise.name)
     : DifficultyType.BODYWEIGHT;
@@ -505,6 +528,29 @@ export function SetsEditor() {
     setShowAddNoteSheet(false);
   }, []);
 
+  const handleEditSet = useCallback((setId: string, field: EditField) => {
+    setSelectedSetId(setId);
+    setSelectedField(field);
+    setShowEditSetSheet(true);
+  }, []);
+
+  const handleHideEditSetSheet = useCallback(() => {
+    setShowEditSetSheet(false);
+    setSelectedSetId(undefined);
+    setSelectedField(undefined);
+    Keyboard.dismiss();
+  }, []);
+
+  const handleUpdateSetFromSheet = useCallback(
+    (setId: string, update: Partial<Set>) => {
+      if (workout) {
+        const updatedWorkout = updateSet(setId, update, workout);
+        onSave(updatedWorkout);
+      }
+    },
+    [workout, onSave]
+  );
+
   // todo: don't auto scroll down if the content height decreases
   const handleScrollContentChange = useCallback(
     (width: number, height: number) => {
@@ -521,82 +567,96 @@ export function SetsEditor() {
   );
 
   return (
-    <InputsPadProvider>
-      <View style={setsEditorStyles.mainContainer}>
-        <HeaderPage
-          title={exercise?.name ?? "Exercise"}
-          subtitle={getSubtitle(exercise)}
-          leftAction={
-            <TouchableOpacity onPress={navigation.goBack}>
-              <ChevronLeft color={useThemeColoring("primaryAction")} />
-            </TouchableOpacity>
-          }
-          rightAction={
-            <TouchableOpacity ref={moreButtonRef} onPress={handleMorePress}>
-              <MoreHorizontal color={useThemeColoring("primaryAction")} />
-            </TouchableOpacity>
-          }
+    <View style={{ height: "100%" }}>
+      <HeaderPage
+        title={exercise?.name ?? "Exercise"}
+        subtitle={getSubtitle(exercise)}
+        leftAction={
+          <TouchableOpacity onPress={navigation.goBack}>
+            <ChevronLeft color={useThemeColoring("primaryAction")} />
+          </TouchableOpacity>
+        }
+        rightAction={
+          <TouchableOpacity ref={moreButtonRef} onPress={handleMorePress}>
+            <MoreHorizontal color={useThemeColoring("primaryAction")} />
+          </TouchableOpacity>
+        }
+      >
+        <ScrollView
+          ref={scrollRef}
+          showsVerticalScrollIndicator={false}
+          style={setsEditorStyles.container}
+          contentContainerStyle={setsEditorStyles.scrollContentContainer}
+          onContentSizeChange={handleScrollContentChange}
         >
-          <ScrollView
-            ref={scrollRef}
-            showsVerticalScrollIndicator={false}
-            style={setsEditorStyles.container}
-            contentContainerStyle={setsEditorStyles.scrollContentContainer}
-            onContentSizeChange={handleScrollContentChange}
-          >
-            <SetNote note={exercise?.note} onPress={handleEditNote} />
-            <SetHeader difficultyType={difficultyType} />
-            <LayoutAnimationConfig skipEntering>
-              {exercise?.sets?.map((set, idx) => (
-                <Animated.View
-                  key={set.id}
-                  layout={LinearTransition}
-                  entering={LightSpeedInRight}
-                  exiting={LightSpeedOutLeft}
-                >
-                  <SetRow
-                    set={set}
-                    index={idx}
-                    difficultyType={difficultyType}
-                    onUpdateSet={handleUpdateSet}
-                    onDelete={handleRemoveSet}
-                  />
-                </Animated.View>
-              ))}
-            </LayoutAnimationConfig>
-            
-            <TouchableOpacity onPress={handleAddSet} style={setsEditorStyles.addSetButton}>
-              <Text style={{ color: useThemeColoring("primaryAction") }}>
-                Add Set
-              </Text>
-            </TouchableOpacity>
-          </ScrollView>
-        </HeaderPage>
+          <SetNote note={exercise?.note} onPress={handleEditNote} />
+          <SetHeader difficultyType={difficultyType} />
+          <LayoutAnimationConfig skipEntering>
+            {exercise?.sets?.map((set, idx) => (
+              <Animated.View
+                key={set.id}
+                layout={LinearTransition}
+                exiting={LightSpeedOutLeft}
+                entering={LightSpeedInRight}
+              >
+                <SetRow
+                  set={set}
+                  index={idx}
+                  difficultyType={difficultyType}
+                  onUpdateSet={handleUpdateSet}
+                  onDelete={handleRemoveSet}
+                  onEdit={handleEditSet}
+                />
+              </Animated.View>
+            ))}
+            <Animated.View key="add-set-button" layout={LinearTransition}>
+              <TouchableOpacity
+                onPress={handleAddSet}
+                style={setsEditorStyles.addSetButton}
+              >
+                <Text style={{ color: useThemeColoring("primaryAction") }}>
+                  Add Set
+                </Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </LayoutAnimationConfig>
+        </ScrollView>
+      </HeaderPage>
 
-        <Popover ref={popoverRef} progress={popoverProgress}>
-          <PopoverItem
-            label="Add Set"
-            icon={<Plus size={20} color={useThemeColoring("primaryText")} />}
-            onClick={handleAddSetFromPopover}
-          />
-          <PopoverItem
-            label="Edit Note"
-            icon={
-              <StickyNote size={20} color={useThemeColoring("primaryText")} />
-            }
-            onClick={handleEditNote}
-          />
-        </Popover>
-
-        <AddNoteSheet
-          ref={addNoteSheetRef}
-          show={showAddNoteSheet}
-          hide={() => addNoteSheetRef.current?.close()}
-          onHide={handleHideAddNoteSheet}
-          note={exercise?.note ?? ""}
-          onUpdate={handleUpdateNote}
+      <Popover ref={popoverRef} progress={popoverProgress}>
+        <PopoverItem
+          label="Add Set"
+          icon={<Plus size={20} color={useThemeColoring("primaryText")} />}
+          onClick={handleAddSetFromPopover}
         />
-      </View>
-    </InputsPadProvider>
+        <PopoverItem
+          label="Edit Note"
+          icon={
+            <StickyNote size={20} color={useThemeColoring("primaryText")} />
+          }
+          onClick={handleEditNote}
+        />
+      </Popover>
+
+      <AddNoteSheet
+        ref={addNoteSheetRef}
+        show={showAddNoteSheet}
+        hide={() => addNoteSheetRef.current?.close()}
+        onHide={handleHideAddNoteSheet}
+        note={exercise?.note ?? ""}
+        onUpdate={handleUpdateNote}
+      />
+
+      <EditSetSheet
+        ref={editSetSheetRef}
+        show={showEditSetSheet}
+        hide={() => editSetSheetRef.current?.close()}
+        onHide={handleHideEditSetSheet}
+        exercise={exercise}
+        setId={selectedSetId}
+        focusField={selectedField}
+        onUpdate={handleUpdateSetFromSheet}
+      />
+    </View>
   );
 }
