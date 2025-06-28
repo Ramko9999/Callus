@@ -45,3 +45,4 @@ export function CompletedWorkoutProvider({
 export function useCompletedWorkout() {
   return useContext(completedWorkoutContext);
 }
+

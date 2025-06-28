@@ -1,5 +1,5 @@
 import { View, Text, useThemeColoring } from "@/components/Themed";
-import { useRef, forwardRef } from "react";
+import { useRef, forwardRef, useEffect } from "react";
 import {
   useWindowDimensions,
   StyleSheet,
@@ -7,10 +7,11 @@ import {
   TouchableOpacity,
   Pressable,
   View as RNView,
+  Image,
 } from "react-native";
-import { getMeta } from "@/api/exercise";
+import { getExerciseDemonstration, getMeta } from "@/api/exercise";
 import { Heatmap } from "@/components/heatmap";
-import { Workout } from "@/interface";
+import { Exercise, Workout } from "@/interface";
 import { HeaderPage } from "@/components/util/header-page";
 import {
   X,
@@ -20,6 +21,7 @@ import {
   RotateCw,
   Shuffle,
   Plus,
+  ChevronRight,
 } from "lucide-react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -39,10 +41,16 @@ import Animated, {
   useAnimatedStyle,
   interpolate,
   SharedValue,
+  withRepeat,
+  interpolateColor,
+  LinearTransition,
+  withTiming,
 } from "react-native-reanimated";
 import { CompletedWorkoutSheets, CompletedWorkoutSheetsRef } from "./sheets";
-import { Exercises, ExercisesRef, ExercisesSkeleton } from "./exercises";
 import { useCompletedWorkout } from "./context";
+import { SwipeableDelete } from "@/components/util/swipeable-delete";
+import { getHistoricalExerciseDescription } from "@/util/workout/display";
+import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 
 type MusclesToSets = Record<string, number>;
 
@@ -187,6 +195,242 @@ function WorkoutSummaryStat({
   );
 }
 
+const exerciseListStyles = StyleSheet.create({
+  container: {
+    marginTop: "3%",
+  },
+  headerContainer: {
+    ...StyleUtils.flexRow(),
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "2%",
+    paddingHorizontal: "3%",
+  },
+  sectionTitle: {
+    fontWeight: "600",
+  },
+  exerciseItem: {
+    ...StyleUtils.flexRow(15),
+    paddingVertical: "3%",
+    paddingHorizontal: "3%",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0, 0, 0, 0.1)",
+    minHeight: 80,
+    alignItems: "center",
+  },
+  exerciseImage: {
+    ...StyleUtils.flexRowCenterAll(),
+    borderRadius: 8,
+  },
+  exerciseContent: {
+    ...StyleUtils.flexColumn(5),
+    flex: 1,
+  },
+  exerciseSkeletonContent: {
+    ...StyleUtils.flexColumn(5),
+  },
+  chevronContainer: {
+    ...StyleUtils.flexRowCenterAll(),
+    marginLeft: "auto",
+    paddingRight: "2%",
+  },
+  skeletonImage: {
+    borderRadius: 8,
+    backgroundColor: "rgba(0, 0, 0, 0.1)",
+  },
+});
+
+type ExerciseItemProps = {
+  exercise: Exercise;
+  onDelete: (exerciseId: string) => void;
+  onPress: (exerciseId: string) => void;
+};
+
+function ExerciseItem({ exercise, onDelete, onPress }: ExerciseItemProps) {
+  const demonstration = getExerciseDemonstration(exercise.name);
+  const { width } = useWindowDimensions();
+  const lightTextColor = useThemeColoring("lightText");
+
+  const handleDelete = () => {
+    onDelete(exercise.id);
+  };
+
+  const handlePress = () => {
+    onPress(exercise.id);
+  };
+
+  return (
+    <Swipeable
+      overshootRight={false}
+      renderRightActions={(_, drag) => (
+        <SwipeableDelete drag={drag} onDelete={handleDelete} dimension={80} />
+      )}
+    >
+      <TouchableOpacity onPress={handlePress}>
+        <View style={exerciseListStyles.exerciseItem}>
+          <View style={[exerciseListStyles.exerciseImage]}>
+            {demonstration && (
+              <Image
+                source={demonstration}
+                style={{ width: width * 0.15, height: width * 0.15 }}
+                resizeMode="contain"
+              />
+            )}
+          </View>
+          <View style={exerciseListStyles.exerciseContent}>
+            <Text>{exercise.name}</Text>
+            <Text light sneutral>
+              {getHistoricalExerciseDescription(exercise)}
+            </Text>
+            {exercise.note && (
+              <Text light italic small numberOfLines={2} ellipsizeMode="tail">
+                {exercise.note}
+              </Text>
+            )}
+          </View>
+          <View style={exerciseListStyles.chevronContainer}>
+            <ChevronRight size={20} color={lightTextColor} />
+          </View>
+        </View>
+      </TouchableOpacity>
+    </Swipeable>
+  );
+}
+
+type MoreExercisesButtonProps = {
+  onClick: () => void;
+};
+
+const MoreExercisesButton = forwardRef<any, MoreExercisesButtonProps>(
+  ({ onClick }, ref) => {
+    return (
+      <TouchableOpacity ref={ref} onPress={onClick}>
+        <MoreHorizontal color={useThemeColoring("primaryAction")} />
+      </TouchableOpacity>
+    );
+  }
+);
+
+export type ExercisesRef = {
+  openExercisesPopover: () => void;
+};
+
+type ExercisesProps = {
+  exercises: Exercise[];
+  exercisesPopoverRef: React.RefObject<PopoverRef | null>;
+  onDelete: (exerciseId: string) => void;
+  onExercisePress: (exerciseId: string) => void;
+};
+
+const Exercises = forwardRef<ExercisesRef, ExercisesProps>(
+  ({ exercises, exercisesPopoverRef, onDelete, onExercisePress }, ref) => {
+    const moreButtonRef = useRef<any>(null);
+
+    const handleMorePress = () => {
+      if (moreButtonRef.current && exercisesPopoverRef.current) {
+        moreButtonRef.current.measure(
+          (
+            x: number,
+            y: number,
+            width: number,
+            height: number,
+            pageX: number,
+            pageY: number
+          ) => {
+            exercisesPopoverRef.current?.open(pageX + width + 5, pageY + 20);
+          }
+        );
+      }
+    };
+
+    return (
+      <View style={exerciseListStyles.container}>
+        <View style={exerciseListStyles.headerContainer}>
+          <Text header style={exerciseListStyles.sectionTitle}>
+            Exercises
+          </Text>
+          <MoreExercisesButton ref={moreButtonRef} onClick={handleMorePress} />
+        </View>
+        {exercises.map((exercise, index) => (
+          <Animated.View key={exercise.id} layout={LinearTransition}>
+            <ExerciseItem
+              key={exercise.id}
+              exercise={exercise}
+              onDelete={onDelete}
+              onPress={onExercisePress}
+            />
+          </Animated.View>
+        ))}
+      </View>
+    );
+  }
+);
+
+function ExerciseSkeleton() {
+  const skeletonColor = useThemeColoring("primaryAction");
+  const animationProgress = useSharedValue(0);
+  const pulsateFromColor = convertHexToRGBA(skeletonColor, 0.2);
+  const pulsateToColor = convertHexToRGBA(skeletonColor, 0.3);
+
+  useEffect(() => {
+    animationProgress.value = withRepeat(
+      withTiming(1, { duration: 1000 }),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedImageStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(
+      animationProgress.value,
+      [0, 1],
+      [pulsateFromColor, pulsateToColor]
+    ),
+  }));
+
+  return (
+    <View style={exerciseListStyles.exerciseItem}>
+      <View style={exerciseListStyles.exerciseImage}>
+        <Animated.View
+          style={[exerciseListStyles.skeletonImage, animatedImageStyle]}
+        />
+      </View>
+      <View style={exerciseListStyles.exerciseSkeletonContent}>
+        <TextSkeleton
+          text="Bench Press"
+          style={{ fontSize: 16, fontWeight: "500" }}
+        />
+        <TextSkeleton
+          text="3 sets • 225 lbs × 8 reps"
+          style={{ fontSize: 14 }}
+        />
+        <TextSkeleton
+          text="Great form today, felt strong"
+          style={{ fontSize: 12 }}
+        />
+      </View>
+      <View style={exerciseListStyles.chevronContainer}>
+        <ChevronRight size={20} color={useThemeColoring("lightText")} />
+      </View>
+    </View>
+  );
+}
+
+export function ExercisesSkeleton() {
+  return (
+    <View style={exerciseListStyles.container}>
+      <View style={exerciseListStyles.headerContainer}>
+        <Text header style={exerciseListStyles.sectionTitle}>
+          Exercises
+        </Text>
+      </View>
+      {Array.from({ length: 5 }).map((_, index) => (
+        <ExerciseSkeleton key={index} />
+      ))}
+    </View>
+  );
+}
+
 const completedWorkoutInitialStyles = StyleSheet.create({
   container: {
     padding: "3%",
@@ -200,9 +444,7 @@ const completedWorkoutInitialStyles = StyleSheet.create({
   },
 });
 
-type CompletedWorkoutInitialProps = {};
-
-export function CompletedWorkoutInitial({}: CompletedWorkoutInitialProps) {
+export function CompletedWorkoutInitial() {
   const { width, height } = useWindowDimensions();
   const navigation = useNavigation();
   const popoverRef = useRef<PopoverRef>(null);
@@ -265,6 +507,10 @@ export function CompletedWorkoutInitial({}: CompletedWorkoutInitialProps) {
       const updatedWorkout = { ...workout, exercises: updatedExercises };
       onSave(updatedWorkout);
     }
+  };
+
+  const handleExercisePress = (exerciseId: string) => {
+    (navigation as any).navigate("setsEditor", { exerciseId });
   };
 
   return (
@@ -374,6 +620,7 @@ export function CompletedWorkoutInitial({}: CompletedWorkoutInitialProps) {
               exercises={workout.exercises}
               exercisesPopoverRef={exercisesPopoverRef}
               onDelete={handleDeleteExercise}
+              onExercisePress={handleExercisePress}
             />
           ) : (
             <ExercisesSkeleton />
@@ -411,8 +658,8 @@ export function CompletedWorkoutInitial({}: CompletedWorkoutInitialProps) {
           icon={<Plus size={20} color={useThemeColoring("primaryText")} />}
           onClick={() => {
             exercisesPopoverRef.current?.close();
-            navigation.navigate("addExercises");
-          }}  
+            (navigation as any).navigate("addExercises");
+          }}
         />
         <PopoverItem
           label="Reorder Exercises"

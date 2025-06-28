@@ -253,7 +253,7 @@
   {
     "difficultyType": "WEIGHT",
     "primaryMuscles": ["Quads", "Glutes"],
-    "secondaryMuscles": ["Lower Back", "Calves"],
+    "secondaryMuscles": ["Lower Back", "Calves", "Hamstrings"],
     "name": "Barbell Squat",
     "metaId": "163",
     "description": "Barbell squats are the ultimate leg builder, working your quads, glutes, and core for unmatched lower body strength. Their strict form and full-body engagement make them a gym classic."
@@ -553,5 +553,69 @@
     "name": "Machine Shrug",
     "metaId": "209",
     "description": "Machine shrugs are a trap-building staple, focusing on your upper back while your forearms get a workout too. The guided motion ensures perfect form and maximum muscle engagement."
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Quads"],
+    "secondaryMuscles": ["Glutes", "Hamstrings", "Calves"],
+    "name": "Hack Squat",
+    "metaId": "210",
+    "description": "Hack squats are a leg day favorite, putting your quads in the spotlight while also working your glutes, hamstrings, and calves. The machine’s angled track supports your back and lets you push heavy for serious lower body gains."
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Chest"],
+    "secondaryMuscles": ["Front Delts", "Triceps"],
+    "name": "Incline Bench Press",
+    "metaId": "211",
+    "description": "Incline bench presses target your upper chest, front delts, and triceps, giving your pecs a powerful lift and shape. The angled bench adds a fresh twist to classic pressing for a well-rounded chest."
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Quads", "Glutes"],
+    "secondaryMuscles": ["Hamstrings", "Calves"],
+    "name": "Leg Press",
+    "metaId": "212",
+    "description": "Leg presses are a powerhouse move for your quads and glutes, with backup from your hamstrings and calves. The machine lets you load up safely, making it perfect for building strong, muscular legs and impressing other gym-goers."
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Calves"],
+    "secondaryMuscles": [],
+    "name": "Machine Calf Extension",
+    "metaId": "213",
+    "description": "Machine calf extensions isolate your calves for a focused, muscle-building burn. The seated or standing machine keeps the motion smooth and lets you really squeeze at the top for maximum growth."
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Chest"],
+    "secondaryMuscles": ["Front Delts", "Triceps"],
+    "name": "Machine Incline Press",
+    "metaId": "214",
+    "description": "Machine incline presses deliver upper chest gains with the support of a guided path, taking pressure off your shoulders and joints. This move is great for safely pushing heavy and building a strong, defined chest."
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Quads", "Glutes"],
+    "secondaryMuscles": ["Hamstrings", "Calves"],
+    "name": "Machine Leg Press",
+    "metaId": "215",
+    "description": "Machine leg presses are a great choice for beginners. They power up your quads and glutes while your hamstrings and calves assist. The machine’s stability helps you lock in your connection to your lower body."
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Front Delts", "Side Delts", "Rear Delts"],
+    "secondaryMuscles": ["Triceps", "Traps"],
+    "name": "Seated Dumbbell Overhead Press",
+    "metaId": "216",
+    "description": "Seated dumbbell overhead presses fire up all three heads of your delts, plus your triceps and traps, for balanced shoulder strength. The seated position helps you lift safely and evenly."
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Chest"],
+    "secondaryMuscles": ["Front Delts", "Triceps"],
+    "name": "Supine Press",
+    "metaId": "217",
+    "description": "Supine presses are a chest-building classic, working your pecs, front delts, and triceps as you press from a flat position. This move is a go-to for building a strong, solid upper body foundation."
   }
 ]

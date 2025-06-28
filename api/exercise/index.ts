@@ -195,4 +195,12 @@ const EXERCISE_DEMONSTRATIONS: Record<string, ImageRequireSource> = {
   "207": require("../../assets/exercises/images/cable-low-to-high-fly.png"),
   "208": require("../../assets/exercises/images/dumbell-bench-press.png"),
   "209": require("../../assets/exercises/images/machine-shrug.png"),
+  "210": require("../../assets/exercises/images/hack-squat.png"),
+  "211": require("../../assets/exercises/images/incline-bench-press.png"),
+  "212": require("../../assets/exercises/images/leg-press.png"),
+  "213": require("../../assets/exercises/images/machine-calf-extension.png"),
+  "214": require("../../assets/exercises/images/machine-incline-press.png"),
+  "215": require("../../assets/exercises/images/machine-leg-press.png"),
+  "216": require("../../assets/exercises/images/seated-dumbbell-overhead-press.png"),
+  "217": require("../../assets/exercises/images/supine-press.png"),
 };
