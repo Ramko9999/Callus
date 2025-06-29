@@ -36,22 +36,21 @@ const MOST_RECENT_CHANGES: WhatsNew = {
   version: nativeApplicationVersion as string,
   changes: [
     {
-      feature: "Revamped Account Settings",
-      description:
-        "You can now edit your name, weight, and height in the account settings. Go to Profile > Settings > Account",
-      image: require("../assets/whats-new/settings.png"),
+      feature: "Revampled Completed Workout",
+      description: "Muscle heatmaps and a crisper completed workout UI.",
+      image: require("../assets/whats-new/completed-workout.png"),
     },
     {
-      feature: "New Exercise Display",
-      description:
-        "You can now view exercises with their demonstration images.",
-      image: require("../assets/whats-new/exercises-grid.png"),
+      feature: "Revamped Exercise Insight",
+      description: "A 10x better exercise insight experience.",
+      image: require("../assets/whats-new/exercise-insights.png"),
     },
     {
-      feature: "5 New Exercises",
-      description: "Cable Fly, Cable High-Low Fly, Cable Low-High Fly, Dumbell Bench Press, and Machine Shrug have been added to the exercise collection.",
-      image: require("../assets/whats-new/new-added-exercises.png")
-    }
+      feature: "8 New Exercises",
+      description:
+        "From Hack Squat to Machine Leg Press to Incline Bench Press and more.",
+      image: require("../assets/whats-new/new-added-exercises.png"),
+    },
   ],
 };
 

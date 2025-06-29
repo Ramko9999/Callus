@@ -3,7 +3,7 @@
     "newArchEnabled": true,
     "name": "Callus",
     "slug": "Callus",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -35,7 +35,7 @@
       }
     },
     "android": {
-      "versionCode": 6,
+      "versionCode": 7,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon/android/adaptive.png",
         "backgroundColor": "#000000"

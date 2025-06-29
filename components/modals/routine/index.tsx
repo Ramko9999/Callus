@@ -69,7 +69,7 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
   const toast = useToast();
 
   const onUpdateMeta = (update: Partial<Routine>) => {
-    return onSave({ ...routine, ...update });
+     onSave({ ...routine, ...update });
   };
 
   const trash = () => {

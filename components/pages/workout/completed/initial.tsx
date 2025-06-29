@@ -238,6 +238,10 @@ const exerciseListStyles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "rgba(0, 0, 0, 0.1)",
   },
+  emptyContainer: {
+    flex: 1,
+    ...StyleUtils.flexRowCenterAll(),
+  },
 });
 
 type ExerciseItemProps = {
@@ -325,6 +329,7 @@ type ExercisesProps = {
 const Exercises = forwardRef<ExercisesRef, ExercisesProps>(
   ({ exercises, exercisesPopoverRef, onDelete, onExercisePress }, ref) => {
     const moreButtonRef = useRef<any>(null);
+    const { height } = useWindowDimensions();
 
     const handleMorePress = () => {
       if (moreButtonRef.current && exercisesPopoverRef.current) {
@@ -351,16 +356,24 @@ const Exercises = forwardRef<ExercisesRef, ExercisesProps>(
           </Text>
           <MoreExercisesButton ref={moreButtonRef} onClick={handleMorePress} />
         </View>
-        {exercises.map((exercise, index) => (
-          <Animated.View key={exercise.id} layout={LinearTransition}>
-            <ExerciseItem
-              key={exercise.id}
-              exercise={exercise}
-              onDelete={onDelete}
-              onPress={onExercisePress}
-            />
-          </Animated.View>
-        ))}
+        {exercises.length === 0 ? (
+          <View style={[exerciseListStyles.emptyContainer, {height: height * 0.3}]}>
+            <Text light>
+              No exercises
+            </Text>
+          </View>
+        ) : (
+          exercises.map((exercise, index) => (
+            <Animated.View key={exercise.id} layout={LinearTransition}>
+              <ExerciseItem
+                key={exercise.id}
+                exercise={exercise}
+                onDelete={onDelete}
+                onPress={onExercisePress}
+              />
+            </Animated.View>
+          ))
+        )}
       </View>
     );
   }
@@ -577,7 +590,7 @@ export function CompletedWorkoutInitial() {
                   ? formatVolume(getWorkoutSummary(workout).totalWeightLifted)
                   : "0 lbs"
               }
-              label="Total Volume"
+              label="Volume"
               icon={
                 <MaterialCommunityIcons
                   name="weight"
@@ -590,7 +603,7 @@ export function CompletedWorkoutInitial() {
 
             <WorkoutSummaryStat
               value={workout ? `${getWorkoutSummary(workout).totalReps}` : "0"}
-              label="Total Reps"
+              label="Reps"
               icon={
                 <MaterialCommunityIcons
                   name="arm-flex"
