@@ -8,7 +8,7 @@ import PagerView from "react-native-pager-view";
 import { ChevronLeft, ChevronRight } from "lucide-react-native";
 import { useThemeColoring, Text, View } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
-import { generateEnclosingMonth, DAYS_OF_WEEK, truncTime } from "@/util/date";
+import { generateEnclosingMonth, DAYS_OF_WEEK } from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -114,7 +114,7 @@ function Month({ year, month, selectedDate, onDayClick }: MonthProps) {
 
   useEffect(() => {
     const monthStart = new Date(year, month, 1).getTime();
-    const monthEnd = new Date(year, month + 1, 0).getTime();
+    const monthEnd = new Date(year, month + 1, 1).getTime();
 
     WorkoutApi.getWorkedOutDays(monthEnd, monthStart).then((days) => {
       setWorkedOutDays(new Set(days.map(({ day }) => day)));
@@ -124,7 +124,7 @@ function Month({ year, month, selectedDate, onDayClick }: MonthProps) {
   useFocusEffect(
     useCallback(() => {
       const monthStart = new Date(year, month, 1).getTime();
-      const monthEnd = new Date(year, month + 1, 0).getTime();
+      const monthEnd = new Date(year, month + 1, 1).getTime();
 
       WorkoutApi.getWorkedOutDays(monthEnd, monthStart).then((days) => {
         setWorkedOutDays(new Set(days.map(({ day }) => day)));

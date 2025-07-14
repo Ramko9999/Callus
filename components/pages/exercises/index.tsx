@@ -28,6 +28,7 @@ import * as Haptics from "expo-haptics";
 import { tintColor } from "@/util/color";
 import { usePopup } from "@/components/popup";
 import { LayoutGrid, List } from "lucide-react-native";
+import { LiveWorkoutPreview } from "@/components/workout/preview";
 
 type SearchExerciseWithSummaryProps = {
   meta: ExerciseMeta;
@@ -312,6 +313,7 @@ export function Exercises() {
     filterExercises.exerciseTypeFilters.length > 0;
 
   return (
+    <>
     <HeaderPage
       title="Exercises"
       rightAction={
@@ -354,5 +356,7 @@ export function Exercises() {
         />
       )}
     </HeaderPage>
+    <LiveWorkoutPreview />
+    </>
   );
 }

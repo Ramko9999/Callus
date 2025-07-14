@@ -30,9 +30,9 @@ import {
   SheetX,
   commonSheetStyles,
 } from "./common";
-import { useWorkout } from "@/context/WorkoutContext";
+import { useLiveWorkout } from "@/components/pages/workout/live/context";
 import { useToast } from "react-native-toast-notifications";
-import { WorkoutActions } from "@/api/model/workout";
+import { WorkoutCreation } from "@/api/model/workout";
 import { useUserDetails } from "@/components/user-details";
 import { useNavigation } from "@react-navigation/native";
 
@@ -478,7 +478,7 @@ export const StartWorkoutSheet = forwardRef(
     ref: ForwardedRef<BottomSheet>
   ) => {
     const { userDetails } = useUserDetails();
-    const { isInWorkout, actions } = useWorkout();
+    const { isInWorkout, saveWorkout } = useLiveWorkout();
     const toast = useToast();
     const navigation = useNavigation();
     const [showRoutines, setShowRoutines] = useState(false);
@@ -492,16 +492,16 @@ export const StartWorkoutSheet = forwardRef(
           { type: "danger" }
         );
       } else {
-        actions.startWorkout(
-          WorkoutActions.createFromQuickStart(userDetails?.bodyweight as number)
+        saveWorkout(
+          WorkoutCreation.createFromQuickStart(userDetails?.bodyweight as number)
         );
         hide();
-        navigation.navigate("liveWorkout" as never);
+        navigation.navigate("liveWorkoutSheet" as never);
       }
     }, [
       isInWorkout,
       toast,
-      actions,
+      saveWorkout,
       userDetails?.bodyweight,
       hide,
       navigation,
@@ -515,17 +515,17 @@ export const StartWorkoutSheet = forwardRef(
             { type: "danger" }
           );
         } else {
-          actions.startWorkout(
-            WorkoutActions.createFromRoutine(
+          saveWorkout(
+            WorkoutCreation.createFromRoutine(
               routine,
               userDetails?.bodyweight as number
             )
           );
           hide();
-          navigation.navigate("liveWorkout" as never);
+          navigation.navigate("liveWorkoutSheet" as never);
         }
       },
-      [isInWorkout, toast, actions, userDetails?.bodyweight, hide, navigation]
+      [isInWorkout, toast, saveWorkout, userDetails?.bodyweight, hide, navigation]
     );
 
     const startFromWorkout = useCallback(
@@ -536,17 +536,17 @@ export const StartWorkoutSheet = forwardRef(
             { type: "danger" }
           );
         } else {
-          actions.startWorkout(
-            WorkoutActions.createFromWorkout(
+          saveWorkout(
+            WorkoutCreation.createFromWorkout(
               workout,
               userDetails?.bodyweight as number
             )
           );
           hide();
-          navigation.navigate("liveWorkout" as never);
+          navigation.navigate("liveWorkoutSheet" as never);
         }
       },
-      [isInWorkout, toast, actions, userDetails?.bodyweight, hide, navigation]
+      [isInWorkout, toast, saveWorkout, userDetails?.bodyweight, hide, navigation]
     );
 
     useEffect(() => {

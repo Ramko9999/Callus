@@ -134,7 +134,6 @@ const editWorkoutNameStyles = StyleSheet.create({
   },
 });
 
-
 type EditWorkoutNameProps = {
   name: string;
   onUpdate: (name: string) => void;
@@ -226,7 +225,7 @@ function EditWorkoutName({ name, onUpdate, onBack }: EditWorkoutNameProps) {
   );
 }
 
-const editCompletedWorkoutInitialStyles = StyleSheet.create({
+const editWorkoutInitialStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
     paddingHorizontal: "5%",
@@ -247,21 +246,23 @@ const editCompletedWorkoutInitialStyles = StyleSheet.create({
   },
 });
 
-type EditCompletedWorkoutInitialProps = {
+type EditWorkoutInitialProps = {
   workout: Workout;
   onNamePress: () => void;
   onStartTimePress: () => void;
   onEndTimePress: () => void;
   onHide: () => void;
+  disableEndDateEdit?: boolean;
 };
 
-function EditCompletedWorkoutInitial({
+function EditWorkoutInitial({
   workout,
   onNamePress,
   onStartTimePress,
   onEndTimePress,
   onHide,
-}: EditCompletedWorkoutInitialProps) {
+  disableEndDateEdit = false,
+}: EditWorkoutInitialProps) {
   const borderColor = convertHexToRGBA(useThemeColoring("lightText"), 0.12);
 
   return (
@@ -274,9 +275,9 @@ function EditCompletedWorkoutInitial({
           <SheetX />
         </TouchableOpacity>
       </View>
-      <View style={editCompletedWorkoutInitialStyles.container}>
+      <View style={editWorkoutInitialStyles.container}>
         <TouchableOpacity
-          style={editCompletedWorkoutInitialStyles.timeRow}
+          style={editWorkoutInitialStyles.timeRow}
           onPress={onNamePress}
         >
           <Text neutral>Name</Text>
@@ -286,13 +287,13 @@ function EditCompletedWorkoutInitial({
         </TouchableOpacity>
         <View
           style={[
-            editCompletedWorkoutInitialStyles.divider,
+            editWorkoutInitialStyles.divider,
             { backgroundColor: borderColor },
           ]}
         />
-        <View style={editCompletedWorkoutInitialStyles.times}>
+        <View style={editWorkoutInitialStyles.times}>
           <TouchableOpacity
-            style={editCompletedWorkoutInitialStyles.timeRow}
+            style={editWorkoutInitialStyles.timeRow}
             onPress={onStartTimePress}
           >
             <Text neutral>Start</Text>
@@ -301,12 +302,18 @@ function EditCompletedWorkoutInitial({
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={editCompletedWorkoutInitialStyles.timeRow}
-            onPress={onEndTimePress}
+            style={[
+              editWorkoutInitialStyles.timeRow,
+              disableEndDateEdit && { opacity: 0.6 },
+            ]}
+            onPress={disableEndDateEdit ? undefined : onEndTimePress}
+            disabled={disableEndDateEdit}
           >
             <Text neutral>End</Text>
             <Text neutral light>
-              {getDateEditDisplay(workout.endedAt!)}
+              {disableEndDateEdit
+                ? "Current"
+                : getDateEditDisplay(workout.endedAt!)}
             </Text>
           </TouchableOpacity>
         </View>
@@ -315,159 +322,165 @@ function EditCompletedWorkoutInitial({
   );
 }
 
-type EditCompletedWorkoutProps = SheetProps & {
+type EditWorkoutProps = SheetProps & {
   workout: Workout;
   onUpdate: (
     update: Partial<{ name: string; startedAt: number; endedAt: number }>
   ) => Promise<void>;
+  disableEndDateEdit?: boolean;
 };
 
-export const EditCompletedWorkout = forwardRef<
-  BottomSheet,
-  EditCompletedWorkoutProps
->(({ show, hide, onHide, workout, onUpdate }, ref) => {
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [isEditingStartTime, setIsEditingStartTime] = useState(false);
-  const [isEditingEndTime, setIsEditingEndTime] = useState(false);
+export const EditWorkout = forwardRef<BottomSheet, EditWorkoutProps>(
+  (
+    { show, hide, onHide, workout, onUpdate, disableEndDateEdit = false },
+    ref
+  ) => {
+    const [isEditingName, setIsEditingName] = useState(false);
+    const [isEditingStartTime, setIsEditingStartTime] = useState(false);
+    const [isEditingEndTime, setIsEditingEndTime] = useState(false);
 
-  const handleNamePress = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setIsEditingName(true);
-  }, []);
+    const handleNamePress = useCallback(() => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setIsEditingName(true);
+    }, []);
 
-  const handleStartTimePress = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setIsEditingStartTime(true);
-  }, []);
+    const handleStartTimePress = useCallback(() => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      setIsEditingStartTime(true);
+    }, []);
 
-  const handleEndTimePress = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setIsEditingEndTime(true);
-  }, []);
-
-  const handleBack = useCallback(() => {
-    setIsEditingName(false);
-    setIsEditingStartTime(false);
-    setIsEditingEndTime(false);
-  }, []);
-
-  const handleNameUpdate = useCallback(
-    (name: string) => {
-      onUpdate({ name }).then(() => {
-        setIsEditingName(false);
-      });
-    },
-    [onUpdate]
-  );
-
-  const handleStartTimeUpdate = useCallback(
-    (timestamp: number) => {
-      if (timestamp > workout.endedAt!) {
-        onUpdate({ startedAt: timestamp, endedAt: timestamp }).then(() => {
-          setIsEditingStartTime(false);
-        });
-      } else {
-        onUpdate({ startedAt: timestamp }).then(() => {
-          setIsEditingStartTime(false);
-        });
+    const handleEndTimePress = useCallback(() => {
+      if (!disableEndDateEdit) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setIsEditingEndTime(true);
       }
-    },
-    [onUpdate, workout.endedAt]
-  );
+    }, [disableEndDateEdit]);
 
-  const handleEndTimeUpdate = useCallback(
-    (timestamp: number) => {
-      if (timestamp < workout.startedAt) {
-        onUpdate({ startedAt: timestamp, endedAt: timestamp }).then(() => {
-          setIsEditingEndTime(false);
+    const handleBack = useCallback(() => {
+      setIsEditingName(false);
+      setIsEditingStartTime(false);
+      setIsEditingEndTime(false);
+    }, []);
+
+    const handleNameUpdate = useCallback(
+      (name: string) => {
+        onUpdate({ name }).then(() => {
+          setIsEditingName(false);
         });
-      } else {
-        onUpdate({ endedAt: timestamp }).then(() => {
-          setIsEditingEndTime(false);
-        });
-      }
-    },
-    [onUpdate, workout.startedAt]
-  );
+      },
+      [onUpdate]
+    );
 
-  const onSheetHide = useCallback(() => {
-    setIsEditingName(false);
-    setIsEditingStartTime(false);
-    setIsEditingEndTime(false);
-    onHide();
-  }, [onHide]);
+    const handleStartTimeUpdate = useCallback(
+      (timestamp: number) => {
+        if (timestamp > workout.endedAt!) {
+          onUpdate({ startedAt: timestamp, endedAt: timestamp }).then(() => {
+            setIsEditingStartTime(false);
+          });
+        } else {
+          onUpdate({ startedAt: timestamp }).then(() => {
+            setIsEditingStartTime(false);
+          });
+        }
+      },
+      [onUpdate, workout.endedAt]
+    );
 
-  const validateStart = useCallback(
-    (timestamp: number) => {
-      const futureValidation = validateFutureTime(timestamp);
-      if (!futureValidation.isValid) return futureValidation;
+    const handleEndTimeUpdate = useCallback(
+      (timestamp: number) => {
+        if (timestamp < workout.startedAt) {
+          onUpdate({ startedAt: timestamp, endedAt: timestamp }).then(() => {
+            setIsEditingEndTime(false);
+          });
+        } else {
+          onUpdate({ endedAt: timestamp }).then(() => {
+            setIsEditingEndTime(false);
+          });
+        }
+      },
+      [onUpdate, workout.startedAt]
+    );
 
-      if (timestamp > workout.endedAt!) {
-        const startTimeStr = formatDateTime(timestamp);
-        const endTimeStr = formatDateTime(workout.endedAt!);
-        return {
-          isValid: false,
-          error: `Start time '${startTimeStr}' cannot be set after the end time '${endTimeStr}'`,
-        };
-      }
+    const onSheetHide = useCallback(() => {
+      setIsEditingName(false);
+      setIsEditingStartTime(false);
+      setIsEditingEndTime(false);
+      onHide();
+    }, [onHide]);
 
-      return { isValid: true };
-    },
-    [workout.endedAt]
-  );
+    const validateStart = useCallback(
+      (timestamp: number) => {
+        const futureValidation = validateFutureTime(timestamp);
+        if (!futureValidation.isValid) return futureValidation;
 
-  const validateEnd = useCallback(
-    (timestamp: number) => {
-      const futureValidation = validateFutureTime(timestamp);
-      if (!futureValidation.isValid) return futureValidation;
+        if (!disableEndDateEdit && timestamp > workout.endedAt!) {
+          const startTimeStr = formatDateTime(timestamp);
+          const endTimeStr = formatDateTime(workout.endedAt!);
+          return {
+            isValid: false,
+            error: `Start time '${startTimeStr}' cannot be set after the end time '${endTimeStr}'`,
+          };
+        }
 
-      if (timestamp < workout.startedAt) {
-        const endTimeStr = formatDateTime(timestamp);
-        const startTimeStr = formatDateTime(workout.startedAt);
-        return {
-          isValid: false,
-          error: `End time '${endTimeStr}' cannot be set before the start time '${startTimeStr}'`,
-        };
-      }
+        return { isValid: true };
+      },
+      [workout.endedAt, disableEndDateEdit]
+    );
 
-      return { isValid: true };
-    },
-    [workout.startedAt]
-  );
+    const validateEnd = useCallback(
+      (timestamp: number) => {
+        const futureValidation = validateFutureTime(timestamp);
+        if (!futureValidation.isValid) return futureValidation;
 
-  return (
-    <PopupBottomSheet show={show} onHide={onSheetHide} ref={ref}>
-      {isEditingName ? (
-        <EditWorkoutName
-          name={workout.name}
-          onUpdate={handleNameUpdate}
-          onBack={handleBack}
-        />
-      ) : isEditingStartTime ? (
-        <EditTime
-          title="Edit start time"
-          timestamp={workout.startedAt}
-          onUpdate={handleStartTimeUpdate}
-          onBack={handleBack}
-          validate={validateStart}
-        />
-      ) : isEditingEndTime ? (
-        <EditTime
-          title="Edit end time"
-          timestamp={workout.endedAt!}
-          onUpdate={handleEndTimeUpdate}
-          onBack={handleBack}
-          validate={validateEnd}
-        />
-      ) : (
-        <EditCompletedWorkoutInitial
-          workout={workout}
-          onNamePress={handleNamePress}
-          onStartTimePress={handleStartTimePress}
-          onEndTimePress={handleEndTimePress}
-          onHide={hide}
-        />
-      )}
-    </PopupBottomSheet>
-  );
-});
+        if (timestamp < workout.startedAt) {
+          const endTimeStr = formatDateTime(timestamp);
+          const startTimeStr = formatDateTime(workout.startedAt);
+          return {
+            isValid: false,
+            error: `End time '${endTimeStr}' cannot be set before the start time '${startTimeStr}'`,
+          };
+        }
+
+        return { isValid: true };
+      },
+      [workout.startedAt]
+    );
+
+    return (
+      <PopupBottomSheet show={show} onHide={onSheetHide} ref={ref}>
+        {isEditingName ? (
+          <EditWorkoutName
+            name={workout.name}
+            onUpdate={handleNameUpdate}
+            onBack={handleBack}
+          />
+        ) : isEditingStartTime ? (
+          <EditTime
+            title="Edit start time"
+            timestamp={workout.startedAt}
+            onUpdate={handleStartTimeUpdate}
+            onBack={handleBack}
+            validate={validateStart}
+          />
+        ) : isEditingEndTime ? (
+          <EditTime
+            title="Edit end time"
+            timestamp={workout.endedAt!}
+            onUpdate={handleEndTimeUpdate}
+            onBack={handleBack}
+            validate={validateEnd}
+          />
+        ) : (
+          <EditWorkoutInitial
+            workout={workout}
+            onNamePress={handleNamePress}
+            onStartTimePress={handleStartTimePress}
+            onEndTimePress={handleEndTimePress}
+            onHide={hide}
+            disableEndDateEdit={disableEndDateEdit}
+          />
+        )}
+      </PopupBottomSheet>
+    );
+  }
+);

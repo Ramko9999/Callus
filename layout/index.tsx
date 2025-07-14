@@ -15,12 +15,8 @@ import {
 import Home from "@/components/pages/home";
 import { Platform, useColorScheme } from "react-native";
 import { RootStackParamList, TabParamList } from "./types";
-import { ExerciseInsightsOverviewModal } from "@/components/modals/exercise/insight";
-import { CompletedWorkoutModal } from "@/components/modals/workout/completed";
 import { RoutineModal } from "@/components/modals/routine";
-import { LiveWorkoutModal } from "@/components/modals/workout/live";
 import { Settings } from "@/components/pages/settings";
-import { Congratulations } from "@/components/modals/congratulations";
 import { Onboarding } from "@/components/pages/onboarding";
 import { StyleSheet } from "react-native";
 import { StyleUtils } from "@/util/styles";
@@ -37,6 +33,7 @@ import { usePopup } from "@/components/popup";
 import { BetterExerciseInsight } from "@/components/exercise/insight";
 import { CompletedWorkout } from "@/components/pages/workout/completed/index";
 import { createSlideUpModalNavigator } from "@/components/util/slide-up";
+import { LiveWorkout } from "@/components/pages/workout/live";
 
 const Tab = createMaterialTopTabNavigator<TabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
@@ -184,17 +181,7 @@ function InnerLayout() {
             : {}),
         }}
       >
-        <Stack.Screen
-          name="exerciseInsight"
-          component={ExerciseInsightsOverviewModal}
-        />
-        <Stack.Screen
-          name="completedWorkout"
-          component={CompletedWorkoutModal}
-        />
         <Stack.Screen name="routine" component={RoutineModal} />
-        <Stack.Screen name="liveWorkout" component={LiveWorkoutModal} />
-        <Stack.Screen name="congratulations" component={Congratulations} />
       </Stack.Group>
     </Stack.Navigator>
   );
@@ -213,6 +200,11 @@ export function Layout() {
         name="completedWorkoutSheet"
         options={{ enableContentPanningGesture: false, enableBackdrop: false }}
         component={CompletedWorkout}
+      />
+      <SlideUpModal.Screen
+        name="liveWorkoutSheet"
+        options={{ enableContentPanningGesture: false, enableBackdrop: false }}
+        component={LiveWorkout}
       />
     </SlideUpModal.Navigator>
   );

@@ -1,6 +1,6 @@
 import { getConnection, migrateTables } from "@/api/store/index";
 import { WorkoutApi } from "@/api/workout";
-import { useWorkout } from "@/context/WorkoutContext";
+import { useLiveWorkout } from "@/components/pages/workout/live/context";
 import { useState, useEffect, useCallback, createContext } from "react";
 import { StyleSheet } from "react-native";
 import { View, Text } from "@/components/Themed";
@@ -48,13 +48,13 @@ export function Preloader({ children }: Props) {
   const [state, setState] = useState<PreloaderState>({
     hasLoaded: false,
   });
-  const { actions } = useWorkout();
+  const { saveWorkout } = useLiveWorkout();
   const { initialize } = useSound();
 
   const hydrateInProgressWorkout = useCallback(async () => {
     const workout = await WorkoutApi.getInProgressWorkout();
     if (workout) {
-      actions.resumeInProgressWorkout(workout);
+      saveWorkout(workout);
     }
   }, []);
 

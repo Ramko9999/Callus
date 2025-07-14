@@ -10,11 +10,9 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import {
   ChevronLeft,
   Plus,
-  Check,
   MoreHorizontal,
   StickyNote,
 } from "lucide-react-native";
-import * as Haptics from "expo-haptics";
 import { HeaderPage } from "@/components/util/header-page";
 import { useCompletedWorkout } from "./context";
 import {
@@ -26,7 +24,6 @@ import {
 import {
   Set,
   DifficultyType,
-  SetStatus,
   WeightDifficulty,
   BodyWeightDifficulty,
   TimeDifficulty,
@@ -35,76 +32,91 @@ import {
 import { getDifficultyType } from "@/api/exercise";
 import { StyleUtils } from "@/util/styles";
 import Animated, {
-  useAnimatedStyle,
   useSharedValue,
-  withSequence,
-  withTiming,
-  interpolateColor,
   LinearTransition,
   LayoutAnimationConfig,
   LightSpeedInRight,
   LightSpeedOutLeft,
 } from "react-native-reanimated";
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useRef, useCallback, useState } from "react";
 import { getDurationDisplay } from "@/util/date";
-import { tintColor } from "@/util/color";
-import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-import { SwipeableDelete } from "@/components/util/swipeable-delete";
 import { Popover, PopoverItem, PopoverRef } from "@/components/util/popover";
 import { AddNoteSheet } from "@/components/sheets/add-note";
 import { EditSetSheet } from "@/components/sheets/edit-set";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { useSound } from "@/components/sounds";
+import * as Haptics from "expo-haptics";
+import {
+  withSequence,
+  withTiming,
+  useAnimatedStyle,
+} from "react-native-reanimated";
+import { SetStatus } from "@/interface";
+import {
+  SetRow,
+  SetHeader,
+  EditField,
+} from "@/components/pages/workout/common";
 
-export type EditField = "weight" | "reps" | "time";
-
-const setStatusInputStyles = StyleSheet.create({
-  container: {
-    alignSelf: "center",
-  },
-  check: {
-    ...StyleUtils.flexRowCenterAll(),
-    borderRadius: 12,
-    height: 25,
-    width: 30,
-  },
-});
-
-type SetStatusInputProps = {
-  isActive: boolean;
-  onToggle: (event: GestureResponderEvent) => void;
+type CompletedSetRowProps = {
+  set: Set;
+  index: number;
+  difficultyType: DifficultyType;
+  onUpdateSet: (setId: string, update: Partial<Set>) => void;
+  onDelete: (setId: string) => void;
+  onEdit: (setId: string, field: EditField) => void;
 };
 
-function SetStatusInput({ isActive, onToggle }: SetStatusInputProps) {
-  const setColor = useSharedValue(isActive ? 1 : 0);
-  const inactiveColor = useThemeColoring("lightText");
-  const activeColor = useThemeColoring("primaryAction");
+function CompletedSetRow({
+  set,
+  index,
+  difficultyType,
+  onUpdateSet,
+  onDelete,
+  onEdit,
+}: CompletedSetRowProps) {
+  const setAnimationSize = useSharedValue(1);
+  const { play } = useSound();
 
-  useEffect(() => {
-    setColor.value = withTiming(isActive ? 1 : 0, { duration: 200 });
-  }, [isActive]);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: setAnimationSize.value }],
+  }));
 
-  const animatedStyle = useAnimatedStyle(
-    () => ({
-      backgroundColor: interpolateColor(
-        setColor.value,
-        [0, 1],
-        [inactiveColor, activeColor]
-      ),
-    }),
-    []
-  );
+  const handleToggle = (event: GestureResponderEvent) => {
+    event.stopPropagation();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    if (set.status === SetStatus.UNSTARTED) {
+      onUpdateSet(set.id, {
+        status: SetStatus.FINISHED,
+        restEndedAt: Date.now(),
+      });
+      setAnimationSize.value = withSequence(
+        withTiming(1.05, { duration: 200 }),
+        withTiming(1, { duration: 200 })
+      );
+      play("positive_ring");
+    } else {
+      onUpdateSet(set.id, {
+        status: SetStatus.UNSTARTED,
+        restStartedAt: undefined,
+        restEndedAt: undefined,
+      });
+    }
+  };
 
   return (
-    <TouchableOpacity onPress={onToggle} style={setStatusInputStyles.container}>
-      <Animated.View style={[setStatusInputStyles.check, animatedStyle]}>
-        <Check
-          color={useThemeColoring("primaryText")}
-          strokeWidth={3}
-          size={16}
-        />
-      </Animated.View>
-    </TouchableOpacity>
+    <SetRow
+      set={set}
+      index={index}
+      useAltBackground={index % 2 === 1}
+      difficultyType={difficultyType}
+      containerAnimatedStyle={animatedStyle}
+      onEdit={onEdit}
+      onToggle={handleToggle}
+      showSwipeActions={true}
+      onDelete={onDelete}
+    />
   );
 }
 
@@ -152,253 +164,6 @@ function getSubtitle(exercise: any): string {
     default:
       return `${setCount} sets`;
   }
-}
-
-function getSetRowValues(
-  set: Set,
-  index: number,
-  difficultyType: DifficultyType
-) {
-  if (
-    difficultyType === DifficultyType.WEIGHT ||
-    difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT
-  ) {
-    const diff = set.difficulty as WeightDifficulty;
-    return [
-      index + 1,
-      diff.weight,
-      diff.reps,
-      set.status !== SetStatus.UNSTARTED,
-    ];
-  } else if (
-    difficultyType === DifficultyType.BODYWEIGHT ||
-    difficultyType === DifficultyType.ASSISTED_BODYWEIGHT
-  ) {
-    const diff = set.difficulty as BodyWeightDifficulty;
-    return [index + 1, diff.reps, set.status !== SetStatus.UNSTARTED];
-  } else if (difficultyType === DifficultyType.TIME) {
-    const diff = set.difficulty as TimeDifficulty;
-    return [
-      index + 1,
-      getDurationDisplay(diff.duration),
-      set.status !== SetStatus.UNSTARTED,
-    ];
-  }
-  return [index + 1, set.status !== SetStatus.UNSTARTED];
-}
-
-const setRowStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRow(),
-    height: 48,
-    alignItems: "center",
-    borderRadius: 8,
-    marginBottom: "1.5%",
-    paddingHorizontal: "2%",
-  },
-  setNumber: {
-    ...StyleUtils.flexRowCenterAll(),
-    flex: 1,
-  },
-  valueColumn: {
-    ...StyleUtils.flexRowCenterAll(),
-    paddingVertical: "2%",
-    flex: 2,
-  },
-  checkmarkColumn: {
-    ...StyleUtils.flexRowCenterAll(),
-    flex: 1,
-  },
-});
-
-type SetRowProps = {
-  set: Set;
-  index: number;
-  difficultyType: DifficultyType;
-  onUpdateSet: (setId: string, update: Partial<Set>) => void;
-  onDelete: (setId: string) => void;
-  onEdit?: (setId: string, field: EditField) => void;
-};
-
-function SetRow({
-  set,
-  index,
-  difficultyType,
-  onUpdateSet,
-  onDelete,
-  onEdit,
-}: SetRowProps) {
-  const appBackgroundColor = useThemeColoring("appBackground");
-  const rowTint = tintColor(useThemeColoring("appBackground"), 0.05);
-  const values = getSetRowValues(set, index, difficultyType);
-  const isAlt = index % 2 === 1;
-  const rowBg = isAlt ? rowTint : appBackgroundColor;
-  const setAnimationSize = useSharedValue(1);
-  const { play } = useSound();
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: setAnimationSize.value }],
-  }));
-
-  const handleToggle = (event: GestureResponderEvent) => {
-    event.stopPropagation();
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-    if (set.status === SetStatus.FINISHED) {
-      onUpdateSet(set.id, {
-        status: SetStatus.UNSTARTED,
-        restStartedAt: undefined,
-        restEndedAt: undefined,
-      });
-    } else if (set.status === SetStatus.RESTING) {
-      onUpdateSet(set.id, {
-        status: SetStatus.FINISHED,
-        restEndedAt: Date.now(),
-      });
-      setAnimationSize.value = withSequence(
-        withTiming(1.05, { duration: 200 }),
-        withTiming(1, { duration: 200 })
-      );
-      play("positive_ring");
-    } else {
-      onUpdateSet(set.id, {
-        status: SetStatus.FINISHED,
-      });
-      setAnimationSize.value = withSequence(
-        withTiming(1.05, { duration: 200 }),
-        withTiming(1, { duration: 200 })
-      );
-      play("positive_ring");
-    }
-  };
-
-  const handleDelete = () => {
-    onDelete(set.id);
-  };
-
-  return (
-    <Swipeable
-      overshootRight={false}
-      renderRightActions={(_, drag) => (
-        <SwipeableDelete drag={drag} onDelete={handleDelete} dimension={48} />
-      )}
-    >
-      <Animated.View
-        style={[
-          setRowStyles.container,
-          { backgroundColor: rowBg },
-          animatedStyle,
-        ]}
-      >
-        <View style={setRowStyles.setNumber}>
-          <Text>{values[0]}</Text>
-        </View>
-        {difficultyType === DifficultyType.WEIGHT ||
-        difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT ? (
-          <TouchableOpacity
-            style={setRowStyles.valueColumn}
-            onPress={() => onEdit?.(set.id, "weight")}
-          >
-            <Text>{values[1]}</Text>
-          </TouchableOpacity>
-        ) : null}
-        {difficultyType === DifficultyType.WEIGHT ||
-        difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT ? (
-          <TouchableOpacity
-            style={setRowStyles.valueColumn}
-            onPress={() => onEdit?.(set.id, "reps")}
-          >
-            <Text>{values[2]}</Text>
-          </TouchableOpacity>
-        ) : null}
-        {(difficultyType === DifficultyType.BODYWEIGHT ||
-          difficultyType === DifficultyType.ASSISTED_BODYWEIGHT) && (
-          <TouchableOpacity
-            style={setRowStyles.valueColumn}
-            onPress={() => onEdit?.(set.id, "reps")}
-          >
-            <Text>{values[1]}</Text>
-          </TouchableOpacity>
-        )}
-        {difficultyType === DifficultyType.TIME && (
-          <TouchableOpacity
-            style={setRowStyles.valueColumn}
-            onPress={() => onEdit?.(set.id, "time")}
-          >
-            <Text>{values[1]}</Text>
-          </TouchableOpacity>
-        )}
-        <View style={setRowStyles.checkmarkColumn}>
-          <SetStatusInput
-            isActive={values[values.length - 1] as boolean}
-            onToggle={handleToggle}
-          />
-        </View>
-      </Animated.View>
-    </Swipeable>
-  );
-}
-
-const setHeaderStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRow(),
-    alignItems: "center",
-    marginBottom: "2%",
-    marginTop: "2%",
-    paddingHorizontal: "2%",
-  },
-  column: {
-    ...StyleUtils.flexRowCenterAll(),
-    flex: 1,
-  },
-  wideColumn: {
-    ...StyleUtils.flexRowCenterAll(),
-    flex: 2,
-  },
-});
-
-type SetHeaderProps = {
-  difficultyType: DifficultyType;
-};
-
-function SetHeader({ difficultyType }: SetHeaderProps) {
-  return (
-    <View style={setHeaderStyles.container}>
-      <View style={setHeaderStyles.column}>
-        <Text light>SET</Text>
-      </View>
-      {(difficultyType === DifficultyType.WEIGHT ||
-        difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT) && (
-        <View style={setHeaderStyles.wideColumn}>
-          <Text light>LBS</Text>
-        </View>
-      )}
-      {(difficultyType === DifficultyType.WEIGHT ||
-        difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT) && (
-        <View style={setHeaderStyles.wideColumn}>
-          <Text light>REPS</Text>
-        </View>
-      )}
-      {(difficultyType === DifficultyType.BODYWEIGHT ||
-        difficultyType === DifficultyType.ASSISTED_BODYWEIGHT) && (
-        <View style={setHeaderStyles.wideColumn}>
-          <Text light>REPS</Text>
-        </View>
-      )}
-      {difficultyType === DifficultyType.TIME && (
-        <View style={setHeaderStyles.wideColumn}>
-          <Text light>TIME</Text>
-        </View>
-      )}
-      <View style={setHeaderStyles.column}>
-        <Check
-          color={useThemeColoring("lightText")}
-          strokeWidth={2}
-          size={20}
-        />
-      </View>
-    </View>
-  );
 }
 
 // SetNote styles
@@ -599,7 +364,7 @@ export function SetsEditor() {
                 exiting={LightSpeedOutLeft}
                 entering={LightSpeedInRight}
               >
-                <SetRow
+                <CompletedSetRow
                   set={set}
                   index={idx}
                   difficultyType={difficultyType}

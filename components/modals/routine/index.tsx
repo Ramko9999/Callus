@@ -3,7 +3,6 @@ import { StackScreenProps } from "@react-navigation/stack";
 import { RoutineProvider, useRoutine } from "./context";
 import { CompositeScreenProps, useNavigation } from "@react-navigation/native";
 import { useUserDetails } from "@/components/user-details";
-import { useWorkout } from "@/context/WorkoutContext";
 import { useToast } from "react-native-toast-notifications";
 import { ModalWrapper } from "../common";
 import { contentStyles } from "../common/styles";
@@ -11,7 +10,7 @@ import { View, Text } from "@/components/Themed";
 import { ExercisesEditorTopActions } from "./top-actions";
 import { MetaEditor } from "@/components/popup/routine/common/meta";
 import { WorkoutApi } from "@/api/workout";
-import { WorkoutActions } from "@/api/model/workout";
+import { WorkoutCreation } from "@/api/model/workout";
 import { DifficultyType, ExercisePlan, Routine } from "@/interface";
 import { ExercisePlanActions, SetPlanActions } from "@/api/model/routine";
 import {
@@ -38,6 +37,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BottomSheet from "@gorhom/bottom-sheet";
 import React from "react";
 import { Keyboard } from "react-native";
+import { useLiveWorkout } from "@/components/pages/workout/live/context";
 
 type RoutineStackParamList = {
   exercises: undefined;
@@ -57,7 +57,7 @@ type ExerciseEditorProps = CompositeScreenProps<
 function ExercisesEditor({ navigation }: ExerciseEditorProps) {
   const rootNavigation = useNavigation();
   const { routine, onSave } = useRoutine();
-  const { isInWorkout, actions } = useWorkout();
+  const { isInWorkout, saveWorkout } = useLiveWorkout();
 
   const [isTrashing, setIsTrashing] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
@@ -83,14 +83,15 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
         { type: "danger" }
       );
     } else {
-      actions.startWorkout(
-        WorkoutActions.createFromRoutine(
+      saveWorkout(
+        WorkoutCreation.createFromRoutine(
           routine,
           userDetails?.bodyweight as number
         )
       );
       //@ts-ignore
-      rootNavigation.replace("liveWorkout");
+      rootNavigation.goBack();
+      rootNavigation.navigate("liveWorkoutSheet");
     }
   };
 
@@ -162,11 +163,7 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
           <SetsEditorTopActions
             onAdd={() => onSave(setPlanActions.add())}
             onBack={navigation.goBack}
-            onViewProgress={() =>
-              navigation.navigate("exerciseInsight", {
-                name: exercisePlan?.name ?? "",
-              })
-            }
+            onViewProgress={() => {}}
             onEditRest={() => setIsEditingRest(true)}
           />
           <View style={{ paddingLeft: "3%", paddingBottom: "3%" }}>
@@ -283,10 +280,6 @@ export function RoutineModal({ route }: RoutineModalProps) {
         <Stack.Screen name="exercises" component={ExercisesEditor} />
         <Stack.Screen name="sets" component={SetsEditor} />
         <Stack.Screen name="addExercises" component={AddExercises} />
-        <Stack.Screen
-          name="exerciseInsight"
-          component={ExerciseInsightOverview}
-        />
       </Stack.Navigator>
     </RoutineProvider>
   );

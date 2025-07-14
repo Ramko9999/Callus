@@ -12,6 +12,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { LifetimeSummary } from "./summary/lifetime";
 import { SummaryTrends } from "./summary/trends";
 import { PersonalRecords } from "./personal-records";
+import { LiveWorkoutPreview } from "@/components/workout/preview";
 
 type OpenSettingsActionProps = {
   onClick: () => void;
@@ -61,6 +62,7 @@ export function Profile() {
           <PersonalRecords />
         </ScrollView>
       </HeaderPage>
+      <LiveWorkoutPreview />
     </>
   );
 }

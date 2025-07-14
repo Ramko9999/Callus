@@ -1,3 +1,5 @@
+import { Difficulty, DifficultyType, Set, SetStatus } from "@/interface";
+
 function generateRandomId(prefix = "", length = 8) {
   return `${prefix}-${Math.random().toString(36).substring(2, length)}`;
 }
@@ -37,4 +39,26 @@ export function getQuickstartWorkoutName() {
   } else {
     return "Evening Workout";
   }
+}
+
+export function createDefaultSet(type: DifficultyType, restDuration: number): Set {
+  let difficulty: Difficulty;
+  if (type === DifficultyType.ASSISTED_BODYWEIGHT) {
+    difficulty = { assistanceWeight: 0, reps: 0 };
+  } else if (type === DifficultyType.TIME) {
+    difficulty = { duration: 60 };
+  } else if (type === DifficultyType.WEIGHT) {
+    difficulty = { reps: 0, weight: 0 };
+  } else if (type === DifficultyType.WEIGHTED_BODYWEIGHT) {
+    difficulty = { reps: 0, weight: 0 };
+  } else {
+    difficulty = { reps: 0 };
+  }
+
+  return {
+    id: generateSetId(),
+    status: SetStatus.UNSTARTED,
+    restDuration,
+    difficulty: difficulty,
+  };
 }

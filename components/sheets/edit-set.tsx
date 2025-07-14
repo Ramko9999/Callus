@@ -26,11 +26,11 @@ import {
   TimeDifficulty,
   DifficultyType,
 } from "@/interface";
-import { EditField } from "@/components/pages/workout/completed/sets-editor";
 import { getDifficultyType } from "@/api/exercise";
-import { Plus, Minus, ArrowLeft, ArrowRight } from "lucide-react-native";
+import { Plus, Minus } from "lucide-react-native";
 import { tintColor } from "@/util/color";
 import { WheelPicker, WheelPickerRef } from "@/components/util/wheel-picker";
+import { EditField } from "../pages/workout/common";
 
 const WHEEL_ITEM_HEIGHT = 40;
 
@@ -420,95 +420,11 @@ function TimeDifficultyEdit({
   );
 }
 
-const editSetNavigationStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRow(),
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingTop: "2%",
-    paddingHorizontal: "2%",
-  },
-  leftSection: {
-    ...StyleUtils.flexRow(15),
-    alignItems: "center",
-  },
-  rightIcons: {
-    ...StyleUtils.flexRow(),
-    justifyContent: "flex-end",
-  },
-  iconButton: {
-    ...StyleUtils.flexRow(),
-    alignItems: "center",
-    borderRadius: "50%",
-    padding: "2%",
-  },
-});
-
-type EditSetNavigationProps = {
-  onPrevious: () => void;
-  onNext: () => void;
-  hasPrevious: boolean;
-  hasNext: boolean;
-  currentSetIndex: number;
-  totalSets: number;
-};
-
-function EditSetNavigation({
-  onPrevious,
-  onNext,
-  hasPrevious,
-  hasNext,
-  currentSetIndex,
-  totalSets,
-}: EditSetNavigationProps) {
-  const primaryAction = useThemeColoring("primaryAction");
-  const inactiveAction = useThemeColoring("lightText");
-
-  return (
-    <View style={editSetNavigationStyles.container}>
-      <View style={editSetNavigationStyles.leftSection}>
-        <Text style={{ color: primaryAction }}>
-          Set {currentSetIndex + 1} of {totalSets}
-        </Text>
-      </View>
-
-      <View style={editSetNavigationStyles.rightIcons}>
-        <TouchableOpacity
-          style={editSetNavigationStyles.iconButton}
-          onPress={onPrevious}
-          disabled={!hasPrevious}
-        >
-          <ArrowLeft
-            color={hasPrevious ? primaryAction : inactiveAction}
-            size={24}
-            strokeWidth={2}
-          />
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={editSetNavigationStyles.iconButton}
-          onPress={onNext}
-          disabled={!hasNext}
-        >
-          <ArrowRight
-            color={hasNext ? primaryAction : inactiveAction}
-            size={24}
-            strokeWidth={2}
-          />
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
-
 const editSetStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
     paddingHorizontal: "3%",
     paddingVertical: "3%",
-  },
-  inputsContainerWrapper: {
-    borderBottomWidth: 1,
   },
   inputsContainer: {
     ...StyleUtils.flexRow(15),
@@ -533,37 +449,13 @@ export const EditWeightRepsSetSheet = forwardRef<
 >(({ show, onHide, exercise, setId, focusField, onUpdate }, ref) => {
   const [currentSetId, setCurrentSetId] = useState<string | undefined>(setId);
 
-  const borderColor = tintColor(
-    useThemeColoring("primaryViewBackground"),
-    0.05
-  );
-
   // Find current set from exercise
   const currentSet = exercise.sets.find((set) => set.id === currentSetId);
   const exerciseDifficultyType = getDifficultyType(exercise.name);
 
-  // Find current set index for navigation
-  const currentSetIndex = exercise.sets.findIndex(
-    (set) => set.id === currentSetId
-  );
-
   useEffect(() => {
     setCurrentSetId(setId);
   }, [setId]);
-
-  const handlePrevious = useCallback(() => {
-    if (currentSetIndex > 0) {
-      const previousSet = exercise.sets[currentSetIndex - 1];
-      setCurrentSetId(previousSet.id);
-    }
-  }, [exercise, currentSetIndex]);
-
-  const handleNext = useCallback(() => {
-    if (currentSetIndex >= 0 && currentSetIndex < exercise.sets.length - 1) {
-      const nextSet = exercise.sets[currentSetIndex + 1];
-      setCurrentSetId(nextSet.id);
-    }
-  }, [exercise, currentSetIndex]);
 
   const handleDifficultyUpdate = useCallback(
     (difficulty: WeightDifficulty | BodyWeightDifficulty) => {
@@ -577,7 +469,6 @@ export const EditWeightRepsSetSheet = forwardRef<
   return (
     <PopupBottomSheet show={show} onHide={onHide} ref={ref}>
       <View style={editSetStyles.container}>
-        <View style={[editSetStyles.inputsContainerWrapper, { borderColor }]}>
           {currentSet &&
           (exerciseDifficultyType === DifficultyType.WEIGHT ||
             exerciseDifficultyType === DifficultyType.WEIGHTED_BODYWEIGHT) ? (
@@ -593,17 +484,6 @@ export const EditWeightRepsSetSheet = forwardRef<
               focusField={focusField}
             />
           ) : null}
-        </View>
-        <EditSetNavigation
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          hasPrevious={currentSetIndex > 0}
-          hasNext={
-            currentSetIndex >= 0 && currentSetIndex < exercise.sets.length - 1
-          }
-          currentSetIndex={currentSetIndex}
-          totalSets={exercise.sets.length}
-        />
         <KeyboardSpacer />
       </View>
     </PopupBottomSheet>
@@ -614,35 +494,11 @@ export const EditDurationSetSheet = forwardRef<BottomSheet, EditSetSheetProps>(
   ({ show, onHide, exercise, setId, focusField, onUpdate }, ref) => {
     const [currentSetId, setCurrentSetId] = useState<string | undefined>(setId);
 
-    const borderColor = tintColor(
-      useThemeColoring("primaryViewBackground"),
-      0.05
-    );
-
-    // Find current set from exercise
     const currentSet = exercise.sets.find((set) => set.id === currentSetId);
-    // Find current set index for navigation
-    const currentSetIndex = exercise.sets.findIndex(
-      (set) => set.id === currentSetId
-    );
 
     useEffect(() => {
       setCurrentSetId(setId);
     }, [setId]);
-
-    const handlePrevious = useCallback(() => {
-      if (currentSetIndex > 0) {
-        const previousSet = exercise.sets[currentSetIndex - 1];
-        setCurrentSetId(previousSet.id);
-      }
-    }, [exercise, currentSetIndex]);
-
-    const handleNext = useCallback(() => {
-      if (currentSetIndex >= 0 && currentSetIndex < exercise.sets.length - 1) {
-        const nextSet = exercise.sets[currentSetIndex + 1];
-        setCurrentSetId(nextSet.id);
-      }
-    }, [exercise, currentSetIndex]);
 
     const handleDifficultyUpdate = useCallback(
       (difficulty: TimeDifficulty) => {
@@ -656,24 +512,12 @@ export const EditDurationSetSheet = forwardRef<BottomSheet, EditSetSheetProps>(
     return (
       <PopupBottomSheet show={show} onHide={onHide} ref={ref}>
         <View style={editSetStyles.container}>
-          <View style={[editSetStyles.inputsContainerWrapper, { borderColor }]}>
             <TimeDifficultyEdit
               difficulty={currentSet?.difficulty as TimeDifficulty}
               onUpdate={handleDifficultyUpdate}
               focusField={focusField}
               setId={currentSetId!}
             />
-          </View>
-          <EditSetNavigation
-            onPrevious={handlePrevious}
-            onNext={handleNext}
-            hasPrevious={currentSetIndex > 0}
-            hasNext={
-              currentSetIndex >= 0 && currentSetIndex < exercise.sets.length - 1
-            }
-            currentSetIndex={currentSetIndex}
-            totalSets={exercise.sets.length}
-          />
           <View style={editSetStyles.timeSpacer} />
         </View>
       </PopupBottomSheet>

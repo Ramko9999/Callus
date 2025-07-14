@@ -2,6 +2,7 @@ import { RoutineActions } from "@/api/model/routine";
 import { WorkoutApi } from "@/api/workout";
 import { useThemeColoring, View, Text } from "@/components/Themed";
 import { HeaderPage } from "@/components/util/header-page";
+import { LiveWorkoutPreview } from "@/components/workout/preview";
 import { Routine } from "@/interface";
 import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -133,6 +134,7 @@ export function Routines() {
           />
         </ScrollView>
       </HeaderPage>
+      <LiveWorkoutPreview />
     </>
   );
 }

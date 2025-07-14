@@ -319,9 +319,6 @@ type WorkoutEditor = {
   actions: WorkoutEditorActions;
 };
 
-type WorkoutSoundPlayer = {
-  playRestCompleting: () => Promise<void>;
-};
 
 type WorkoutContext = {
   isInWorkout: boolean;

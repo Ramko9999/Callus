@@ -1,5 +1,11 @@
 import { View, Text, useThemeColoring } from "@/components/Themed";
-import { useRef, forwardRef, useEffect } from "react";
+import {
+  useRef,
+  forwardRef,
+  useEffect,
+  useState,
+  useImperativeHandle,
+} from "react";
 import {
   useWindowDimensions,
   StyleSheet,
@@ -46,11 +52,20 @@ import Animated, {
   LinearTransition,
   withTiming,
 } from "react-native-reanimated";
-import { CompletedWorkoutSheets, CompletedWorkoutSheetsRef } from "./sheets";
 import { useCompletedWorkout } from "./context";
 import { SwipeableDelete } from "@/components/util/swipeable-delete";
 import { getHistoricalExerciseDescription } from "@/util/workout/display";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
+import { useUserDetails } from "@/components/user-details";
+import { WorkoutApi } from "@/api/workout";
+import { WorkoutCreation } from "@/api/model/workout";
+import {
+  RepeatWorkoutConfirmation,
+  WorkoutDeleteConfirmation,
+} from "@/components/sheets";
+import { EditWorkout } from "@/components/sheets/edit-workout";
+import { ReorderExercisesSheet } from "@/components/sheets/reorder-exercises";
+import { useLiveWorkout } from "../live/context";
 
 type MusclesToSets = Record<string, number>;
 
@@ -357,10 +372,13 @@ const Exercises = forwardRef<ExercisesRef, ExercisesProps>(
           <MoreExercisesButton ref={moreButtonRef} onClick={handleMorePress} />
         </View>
         {exercises.length === 0 ? (
-          <View style={[exerciseListStyles.emptyContainer, {height: height * 0.3}]}>
-            <Text light>
-              No exercises
-            </Text>
+          <View
+            style={[
+              exerciseListStyles.emptyContainer,
+              { height: height * 0.3 },
+            ]}
+          >
+            <Text light>No exercises</Text>
           </View>
         ) : (
           exercises.map((exercise, index) => (
@@ -467,7 +485,7 @@ export function CompletedWorkoutInitial() {
   const navigation = useNavigation();
   const popoverRef = useRef<PopoverRef>(null);
   const moreButtonRef = useRef<RNView>(null);
-  const sheetsRef = useRef<CompletedWorkoutSheetsRef>(null);
+  const sheetsRef = useRef<CompletedWorkoutInitialSheetsRef>(null);
   const exercisesRef = useRef<ExercisesRef>(null);
   const exercisesPopoverRef = useRef<PopoverRef>(null);
   const popoverProgress = useSharedValue(0);
@@ -685,7 +703,7 @@ export function CompletedWorkoutInitial() {
           onClick={handleReorderExercises}
         />
       </Popover>
-      <CompletedWorkoutSheets
+      <CompletedWorkoutInitialSheets
         ref={sheetsRef}
         workout={workout}
         onUpdateWorkout={handleUpdateWorkout}
@@ -693,3 +711,136 @@ export function CompletedWorkoutInitial() {
     </View>
   );
 }
+
+type CompletedWorkoutInitialSheetsProps = {
+  workout?: Workout;
+  onUpdateWorkout: (update: Partial<Workout>) => void;
+};
+
+type CompletedWorkoutInitialSheetsRef = {
+  openDelete: () => void;
+  openEdit: () => void;
+  openRepeat: () => void;
+  openReorderExercises: () => void;
+};
+
+const CompletedWorkoutInitialSheets = forwardRef<
+  CompletedWorkoutInitialSheetsRef,
+  CompletedWorkoutInitialSheetsProps
+>(({ workout, onUpdateWorkout }, ref) => {
+  const navigation = useNavigation();
+  const { isInWorkout, saveWorkout } = useLiveWorkout();
+  const { userDetails } = useUserDetails();
+
+  const workoutDeleteConfirmationSheetRef = useRef<any>(null);
+  const editCompletedWorkoutSheetRef = useRef<any>(null);
+  const repeatWorkoutConfirmationSheetRef = useRef<any>(null);
+  const reorderExercisesSheetRef = useRef<any>(null);
+
+  const [isTrashingWorkout, setIsTrashingWorkout] = useState(false);
+  const [isEditingWorkout, setIsEditingWorkout] = useState(false);
+  const [isRepeating, setIsRepeating] = useState(false);
+  const [isReorderingExercises, setIsReorderingExercises] = useState(false);
+
+  const openDelete = () => {
+    setIsTrashingWorkout(true);
+  };
+
+  const openEdit = () => {
+    setIsEditingWorkout(true);
+  };
+
+  const openRepeat = () => {
+    setIsRepeating(true);
+  };
+
+  const openReorderExercises = () => {
+    setIsReorderingExercises(true);
+  };
+
+  useImperativeHandle(ref, () => ({
+    openDelete,
+    openEdit,
+    openRepeat,
+    openReorderExercises,
+  }));
+
+  const handleDeleteConfirm = () => {
+    setIsTrashingWorkout(false);
+    if (workout) {
+      WorkoutApi.deleteWorkout(workout.id).then(navigation.goBack);
+    }
+  };
+
+  const handleRepeatConfirm = () => {
+    if (!workout) return;
+    setIsRepeating(false);
+
+    saveWorkout(
+      WorkoutCreation.createFromWorkout(
+        workout,
+        userDetails?.bodyweight as number
+      )
+    );
+    navigation.goBack();
+    //@ts-ignore
+    navigation.navigate("liveWorkoutSheet");
+  };
+
+  const handleWorkoutUpdate = async (
+    update: Partial<{ name: string; startedAt: number; endedAt: number }>
+  ) => {
+    if (!workout) return;
+
+    // Update the workout with the new data
+    const updatedWorkout = { ...workout, ...update };
+    onUpdateWorkout(updatedWorkout);
+  };
+
+  const handleExercisesReorder = async (newExercises: Exercise[]) => {
+    if (!workout) return;
+
+    const updatedWorkout = { ...workout, exercises: newExercises };
+    onUpdateWorkout(updatedWorkout);
+  };
+
+  return (
+    <>
+      {workout ? (
+        <>
+          <WorkoutDeleteConfirmation
+            ref={workoutDeleteConfirmationSheetRef}
+            show={isTrashingWorkout}
+            hide={() => workoutDeleteConfirmationSheetRef.current?.close()}
+            onHide={() => setIsTrashingWorkout(false)}
+            onDelete={handleDeleteConfirm}
+          />
+          <EditWorkout
+            ref={editCompletedWorkoutSheetRef}
+            show={isEditingWorkout}
+            onHide={() => setIsEditingWorkout(false)}
+            workout={workout}
+            onUpdate={handleWorkoutUpdate}
+            hide={() => editCompletedWorkoutSheetRef.current?.close()}
+          />
+          <RepeatWorkoutConfirmation
+            ref={repeatWorkoutConfirmationSheetRef}
+            show={isRepeating}
+            hide={() => repeatWorkoutConfirmationSheetRef.current?.close()}
+            onHide={() => setIsRepeating(false)}
+            isInWorkout={isInWorkout}
+            onRepeat={handleRepeatConfirm}
+          />
+          <ReorderExercisesSheet
+            ref={reorderExercisesSheetRef}
+            show={isReorderingExercises}
+            onHide={() => setIsReorderingExercises(false)}
+            exercises={workout.exercises}
+            onReorder={handleExercisesReorder}
+            hide={() => reorderExercisesSheetRef.current?.close()}
+          />
+        </>
+      ) : null}
+    </>
+  );
+});

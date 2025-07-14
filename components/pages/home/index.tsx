@@ -1,9 +1,18 @@
 import { Text, useThemeColoring, View } from "@/components/Themed";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
-import { truncTime } from "@/util/date";
+import {
+  truncTime,
+  getDurationDisplay,
+  getTimePeriodDisplay,
+} from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
-import { Workout } from "@/interface";
+import {
+  Workout,
+  WorkoutActivityType,
+  ExercisingActivity,
+  RestingActivity,
+} from "@/interface";
 import { CompletedWorkouts } from "./completed-workout";
 import { HeaderPage } from "@/components/util/header-page";
 import { StyleUtils } from "@/util/styles";
@@ -20,6 +29,8 @@ import { Loading } from "@/components/util/loading";
 import { usePopup } from "@/components/popup";
 import * as Haptics from "expo-haptics";
 import { Plus } from "lucide-react-native";
+import { LiveWorkoutPreview } from "@/components/workout/preview";
+import { useRestSounds } from "@/components/hooks/use-rest";
 
 const startWorkoutActionStyles = StyleSheet.create({
   container: {
@@ -146,6 +157,8 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const { startWorkout } = usePopup();
 
+  useRestSounds();
+
   useFocusEffect(
     useCallback(() => {
       getWorkoutHistory(selectedItem)
@@ -168,32 +181,37 @@ export default function Home() {
   );
 
   return (
-    <HeaderPage
-      title="History"
-      rightAction={<StartWorkoutAction onClick={startWorkout.open} />}
-    >
-      <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
-        <View style={homeStyles.calendar}>
-          <Calendar onDateChange={setSelectedItem} />
-        </View>
-        <CompletedWorkoutsSummary
-          workouts={filteredWorkouts}
-          calendarItem={selectedItem}
-        />
-        {isLoading ? (
-          <Loading />
-        ) : (
-          <CompletedWorkouts
+    <>
+      <HeaderPage
+        title="History"
+        rightAction={<StartWorkoutAction onClick={startWorkout.open} />}
+      >
+        <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+          <View style={homeStyles.calendar}>
+            <Calendar onDateChange={setSelectedItem} />
+          </View>
+          <CompletedWorkoutsSummary
             workouts={filteredWorkouts}
-            onSelect={(workout: Workout) => {
-              // @ts-ignore
-              //navigation.navigate("heatmap", { workoutId: workout.id });
-              navigation.navigate("completedWorkoutSheet", { id: workout.id });
-            }}
+            calendarItem={selectedItem}
           />
-        )}
-      </ScrollView>
-    </HeaderPage>
+          {isLoading ? (
+            <Loading />
+          ) : (
+            <CompletedWorkouts
+              workouts={filteredWorkouts}
+              onSelect={(workout: Workout) => {
+                // @ts-ignore
+                //navigation.navigate("heatmap", { workoutId: workout.id });
+                navigation.navigate("completedWorkoutSheet", {
+                  id: workout.id,
+                });
+              }}
+            />
+          )}
+        </ScrollView>
+      </HeaderPage>
+      <LiveWorkoutPreview />
+    </>
   );
 }
 

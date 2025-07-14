@@ -15,10 +15,10 @@ import { ToastProvider } from "react-native-toast-notifications";
 import { Preloader } from "./components/preload";
 import { UserDetailsProvider } from "./components/user-details";
 import { TabBarProvider } from "./components/tab-bar/context";
-import { WorkoutProvider } from "./context/WorkoutContext";
 import { Layout, NavigationProvider } from "./layout";
 import { SoundProvider } from "./components/sounds";
 import { PopupProvider } from "./components/popup";
+import { LiveWorkoutProvider } from "./components/pages/workout/live/context";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -40,7 +40,7 @@ function RootLayoutNav() {
             <ToastProvider>
               <SoundProvider>
                 <UserDetailsProvider>
-                  <WorkoutProvider>
+                  <LiveWorkoutProvider>
                     <NavigationProvider onReady={SplashScreen.hideAsync}>
                       <PopupProvider>
                         <Preloader>
@@ -48,7 +48,7 @@ function RootLayoutNav() {
                         </Preloader>
                       </PopupProvider>
                     </NavigationProvider>
-                  </WorkoutProvider>
+                  </LiveWorkoutProvider>
                 </UserDetailsProvider>
               </SoundProvider>
             </ToastProvider>
