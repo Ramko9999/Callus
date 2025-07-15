@@ -783,9 +783,7 @@ export function EditExercises() {
 
   const handleUpdateRest = (duration: number) => {
     saveWorkout((workout) =>
-      ExerciseActions(workout!, popoverExerciseId!).update({
-        restDuration: duration,
-      })
+      ExerciseActions(workout!, popoverExerciseId!).updateRest(duration)
     );
   };
 

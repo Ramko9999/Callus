@@ -226,11 +226,27 @@ function deleteExercise(workout: Workout, exerciseId: string) {
   };
 }
 
+function updateRest(workout: Workout, exerciseId: string, restDuration: number) {
+  const exercise = getExercise(workout, exerciseId);
+  const sets = exercise.sets.map((set) => {
+    if(set.status !== SetStatus.FINISHED) {
+      return {
+        ...set,
+        restDuration,
+      };
+    }
+    return set;
+  });
+
+  return updateExercise(workout, exerciseId, { sets, restDuration });
+}
+
 export const ExerciseActions = (workout: Workout, exerciseId: string) => ({
   update: (update: Partial<Exercise>) =>
     updateExercise(workout, exerciseId, update),
   duplicateLastSet: () => duplicateLastSet(workout, exerciseId),
   delete: () => deleteExercise(workout, exerciseId),
+  updateRest: (restDuration: number) => updateRest(workout, exerciseId, restDuration),
 });
 
 function getSetAndExercise(workout: Workout, setId: string) {

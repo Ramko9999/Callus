@@ -76,7 +76,6 @@ export function useCurrentSet(): CurrentSetResult | undefined {
       : undefined;
   return useMemo(
     () => {
-      console.log("Current set and exercise changed");
       return currentSetAndExercise;
     },
     [serialize(currentSetAndExercise)]
