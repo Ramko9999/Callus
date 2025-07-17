@@ -28,22 +28,11 @@ import {
   updateSet,
   wrapUpSets,
 } from "@/context/WorkoutContext";
-import {
-  ExercisingActivity,
-  Exercise,
-  Set,
-  SetStatus,
-  Workout,
-} from "@/interface";
+import { Set, Workout } from "@/interface";
 import { EditField } from "@/components/pages/workout/common";
 import { useNavigation } from "@react-navigation/native";
-import {
-  X,
-  MoreHorizontal,
-  Flag,
-  FilePenLine,
-  Dumbbell,
-} from "lucide-react-native";
+import { Flag, FilePenLine, Dumbbell } from "lucide-react-native";
+import { CloseButton, MoreButton } from "@/components/pages/common";
 import { Popover, PopoverItem, PopoverRef } from "@/components/util/popover";
 import { getTimePeriodDisplay } from "@/util/date";
 import { useRefresh } from "@/components/hooks/use-refresh";
@@ -59,39 +48,6 @@ import {
   useLiveWorkout,
 } from "@/components/pages/workout/live/context";
 import { SetActions, WorkoutActions, WorkoutQuery } from "@/api/model/workout";
-
-function CloseButton({ onClick }: { onClick: () => void }) {
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <X color={useThemeColoring("primaryAction")} />
-    </TouchableOpacity>
-  );
-}
-
-type MoreButtonProps = {
-  onClick: () => void;
-  progress: SharedValue<number>;
-};
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-const MoreButton = forwardRef<RNView, MoreButtonProps>(
-  ({ onClick, progress }, ref) => {
-    const opacity = useAnimatedStyle(() => {
-      return {
-        opacity: interpolate(progress.value, [0, 1], [1, 0.7]),
-      };
-    });
-
-    return (
-      <View ref={ref}>
-        <AnimatedPressable onPress={onClick} style={opacity}>
-          <MoreHorizontal color={useThemeColoring("primaryAction")} />
-        </AnimatedPressable>
-      </View>
-    );
-  }
-);
 
 const exerciseCardsStyles = StyleSheet.create({
   container: {
@@ -115,6 +71,10 @@ function ExercisesCards({
 
   const handleCompleteSet = (setId: string) => {
     saveWorkout((workout) => SetActions(workout!, setId).rest());
+  };
+
+  const handleSkipRest = (setId: string) => {
+    saveWorkout((workout) => SetActions(workout!, setId).finish());
   };
 
   const nextPair = WorkoutQuery.getNextUnstartedSet(
@@ -145,6 +105,7 @@ function ExercisesCards({
           style={exerciseCardsStyles.container}
         >
           <SetCard
+            onSkipRest={() => handleSkipRest(currentPair.set.id)}
             exercise={currentPair.exercise}
             set={currentPair.set}
             onCompleteSet={handleCompleteSet}
@@ -165,6 +126,7 @@ function ExercisesCards({
           style={exerciseCardsStyles.container}
         >
           <SetCard
+            onSkipRest={() => {}}
             exercise={nextPair.exercise}
             set={nextPair.set}
             onCompleteSet={() => {}} // No action for next card
@@ -185,6 +147,7 @@ function ExercisesCards({
           style={exerciseCardsStyles.container}
         >
           <SetCard
+            onSkipRest={() => {}}
             exercise={nextNextPair.exercise}
             set={nextNextPair.set}
             onCompleteSet={() => {}} // No action for next next card
@@ -327,7 +290,7 @@ export function Player() {
       </HeaderPage>
       <Popover ref={popoverRef} progress={popoverProgress}>
         <PopoverItem
-          label="Edit Workout"
+          label="Edit Name & Time"
           icon={<FilePenLine size={20} color={primaryTextColor} />}
           onClick={handleEditWorkout}
         />

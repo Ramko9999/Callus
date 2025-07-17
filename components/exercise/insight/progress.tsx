@@ -366,7 +366,12 @@ type ChartProps = {
 };
 
 // todo: looking to why the scrollview has bit of extra padding on the bottom
-function Chart({ name, completions, selectedMetricConfig, showMetricSheet }: ChartProps) {
+function Chart({
+  name,
+  completions,
+  selectedMetricConfig,
+  showMetricSheet,
+}: ChartProps) {
   const [yAxisOffset, setYAxisOffset] = useState<number>();
   const [pointIndex, setPointIndex] = useState<number>();
   const [timeGroup, setTimeGroup] = useState<TimeGroupOption>("1w");
@@ -434,10 +439,10 @@ function Chart({ name, completions, selectedMetricConfig, showMetricSheet }: Cha
       ]
     : undefined;
 
-  const debouncedContentSizeChange = useCallback(
+  const revealChart = useCallback(
     (() => {
       let timeoutId: ReturnType<typeof setTimeout>;
-      return (w: number, h: number) => {
+      return () => {
         clearTimeout(timeoutId);
         timeoutId = setTimeout(() => {
           if (!hasScrolledToEndRef.current) {
@@ -445,7 +450,7 @@ function Chart({ name, completions, selectedMetricConfig, showMetricSheet }: Cha
             scrollRef.current?.scrollToEnd({ animated: false });
             hiddenChartStroke.value = false;
           }
-        }, 150); // 150ms debounce delay
+        }, 300); // 150ms debounce delay
       };
     })(),
     []
@@ -508,7 +513,7 @@ function Chart({ name, completions, selectedMetricConfig, showMetricSheet }: Cha
           bounces={false}
           style={chartStyles.scroll}
           showsHorizontalScrollIndicator={false}
-          onContentSizeChange={debouncedContentSizeChange}
+          onContentSizeChange={revealChart}
         >
           <Svg
             onPress={(event) => {
@@ -619,6 +624,7 @@ function Chart({ name, completions, selectedMetricConfig, showMetricSheet }: Cha
                 setPointIndex(undefined);
                 hasScrolledToEndRef.current = false;
                 setTimeGroup(group);
+                revealChart();
               }
             }}
             color={selectedMetricConfig.color}
@@ -846,12 +852,12 @@ type ProgressProps = {
   showMetricSheet: () => void;
 };
 
-export function Progress({ 
-  name, 
-  completions, 
-  isLoading, 
-  selectedMetricConfig, 
-  showMetricSheet 
+export function Progress({
+  name,
+  completions,
+  isLoading,
+  selectedMetricConfig,
+  showMetricSheet,
 }: ProgressProps) {
   if (isLoading || !selectedMetricConfig) {
     return <ChartSkeleton />;

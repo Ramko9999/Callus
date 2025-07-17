@@ -11,7 +11,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Pressable,
   View as RNView,
   Image,
 } from "react-native";
@@ -20,8 +19,6 @@ import { Heatmap } from "@/components/heatmap";
 import { Exercise, Workout } from "@/interface";
 import { HeaderPage } from "@/components/util/header-page";
 import {
-  X,
-  MoreHorizontal,
   FilePenLine,
   Trash2,
   RotateCw,
@@ -29,6 +26,7 @@ import {
   Plus,
   ChevronRight,
 } from "lucide-react-native";
+import { CloseButton, MoreButton } from "@/components/pages/common";
 import { useNavigation } from "@react-navigation/native";
 import {
   getDateEditDisplay,
@@ -45,7 +43,6 @@ import { Popover, PopoverItem, PopoverRef } from "@/components/util/popover";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  interpolate,
   SharedValue,
   withRepeat,
   interpolateColor,
@@ -119,42 +116,9 @@ function getMusclesWorked(workout: Workout): MusclesToSets {
   return musclesToSets;
 }
 
-type CloseButtonProps = {
-  onClick: () => void;
-};
 
-function CloseButton({ onClick }: CloseButtonProps) {
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <X color={useThemeColoring("primaryAction")} />
-    </TouchableOpacity>
-  );
-}
 
-type MoreButtonProps = {
-  onClick: () => void;
-  progress: SharedValue<number>;
-};
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
-const MoreButton = forwardRef<RNView, MoreButtonProps>(
-  ({ onClick, progress }, ref) => {
-    const opacity = useAnimatedStyle(() => {
-      return {
-        opacity: interpolate(progress.value, [0, 1], [1, 0.7]),
-      };
-    });
-
-    return (
-      <View ref={ref}>
-        <AnimatedPressable onPress={onClick} style={opacity}>
-          <MoreHorizontal color={useThemeColoring("primaryAction")} />
-        </AnimatedPressable>
-      </View>
-    );
-  }
-);
 
 const workoutSummaryStyles = StyleSheet.create({
   container: {
@@ -316,19 +280,7 @@ function ExerciseItem({ exercise, onDelete, onPress }: ExerciseItemProps) {
   );
 }
 
-type MoreExercisesButtonProps = {
-  onClick: () => void;
-};
 
-const MoreExercisesButton = forwardRef<any, MoreExercisesButtonProps>(
-  ({ onClick }, ref) => {
-    return (
-      <TouchableOpacity ref={ref} onPress={onClick}>
-        <MoreHorizontal color={useThemeColoring("primaryAction")} />
-      </TouchableOpacity>
-    );
-  }
-);
 
 export type ExercisesRef = {
   openExercisesPopover: () => void;
@@ -339,10 +291,11 @@ type ExercisesProps = {
   exercisesPopoverRef: React.RefObject<PopoverRef | null>;
   onDelete: (exerciseId: string) => void;
   onExercisePress: (exerciseId: string) => void;
+  exercisesPopoverProgress: SharedValue<number>;
 };
 
 const Exercises = forwardRef<ExercisesRef, ExercisesProps>(
-  ({ exercises, exercisesPopoverRef, onDelete, onExercisePress }, ref) => {
+  ({ exercises, exercisesPopoverRef, onDelete, onExercisePress, exercisesPopoverProgress }, ref) => {
     const moreButtonRef = useRef<any>(null);
     const { height } = useWindowDimensions();
 
@@ -369,7 +322,7 @@ const Exercises = forwardRef<ExercisesRef, ExercisesProps>(
           <Text header style={exerciseListStyles.sectionTitle}>
             Exercises
           </Text>
-          <MoreExercisesButton ref={moreButtonRef} onClick={handleMorePress} />
+          <MoreButton ref={moreButtonRef} onClick={handleMorePress} progress={exercisesPopoverProgress} />
         </View>
         {exercises.length === 0 ? (
           <View
@@ -657,6 +610,7 @@ export function CompletedWorkoutInitial() {
               exercisesPopoverRef={exercisesPopoverRef}
               onDelete={handleDeleteExercise}
               onExercisePress={handleExercisePress}
+              exercisesPopoverProgress={exercisesPopoverProgress}
             />
           ) : (
             <ExercisesSkeleton />
@@ -671,7 +625,7 @@ export function CompletedWorkoutInitial() {
           onClick={handleRepeat}
         />
         <PopoverItem
-          label="Edit Workout"
+          label="Edit Name & Time"
           icon={
             <FilePenLine size={20} color={useThemeColoring("primaryText")} />
           }

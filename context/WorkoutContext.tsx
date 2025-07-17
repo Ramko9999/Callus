@@ -293,12 +293,6 @@ export function areWorkoutsSame(a: Workout, b: Workout): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
 
-export function getRemainingRest(set: Set): number {
-  return Math.floor(
-    ((set.restStartedAt as number) + set.restDuration * 1000 - Date.now()) /
-      1000
-  );
-}
 
 export type WorkoutActions = {
   startWorkout: (_: Workout) => void;
@@ -346,107 +340,7 @@ const context = createContext<WorkoutContext>({
   },
 });
 
-type Props = {
-  children: React.ReactNode;
-};
 
-export function WorkoutProvider({ children }: Props) {
-  const [workout, setWorkout] = useState<Workout>();
-  const { invoke } = useDebounce({ delay: 200 });
-
-  const updateWorkout = (workoutUpdate: Partial<Workout>) => {
-    const updatedWorkout = { ...(workout as Workout), ...workoutUpdate };
-    setWorkout(updatedWorkout);
-    //@ts-ignore
-    invoke(WorkoutApi.saveWorkout)(workoutUpdate);
-  };
-
-  const startWorkout = (workout: Workout) => {
-    const activity = getCurrentWorkoutActivity(workout);
-    if (activity.type !== WorkoutActivityType.FINISHED) {
-      workout = updateSet(
-        (activity.activityData.set as Set).id,
-        { startedAt: Date.now() },
-        workout as Workout
-      );
-    }
-    WorkoutApi.saveWorkout(workout).then(() => {
-      setWorkout(workout);
-    });
-  };
-
-  const completeSet = (setId: string) => {
-    const newWorkout = updateSet(
-      setId,
-      { status: SetStatus.RESTING, restStartedAt: Date.now() },
-      workout as Workout
-    );
-
-    updateWorkout(newWorkout);
-  };
-
-  const completeRest = (setId: string) => {
-    let newWorkout = updateSet(
-      setId,
-      { status: SetStatus.FINISHED, restEndedAt: Date.now() },
-      workout as Workout
-    );
-    const activity = getCurrentWorkoutActivity(newWorkout);
-    if (activity.type !== WorkoutActivityType.FINISHED) {
-      newWorkout = updateSet(
-        (activity.activityData.set as Set).id,
-        { startedAt: Date.now() },
-        newWorkout as Workout
-      );
-    }
-
-    updateWorkout(newWorkout);
-  };
-
-  const discardWorkout = () => {
-    setWorkout(undefined);
-  };
-
-  const updateRestDuration = (setId: string, updatedRestDuration: number) => {
-    let newWorkout = updateSet(
-      setId,
-      { restDuration: updatedRestDuration },
-      workout as Workout
-    );
-    updateWorkout(newWorkout);
-  };
-
-  const resumeInProgressWorkout = (workout: Workout) => {
-    setWorkout(workout);
-  };
-
-  return (
-    <context.Provider
-      value={{
-        actions: {
-          startWorkout,
-          completeRest,
-          completeSet,
-          discardWorkout,
-          resumeInProgressWorkout,
-          updateRestDuration,
-        },
-        activity: workout && getCurrentWorkoutActivity(workout),
-        metadata: workout && {
-          startedAt: workout.startedAt,
-          name: workout.name,
-        },
-        isInWorkout: workout != undefined,
-        editor: {
-          workout: workout,
-          actions: { updateWorkout, stopCurrentWorkout: discardWorkout },
-        },
-      }}
-    >
-      {children}
-    </context.Provider>
-  );
-}
 
 export function useWorkout() {
   return useContext(context);

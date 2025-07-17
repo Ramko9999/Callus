@@ -1,11 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  useCallback,
-  memo,
-  useMemo,
-} from "react";
+import React, { useState, useRef, useEffect, useCallback, memo } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -31,7 +24,6 @@ import { tintColor } from "@/util/color";
 import { useNavigation } from "@react-navigation/native";
 import {
   Plus,
-  ChevronLeft,
   MoreVertical,
   Trash2,
   Shuffle,
@@ -51,13 +43,8 @@ import { EditRestDuration } from "@/components/sheets/edit-rest-duration";
 import { EditSetSheet } from "@/components/sheets/edit-set";
 import { AddNoteSheet } from "@/components/sheets/add-note";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { updateExerciseRest } from "@/util/workout/update";
 import {
   updateSet,
-  removeSet,
-  duplicateLastSet,
-  updateExercise,
-  removeExercise,
 } from "@/context/WorkoutContext";
 import { getDurationDisplay } from "@/util/date";
 import { useSound } from "@/components/sounds";
@@ -86,6 +73,7 @@ import {
   WorkoutActions,
   WorkoutQuery,
 } from "@/api/model/workout";
+import { BackButton, PlusButton } from "../../common";
 
 const exerciseCardHeaderStyles = StyleSheet.create({
   container: {
@@ -811,16 +799,8 @@ export function EditExercises() {
       <HeaderPage
         title={workout!.name}
         subtitle={<LiveElapsed workout={workout} />}
-        leftAction={
-          <TouchableOpacity onPress={handleClose}>
-            <ChevronLeft color={useThemeColoring("primaryAction")} />
-          </TouchableOpacity>
-        }
-        rightAction={
-          <TouchableOpacity onPress={handleAddExercise}>
-            <Plus size={20} color={useThemeColoring("primaryAction")} />
-          </TouchableOpacity>
-        }
+        leftAction={<BackButton onClick={handleClose} />}
+        rightAction={<PlusButton onClick={handleAddExercise} />}
       >
         <ScrollView
           style={editExercisesStyles.scrollContainer}

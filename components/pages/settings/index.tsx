@@ -8,7 +8,7 @@ import * as Application from "expo-application";
 import { WorkoutApi } from "@/api/workout";
 import { HeaderPage } from "@/components/util/header-page";
 import { tintColor } from "@/util/color";
-import { GoBackAction, SectionHeader, SettingsRow } from "./common";
+import { SectionHeader, SettingsRow } from "./common";
 import {
   ArrowUpRight,
   ChevronRight,
@@ -24,6 +24,7 @@ import { ImportProgressSheet } from "@/components/sheets/import-progress";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { TwitterX } from "@/components/theme/icons";
 import { usePopup } from "@/components/popup";
+import { BackButton } from "../common";
 
 async function exportAppData() {
   const exportFileUri = `${
@@ -84,7 +85,7 @@ function RootSettings({ navigation }: any) {
     <>
       <HeaderPage
         title="Settings"
-        leftAction={<GoBackAction onClick={navigation.goBack} />}
+        leftAction={<BackButton onClick={navigation.goBack} />}
       >
         <ScrollView contentContainerStyle={rootSettingsStyles.container}>
           <SettingsRow

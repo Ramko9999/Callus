@@ -95,7 +95,10 @@ function getCurrentSetAndExercise(workout: Workout) {
     exercise.sets.map((set) => ({ set, exercise }))
   );
   for (const { set, exercise } of exerciseSets) {
-    if (set.status === SetStatus.UNSTARTED || set.status === SetStatus.RESTING) {
+    if (
+      set.status === SetStatus.UNSTARTED ||
+      set.status === SetStatus.RESTING
+    ) {
       return { set, exercise };
     }
   }
@@ -226,10 +229,14 @@ function deleteExercise(workout: Workout, exerciseId: string) {
   };
 }
 
-function updateRest(workout: Workout, exerciseId: string, restDuration: number) {
+function updateRest(
+  workout: Workout,
+  exerciseId: string,
+  restDuration: number
+) {
   const exercise = getExercise(workout, exerciseId);
   const sets = exercise.sets.map((set) => {
-    if(set.status !== SetStatus.FINISHED) {
+    if (set.status !== SetStatus.FINISHED) {
       return {
         ...set,
         restDuration,
@@ -246,7 +253,8 @@ export const ExerciseActions = (workout: Workout, exerciseId: string) => ({
     updateExercise(workout, exerciseId, update),
   duplicateLastSet: () => duplicateLastSet(workout, exerciseId),
   delete: () => deleteExercise(workout, exerciseId),
-  updateRest: (restDuration: number) => updateRest(workout, exerciseId, restDuration),
+  updateRest: (restDuration: number) =>
+    updateRest(workout, exerciseId, restDuration),
 });
 
 function getSetAndExercise(workout: Workout, setId: string) {
@@ -294,8 +302,15 @@ function restSet(workout: Workout, setId: string) {
 
 function deleteSet(workout: Workout, setId: string) {
   const { exercise } = getSetAndExercise(workout, setId)!;
+
+  const sets = exercise.sets.filter((s) => s.id !== setId);
+
+  if (sets.length === 0) {
+    return deleteExercise(workout, exercise.id);
+  }
+
   return ExerciseActions(workout, exercise.id).update({
-    sets: exercise.sets.filter((s) => s.id !== setId),
+    sets,
   });
 }
 
@@ -321,10 +336,7 @@ function hasUnfinishedSets(workout: Workout) {
   );
 }
 
-function getNextUnstartedSet(
-  workout: Workout,
-  setId: string
-) {
+function getNextUnstartedSet(workout: Workout, setId: string) {
   const exerciseSets = workout.exercises.flatMap((exercise) =>
     exercise.sets
       .filter((set) => set.status !== SetStatus.FINISHED)

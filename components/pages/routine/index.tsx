@@ -6,9 +6,9 @@ import { LiveWorkoutPreview } from "@/components/workout/preview";
 import { Routine } from "@/interface";
 import { StyleUtils, TAB_BAR_HEIGHT } from "@/util/styles";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import { Plus } from "lucide-react-native";
 import React, { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { PlusButton } from "../common";
 
 const savedRoutineStyles = StyleSheet.create({
   container: {
@@ -73,18 +73,6 @@ function SavedRoutines({ onClick, routines }: SavedRoutinesProps) {
   );
 }
 
-type CreateRoutineActionProps = {
-  onClick: () => void;
-};
-
-function CreateRoutineAction({ onClick }: CreateRoutineActionProps) {
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <Plus color={useThemeColoring("primaryAction")} />
-    </TouchableOpacity>
-  );
-}
-
 const routinesStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
@@ -119,7 +107,7 @@ export function Routines() {
     <>
       <HeaderPage
         title={"Routines"}
-        rightAction={<CreateRoutineAction onClick={onCreateRoutine} />}
+        rightAction={<PlusButton onClick={onCreateRoutine} />}
       >
         <ScrollView
           style={routinesStyles.scroll}

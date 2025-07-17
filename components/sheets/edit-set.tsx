@@ -424,7 +424,8 @@ const editSetStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
     paddingHorizontal: "3%",
-    paddingVertical: "3%",
+    paddingTop: "1%",
+    paddingBottom: 30,
   },
   inputsContainer: {
     ...StyleUtils.flexRow(15),

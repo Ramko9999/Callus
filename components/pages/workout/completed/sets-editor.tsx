@@ -8,11 +8,10 @@ import {
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import {
-  ChevronLeft,
   Plus,
-  MoreHorizontal,
   StickyNote,
 } from "lucide-react-native";
+import { BackButton, MoreButton } from "@/components/pages/common";
 import { HeaderPage } from "@/components/util/header-page";
 import { useCompletedWorkout } from "./context";
 import {
@@ -37,6 +36,9 @@ import Animated, {
   LayoutAnimationConfig,
   LightSpeedInRight,
   LightSpeedOutLeft,
+  useAnimatedStyle,
+  withSequence,
+  withTiming,
 } from "react-native-reanimated";
 import { useRef, useCallback, useState } from "react";
 import { getDurationDisplay } from "@/util/date";
@@ -46,17 +48,14 @@ import { EditSetSheet } from "@/components/sheets/edit-set";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { useSound } from "@/components/sounds";
 import * as Haptics from "expo-haptics";
-import {
-  withSequence,
-  withTiming,
-  useAnimatedStyle,
-} from "react-native-reanimated";
 import { SetStatus } from "@/interface";
 import {
   SetRow,
   SetHeader,
   EditField,
 } from "@/components/pages/workout/common";
+
+
 
 type CompletedSetRowProps = {
   set: Set;
@@ -337,14 +336,14 @@ export function SetsEditor() {
         title={exercise?.name ?? "Exercise"}
         subtitle={getSubtitle(exercise)}
         leftAction={
-          <TouchableOpacity onPress={navigation.goBack}>
-            <ChevronLeft color={useThemeColoring("primaryAction")} />
-          </TouchableOpacity>
+          <BackButton onClick={navigation.goBack} />
         }
         rightAction={
-          <TouchableOpacity ref={moreButtonRef} onPress={handleMorePress}>
-            <MoreHorizontal color={useThemeColoring("primaryAction")} />
-          </TouchableOpacity>
+          <MoreButton
+            ref={moreButtonRef}
+            onClick={handleMorePress}
+            progress={popoverProgress}
+          />
         }
       >
         <ScrollView

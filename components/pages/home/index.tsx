@@ -30,34 +30,10 @@ import { usePopup } from "@/components/popup";
 import * as Haptics from "expo-haptics";
 import { Plus } from "lucide-react-native";
 import { LiveWorkoutPreview } from "@/components/workout/preview";
+import { PlusButton } from "@/components/pages/common";
 import { useRestSounds } from "@/components/hooks/use-rest";
 
-const startWorkoutActionStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRow(10),
-    padding: "10%",
-  },
-});
 
-type StartWorkoutActionProps = {
-  onClick: () => void;
-};
-
-function StartWorkoutAction({ onClick }: StartWorkoutActionProps) {
-  const handlePress = useCallback(() => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    onClick();
-  }, [onClick]);
-
-  return (
-    <TouchableOpacity
-      style={startWorkoutActionStyles.container}
-      onPress={handlePress}
-    >
-      <Plus color={useThemeColoring("primaryAction")} />
-    </TouchableOpacity>
-  );
-}
 
 const completedWorkoutsSummaryStyles = StyleSheet.create({
   container: {
@@ -180,11 +156,16 @@ export default function Home() {
     selectedItem.day
   );
 
+  const handleStartWorkout = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    startWorkout.open();
+  }, [startWorkout]);
+
   return (
     <>
       <HeaderPage
         title="History"
-        rightAction={<StartWorkoutAction onClick={startWorkout.open} />}
+        rightAction={<PlusButton onClick={handleStartWorkout} />}
       >
         <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
           <View style={homeStyles.calendar}>

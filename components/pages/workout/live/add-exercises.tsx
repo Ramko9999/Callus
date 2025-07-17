@@ -2,7 +2,7 @@ import { View, useThemeColoring } from "@/components/Themed";
 import { useRef, useState, useCallback } from "react";
 import { Keyboard, TouchableOpacity, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { ChevronLeft, LayoutGrid, List } from "lucide-react-native";
+import { LayoutGrid, List } from "lucide-react-native";
 import { HeaderPage } from "@/components/util/header-page";
 import { ExerciseAdder } from "@/components/popup/workout/common/exercise/add";
 import { FilterExercises } from "@/components/sheets";
@@ -10,6 +10,7 @@ import { ExerciseMeta } from "@/interface";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { useLiveWorkout } from "./context";
 import { WorkoutActions } from "@/api/model/workout";
+import { BackButton } from "../../common";
 
 function TopActions({ isGridView, onToggleView }: { isGridView: boolean; onToggleView: () => void }) {
   return (
@@ -56,9 +57,7 @@ export function AddExercises() {
       <HeaderPage
         title="Add Exercises"
         leftAction={
-          <TouchableOpacity onPress={handleClose}>
-            <ChevronLeft color={useThemeColoring("primaryAction")} />
-          </TouchableOpacity>
+          <BackButton onClick={handleClose} />
         }
         rightAction={
           <TopActions

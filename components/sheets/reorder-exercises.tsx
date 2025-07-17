@@ -20,10 +20,14 @@ import { Reorderable } from "@/components/util/reorderable";
 import Animated, {
   LinearTransition,
   useSharedValue,
+  withTiming,
+  useAnimatedStyle,
 } from "react-native-reanimated";
 import { GripVertical } from "lucide-react-native";
 import { Exercise } from "@/interface";
 import * as Haptics from "expo-haptics";
+
+
 
 const reorderingExerciseItemStyles = StyleSheet.create({
   container: {
@@ -37,6 +41,22 @@ const reorderingExerciseItemStyles = StyleSheet.create({
   dragHandle: {
     marginRight: "3%",
   },
+  itemContainer: {
+    position: "relative",
+  },
+  underlay: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    borderRadius: 8,
+    zIndex: 0,
+  },
+  foreground: {
+    ...StyleUtils.flexRow(),
+    alignItems: "center",
+    position: "relative",
+    zIndex: 1,
+  },
 });
 
 type ReorderingExerciseItemProps = {
@@ -47,24 +67,65 @@ type ReorderingExerciseItemProps = {
 };
 
 const ReorderingExerciseItem = memo(
-  ({ exercise, itemHeight, onPressIn, onPressOut }: ReorderingExerciseItemProps) => {
+  ({
+    exercise,
+    itemHeight,
+    onPressIn,
+    onPressOut,
+  }: ReorderingExerciseItemProps) => {
     const backgroundColor = useThemeColoring("appBackground");
-    const inactiveGripColor = useThemeColoring("lightText");
+    const primaryTextColor = useThemeColoring("primaryText");
+    const activatedColor = useThemeColoring("primaryAction");
+
+    const [itemLayout, setItemLayout] = useState({ width: 0, height: 0 });
+    const activationProgress = useSharedValue(0);
+
+    const handlePressIn = useCallback(() => {
+      activationProgress.value = 0;
+      activationProgress.value = withTiming(1, { duration: 500 });
+      onPressIn();
+    }, [onPressIn]);
+
+    const handlePressOut = useCallback(() => {
+      activationProgress.value = withTiming(0, { duration: 100 });
+      onPressOut();
+    }, [onPressOut]);
+
+    // Animated style for the underlay
+    const animatedUnderlayStyle = useAnimatedStyle(() => {
+      return {
+        width: itemLayout.width * activationProgress.value,
+        height: itemLayout.height,
+        backgroundColor: activatedColor,
+      };
+    }, [itemLayout.width, itemLayout.height, activatedColor]);
 
     return (
-      <TouchableOpacity
-        style={[
-          reorderingExerciseItemStyles.container,
-          { backgroundColor, height: itemHeight },
-        ]}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-      >
-        <View style={reorderingExerciseItemStyles.dragHandle}>
-          <GripVertical size={20} color={inactiveGripColor} />
-        </View>
-        <Text>{exercise.name}</Text>
-      </TouchableOpacity>
+      <View style={reorderingExerciseItemStyles.itemContainer}>
+        <TouchableOpacity
+          style={[
+            reorderingExerciseItemStyles.container,
+            { backgroundColor, height: itemHeight, overflow: "hidden" },
+          ]}
+          onLayout={(e) => setItemLayout(e.nativeEvent.layout)}
+          activeOpacity={1}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+        >
+          <Animated.View
+            style={[
+              reorderingExerciseItemStyles.underlay,
+              animatedUnderlayStyle,
+            ]}
+          />
+          <View style={reorderingExerciseItemStyles.foreground}>
+            <View style={reorderingExerciseItemStyles.dragHandle}>
+              <GripVertical size={20} color={primaryTextColor} />
+            </View>
+            <Text>{exercise.name}</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
     );
   },
   (prevProps, nextProps) => {
@@ -72,7 +133,8 @@ const ReorderingExerciseItem = memo(
       JSON.stringify(prevProps.exercise) ===
         JSON.stringify(nextProps.exercise) &&
       prevProps.itemHeight === nextProps.itemHeight &&
-      prevProps.onPressIn === nextProps.onPressIn
+      prevProps.onPressIn === nextProps.onPressIn &&
+      prevProps.onPressOut === nextProps.onPressOut
     );
   }
 );
@@ -116,7 +178,7 @@ export const ReorderExercisesSheet = forwardRef<
   BottomSheet,
   ReorderExercisesSheetProps
 >(({ show, hide, onHide, exercises, onReorder }, ref) => {
-  const backgroundColor = useThemeColoring("appBackground");
+  const primaryTextColor = useThemeColoring("primaryText");
   const hasActivatedReordering = useSharedValue(false);
   const activeGripColor = useThemeColoring("primaryAction");
   const { width, height } = useWindowDimensions();
@@ -124,7 +186,7 @@ export const ReorderExercisesSheet = forwardRef<
   const itemHeight = height * 0.07;
   const originalOrderRef = useRef<string[]>([]);
   const [currentExercises, setCurrentExercises] = useState(exercises);
-  
+
   const holdTimerRef = useRef<number>(null);
 
   useEffect(() => {
@@ -202,20 +264,26 @@ export const ReorderExercisesSheet = forwardRef<
   const renderInDragItem = useCallback(
     (exercise: Exercise) => {
       return (
-        <View
-          style={[
-            reorderingExerciseItemStyles.container,
-            { backgroundColor, width: width * 0.9, height: itemHeight },
-          ]}
-        >
-          <View style={reorderingExerciseItemStyles.dragHandle}>
-            <GripVertical size={20} color={activeGripColor} />
+        <View style={{ position: "relative" }}>
+          <View
+            style={[
+              reorderingExerciseItemStyles.container,
+              {
+                backgroundColor: activeGripColor,
+                width: width * 0.9,
+                height: itemHeight,
+              },
+            ]}
+          >
+            <View style={reorderingExerciseItemStyles.dragHandle}>
+              <GripVertical size={20} color={primaryTextColor} />
+            </View>
+            <Text>{exercise.name}</Text>
           </View>
-          <Text style={{ color: activeGripColor }}>{exercise.name}</Text>
         </View>
       );
     },
-    [backgroundColor, itemHeight]
+    [itemHeight, width, activeGripColor]
   );
 
   const getItemHeight = useCallback(() => {
@@ -223,7 +291,12 @@ export const ReorderExercisesSheet = forwardRef<
   }, [itemHeight]);
 
   return (
-    <PopupBottomSheet show={show} onHide={onHide} ref={ref}>
+    <PopupBottomSheet
+      show={show}
+      onHide={onHide}
+      ref={ref}
+      enablePanDownToClose={false}
+    >
       <View style={commonSheetStyles.sheetHeader}>
         <Text action style={{ fontWeight: 600 }}>
           Reorder Exercises

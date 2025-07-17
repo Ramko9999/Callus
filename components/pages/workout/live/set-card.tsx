@@ -145,6 +145,7 @@ export type SetCardProps = {
   exercise: Exercise;
   set: Set;
   onCompleteSet: (setId: string) => void;
+  onSkipRest: () => void;
   onUpdateWorkout: (updatedWorkout: any) => void;
   workout: any;
   onEditSet?: (exerciseId: string, setId: string, field: EditField) => void;
@@ -154,6 +155,7 @@ export function SetCard({
   exercise,
   set,
   onCompleteSet,
+  onSkipRest,
   onUpdateWorkout,
   workout,
   onEditSet,
@@ -250,6 +252,7 @@ export function SetCard({
                     onUpdateWorkout(updatedWorkout);
                   }
                 }}
+                onSkip={onSkipRest}
               />
             </View>
           </Animated.View>

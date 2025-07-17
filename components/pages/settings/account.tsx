@@ -1,9 +1,4 @@
-import {
-  SectionHeader,
-  commonSettingsStyles,
-  GoBackAction,
-  SettingInput,
-} from "./common";
+import { SectionHeader, commonSettingsStyles, SettingInput } from "./common";
 import { HeaderPage } from "@/components/util/header-page";
 import { useUserDetails } from "@/components/user-details";
 import { ScrollView, StyleSheet, Keyboard } from "react-native";
@@ -17,6 +12,7 @@ import { EditNameSheet } from "@/components/sheets/edit-name";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { getNumberSuffix } from "@/util/misc";
 import { UserApi } from "@/api/user";
+import { BackButton } from "../common";
 
 function formatDOB(dob: number) {
   const date = new Date(dob);
@@ -106,7 +102,7 @@ export function AccountSettings({ navigation }: any) {
     <>
       <HeaderPage
         title="Account"
-        leftAction={<GoBackAction onClick={navigation.goBack} />}
+        leftAction={<BackButton onClick={navigation.goBack} />}
       >
         <ScrollView contentContainerStyle={commonSettingsStyles.container}>
           <View style={accountSettingsStyles.header}>

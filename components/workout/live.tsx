@@ -13,7 +13,7 @@ import { StyleUtils } from "@/util/styles";
 import { tintColor } from "@/util/color";
 import { Exercise, Workout, SetStatus } from "@/interface";
 import { Svg, Circle } from "react-native-svg";
-import { Minus, Plus } from "lucide-react-native";
+import { Minus, Plus, SkipForward } from "lucide-react-native";
 import { TouchableOpacity } from "react-native";
 import * as Haptics from "expo-haptics";
 
@@ -185,8 +185,16 @@ const restingProgressStyles = StyleSheet.create({
   },
   controlButton: {
     ...StyleUtils.flexRowCenterAll(),
-    padding: "4%",
+    padding: "3%",
     borderRadius: "50%",
+  },
+  actionButtons: {
+    position: 'absolute',
+    ...StyleUtils.flexRow(20),
+    justifyContent: "center",
+    bottom: "17%",
+    left: 0,
+    right: 0,
   },
 });
 
@@ -197,6 +205,7 @@ type RestingProgressProps = {
   strokeWidth?: number;
   currentDuration: number;
   onEditDuration?: (newDuration: number) => void;
+  onSkip: () => void;
 };
 
 export function RestingProgress({
@@ -206,6 +215,7 @@ export function RestingProgress({
   strokeWidth = 8,
   currentDuration,
   onEditDuration,
+  onSkip,
 }: RestingProgressProps) {
   const primaryActionColor = useThemeColoring("primaryAction");
   const primaryTextColor = useThemeColoring("primaryText");
@@ -238,6 +248,11 @@ export function RestingProgress({
       const newDuration = currentDuration + 15;
       onEditDuration(newDuration);
     }
+  };
+
+  const handleSkip = () => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      onSkip();
   };
 
   const animatedProps = useAnimatedProps(() => {
@@ -286,29 +301,38 @@ export function RestingProgress({
         <Text style={restingProgressStyles.timeText}>
           {formatTime(timeRemaining)}
         </Text>
-        <View style={restingProgressStyles.controls}>
-          <TouchableOpacity
-            style={[
-              restingProgressStyles.controlButton,
-              { backgroundColor: actionColor },
-            ]}
-            onPress={handleDecrease}
-          >
-            <Minus size={16} color={lightTextColor} />
-          </TouchableOpacity>
-          <Text light style={restingProgressStyles.durationText}>
-            {formatTime(currentDuration)}
-          </Text>
-          <TouchableOpacity
-            style={[
-              restingProgressStyles.controlButton,
-              { backgroundColor: actionColor },
-            ]}
-            onPress={handleIncrease}
-          >
-            <Plus size={16} color={lightTextColor} />
-          </TouchableOpacity>
-        </View>
+        <Text light style={restingProgressStyles.durationText}>
+          {formatTime(currentDuration)}
+        </Text>
+      </View>
+      <View style={restingProgressStyles.actionButtons}>
+        <TouchableOpacity
+          style={[
+            restingProgressStyles.controlButton,
+            { backgroundColor: actionColor },
+          ]}
+          onPress={handleDecrease}
+        >
+          <Minus size={16} color={lightTextColor} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            restingProgressStyles.controlButton,
+            { backgroundColor: actionColor },
+          ]}
+          onPress={handleIncrease}
+        >
+          <Plus size={16} color={lightTextColor} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            restingProgressStyles.controlButton,
+            { backgroundColor: actionColor },
+          ]}
+          onPress={handleSkip}
+        >
+          <SkipForward size={16} color={lightTextColor} />
+        </TouchableOpacity>
       </View>
     </View>
   );

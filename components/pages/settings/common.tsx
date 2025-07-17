@@ -1,21 +1,8 @@
 import { TouchableOpacity, StyleSheet } from "react-native";
 import { useThemeColoring, Text, View } from "@/components/Themed";
-import { ChevronLeft } from "lucide-react-native";
 import { StyleUtils } from "@/util/styles";
 import React from "react";
 import { convertHexToRGBA } from "@/util/color";
-
-type GoBackActionProps = {
-  onClick: () => void;
-};
-
-export function GoBackAction({ onClick }: GoBackActionProps) {
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <ChevronLeft color={useThemeColoring("primaryAction")} />
-    </TouchableOpacity>
-  );
-}
 
 export const commonSettingsStyles = StyleSheet.create({
   container: {
