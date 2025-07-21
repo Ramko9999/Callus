@@ -8,8 +8,6 @@ import {
   WorkedOutDay,
 } from "@/interface";
 import { truncTime, addDays, removeDays } from "@/util/date";
-import { NAME_TO_EXERCISE_META } from "@/api/exercise";
-import { useUserDetails } from "@/components/user-details";
 import React, { useCallback, useMemo, useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { WorkoutApi } from "@/api/workout";
@@ -37,6 +35,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { convertHexToRGBA } from "@/util/color";
 import { TextSkeleton } from "@/components/util/loading";
+import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
+import { useShallow } from "zustand/shallow";
 
 const CHART_HEIGHT_MULTIPLIER = 0.17;
 const CHART_WIDTH_MULTIPLIER = 0.96;
@@ -96,6 +96,7 @@ function formatXAxisLabel(timestamp: number): string {
 
 function generateVolumeTrends(
   exercises: CompletedExercise[],
+  metaIdToDifficultyType: Record<string, DifficultyType>,
   startDate: number,
   endDate: number
 ): DataPoint[] {
@@ -114,9 +115,7 @@ function generateVolumeTrends(
 
     exercise.sets.forEach((set) => {
       if (set.status !== SetStatus.FINISHED) return;
-      const difficultyType = NAME_TO_EXERCISE_META.get(
-        exercise.name
-      )?.difficultyType;
+      const difficultyType = metaIdToDifficultyType[exercise.metaId];
 
       switch (difficultyType) {
         case DifficultyType.BODYWEIGHT:
@@ -217,20 +216,29 @@ function getTwoMonthPeriodStartDate(timestamp: number): number {
 
 type SummaryMetric = {
   name: string;
-  generateData: (startDate: number, endDate: number) => Promise<DataPoint[]>;
+  generateData: (
+    startDate: number,
+    endDate: number,
+    metaIdsToDifficultyType: Record<string, DifficultyType>
+  ) => Promise<DataPoint[]>;
   formatYAxisLabel: (value: number) => string;
   formatTitleValue: (value: number) => string;
 };
 
 const volumeMetric: SummaryMetric = {
   name: "Volume",
-  generateData: async (startDate, endDate) => {
+  generateData: async (startDate, endDate, metaIdToDifficultyType) => {
     const exercises = await WorkoutApi.getAllExerciseCompletions(
       startDate,
       endDate
     );
 
-    return generateVolumeTrends(exercises, startDate, endDate);
+    return generateVolumeTrends(
+      exercises,
+      metaIdToDifficultyType,
+      startDate,
+      endDate
+    );
   },
   formatYAxisLabel: formatVolume,
   formatTitleValue: formatTotalVolume,
@@ -915,6 +923,11 @@ export function SummaryTrends() {
     useState<string>("Volume");
   const { trendsPeriodSelection } = usePopup();
   const { height } = useWindowDimensions();
+  const metaIdToDifficultyType = useExercisesStore(
+    useShallow((state) =>
+      ExerciseStoreSelectors.getMetaIdToDifficultyType(state)
+    )
+  );
 
   const { startDate, endDate } = useMemo(() => {
     return getSummaryDateRange(trendsPeriodSelection.timeRange);
@@ -927,11 +940,11 @@ export function SummaryTrends() {
   useFocusEffect(
     useCallback(() => {
       metric
-        .generateData(startDate, addDays(endDate, 1))
+        .generateData(startDate, addDays(endDate, 1), metaIdToDifficultyType)
         .then(setBarChartData)
         .catch((error) => console.error(error)) // we need to safely handl
         .finally(() => setIsLoading(false));
-    }, [startDate, endDate, metric])
+    }, [startDate, endDate, metric, metaIdToDifficultyType])
   );
 
   return (

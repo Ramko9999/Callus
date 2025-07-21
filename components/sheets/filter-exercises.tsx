@@ -6,10 +6,11 @@ import { forwardRef, ForwardedRef } from "react";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { SheetProps, SheetX, commonSheetStyles } from "./common";
 import {
-  EXERCISE_REPOSITORY,
+  getExerciseTypeDisplayInfo,
   isMuscleLowerBody,
   isMusclePartOfArms,
   isMuscleUpperBody,
+  ALL_MUSCLES,
 } from "@/api/exercise";
 import { useThemeColoring } from "@/components/Themed";
 import { tintColor, convertHexToRGBA } from "@/util/color";
@@ -23,18 +24,9 @@ const EXERCISE_TYPES = [
   DifficultyType.TIME,
 ];
 
-const ALL_MUSCLE_GROUPS = Array.from(
-  new Set(
-    EXERCISE_REPOSITORY.flatMap(({ primaryMuscles, secondaryMuscles }) => [
-      ...primaryMuscles,
-      ...secondaryMuscles,
-    ])
-  )
-).sort();
-
-const UPPER_BODY_MUSCLES = ALL_MUSCLE_GROUPS.filter(isMuscleUpperBody);
-const LOWER_BODY_MUSCLES = ALL_MUSCLE_GROUPS.filter(isMuscleLowerBody);
-const ARMS_MUSCLES = ALL_MUSCLE_GROUPS.filter(isMusclePartOfArms);
+const UPPER_BODY_MUSCLES = ALL_MUSCLES.filter(isMuscleUpperBody);
+const LOWER_BODY_MUSCLES = ALL_MUSCLES.filter(isMuscleLowerBody);
+const ARMS_MUSCLES = ALL_MUSCLES.filter(isMusclePartOfArms);
 
 const muscleSelectionGroupStyles = StyleSheet.create({
   container: {
@@ -126,38 +118,6 @@ function MuscleSelectionGroup({
   );
 }
 
-type ExerciseTypeDisplayInfo = {
-  title: string;
-  description: string;
-};
-
-// todo: split weight into barbell, dumbbell, machine
-const EXERCISE_TYPE_TO_DISPLAY_INFO: Record<
-  DifficultyType,
-  ExerciseTypeDisplayInfo
-> = {
-  [DifficultyType.WEIGHT]: {
-    title: "Weight",
-    description: "Bench Press, Military Press",
-  },
-  [DifficultyType.BODYWEIGHT]: {
-    title: "Bodyweight",
-    description: "Push-Up, Pull-Up ",
-  },
-  [DifficultyType.WEIGHTED_BODYWEIGHT]: {
-    title: "Weighted Bodyweight",
-    description: "Weighted Pull-Up, Weighted Dip",
-  },
-  [DifficultyType.TIME]: {
-    title: "Time",
-    description: "L-Sit, Handstand Hold",
-  },
-  [DifficultyType.ASSISTED_BODYWEIGHT]: {
-    title: "Assisted Bodyweight",
-    description: "Assisted Pull-Up",
-  },
-};
-
 type ExerciseTypeSelectionGroupProps = {
   title: string;
   exerciseTypes: string[];
@@ -244,7 +204,7 @@ function ExerciseTypeSelectionGroup({
               ]}
             >
               <Text>
-                {EXERCISE_TYPE_TO_DISPLAY_INFO[type as DifficultyType].title}
+                {getExerciseTypeDisplayInfo(type as DifficultyType).title}
               </Text>
               <Text
                 small
@@ -252,10 +212,7 @@ function ExerciseTypeSelectionGroup({
                   ? {}
                   : { light: true })}
               >
-                {
-                  EXERCISE_TYPE_TO_DISPLAY_INFO[type as DifficultyType]
-                    .description
-                }
+                {getExerciseTypeDisplayInfo(type as DifficultyType).description}
               </Text>
             </View>
           </TouchableOpacity>

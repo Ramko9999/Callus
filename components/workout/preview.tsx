@@ -10,6 +10,7 @@ import { useNavigation } from "@react-navigation/native";
 import { WorkoutQuery } from "@/api/model/workout";
 import { useRefresh } from "../hooks/use-refresh";
 import * as Haptics from "expo-haptics";
+import { ExerciseStoreSelectors, useExercisesStore } from "../store";
 
 const liveWorkoutPreviewStyles = StyleSheet.create({
   container: {
@@ -41,6 +42,57 @@ const liveWorkoutPreviewStyles = StyleSheet.create({
   },
 });
 
+const previewDescriptionStyles = StyleSheet.create({
+  text: {
+    fontSize: 14,
+    opacity: 0.7,
+  },
+});
+
+type PreviewDescriptionProps = {
+  workout: Workout;
+  textColor: string;
+};
+
+function PreviewDescription({ workout, textColor }: PreviewDescriptionProps) {
+  const currentSetAndExercise = WorkoutQuery.getCurrentSetAndExercise(workout);
+
+  const exerciseName = useExercisesStore((state) =>
+    currentSetAndExercise?.exercise.metaId
+      ? ExerciseStoreSelectors.getExercise(
+          currentSetAndExercise.exercise.metaId,
+          state
+        ).name
+      : ""
+  );
+
+  if (!currentSetAndExercise) {
+    return (
+      <Text style={[previewDescriptionStyles.text, { color: textColor }]}>
+        {workout.name} {">"} Finished
+      </Text>
+    );
+  }
+
+  const setIndex = currentSetAndExercise.exercise.sets.findIndex(
+    (s: Set) => s.id === currentSetAndExercise.set.id
+  );
+
+  if (currentSetAndExercise.set.status === SetStatus.RESTING) {
+    return (
+      <Text style={[previewDescriptionStyles.text, { color: textColor }]}>
+        {workout.name} {">"} {exerciseName} {">"} Set {setIndex + 1} (Resting)
+      </Text>
+    );
+  } else {
+    return (
+      <Text style={[previewDescriptionStyles.text, { color: textColor }]}>
+        {workout.name} {">"} {exerciseName} {">"} Set {setIndex + 1}
+      </Text>
+    );
+  }
+}
+
 function getElapsedTimeDisplay(elapsedMillis: number): string {
   const hours = Math.floor(elapsedMillis / Period.HOUR);
   const minutes = Math.floor((elapsedMillis % Period.HOUR) / Period.MINUTE);
@@ -52,23 +104,6 @@ function getElapsedTimeDisplay(elapsedMillis: number): string {
       .padStart(2, "0")}`;
   } else {
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-  }
-}
-
-function getWorkoutDescription(workout: Workout): string {
-  const currentSetAndExercise = WorkoutQuery.getCurrentSetAndExercise(workout);
-
-  if (!currentSetAndExercise) {
-    return `${workout.name} > Finished`;
-  }
-
-  const { set, exercise } = currentSetAndExercise;
-  const setIndex = exercise.sets.findIndex((s: Set) => s.id === set.id);
-
-  if (set.status === SetStatus.RESTING) {
-    return `${workout.name} > ${exercise.name} > Set ${setIndex + 1} (Resting)`;
-  } else {
-    return `${workout.name} > ${exercise.name} > Set ${setIndex + 1}`;
   }
 }
 
@@ -102,14 +137,10 @@ export function LiveWorkoutPreview() {
           <Text style={liveWorkoutPreviewStyles.timeText}>
             {getElapsedTimeDisplay(elapsedTime)}
           </Text>
-          <Text
-            style={[
-              liveWorkoutPreviewStyles.workoutInfo,
-              { color: primaryTextColor },
-            ]}
-          >
-            {getWorkoutDescription(workout as Workout)}
-          </Text>
+          <PreviewDescription
+            workout={workout as Workout}
+            textColor={primaryTextColor}
+          />
         </View>
       </View>
     </TouchableOpacity>

@@ -4,7 +4,14 @@ import { StyleUtils } from "@/util/styles";
 import { PopupBottomSheet } from "@/components/util/popup/sheet";
 import { commonSheetStyles, SheetProps, SheetX, SheetError } from "./common";
 import { TouchableOpacity } from "react-native";
-import { useCallback, useEffect, forwardRef, ForwardedRef, useState, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  forwardRef,
+  ForwardedRef,
+  useState,
+  useRef,
+} from "react";
 import React from "react";
 import Animated, {
   useAnimatedStyle,
@@ -18,6 +25,8 @@ import * as FileSystem from "expo-file-system";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { WorkoutApi } from "@/api/workout";
 import { Workout, Routine } from "@/interface";
+import { CustomExercise, toExerciseMeta } from "@/api/model/custom-exercise";
+import { useExercisesStore } from "../store";
 
 const importProgressStyles = StyleSheet.create({
   container: {
@@ -45,6 +54,7 @@ const importProgressStyles = StyleSheet.create({
 enum ImportEntity {
   Workouts = "workouts",
   Routines = "routines",
+  CustomExercises = "custom exercises",
 }
 
 type ImportProgressState = {
@@ -56,19 +66,26 @@ type ImportProgressState = {
   stats: {
     workouts: number;
     routines: number;
+    customExercises: number;
   };
 };
 
 function getProgressText(state: ImportProgressState): string {
   if (state.isComplete) {
-    const { workouts, routines } = state.stats;
-    if (workouts === 0 && routines === 0) {
-      return "There weren't any workouts or routines to import.";
+    const { workouts, routines, customExercises } = state.stats;
+    if (workouts === 0 && routines === 0 && customExercises === 0) {
+      return "There weren't any workouts, routines, or custom exercises to import.";
     }
     const parts: string[] = [];
-    if (workouts > 0) parts.push(`${workouts} workout${workouts === 1 ? '' : 's'}`);
-    if (routines > 0) parts.push(`${routines} routine${routines === 1 ? '' : 's'}`);
-    return `Successfully imported ${parts.join(' and ')}`;
+    if (workouts > 0)
+      parts.push(`${workouts} workout${workouts === 1 ? "" : "s"}`);
+    if (routines > 0)
+      parts.push(`${routines} routine${routines === 1 ? "" : "s"}`);
+    if (customExercises > 0)
+      parts.push(
+        `${customExercises} custom exercise${customExercises === 1 ? "" : "s"}`
+      );
+    return `Successfully imported ${parts.join(" and ")}`;
   }
 
   return `Importing ${state.current} of ${state.total} ${state.entity}`;
@@ -89,22 +106,27 @@ export const ImportProgressSheet = forwardRef(
       isComplete: false,
       current: 0,
       total: 0,
-      stats: { workouts: 0, routines: 0 },
+      stats: { workouts: 0, routines: 0, customExercises: 0 },
     });
     const isCancelled = useRef(false);
 
     const actionColor = useThemeColoring("primaryAction");
     const progressColor = tintColor(actionColor, 0.5);
-    const progressStoppedColor = convertHexToRGBA(useThemeColoring("primaryText"), 0.3);
+    const progressStoppedColor = convertHexToRGBA(
+      useThemeColoring("primaryText"),
+      0.3
+    );
     const progressContainerColor = tintColor(
-        useThemeColoring("primaryViewBackground"),
-        0.05
-      );
+      useThemeColoring("primaryViewBackground"),
+      0.05
+    );
+
+    const addExercises = useExercisesStore((state) => state.addExercises);
 
     const progressStyle = useAnimatedStyle(() => {
       return {
         width: `${progress.value * 100}%`,
-        backgroundColor: importState.error 
+        backgroundColor: importState.error
           ? withSpring(progressStoppedColor)
           : importState.isComplete
           ? withSpring(actionColor)
@@ -112,61 +134,102 @@ export const ImportProgressSheet = forwardRef(
       };
     }, [importState.isComplete, importState.error, actionColor, progressColor]);
 
-    const importWorkouts = useCallback(async (workouts: Workout[]): Promise<void> => {
-      setImportState(prev => ({
-        ...prev,
-        entity: ImportEntity.Workouts,
-        total: workouts.length,
-        current: 0,
-      }));
-      
-      for (let i = 0; i < workouts.length; i++) {
-        if (isCancelled.current) break;
-
-        await WorkoutApi.saveWorkout(workouts[i]);
-        
-        setImportState(prev => ({
+    const importWorkouts = useCallback(
+      async (workouts: Workout[]): Promise<void> => {
+        setImportState((prev) => ({
           ...prev,
-          current: i + 1,
+          entity: ImportEntity.Workouts,
+          total: workouts.length,
+          current: 0,
         }));
-        progress.value = withTiming((i + 1) / workouts.length, { duration: 100 });
-      }
-    }, []);
 
-    const importRoutines = useCallback(async (routines: Routine[]): Promise<void> => {
-      setImportState(prev => ({
-        ...prev,
-        entity: ImportEntity.Routines,
-        total: routines.length,
-        current: 0,
-      }));
-      progress.value = 0;
-      
-      for (let i = 0; i < routines.length; i++) {
-        if (isCancelled.current) break;
-        await WorkoutApi.saveRoutine(routines[i]);
-        
-        setImportState(prev => ({
+        for (let i = 0; i < workouts.length; i++) {
+          if (isCancelled.current) break;
+
+          await WorkoutApi.saveWorkout(workouts[i]);
+
+          setImportState((prev) => ({
+            ...prev,
+            current: i + 1,
+          }));
+          progress.value = withTiming((i + 1) / workouts.length, {
+            duration: 100,
+          });
+        }
+      },
+      []
+    );
+
+    const importRoutines = useCallback(
+      async (routines: Routine[]): Promise<void> => {
+        setImportState((prev) => ({
           ...prev,
-          current: i + 1,
+          entity: ImportEntity.Routines,
+          total: routines.length,
+          current: 0,
         }));
-        progress.value = withTiming((i + 1) / routines.length, { duration: 100 });
-      }
-    }, []);
+        progress.value = 0;
+
+        for (let i = 0; i < routines.length; i++) {
+          if (isCancelled.current) break;
+          await WorkoutApi.saveRoutine(routines[i]);
+
+          setImportState((prev) => ({
+            ...prev,
+            current: i + 1,
+          }));
+          progress.value = withTiming((i + 1) / routines.length, {
+            duration: 100,
+          });
+        }
+      },
+      []
+    );
+
+    const importCustomExercises = useCallback(
+      async (customExercises: CustomExercise[]): Promise<void> => {
+        setImportState((prev) => ({
+          ...prev,
+          entity: ImportEntity.CustomExercises,
+          total: customExercises.length,
+          current: 0,
+        }));
+        progress.value = 0;
+
+        for (let i = 0; i < customExercises.length; i++) {
+          if (isCancelled.current) break;
+          await WorkoutApi.saveCustomExercise(customExercises[i]);
+
+          setImportState((prev) => ({
+            ...prev,
+            current: i + 1,
+          }));
+          progress.value = withTiming((i + 1) / customExercises.length, {
+            duration: 100,
+          });
+        }
+      },
+      []
+    );
 
     const handleImport = useCallback(async () => {
       try {
         const content = await FileSystem.readAsStringAsync(fileUri);
-        let { workouts, routines } = JSON.parse(content);
-        routines = []
-        
+        let { workouts, routines, customExercises } = JSON.parse(content);
+        routines = [];
+
         const workoutsLength = workouts?.length ?? 0;
         const routinesLength = routines?.length ?? 0;
+        const customExercisesLength = customExercises?.length ?? 0;
 
-        setImportState(prev => ({
+        setImportState((prev) => ({
           ...prev,
           error: undefined,
-          stats: { workouts: workoutsLength, routines: routinesLength },
+          stats: {
+            workouts: workoutsLength,
+            routines: routinesLength,
+            customExercises: customExercisesLength,
+          },
         }));
 
         if (workoutsLength > 0) {
@@ -176,9 +239,14 @@ export const ImportProgressSheet = forwardRef(
         if (routinesLength > 0) {
           await importRoutines(routines);
         }
-        
+
+        if (customExercisesLength > 0) {
+          await importCustomExercises(customExercises);
+          addExercises(customExercises.map(toExerciseMeta));
+        }
+
         if (!isCancelled.current) {
-          setImportState(prev => ({
+          setImportState((prev) => ({
             ...prev,
             isComplete: true,
           }));
@@ -186,12 +254,21 @@ export const ImportProgressSheet = forwardRef(
         }
       } catch (error) {
         console.error("Import failed:", error);
-        setImportState(prev => ({
+        setImportState((prev) => ({
           ...prev,
-          error: error instanceof Error ? error.message : "Failed to import data. Please check the file format and try again.",
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to import data. Please check the file format and try again.",
         }));
       }
-    }, [fileUri, importWorkouts, importRoutines]);
+    }, [
+      fileUri,
+      importWorkouts,
+      importRoutines,
+      importCustomExercises,
+      addExercises,
+    ]);
 
     const handleOnHide = useCallback(() => {
       if (!importState.isComplete && !importState.error) {
@@ -208,7 +285,7 @@ export const ImportProgressSheet = forwardRef(
           isComplete: false,
           current: 0,
           total: 0,
-          stats: { workouts: 0, routines: 0 },
+          stats: { workouts: 0, routines: 0, customExercises: 0 },
         });
         progress.value = 0;
         handleImport();
@@ -236,8 +313,15 @@ export const ImportProgressSheet = forwardRef(
                   : "Don't close the sheet while import is in progress..."}
               </Text>
             )}
-            <View style={[importProgressStyles.progressBarContainer, { backgroundColor: progressContainerColor }]}>
-              <Animated.View style={[importProgressStyles.progressBar, progressStyle]} />
+            <View
+              style={[
+                importProgressStyles.progressBarContainer,
+                { backgroundColor: progressContainerColor },
+              ]}
+            >
+              <Animated.View
+                style={[importProgressStyles.progressBar, progressStyle]}
+              />
             </View>
             <Text neutral light>
               {getProgressText(importState)}

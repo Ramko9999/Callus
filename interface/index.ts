@@ -47,7 +47,6 @@ export type SetPlan = {
 export type ExercisePlan = {
   id: string;
   metaId: string;
-  name: string;
   rest: number;
   sets: SetPlan[];
 };
@@ -90,7 +89,6 @@ export type Set = {
 
 export type Exercise = {
   id: string;
-  name: string;
   metaId: string;
   sets: Set[];
   restDuration: number;
@@ -206,6 +204,6 @@ export type Trend = {
 };
 
 export type SearchExerciseSummary = {
-  name: string;
+  metaId: string;
   totalSetsCompleted: number;
 };

@@ -23,7 +23,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ImportProgressSheet } from "@/components/sheets/import-progress";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { TwitterX } from "@/components/theme/icons";
-import { usePopup } from "@/components/popup";
 import { BackButton } from "../common";
 
 async function exportAppData() {
@@ -32,7 +31,8 @@ async function exportAppData() {
   }/callus-${Date.now()}.json`;
   const workouts = await WorkoutApi.getExportableWorkouts();
   const routines = await WorkoutApi.getExportableRoutines();
-  const appExport = { workouts, routines };
+  const customExercises = await WorkoutApi.getExportableCustomExercises();
+  const appExport = { workouts, routines, customExercises };
   await FileSystem.writeAsStringAsync(exportFileUri, JSON.stringify(appExport));
   await Sharing.shareAsync(exportFileUri);
 }
@@ -60,7 +60,6 @@ function RootSettings({ navigation }: any) {
   const importSheetRef = useRef<BottomSheet>(null);
   const appBgColor = useThemeColoring("appBackground");
   const accent = tintColor(appBgColor, 0.3);
-  const { whatsNew } = usePopup();
 
   const handleImportPress = async () => {
     const result = await DocumentPicker.getDocumentAsync({
@@ -119,7 +118,7 @@ function RootSettings({ navigation }: any) {
           <SettingsRow
             icon={<Newspaper color={accent} size={20} />}
             label="What's New"
-            onPress={whatsNew.open}
+            onPress={() => navigation.navigate("whatsNewSheet")}
           />
           <View style={rootSettingsStyles.versionContainer}>
             <Text large light style={rootSettingsStyles.versionText}>

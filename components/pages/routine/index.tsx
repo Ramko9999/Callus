@@ -87,7 +87,7 @@ const routinesStyles = StyleSheet.create({
 
 export function Routines() {
   const navigation = useNavigation();
-  const [routines, setRoutines] = useState<Routine[]>([]);
+  const [routines, setRoutines] = useState<Routine[]>([]); 
 
   useFocusEffect(
     useCallback(() => {

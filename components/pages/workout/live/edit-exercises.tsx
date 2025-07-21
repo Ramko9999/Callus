@@ -3,7 +3,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Image,
   GestureResponderEvent,
   Keyboard,
   Platform,
@@ -33,9 +32,6 @@ import {
   SkipForward,
   StickyNote,
 } from "lucide-react-native";
-import { getExerciseDemonstration } from "@/api/exercise";
-import { NAME_TO_EXERCISE_META } from "@/api/exercise";
-import { getHistoricalExerciseDescription } from "@/util/workout/display";
 import { getTimePeriodDisplay } from "@/util/date";
 import { Popover, PopoverItem, PopoverRef } from "@/components/util/popover";
 import { ReorderExercisesSheet } from "@/components/sheets/reorder-exercises";
@@ -43,9 +39,7 @@ import { EditRestDuration } from "@/components/sheets/edit-rest-duration";
 import { EditSetSheet } from "@/components/sheets/edit-set";
 import { AddNoteSheet } from "@/components/sheets/add-note";
 import BottomSheet from "@gorhom/bottom-sheet";
-import {
-  updateSet,
-} from "@/context/WorkoutContext";
+import { updateSet } from "@/context/WorkoutContext";
 import { getDurationDisplay } from "@/util/date";
 import { useSound } from "@/components/sounds";
 import * as Haptics from "expo-haptics";
@@ -61,12 +55,7 @@ import {
   SetHeader,
   EditField,
 } from "@/components/pages/workout/common";
-import {
-  useLiveExercise,
-  useCurrentSet,
-  useLiveWorkout,
-  useLiveSet,
-} from "./context";
+import { useLiveExercise, useCurrentSet, useLiveWorkout } from "./context";
 import {
   ExerciseActions,
   SetActions,
@@ -74,6 +63,9 @@ import {
   WorkoutQuery,
 } from "@/api/model/workout";
 import { BackButton, PlusButton } from "../../common";
+import { ExerciseImage } from "@/components/exercise/image";
+import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
+import { getHistoricalExerciseDescription } from "@/util/workout/display";
 
 const exerciseCardHeaderStyles = StyleSheet.create({
   container: {
@@ -109,6 +101,7 @@ const exerciseCardHeaderStyles = StyleSheet.create({
 });
 
 type ExerciseCardHeaderProps = {
+  metaId: string;
   name: string;
   description: string;
   note?: string;
@@ -118,6 +111,7 @@ type ExerciseCardHeaderProps = {
 };
 
 function ExerciseCardHeader({
+  metaId,
   name,
   description,
   note,
@@ -125,19 +119,17 @@ function ExerciseCardHeader({
   moreButtonRef,
   onNotePress,
 }: ExerciseCardHeaderProps) {
-  const demonstration = getExerciseDemonstration(name);
   const primaryActionColor = useThemeColoring("primaryAction");
 
   return (
     <View style={exerciseCardHeaderStyles.container}>
       <View style={exerciseCardHeaderStyles.topHeader}>
-        {demonstration && (
-          <Image
-            source={demonstration}
-            style={exerciseCardHeaderStyles.image}
-            resizeMode="contain"
-          />
-        )}
+        <ExerciseImage
+          metaId={metaId}
+          imageStyle={exerciseCardHeaderStyles.image}
+          fallbackSize={50}
+          fallbackColor={primaryActionColor}
+        />
         <View style={exerciseCardHeaderStyles.info}>
           <Text header style={exerciseCardHeaderStyles.name}>
             {name}
@@ -498,6 +490,14 @@ const ExerciseCard = memo(
   }: ExerciseCardProps) {
     const exercise = useLiveExercise(exerciseId);
     const currentSet = useCurrentSet();
+    const difficultyType = useExercisesStore(
+      (state) =>
+        ExerciseStoreSelectors.getExercise(exercise.metaId, state)
+          .difficultyType
+    );
+    const exerciseName = useExercisesStore(
+      (state) => ExerciseStoreSelectors.getExercise(exercise.metaId, state).name
+    );
 
     const moreButtonRef = useRef<any>(null);
 
@@ -505,9 +505,6 @@ const ExerciseCard = memo(
 
     const primaryActionColor = useThemeColoring("primaryAction");
     const borderColor = tintColor(useThemeColoring("appBackground"), 0.1);
-    const exerciseMeta = NAME_TO_EXERCISE_META.get(exercise.name);
-    const difficultyType =
-      exerciseMeta?.difficultyType || DifficultyType.WEIGHT;
 
     const handleAddSet = useCallback(() => {
       saveWorkout((workout) =>
@@ -536,8 +533,12 @@ const ExerciseCard = memo(
         layout={LinearTransition}
       >
         <ExerciseCardHeader
-          name={exercise.name}
-          description={getHistoricalExerciseDescription(exercise)}
+          metaId={exercise.metaId}
+          name={exerciseName}
+          description={getHistoricalExerciseDescription({
+            difficulties: exercise.sets.map((set) => set.difficulty),
+            difficultyType,
+          })}
           note={exercise.note}
           onMorePress={handleMorePress}
           moreButtonRef={moreButtonRef}
@@ -748,9 +749,10 @@ export function EditExercises() {
     setPopoverExerciseId(null);
 
     if (popoverExerciseId) {
+      const exercise = WorkoutQuery.getExercise(workout!, popoverExerciseId);
       // @ts-ignore
       navigation.navigate("exerciseInsightSheet", {
-        name: WorkoutQuery.getExercise(workout!, popoverExerciseId).name,
+        id: exercise.metaId,
       });
     }
   };

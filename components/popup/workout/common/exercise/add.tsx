@@ -1,10 +1,9 @@
-import { EXERCISE_REPOSITORY, getMeta } from "@/api/exercise";
 import { SignificantAction } from "@/components/theme/actions";
 import { View, useThemeColoring } from "@/components/Themed";
 import { ExerciseMeta } from "@/interface";
 import { StyleUtils } from "@/util/styles";
 import React, { useCallback, useEffect } from "react";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import Animated, {
   interpolateColor,
@@ -19,83 +18,11 @@ import * as Haptics from "expo-haptics";
 import { FlatList } from "react-native-gesture-handler";
 import {
   FilterActions,
-  getResultsToDisplay,
-  SearchExerciseGrouping,
-  ExerciseDisplayResult,
-  SEARCH_EXERCISE_HEIGHT,
-  SearchExercise,
-  SearchExerciseGroupNav,
   SearchBar,
   ExerciseGridItem,
 } from "@/components/exercise/search/common";
-
-// Constants
-const SEARCH_EXERCISE_SELECTED_INDICATOR_WIDTH = 5;
-
-// SelectableSearchExercise Component
-const selectableSearchExercise = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRow(5),
-    height: SEARCH_EXERCISE_HEIGHT,
-    alignItems: "center",
-  },
-  selected: {
-    width: SEARCH_EXERCISE_SELECTED_INDICATOR_WIDTH,
-    height: SEARCH_EXERCISE_HEIGHT - 15,
-    borderRadius: 10,
-  },
-});
-
-type SelectableSearchExerciseProps = {
-  name: string;
-  isSelected: boolean;
-  onToggle: (exerciseMeta: ExerciseMeta) => void;
-};
-
-const SelectableSearchExercise = React.memo(
-  ({ name, isSelected, onToggle }: SelectableSearchExerciseProps) => {
-    const meta = getMeta(name);
-    const translation = useSharedValue(
-      -SEARCH_EXERCISE_SELECTED_INDICATOR_WIDTH - 5
-    );
-
-    useEffect(() => {
-      if (isSelected) {
-        translation.value = withTiming(0, { duration: 100 });
-      } else {
-        translation.value = withTiming(
-          -SEARCH_EXERCISE_SELECTED_INDICATOR_WIDTH - 5,
-          { duration: 100 }
-        );
-      }
-    }, [isSelected]);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-      transform: [{ translateX: translation.value }],
-    }));
-
-    const selectionAnimatedStyle = useAnimatedStyle(() => ({
-      opacity: isSelected ? 1 : 0,
-    }));
-
-    return (
-      <TouchableOpacity onPress={() => onToggle(meta)}>
-        <Animated.View
-          style={[animatedStyle, selectableSearchExercise.container]}
-        >
-          <Animated.View
-            style={[
-              selectableSearchExercise.selected,
-              selectionAnimatedStyle,
-              { backgroundColor: useThemeColoring("primaryAction") },
-            ]}
-          />
-          <SearchExercise meta={meta} />
-        </Animated.View>
-      </TouchableOpacity>
-    );
-  }
-);
+import { useExercisesStore } from "@/components/store";
+import { queryExercises } from "@/api/exercise";
 
 const selectableExerciseGridItemStyles = StyleSheet.create({
   container: {
@@ -180,104 +107,6 @@ const SelectableExerciseGridItem = React.memo(
   }
 );
 
-const verticalViewStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: "3%",
-  },
-  content: {
-    paddingBottom: "10%",
-  },
-  groupNavigation: {
-    position: "absolute",
-    left: "95%",
-    bottom: "10%",
-  },
-});
-
-type VerticalViewProps = {
-  results: ExerciseDisplayResult[];
-  exercisesToAdd: ExerciseMeta[];
-  onToggle: (exercise: ExerciseMeta) => void;
-};
-
-function VerticalView({
-  results,
-  exercisesToAdd,
-  onToggle,
-}: VerticalViewProps) {
-  const flatListRef = useRef<FlatList>(null);
-
-  const groups = results
-    .filter(({ resultType }) => resultType === "group")
-    .map(({ group }) => group) as string[];
-
-  const renderItem = useCallback(
-    ({ item }: { item: ExerciseDisplayResult }) =>
-      item.resultType === "group" ? (
-        <SearchExerciseGrouping group={item.group as string} />
-      ) : (
-        <SelectableSearchExercise
-          name={(item.exercise as ExerciseMeta).name}
-          isSelected={
-            exercisesToAdd
-              .map(({ name }) => name)
-              .indexOf((item.exercise as ExerciseMeta).name) > -1
-          }
-          onToggle={onToggle}
-        />
-      ),
-    [exercisesToAdd, onToggle]
-  );
-
-  const getItemLayout = useCallback(
-    (_: any, index: number) => ({
-      length: SEARCH_EXERCISE_HEIGHT,
-      offset: SEARCH_EXERCISE_HEIGHT * index,
-      index,
-    }),
-    []
-  );
-
-  const keyExtractor = useCallback(
-    ({ resultType, exercise, group }: ExerciseDisplayResult) =>
-      exercise ? `${resultType}-${exercise.name}` : `${resultType}-${group}`,
-    []
-  );
-
-  return (
-    <>
-      <FlatList
-        ref={flatListRef}
-        style={verticalViewStyles.container}
-        contentContainerStyle={verticalViewStyles.content}
-        showsVerticalScrollIndicator={false}
-        data={results}
-        getItemLayout={getItemLayout}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-      />
-      <View style={verticalViewStyles.groupNavigation}>
-        <SearchExerciseGroupNav
-          enabledGroups={groups}
-          onClick={(selectedGroup) => {
-            const scrollIndex = results
-              .map(({ resultType, group }) =>
-                resultType === "group" ? group : ""
-              )
-              .indexOf(selectedGroup);
-            flatListRef.current?.scrollToIndex({
-              animated: true,
-              index: scrollIndex,
-            });
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          }}
-        />
-      </View>
-    </>
-  );
-}
-
 const gridViewStyles = StyleSheet.create({
   container: {
     flex: 1,
@@ -289,28 +118,22 @@ const gridViewStyles = StyleSheet.create({
 });
 
 type GridViewProps = {
-  exercises: { resultType: "exercise"; exercise: ExerciseMeta }[];
+  exercises: ExerciseMeta[];
   exercisesToAdd: ExerciseMeta[];
   onToggle: (exercise: ExerciseMeta) => void;
 };
 
 function GridView({ exercises, exercisesToAdd, onToggle }: GridViewProps) {
   const renderGridItem = useCallback(
-    ({
-      item,
-      index,
-    }: {
-      item: { resultType: "exercise"; exercise: ExerciseMeta };
-      index: number;
-    }) => {
+    ({ item, index }: { item: ExerciseMeta; index: number }) => {
       const shouldHaveHalfFlex =
         index === exercises.length - 1 && exercises.length % 2 === 1;
       const isSelected =
-        exercisesToAdd.map(({ name }) => name).indexOf(item.exercise.name) > -1;
+        exercisesToAdd.map(({ name }) => name).indexOf(item.name) > -1;
 
       return (
         <SelectableExerciseGridItem
-          exercise={item.exercise}
+          exercise={item}
           halfFlex={shouldHaveHalfFlex}
           isSelected={isSelected}
           onToggle={onToggle}
@@ -326,7 +149,7 @@ function GridView({ exercises, exercisesToAdd, onToggle }: GridViewProps) {
       contentContainerStyle={gridViewStyles.content}
       data={exercises}
       renderItem={renderGridItem}
-      keyExtractor={(item) => item.exercise.name}
+      keyExtractor={(item) => item.metaId}
       numColumns={2}
       showsVerticalScrollIndicator={false}
     />
@@ -357,7 +180,6 @@ type ExerciseAdderProps = {
   onUpdateMuscleFilters: (filters: string[]) => void;
   onUpdateExerciseTypeFilters: (filters: string[]) => void;
   onShowFilters: () => void;
-  isGridView: boolean;
 };
 
 export function ExerciseAdder({
@@ -368,24 +190,20 @@ export function ExerciseAdder({
   onUpdateMuscleFilters,
   onUpdateExerciseTypeFilters,
   onShowFilters,
-  isGridView,
 }: ExerciseAdderProps) {
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [exercisesToAdd, setExercisesToAdd] = useState<ExerciseMeta[]>([]);
+  const allExercises = useExercisesStore((state) => state.exercises);
 
   const hasFilters = muscleFilters.length > 0 || exerciseTypeFilters.length > 0;
 
-  const results = getResultsToDisplay(
+  const exercises = queryExercises(
     searchQuery,
-    EXERCISE_REPOSITORY,
+    allExercises,
     muscleFilters,
     exerciseTypeFilters
   );
-
-  const exercises = results.filter(
-    (result) => result.resultType === "exercise"
-  ) as { resultType: "exercise"; exercise: ExerciseMeta }[];
 
   const onToggle = useCallback((meta: ExerciseMeta) => {
     setExercisesToAdd((exerciseMetas) => {
@@ -419,19 +237,12 @@ export function ExerciseAdder({
         onUpdateExerciseTypeFilters={onUpdateExerciseTypeFilters}
         onShowFilters={onShowFilters}
       />
-      {isGridView ? (
-        <GridView
-          exercises={exercises}
-          exercisesToAdd={exercisesToAdd}
-          onToggle={onToggle}
-        />
-      ) : (
-        <VerticalView
-          results={results}
-          exercisesToAdd={exercisesToAdd}
-          onToggle={onToggle}
-        />
-      )}
+      <GridView
+        exercises={exercises}
+        exercisesToAdd={exercisesToAdd}
+        onToggle={onToggle}
+      />
+
       {exercisesToAdd.length > 0 && (
         <Animated.View
           key="action-button"

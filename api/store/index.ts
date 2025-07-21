@@ -23,6 +23,11 @@ import {
   GET_WORKOUT,
   GET_ROUTINE,
   GET_RECENTLY_COMPLETED_WORKOUTS,
+  CUSTOM_EXERCISES_TABLE_CREATION,
+  UPSERT_CUSTOM_EXERCISE,
+  GET_CUSTOM_EXERCISES,
+  DELETE_ALL_EXERCISE_SETS,
+  DELETE_CUSTOM_EXERCISE,
 } from "./sql";
 import {
   CompletedExercise,
@@ -32,11 +37,10 @@ import {
   WorkoutLifetimeStats,
   Set as ISet,
   SetStatus,
-  ExerciseMeta,
   WorkedOutDay,
 } from "@/interface";
 import { truncTime } from "@/util/date";
-import { getMeta, ID_TO_EXERCISE_META } from "../exercise";
+import { CustomExercise } from "../model/custom-exercise";
 
 const DB_VERSION = "v9";
 export const DB_NAME = `store-${DB_VERSION}.db`;
@@ -46,6 +50,7 @@ const TABLE_CREATIONS = [
   EXERCISES_TABLE_CREATION,
   ROUTINES_TABLE_CREATION,
   METADATA_TABLE_CREATION,
+  CUSTOM_EXERCISES_TABLE_CREATION,
 ].join("");
 
 export async function getConnection() {
@@ -58,12 +63,23 @@ export async function migrateTables(db: SQLiteDatabase) {
 
 function toExercise({ meta_id, id, sets, rest_duration, note }: any): Exercise {
   return {
-    name: (ID_TO_EXERCISE_META.get(meta_id) as ExerciseMeta).name,
     metaId: meta_id,
     id,
     sets: JSON.parse(sets),
     restDuration: rest_duration,
     note,
+  };
+}
+
+function toCustomExercise({ id, name, data }: any): CustomExercise {
+  const parsedData = JSON.parse(data);
+  return {
+    id,
+    name,
+    type: parsedData.type,
+    primaryMuscles: parsedData.primaryMuscles,
+    secondaryMuscles: parsedData.secondaryMuscles,
+    description: data.description,
   };
 }
 
@@ -79,7 +95,6 @@ function toCompletedExercise({
   const parsedSets: ISet[] = JSON.parse(sets);
 
   return {
-    name: (ID_TO_EXERCISE_META.get(meta_id) as ExerciseMeta).name,
     metaId: meta_id,
     id,
     sets: parsedSets.filter((set) => set.status === SetStatus.FINISHED),
@@ -96,13 +111,13 @@ function toCompletedExercises(records: any[]): CompletedExercise[] {
 }
 
 function toRoutine({ id, name, plan }: any): Routine {
+  const exercisePlan = JSON.parse(plan);
   return {
     id,
     name,
-    plan: JSON.parse(plan).map((exercisePlan: any) => ({
+    plan: exercisePlan.map((exercisePlan: any) => ({
       id: exercisePlan.id,
       metaId: exercisePlan.metaId,
-      name: (ID_TO_EXERCISE_META.get(exercisePlan.metaId) as ExerciseMeta).name,
       rest: exercisePlan.rest,
       sets: exercisePlan.sets,
     })),
@@ -318,9 +333,8 @@ export class Store {
 
   async getAllCompletedExercise(
     after: number,
-    exerciseName: string
+    metaId: string
   ): Promise<CompletedExercise[]> {
-    const metaId = getMeta(exerciseName).metaId;
     const completions: any[] = await this.db.getAllAsync(
       GET_COMPLETED_EXERCISE,
       {
@@ -358,5 +372,29 @@ export class Store {
     return (await this.db.getAllAsync(GET_RECENTLY_COMPLETED_WORKOUTS)).map(
       toWorkout
     );
+  }
+
+  async saveCustomExercise(exercise: CustomExercise) {
+    const data = JSON.stringify(exercise);
+    await this.db.runAsync(UPSERT_CUSTOM_EXERCISE, {
+      $id: exercise.id,
+      $name: exercise.name,
+      $data: data,
+    });
+  }
+
+  async getCustomExercises(): Promise<CustomExercise[]> {
+    const customExercises: any[] = await this.db.getAllAsync(
+      GET_CUSTOM_EXERCISES
+    );
+    return customExercises.map(toCustomExercise);
+  }
+
+  async deleteAllPerformedExercises(metaId: string) {
+    await this.db.runAsync(DELETE_ALL_EXERCISE_SETS, { $meta_id: metaId });
+  }
+
+  async deleteCustomExercise(id: string) {
+    await this.db.runAsync(DELETE_CUSTOM_EXERCISE, { $id: id });
   }
 }

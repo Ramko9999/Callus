@@ -13,7 +13,6 @@ import {
   generateWorkoutId,
   createDefaultSet,
 } from "./util";
-import { ID_TO_EXERCISE_META } from "../exercise";
 import { ArrayUtils } from "@/util/misc";
 
 function createWorkoutFromRoutine(
@@ -31,7 +30,6 @@ function createWorkoutFromRoutine(
 
       return {
         metaId,
-        name: (ID_TO_EXERCISE_META.get(metaId) as ExerciseMeta).name,
         restDuration: rest,
         sets,
         id: generateExerciseId(),
@@ -73,7 +71,6 @@ function createWorkoutFromWorkout(
 
     return {
       id: generateExerciseId(),
-      name: (ID_TO_EXERCISE_META.get(exercise.metaId) as ExerciseMeta).name,
       metaId: exercise.metaId,
       sets,
       restDuration: exercise.restDuration,
@@ -181,11 +178,19 @@ function finishWorkout(workout: Workout) {
   };
 }
 
+function deleteExerciseByMetaId(workout: Workout, metaId: string) {
+  return {
+    ...workout,
+    exercises: workout.exercises.filter((e) => e.metaId !== metaId),
+  };
+}
+
 export const WorkoutActions = (workout: Workout) => ({
   addExercises: (metas: ExerciseMeta[]) => addExercises(workout, metas),
   reorderExercises: (exerciseOrder: string[]) =>
     reorderExercises(workout, exerciseOrder),
   finish: () => finishWorkout(workout),
+  deleteByMetaId: (metaId: string) => deleteExerciseByMetaId(workout, metaId),
 });
 
 function updateExercise(

@@ -11,7 +11,7 @@ import { ExercisesEditorTopActions } from "./top-actions";
 import { MetaEditor } from "@/components/popup/routine/common/meta";
 import { WorkoutApi } from "@/api/workout";
 import { WorkoutCreation } from "@/api/model/workout";
-import { DifficultyType, ExercisePlan, Routine } from "@/interface";
+import { ExercisePlan, Routine } from "@/interface";
 import { ExercisePlanActions, SetPlanActions } from "@/api/model/routine";
 import {
   EditRestDuration,
@@ -21,10 +21,8 @@ import {
 } from "@/components/sheets";
 import { useCallback, useRef, useState } from "react";
 import { SetsEditorTopActions } from "./top-actions";
-import { getDifficultyType } from "@/api/exercise";
 import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
 import { ExerciseAdder } from "@/components/popup/workout/common/exercise/add";
-import { ExerciseInsights } from "@/components/popup/exercises/insights";
 import {
   AddExercisesTopActions,
   ExerciseInsightTopActions,
@@ -38,6 +36,7 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import React from "react";
 import { Keyboard } from "react-native";
 import { useLiveWorkout } from "@/components/pages/workout/live/context";
+import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
 
 type RoutineStackParamList = {
   exercises: undefined;
@@ -69,7 +68,7 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
   const toast = useToast();
 
   const onUpdateMeta = (update: Partial<Routine>) => {
-     onSave({ ...routine, ...update });
+    onSave({ ...routine, ...update });
   };
 
   const trash = () => {
@@ -89,8 +88,8 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
           userDetails?.bodyweight as number
         )
       );
-      //@ts-ignore
       rootNavigation.goBack();
+      //@ts-ignore
       rootNavigation.navigate("liveWorkoutSheet");
     }
   };
@@ -144,6 +143,17 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
   const editRestDurationSheetRef = useRef<BottomSheet>(null);
   const exercisePlan = routine.plan.find(
     ({ id }) => id === route.params.exerciseId
+  )!;
+
+  const exerciseName = useExercisesStore(
+    (state) =>
+      ExerciseStoreSelectors.getExercise(exercisePlan.metaId, state).name
+  );
+
+  const difficultyType = useExercisesStore(
+    (state) =>
+      ExerciseStoreSelectors.getExercise(exercisePlan.metaId, state)
+        .difficultyType
   );
 
   const exercisePlanActions = ExercisePlanActions(routine);
@@ -167,15 +177,11 @@ function SetsEditor({ route, navigation }: SetsEditorProps) {
             onEditRest={() => setIsEditingRest(true)}
           />
           <View style={{ paddingLeft: "3%", paddingBottom: "3%" }}>
-            <Text extraLarge>{exercisePlan?.name ?? ""}</Text>
+            <Text extraLarge>{exerciseName}</Text>
           </View>
           <SetEditor
             sets={exercisePlan?.sets ?? []}
-            difficultyType={
-              exercisePlan
-                ? getDifficultyType(exercisePlan.name)
-                : DifficultyType.BODYWEIGHT
-            }
+            difficultyType={difficultyType}
             onEdit={(id, update) => onSave(setPlanActions.update(id, update))}
             onRemove={onRemove}
             renderSet={(props) => <RoutineSet {...props} />}
@@ -233,7 +239,6 @@ function AddExercises({ navigation }: AddExerciseProps) {
             onShowFilters={onShowFilters}
             onUpdateMuscleFilters={setMuscleFilters}
             onUpdateExerciseTypeFilters={setExerciseTypeFilters}
-            isGridView={isGridView}
           />
         </View>
         <FilterExercises
@@ -251,21 +256,6 @@ function AddExercises({ navigation }: AddExerciseProps) {
   );
 }
 
-type ExerciseInsightProps = CompositeScreenProps<
-  StackScreenProps<RoutineStackParamList, "exerciseInsight">,
-  StackScreenProps<RootStackParamList>
->;
-
-function ExerciseInsightOverview({ navigation, route }: ExerciseInsightProps) {
-  return (
-    <ModalWrapper>
-      <View style={contentStyles.container}>
-        <ExerciseInsightTopActions onBack={navigation.goBack} />
-        <ExerciseInsights exerciseName={route.params.name} />
-      </View>
-    </ModalWrapper>
-  );
-}
 type RoutineModalProps = StackScreenProps<RootStackParamList, "routine">;
 
 export function RoutineModal({ route }: RoutineModalProps) {

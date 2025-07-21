@@ -13,7 +13,6 @@ import { getDurationDisplay, getLongDateDisplay, truncTime } from "@/util/date";
 import { StyleSheet, FlatList } from "react-native";
 import { StyleUtils } from "@/util/styles";
 import { convertHexToRGBA, tintColor } from "@/util/color";
-import { getDifficultyType } from "@/api/exercise";
 import { getToplineMetric } from "@/api/metric";
 import { Trophy } from "lucide-react-native";
 import { TextSkeleton } from "@/components/util/loading";
@@ -332,13 +331,13 @@ const historyStyles = StyleSheet.create({
 
 type HistoryProps = {
   completions: CompletedExercise[];
+  difficultyType: DifficultyType;
   isLoading: boolean;
   name: string;
 };
 
-export function History({ completions, isLoading, name }: HistoryProps) {
-  const type = getDifficultyType(name);
-  const historyItems = computeHistory(completions, type);
+export function History({ completions, difficultyType, isLoading, name }: HistoryProps) {
+  const historyItems = computeHistory(completions, difficultyType);
 
   const renderItem = ({ item }: { item: HistoryLineItem }) => (
     <HistoryItem {...item} />

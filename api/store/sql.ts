@@ -10,6 +10,9 @@ export const ROUTINES_TABLE_CREATION =
 export const METADATA_TABLE_CREATION =
   "CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL);";
 
+export const CUSTOM_EXERCISES_TABLE_CREATION =
+  "CREATE TABLE IF NOT EXISTS custom_exercises (id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, data TEXT NOT NULL);";
+
 export const UPSERT_WORKOUT = `INSERT INTO workouts(id, name, started_at, ended_at, routine_id, bodyweight) VALUES ($id, $name, $started_at, $ended_at, $routine_id, $bodyweight) 
   ON CONFLICT(id) DO UPDATE SET name = excluded.name, started_at = excluded.started_at, ended_at = excluded.ended_at, routine_id = excluded.routine_id, bodyweight = excluded.bodyweight`;
 
@@ -18,8 +21,14 @@ export const UPSERT_EXERCISE = `INSERT INTO exercises(id, meta_id, workout_id, s
 
 export const UPSERT_METADATA = `INSERT INTO metadata(key, value) VALUES ($key, $value) ON CONFLICT (key) DO UPDATE SET key=excluded.key, value=excluded.value`;
 
+export const UPSERT_CUSTOM_EXERCISE = `INSERT INTO custom_exercises(id, name, data) VALUES ($id, $name, $data) ON CONFLICT (id) DO UPDATE SET name=excluded.name, data=excluded.data`;
+
 export const CLEAR_ALL_EXERCISES =
   "DELETE FROM exercises WHERE workout_id = $workout_id";
+
+export const DELETE_ALL_EXERCISE_SETS = "DELETE FROM exercises WHERE meta_id = $meta_id";
+
+export const DELETE_CUSTOM_EXERCISE = "DELETE FROM custom_exercises WHERE id = $id";
 
 const COMPLETED_WORKOUTS_PREDICATE =
   "started_at >= $after and started_at < $before and ended_at is not null";
@@ -52,6 +61,8 @@ export const GET_LIFETIME_STATS =
   "select count(*) as workouts, coalesce(sum(ended_at - started_at), 0) as workout_duration from workouts where ended_at is not null";
 
 export const GET_METADATA = "select key, value from metadata where key = $key";
+
+export const GET_CUSTOM_EXERCISES = "select id, name, data from custom_exercises";
 
 const COMPLETED_EXERCISES_SQL = (predicate: string) => `
   select exercises.id as id, exercises.meta_id as meta_id, exercises.sets as sets, exercises.rest_duration as rest_duration, exercises.note as note, workouts.bodyweight as bodyweight, workouts.started_at as workout_started_at from workouts join exercises on workouts.id = exercises.workout_id where ${predicate}

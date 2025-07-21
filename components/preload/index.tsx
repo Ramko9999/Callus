@@ -9,6 +9,9 @@ import { StyleUtils } from "@/util/styles";
 import React from "react";
 import { loadSoundAssets, useSound } from "../sounds";
 import { Audio } from "expo-av";
+import { useExercisesStore } from "../store";
+import { toExerciseMeta } from "@/api/model/custom-exercise";
+import { EXERCISE_REPOSITORY } from "@/api/exercise";
 
 // todo: preloader likely isn't even necessary anymore tbh, we can load all these things in the splash screen
 type PreloaderContext = {
@@ -50,6 +53,7 @@ export function Preloader({ children }: Props) {
   });
   const { saveWorkout } = useLiveWorkout();
   const { initialize } = useSound();
+  const { setExercises } = useExercisesStore();
 
   const hydrateInProgressWorkout = useCallback(async () => {
     const workout = await WorkoutApi.getInProgressWorkout();
@@ -68,6 +72,13 @@ export function Preloader({ children }: Props) {
     await preloadDB();
     await hydrateInProgressWorkout();
     await setupAudio();
+
+    const customExercises = await Store.instance().getCustomExercises();
+    const allExercises = [
+      ...customExercises.map(toExerciseMeta),
+      ...EXERCISE_REPOSITORY,
+    ];
+    setExercises(allExercises);
     setState({ hasLoaded: true });
   };
 

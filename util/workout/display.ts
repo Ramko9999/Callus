@@ -1,12 +1,9 @@
-import { NAME_TO_EXERCISE_META } from "@/api/exercise";
 import {
   AssistedBodyWeightDifficulty,
   BodyWeightDifficulty,
   Difficulty,
   DifficultyType,
   Exercise,
-  ExerciseMeta,
-  ExercisePlan,
   SetStatus,
   TimeDifficulty,
   WeightDifficulty,
@@ -34,9 +31,12 @@ export function getLiveExerciseDescription(exercise: Exercise) {
 }
 
 export function getHistoricalExerciseDescription({
-  sets,
-  name,
-}: Exercise | ExercisePlan) {
+  difficulties,
+  difficultyType,
+}: {
+  difficulties: Difficulty[];
+  difficultyType: DifficultyType;
+}) {
   function getDifficultyRange(
     values: number[],
     format?: (value: number) => string
@@ -52,42 +52,42 @@ export function getHistoricalExerciseDescription({
     return `${formatValue(min)}-${formatValue(max)}`;
   }
 
-  const description = [`${sets.length} sets`];
-  const meta = NAME_TO_EXERCISE_META.get(name) as ExerciseMeta;
+  const description = [`${difficulties.length} sets`];
   if (
-    meta.difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT ||
-    meta.difficultyType == DifficultyType.WEIGHT
+    difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT ||
+    difficultyType == DifficultyType.WEIGHT
   ) {
-    const reps = sets.map(
-      ({ difficulty }) => (difficulty as WeightDifficulty).reps
-    );
-    const weight = sets.map(
-      ({ difficulty }) => (difficulty as WeightDifficulty).weight
+    const reps = difficulties.map(
+        (difficulty) => (difficulty as WeightDifficulty).reps
+      );
+    const weight = difficulties.map(
+      (difficulty) => (difficulty as WeightDifficulty).weight
     );
     description.push(
       `of ${getDifficultyRange(weight)} lbs`,
       `for ${getDifficultyRange(reps)} reps`
     );
-  } else if (meta.difficultyType === DifficultyType.BODYWEIGHT) {
-    const reps = sets.map(
-      ({ difficulty }) => (difficulty as BodyWeightDifficulty).reps
+  } else if (difficultyType === DifficultyType.BODYWEIGHT) {
+    const reps = difficulties.map(
+      (difficulty) => (difficulty as BodyWeightDifficulty).reps
     );
     description.push(`for ${getDifficultyRange(reps)} reps`);
-  } else if (meta.difficultyType === DifficultyType.ASSISTED_BODYWEIGHT) {
-    const assistanceWeight = sets.map(
-      ({ difficulty }) =>
+  } else if (difficultyType === DifficultyType.ASSISTED_BODYWEIGHT) {
+    const assistanceWeight = difficulties.map(
+      (difficulty) =>
         (difficulty as AssistedBodyWeightDifficulty).assistanceWeight
     );
-    const reps = sets.map(
-      ({ difficulty }) => (difficulty as AssistedBodyWeightDifficulty).reps
+
+    const reps = difficulties.map(
+      (difficulty) => (difficulty as AssistedBodyWeightDifficulty).reps
     );
     description.push(
       `of ${getDifficultyRange(assistanceWeight)} assistance lbs`,
       `for ${getDifficultyRange(reps)} reps`
     );
   } else {
-    const duration = sets.map(
-      ({ difficulty }) => (difficulty as TimeDifficulty).duration
+    const duration = difficulties.map(
+      (difficulty) => (difficulty as TimeDifficulty).duration
     );
     description.push(`for ${getDifficultyRange(duration, getDurationDisplay)}`);
   }

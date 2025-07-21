@@ -10,20 +10,6 @@ export const EXERCISE_REPOSITORY: ExerciseMeta[] =
       DifficultyType[staticMeta.difficultyType as keyof typeof DifficultyType],
   }));
 
-export const ID_TO_EXERCISE_META: Map<string, ExerciseMeta> = new Map(
-  EXERCISE_REPOSITORY.map((meta) => [meta.metaId, meta])
-);
-
-export const NAME_TO_EXERCISE_META: Map<string, ExerciseMeta> = new Map(
-  EXERCISE_REPOSITORY.map((meta) => [meta.name, meta])
-);
-
-export const MUSCLE_GROUPS = Array.from(
-  new Set(
-    STATIC_EXERCISE_REPOSITORY.map(({ primaryMuscles }) => primaryMuscles[0])
-  )
-).slice(0, 7);
-
 export const DISPLAY_EXERCISE_TYPES = ["Bodyweight", "Weight", "Time"];
 
 export const DISPLAY_EXERCISE_TYPE_TO_TYPE: {
@@ -34,20 +20,88 @@ export const DISPLAY_EXERCISE_TYPE_TO_TYPE: {
   Time: [DifficultyType.TIME],
 };
 
-export function getMeta(name: string): ExerciseMeta {
-  return NAME_TO_EXERCISE_META.get(name) as ExerciseMeta;
+// @ts-ignore
+const EXERCISE_TYPE_TO_EXPLANATION: Record<DifficultyType, string> = {
+  [DifficultyType.BODYWEIGHT]: "Tracked in REPS. Ex: Push-Up",
+  [DifficultyType.WEIGHT]: "Tracked in WEIGHT x REPS. Ex: Bench Press",
+  [DifficultyType.WEIGHTED_BODYWEIGHT]:
+    "Tracked in WEIGHT x REPS. Ex: Weighted Pull-Up",
+  [DifficultyType.TIME]: "Tracked in DURATION. Ex: Hollow Body Hold",
+};
+
+const EXERCISE_TYPE_TO_DISPLAY_INFO = {
+  [DifficultyType.WEIGHT]: {
+    title: "Weight",
+    description: "Bench Press, Military Press",
+  },
+  [DifficultyType.BODYWEIGHT]: {
+    title: "Bodyweight",
+    description: "Push-Up, Pull-Up ",
+  },
+  [DifficultyType.WEIGHTED_BODYWEIGHT]: {
+    title: "Weighted Bodyweight",
+    description: "Weighted Pull-Up, Weighted Dip",
+  },
+  [DifficultyType.TIME]: {
+    title: "Time",
+    description: "L-Sit, Handstand Hold",
+  },
+  [DifficultyType.ASSISTED_BODYWEIGHT]: {
+    title: "Assisted Bodyweight",
+    description: "Assisted Pull-Up",
+  },
+};
+
+export function getExerciseTypeExplanation(
+  exerciseType: DifficultyType
+): string {
+  return EXERCISE_TYPE_TO_EXPLANATION[exerciseType];
 }
 
-export function getDifficultyType(name: string): DifficultyType {
-  return getMeta(name).difficultyType;
+export function getExerciseTypeDisplayInfo(exerciseType: DifficultyType): {
+  title: string;
+  description: string;
+} {
+  return EXERCISE_TYPE_TO_DISPLAY_INFO[exerciseType];
 }
 
-export function getExerciseDemonstration(
-  name: string
+export function getExerciseDemonstrationFromMetaId(
+  metaId: string
 ): ImageRequireSource | undefined {
-  const meta = getMeta(name);
-  return EXERCISE_DEMONSTRATIONS[meta.metaId];
+  return EXERCISE_DEMONSTRATIONS[metaId];
 }
+
+export function isExerciseCustom(metaId: string): boolean {
+  return metaId.startsWith("cex-");
+}
+
+export const ALL_MUSCLES = [
+  "Abs",
+  "Biceps",
+  "Calves",
+  "Chest",
+  "Forearm Extensors",
+  "Forearm Flexors",
+  "Front Delts",
+  "Glutes",
+  "Hamstrings",
+  "Hip Abductors",
+  "Hip Adductors",
+  "Hip Flexors",
+  "Infraspinatus",
+  "Lats",
+  "Lower Back",
+  "Neck Extensors",
+  "Neck Flexors",
+  "Obliques",
+  "Quads",
+  "Rear Delts",
+  "Serratus Anterior",
+  "Side Delts",
+  "Tibialis Anterior",
+  "Traps",
+  "Triceps",
+];
 
 export function isMuscleUpperBody(muscle: string) {
   return (
@@ -60,6 +114,8 @@ export function isMuscleUpperBody(muscle: string) {
       "Neck Flexors",
       "Obliques",
       "Traps",
+      "Serratus Anterior",
+      "Infraspinatus",
     ].indexOf(muscle) > -1
   );
 }
@@ -69,6 +125,7 @@ export function isMusclePartOfArms(muscle: string) {
     [
       "Biceps",
       "Forearm Flexors",
+      "Forearm Extensors",
       "Front Delts",
       "Rear Delts",
       "Side Delts",
@@ -84,8 +141,51 @@ export function isMuscleLowerBody(muscle: string) {
       "Glutes",
       "Hamstrings",
       "Hip Flexors",
+      "Hip Adductors",
+      "Hip Abductors",
       "Quads",
       "Tibialis Anterior",
+    ].indexOf(muscle) > -1
+  );
+}
+
+// traps and calves are showing in both front and back body but they are best visible in back
+// hip adductors and quads are shown in both but best visible in front
+export function isMuscleFrontBody(muscle: string) {
+  return (
+    [
+      "Chest",
+      "Biceps",
+      "Abs",
+      "Quads",
+      "Tibialis Anterior",
+      "Forearm Flexors",
+      "Obliques",
+      "Hip Adductors",
+      "Hip Abductors",
+      "Front Delts",
+      "Hip Flexors",
+      "Side Delts",
+      "Neck Flexors",
+      "Serratus Anterior",
+    ].indexOf(muscle) > -1
+  );
+}
+
+export function isMuscleBackBody(muscle: string) {
+  return (
+    [
+      "Lats",
+      "Lower Back",
+      "Traps",
+      "Rear Delts",
+      "Glutes",
+      "Hamstrings",
+      "Calves",
+      "Triceps",
+      "Forearm Extensors",
+      "Infraspinatus",
+      "Neck Extensors",
     ].indexOf(muscle) > -1
   );
 }
@@ -123,7 +223,10 @@ export function queryExercises(
     }
   );
 
-  return ArrayUtils.sortBy(relevantMetas, (meta) => meta.name);
+  return ArrayUtils.sortBy(relevantMetas, (meta) => [
+    isExerciseCustom(meta.metaId) ? 1 : 2, // Custom exercises first (false sorts before true)
+    meta.name,
+  ]);
 }
 
 const EXERCISE_DEMONSTRATIONS: Record<string, ImageRequireSource> = {
@@ -203,4 +306,5 @@ const EXERCISE_DEMONSTRATIONS: Record<string, ImageRequireSource> = {
   "215": require("../../assets/exercises/images/machine-leg-press.png"),
   "216": require("../../assets/exercises/images/seated-dumbbell-overhead-press.png"),
   "217": require("../../assets/exercises/images/supine-press.png"),
+  "218": require("../../assets/exercises/images/handstand-hold-bent-arm.png"),
 };

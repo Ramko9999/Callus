@@ -16,8 +16,6 @@ import {
 } from "@/interface";
 import { createContext, useState, useContext } from "react";
 import { generateRandomId } from "@/util/misc";
-import { WorkoutApi } from "@/api/workout";
-import { NAME_TO_EXERCISE_META } from "@/api/exercise";
 import { useDebounce } from "@/components/hooks/use-debounce";
 
 function generateSetId() {
@@ -225,15 +223,17 @@ export function updateWorkout(
   return { ...workout, ...workoutUpdate };
 }
 
-export function getWorkoutSummary(workout: Workout): WorkoutSummary {
+export function getWorkoutSummary(
+  workout: Workout,
+  metaIdToDifficultyType: Record<string, DifficultyType>
+): WorkoutSummary {
   let totalReps: number = 0;
   let totalWeightLifted: number = 0;
   workout.exercises.forEach((ex) =>
     ex.sets.forEach((set) => {
       if (set.status !== SetStatus.UNSTARTED) {
-        const difficultyType = (
-          NAME_TO_EXERCISE_META.get(ex.name) as ExerciseMeta
-        ).difficultyType;
+        const difficultyType = metaIdToDifficultyType[ex.metaId];
+
         if (difficultyType === DifficultyType.ASSISTED_BODYWEIGHT) {
           const { reps, assistanceWeight } =
             set.difficulty as AssistedBodyWeightDifficulty;
@@ -261,21 +261,6 @@ export function getWorkoutSummary(workout: Workout): WorkoutSummary {
   return { totalReps, totalWeightLifted, totalDuration };
 }
 
-export function reorderExercises(
-  workout: Workout,
-  exerciseOrder: string[]
-): Workout {
-  const exercisesToOrder = new Map(
-    exerciseOrder.map((exercise, index) => [exercise, index])
-  );
-  const workoutExercises = workout.exercises.sort(
-    (a, b) =>
-      (exercisesToOrder.get(a.name) as number) -
-      (exercisesToOrder.get(b.name) as number)
-  );
-  return { ...workout, exercises: workoutExercises };
-}
-
 export function finishAllRestingSets(exercises: Exercise[]): Exercise[] {
   return exercises.map((exercise) => {
     const sets = exercise.sets.map((set) => {
@@ -292,7 +277,6 @@ export function finishAllRestingSets(exercises: Exercise[]): Exercise[] {
 export function areWorkoutsSame(a: Workout, b: Workout): boolean {
   return JSON.stringify(a) === JSON.stringify(b);
 }
-
 
 export type WorkoutActions = {
   startWorkout: (_: Workout) => void;
@@ -312,7 +296,6 @@ type WorkoutEditor = {
   workout?: Workout;
   actions: WorkoutEditorActions;
 };
-
 
 type WorkoutContext = {
   isInWorkout: boolean;
@@ -339,8 +322,6 @@ const context = createContext<WorkoutContext>({
     },
   },
 });
-
-
 
 export function useWorkout() {
   return useContext(context);

@@ -1,6 +1,11 @@
 import { Pressable, TouchableOpacity, View as RNView } from "react-native";
 import { useThemeColoring, View } from "../Themed";
-import { ChevronLeft, MoreHorizontal, Plus, X } from "lucide-react-native";
+import {
+  ChevronLeft,
+  MoreHorizontal,
+  Plus,
+  X,
+} from "lucide-react-native";
 import Animated, {
   interpolate,
   SharedValue,

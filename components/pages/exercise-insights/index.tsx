@@ -1,6 +1,5 @@
 import { HeaderPage } from "@/components/util/header-page";
 import { TouchableOpacity } from "react-native";
-import { X } from "lucide-react-native";
 import { useThemeColoring, Text, View } from "@/components/Themed";
 import { useNavigation } from "@react-navigation/native";
 import { StyleSheet } from "react-native";
@@ -14,27 +13,22 @@ import Animated, {
 } from "react-native-reanimated";
 import { Overview } from "./overview";
 import { History } from "./history";
-
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { Progress } from "./progress";
 import { SelectMetricSheet } from "@/components/sheets/select-metric";
 import BottomSheet from "@gorhom/bottom-sheet";
 import * as MetricApi from "@/api/metric";
-import { getDifficultyType } from "@/api/exercise";
 import { useUserDetails } from "@/components/user-details";
 import { ExerciseInsightsProvider, useExerciseInsights } from "./context";
-
-type CloseButtonProps = {
-  onClick: () => void;
-};
-
-function CloseButton({ onClick }: CloseButtonProps) {
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <X color={useThemeColoring("primaryAction")} />
-    </TouchableOpacity>
-  );
-}
+import { CloseButton, MoreButton } from "@/components/pages/common";
+import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
+import { isExerciseCustom } from "@/api/exercise";
+import { Popover, PopoverItem, PopoverRef } from "@/components/util/popover";
+import { Trash2 } from "lucide-react-native";
+import { DeleteCustomExercise } from "@/components/sheets/delete-custom-exercise";
+import { WorkoutApi } from "@/api/workout";
+import { useLiveWorkout } from "../workout/live/context";
+import { WorkoutActions } from "@/api/model/workout";
 
 const insightTabsStyles = StyleSheet.create({
   container: {
@@ -58,7 +52,7 @@ const insightTabsStyles = StyleSheet.create({
   },
 });
 
-function TabBar({ state, descriptors, navigation, position }: any) {
+function TabBar({ state, descriptors, navigation }: any) {
   const selectedTabPosition = useSharedValue(0);
   const bgColor = tintColor(useThemeColoring("appBackground"), 0.05);
   const indicatorColor = tintColor(useThemeColoring("appBackground"), 0.1);
@@ -109,49 +103,131 @@ function TabBar({ state, descriptors, navigation, position }: any) {
   );
 }
 
-type BetterExerciseInsightProps = {
-  route: {
-    params: {
-      name: string;
-    };
-  };
-};
-
 const Tab = createMaterialTopTabNavigator();
 
-function BetterExerciseInsightContent({ name }: { name: string }) {
+type ExerciseInsightContentProps = {
+  id: string;
+};
+
+function ExerciseInsightContent({ id }: ExerciseInsightContentProps) {
   const { userDetails } = useUserDetails();
   const navigation = useNavigation();
-  const { completedExercises, selectedMetricIndex, setSelectedMetricIndex, isLoading } = useExerciseInsights();
+  const {
+    completedExercises,
+    selectedMetricIndex,
+    setSelectedMetricIndex,
+    isLoading,
+  } = useExerciseInsights();
+  const { saveWorkout, isInWorkout } = useLiveWorkout();
   const [showMetricSheet, setShowMetricSheet] = useState(false);
   const selectMetricSheetRef = useRef<BottomSheet>(null);
+  const difficultyType = useExercisesStore(
+    (state) => ExerciseStoreSelectors.getExercise(id, state)?.difficultyType
+  );
 
-  const type = useMemo(() => (name ? getDifficultyType(name) : null), [name]);
+  const name = useExercisesStore(
+    (state) => ExerciseStoreSelectors.getExercise(id, state)?.name
+  );
+  const meta = useExercisesStore((state) =>
+    ExerciseStoreSelectors.getExercise(id, state)
+  );
+
+  // Popover state for custom exercise actions
+  const popoverRef = useRef<PopoverRef>(null);
+  const moreButtonRef = useRef<any>(null);
+  const popoverProgress = useSharedValue(0);
+  const removeExercise = useExercisesStore((state) => state.removeExercise);
+  const dangerAction = useThemeColoring("dangerAction");
+
+  // Delete confirmation sheet state
+  const [showDeleteSheet, setShowDeleteSheet] = useState(false);
+  const deleteSheetRef = useRef<BottomSheet>(null);
 
   const metricConfigs = useMemo(
     () =>
-      type
-        ? MetricApi.getPossibleMetrics(type, userDetails?.bodyweight as number)
+      difficultyType
+        ? MetricApi.getPossibleMetrics(
+            difficultyType,
+            userDetails?.bodyweight as number
+          )
         : [],
-    [type, userDetails?.bodyweight]
+    [difficultyType, userDetails?.bodyweight]
   );
 
   const selectedMetricConfig = metricConfigs[selectedMetricIndex];
 
-  const handleMetricSelect = useCallback((index: number) => {
-    setSelectedMetricIndex(index);
-    setShowMetricSheet(false);
-  }, [setSelectedMetricIndex]);
+  const handleMetricSelect = useCallback(
+    (index: number) => {
+      setSelectedMetricIndex(index);
+      setShowMetricSheet(false);
+    },
+    [setSelectedMetricIndex]
+  );
 
   const handleHide = useCallback(() => {
     selectMetricSheetRef.current?.close();
   }, []);
 
+  const handleMorePress = useCallback(() => {
+    if (moreButtonRef.current) {
+      moreButtonRef.current.measure(
+        (
+          x: number,
+          y: number,
+          width: number,
+          height: number,
+          pageX: number,
+          pageY: number
+        ) => {
+          popoverRef.current?.open(pageX + width + 5, pageY + 20);
+        }
+      );
+    }
+  }, []);
+
+  const handleDeleteExercise = useCallback(() => {
+    popoverRef.current?.close();
+    setShowDeleteSheet(true);
+  }, []);
+
+  const handleDeleteConfirm = useCallback(() => {
+    deleteSheetRef.current?.close();
+    WorkoutApi.deleteCustomExercise(id).then(() => {
+      navigation.goBack();
+      setTimeout(() => {
+        removeExercise(id);
+        saveWorkout((workout) =>
+          workout ? WorkoutActions(workout).deleteByMetaId(id) : undefined
+        );
+      }, 300);
+    });
+  }, [id, removeExercise, navigation, saveWorkout]);
+
+  const handleDeleteSheetHide = useCallback(() => {
+    setShowDeleteSheet(false);
+  }, []);
+
+  if (!meta) {
+    return null;
+  }
+
   return (
     <View style={{ height: "100%" }}>
       <HeaderPage
         title={name}
+        subtitle={
+          isExerciseCustom(id) ? "Custom Exercise" : "Callus Library Exercise"
+        }
         leftAction={<CloseButton onClick={navigation.goBack} />}
+        rightAction={
+          isExerciseCustom(id) ? (
+            <MoreButton
+              ref={moreButtonRef}
+              onClick={handleMorePress}
+              progress={popoverProgress}
+            />
+          ) : undefined
+        }
       >
         <Tab.Navigator
           tabBar={(props) => <TabBar {...props} />}
@@ -162,7 +238,7 @@ function BetterExerciseInsightContent({ name }: { name: string }) {
           <Tab.Screen name="Overview">
             {() => (
               <Overview
-                name={name}
+                meta={meta}
                 completions={completedExercises ?? []}
                 isLoading={isLoading}
               />
@@ -173,14 +249,15 @@ function BetterExerciseInsightContent({ name }: { name: string }) {
               <History
                 completions={completedExercises ?? []}
                 isLoading={isLoading}
-                name={name}
+                difficultyType={meta.difficultyType}
+                name={meta.name}
               />
             )}
           </Tab.Screen>
           <Tab.Screen name="Progress">
             {() => (
               <Progress
-                name={name}
+                name={meta.name}
                 completions={completedExercises ?? []}
                 isLoading={isLoading}
                 selectedMetricConfig={selectedMetricConfig}
@@ -199,16 +276,40 @@ function BetterExerciseInsightContent({ name }: { name: string }) {
         selectedMetricConfigIndex={selectedMetricIndex}
         onSelect={handleMetricSelect}
       />
+
+      <Popover ref={popoverRef} progress={popoverProgress}>
+        <PopoverItem
+          label={<Text style={{ color: dangerAction }}>Delete Exercise</Text>}
+          icon={<Trash2 size={20} color={dangerAction} />}
+          onClick={handleDeleteExercise}
+        />
+      </Popover>
+
+      <DeleteCustomExercise
+        ref={deleteSheetRef}
+        show={showDeleteSheet}
+        hide={() => deleteSheetRef.current?.close()}
+        onHide={handleDeleteSheetHide}
+        onDelete={handleDeleteConfirm}
+      />
     </View>
   );
 }
 
-export function BetterExerciseInsight({ route }: BetterExerciseInsightProps) {
-  const { name } = route.params;
+type ExerciseInsightProps = {
+  route: {
+    params: {
+      id: string;
+    };
+  };
+};
+
+export function ExerciseInsight({ route }: ExerciseInsightProps) {
+  const { id } = route.params;
 
   return (
-    <ExerciseInsightsProvider exerciseName={name}>
-      <BetterExerciseInsightContent name={name} />
+    <ExerciseInsightsProvider id={id}>
+      <ExerciseInsightContent id={id} />
     </ExerciseInsightsProvider>
   );
 }

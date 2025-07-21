@@ -7,10 +7,7 @@ import {
   GestureResponderEvent,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import {
-  Plus,
-  StickyNote,
-} from "lucide-react-native";
+import { Plus, StickyNote } from "lucide-react-native";
 import { BackButton, MoreButton } from "@/components/pages/common";
 import { HeaderPage } from "@/components/util/header-page";
 import { useCompletedWorkout } from "./context";
@@ -28,7 +25,6 @@ import {
   TimeDifficulty,
   Exercise,
 } from "@/interface";
-import { getDifficultyType } from "@/api/exercise";
 import { StyleUtils } from "@/util/styles";
 import Animated, {
   useSharedValue,
@@ -54,8 +50,7 @@ import {
   SetHeader,
   EditField,
 } from "@/components/pages/workout/common";
-
-
+import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
 
 type CompletedSetRowProps = {
   set: Set;
@@ -119,13 +114,15 @@ function CompletedSetRow({
   );
 }
 
-function getSubtitle(exercise: any): string {
+function getSubtitle(
+  exercise: Exercise,
+  difficultyType: DifficultyType
+): string {
   if (!exercise || !exercise.sets || exercise.sets.length === 0) {
     return "0 sets";
   }
 
   const setCount = exercise.sets.length;
-  const difficultyType = getDifficultyType(exercise.name);
 
   switch (difficultyType) {
     case DifficultyType.WEIGHT:
@@ -221,9 +218,15 @@ export function SetsEditor() {
   const exercise = workout?.exercises.find(
     ({ id }) => exerciseId === id
   ) as Exercise;
-  const difficultyType = exercise
-    ? getDifficultyType(exercise.name)
-    : DifficultyType.BODYWEIGHT;
+
+  const difficultyType = useExercisesStore(
+    (state) =>
+      ExerciseStoreSelectors.getExercise(exercise.metaId, state).difficultyType
+  );
+
+  const exerciseName = useExercisesStore(
+    (state) => ExerciseStoreSelectors.getExercise(exercise.metaId, state).name
+  );
 
   const handleAddSet = () => {
     if (workout && exerciseId) {
@@ -333,11 +336,9 @@ export function SetsEditor() {
   return (
     <View style={{ height: "100%" }}>
       <HeaderPage
-        title={exercise?.name ?? "Exercise"}
-        subtitle={getSubtitle(exercise)}
-        leftAction={
-          <BackButton onClick={navigation.goBack} />
-        }
+        title={exerciseName}
+        subtitle={getSubtitle(exercise, difficultyType)}
+        leftAction={<BackButton onClick={navigation.goBack} />}
         rightAction={
           <MoreButton
             ref={moreButtonRef}

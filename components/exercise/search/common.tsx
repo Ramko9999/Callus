@@ -6,10 +6,8 @@ import {
   ViewStyle,
   useWindowDimensions,
   TextInput as RNTextInput,
-  TouchableWithoutFeedback,
   GestureResponderEvent,
   Pressable,
-  Image,
   Platform,
 } from "react-native";
 import { View, Text, useThemeColoring, TextInput } from "@/components/Themed";
@@ -17,15 +15,9 @@ import { tintColor } from "@/util/color";
 import { X, Plus, Search } from "lucide-react-native";
 import * as Haptics from "expo-haptics";
 import { DifficultyType, ExerciseMeta } from "@/interface";
-import { getExerciseDemonstration, queryExercises } from "@/api/exercise";
-import { ArrayUtils } from "@/util/misc";
+import { ExerciseImage } from "@/components/exercise/image";
 
-// Constants
 export const SEARCH_EXERCISE_HEIGHT = 55;
-
-const ALL_EXERCISE_GROUPS = Array.from({ length: 26 }).map((_, index) =>
-  String.fromCharCode(index + "A".charCodeAt(0))
-);
 
 const EXERCISE_TYPE_TO_DISPLAY_INFO: Record<DifficultyType, { title: string }> =
   {
@@ -35,36 +27,6 @@ const EXERCISE_TYPE_TO_DISPLAY_INFO: Record<DifficultyType, { title: string }> =
     [DifficultyType.TIME]: { title: "Time" },
     [DifficultyType.ASSISTED_BODYWEIGHT]: { title: "Assisted Bodyweight" },
   };
-
-export type ExerciseDisplayResult = {
-  resultType: "exercise" | "group";
-  exercise?: ExerciseMeta;
-  group?: string;
-};
-
-export function getResultsToDisplay(
-  query: string,
-  exerciseMetas: ExerciseMeta[],
-  muscleFilters: string[],
-  exerciseTypeFilters: string[]
-): ExerciseDisplayResult[] {
-  const results = queryExercises(
-    query,
-    exerciseMetas,
-    muscleFilters,
-    exerciseTypeFilters
-  );
-
-  const groups = ArrayUtils.sortBy(
-    ArrayUtils.groupBy(results, (meta) => meta.name.charAt(0)),
-    ({ key }) => key
-  );
-
-  return groups.flatMap(({ key, items }) => [
-    { resultType: "group", group: key },
-    ...items.map((meta) => ({ resultType: "exercise", exercise: meta })),
-  ]) as ExerciseDisplayResult[];
-}
 
 const filterPillsStyles = StyleSheet.create({
   container: {
@@ -203,105 +165,6 @@ export function FilterActions({
   );
 }
 
-const searchExerciseStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexRow(15),
-    height: SEARCH_EXERCISE_HEIGHT,
-    alignItems: "center",
-  },
-  demo: {
-    width: SEARCH_EXERCISE_HEIGHT - 15,
-    height: SEARCH_EXERCISE_HEIGHT - 15,
-    borderRadius: 5,
-    ...StyleUtils.flexRow(),
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  content: {
-    ...StyleUtils.flexColumn(),
-    justifyContent: "space-between",
-    height: SEARCH_EXERCISE_HEIGHT - 15,
-  },
-  description: {
-    ...StyleUtils.flexRow(5),
-  },
-});
-
-type SearchExerciseProps = {
-  meta: ExerciseMeta;
-  description?: string;
-};
-
-export function SearchExercise({ meta, description }: SearchExerciseProps) {
-  return (
-    <View style={searchExerciseStyles.container}>
-      <View
-        style={[
-          searchExerciseStyles.demo,
-          { backgroundColor: useThemeColoring("dynamicHeaderBorder") },
-        ]}
-      >
-        <Text large>{meta.name.substring(0, 1)}</Text>
-      </View>
-      <View style={searchExerciseStyles.content}>
-        <Text neutral>{meta.name}</Text>
-        <View style={searchExerciseStyles.description}>
-          <Text light>{meta.primaryMuscles[0]}</Text>
-          {description && <Text light>{description}</Text>}
-        </View>
-      </View>
-    </View>
-  );
-}
-
-const searchExerciseGroupingStyles = StyleSheet.create({
-  container: {
-    height: SEARCH_EXERCISE_HEIGHT,
-    marginRight: "1%",
-    alignItems: "center",
-    justifyContent: "center",
-    ...StyleUtils.flexRow(5),
-  },
-  divider: {
-    flex: 1,
-    height: 1,
-  },
-  title: {
-    paddingHorizontal: "2%",
-  },
-});
-
-type SearchExerciseGroupingProps = {
-  group: string;
-};
-
-export function SearchExerciseGrouping({ group }: SearchExerciseGroupingProps) {
-  const dividerColor = tintColor(
-    useThemeColoring("primaryViewBackground"),
-    0.15
-  );
-
-  return (
-    <View style={searchExerciseGroupingStyles.container}>
-      <View
-        style={[
-          searchExerciseGroupingStyles.divider,
-          { backgroundColor: dividerColor },
-        ]}
-      />
-      <Text neutral light style={searchExerciseGroupingStyles.title}>
-        {group}
-      </Text>
-      <View
-        style={[
-          searchExerciseGroupingStyles.divider,
-          { backgroundColor: dividerColor },
-        ]}
-      />
-    </View>
-  );
-}
-
 const searchBarStyles = StyleSheet.create({
   container: {
     marginTop: "3%",
@@ -315,11 +178,6 @@ const searchBarStyles = StyleSheet.create({
     ...StyleUtils.flexRow(5),
     alignItems: "center",
   },
-  clear: {
-    height: "100%",
-    width: "7%",
-    ...StyleUtils.flexRowCenterAll(),
-  },
 });
 
 type SearchBarProps = {
@@ -328,27 +186,15 @@ type SearchBarProps = {
 };
 
 export function SearchBar({ onChangeSearchQuery, style }: SearchBarProps) {
-  const inputRef = React.useRef<RNTextInput>(null);
   const lightText = useThemeColoring("lightText");
 
-  const clearSearch = useCallback((event: GestureResponderEvent) => {
-    event.stopPropagation();
-    if (inputRef.current) {
-      inputRef.current.clear();
-      onChangeSearchQuery("");
-    }
-  }, []);
-
   return (
-    <Pressable
+    <View
       style={[
         searchBarStyles.container,
         Platform.OS === "ios" ? { paddingVertical: "2%" } : {},
         style,
       ]}
-      onPress={() => {
-        inputRef.current?.focus();
-      }}
     >
       <View style={searchBarStyles.search}>
         <Search size={16} color={lightText} />
@@ -360,51 +206,10 @@ export function SearchBar({ onChangeSearchQuery, style }: SearchBarProps) {
           autoCorrect={false}
           autoComplete="off"
           spellCheck={false}
-          ref={inputRef}
           multiline={false}
+          style={{ flex: 1 }}
         />
       </View>
-      <TouchableOpacity style={searchBarStyles.clear} onPress={clearSearch}>
-        <X size={16} color={lightText} strokeWidth={3} />
-      </TouchableOpacity>
-    </Pressable>
-  );
-}
-
-const searchExerciseGroupNavStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexColumn(2),
-  },
-});
-
-type SearchExerciseGroupNavProps = {
-  enabledGroups: string[];
-  onClick: (group: string) => void;
-};
-
-export function SearchExerciseGroupNav({
-  enabledGroups,
-  onClick,
-}: SearchExerciseGroupNavProps) {
-  const enabledGroupsSet = new Set(enabledGroups);
-
-  return (
-    <View style={searchExerciseGroupNavStyles.container}>
-      {ALL_EXERCISE_GROUPS.map((group, index) => (
-        <TouchableWithoutFeedback
-          key={index}
-          onPress={() => {
-            if (enabledGroupsSet.has(group)) {
-              onClick(group);
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            }
-          }}
-        >
-          <Text small light={!enabledGroupsSet.has(group)}>
-            {group}
-          </Text>
-        </TouchableWithoutFeedback>
-      ))}
     </View>
   );
 }
@@ -421,7 +226,6 @@ const exerciseGridItemStyles = StyleSheet.create({
 
 type ExerciseGridItemProps = {
   exercise: ExerciseMeta;
-
   summary: string;
 };
 
@@ -432,7 +236,7 @@ export function ExerciseGridItem({ exercise, summary }: ExerciseGridItemProps) {
     0.05
   );
   const descriptionColor = tintColor(useThemeColoring("appBackground"), 0.1);
-  const demonstration = getExerciseDemonstration(exercise.name);
+  const fallbackColor = useThemeColoring("lightText");
 
   return (
     <>
@@ -442,13 +246,16 @@ export function ExerciseGridItem({ exercise, summary }: ExerciseGridItemProps) {
           { backgroundColor: imageBackgroundColor },
         ]}
       >
-        {demonstration && (
-          <Image
-            source={demonstration}
-            style={{ height: height * 0.2 }}
-            resizeMode="contain"
-          />
-        )}
+        <ExerciseImage
+          metaId={exercise.metaId}
+          imageStyle={{
+            height: height * 0.2,
+            width: height * 0.2,
+            borderRadius: 10,
+          }}
+          fallbackSize={height * 0.2}
+          fallbackColor={fallbackColor}
+        />
       </View>
       <View
         style={[

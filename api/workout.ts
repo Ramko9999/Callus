@@ -1,6 +1,5 @@
 import {
   Workout,
-  Trend,
   SearchExerciseSummary,
   Routine,
   CompletedExercise,
@@ -9,6 +8,8 @@ import {
 import { addDays } from "@/util/date";
 import { Store } from "./store";
 import { ArrayUtils } from "@/util/misc";
+import { CustomExercise } from "./model/custom-exercise";
+import { saveCustomExerciseImage } from "./store/fs";
 
 export class WorkoutApi {
   static async getWorkouts(localDate: number): Promise<Workout[]> {
@@ -62,6 +63,10 @@ export class WorkoutApi {
     return await Store.instance().getRoutines();
   }
 
+  static async getExportableCustomExercises(): Promise<CustomExercise[]> {
+    return await Store.instance().getCustomExercises();
+  }
+
   static async getWorkedOutDays(
     before: number,
     after: number
@@ -78,9 +83,9 @@ export class WorkoutApi {
       0,
       Date.now()
     );
-    return ArrayUtils.groupBy(completedExercises, ({ name }) => name).map(
+    return ArrayUtils.groupBy(completedExercises, ({ metaId }) => metaId).map(
       ({ key, items }) => ({
-        name: key,
+        metaId: key,
         totalSetsCompleted: items
           .flatMap((item) => item.sets.length)
           .reduce((total, current) => current + total),
@@ -96,9 +101,9 @@ export class WorkoutApi {
   }
 
   static async getExerciseCompletions(
-    exerciseName: string
+    metaId: string
   ): Promise<CompletedExercise[]> {
-    return await Store.instance().getAllCompletedExercise(0, exerciseName);
+    return await Store.instance().getAllCompletedExercise(0, metaId);
   }
 
   static async getCompletedWorkoutsBefore(before: number): Promise<number> {
@@ -120,5 +125,20 @@ export class WorkoutApi {
         seen.add(name);
         return true;
       });
+  }
+
+  static async saveCustomExercise(
+    exercise: CustomExercise,
+    sourceImageUri?: string
+  ): Promise<void> {
+    if (sourceImageUri) {
+      await saveCustomExerciseImage(sourceImageUri, exercise.id);
+    }
+    await Store.instance().saveCustomExercise(exercise);
+  }
+
+  static async deleteCustomExercise(id: string): Promise<void> {
+    await Store.instance().deleteAllPerformedExercises(id);
+    await Store.instance().deleteCustomExercise(id);
   }
 }

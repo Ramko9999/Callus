@@ -26,11 +26,10 @@ import {
   TimeDifficulty,
   DifficultyType,
 } from "@/interface";
-import { getDifficultyType } from "@/api/exercise";
 import { Plus, Minus } from "lucide-react-native";
-import { tintColor } from "@/util/color";
 import { WheelPicker, WheelPickerRef } from "@/components/util/wheel-picker";
 import { EditField } from "../pages/workout/common";
+import { ExerciseStoreSelectors, useExercisesStore } from "../store";
 
 const WHEEL_ITEM_HEIGHT = 40;
 
@@ -55,6 +54,7 @@ const editStyles = StyleSheet.create({
   input: {
     fontWeight: "600",
     textAlign: "left",
+    flex: 1,
   },
   inputWithUnits: {
     ...StyleUtils.flexRow(5),
@@ -452,7 +452,10 @@ export const EditWeightRepsSetSheet = forwardRef<
 
   // Find current set from exercise
   const currentSet = exercise.sets.find((set) => set.id === currentSetId);
-  const exerciseDifficultyType = getDifficultyType(exercise.name);
+  const exerciseDifficultyType = useExercisesStore(
+    (state) =>
+      ExerciseStoreSelectors.getExercise(exercise.metaId, state).difficultyType
+  );
 
   useEffect(() => {
     setCurrentSetId(setId);
@@ -470,21 +473,21 @@ export const EditWeightRepsSetSheet = forwardRef<
   return (
     <PopupBottomSheet show={show} onHide={onHide} ref={ref}>
       <View style={editSetStyles.container}>
-          {currentSet &&
-          (exerciseDifficultyType === DifficultyType.WEIGHT ||
-            exerciseDifficultyType === DifficultyType.WEIGHTED_BODYWEIGHT) ? (
-            <WeightedDifficultyEdit
-              difficulty={currentSet.difficulty as WeightDifficulty}
-              onUpdate={handleDifficultyUpdate}
-              focusField={focusField}
-            />
-          ) : currentSet ? (
-            <BodyweightDifficultyEdit
-              difficulty={currentSet.difficulty as BodyWeightDifficulty}
-              onUpdate={handleDifficultyUpdate}
-              focusField={focusField}
-            />
-          ) : null}
+        {currentSet &&
+        (exerciseDifficultyType === DifficultyType.WEIGHT ||
+          exerciseDifficultyType === DifficultyType.WEIGHTED_BODYWEIGHT) ? (
+          <WeightedDifficultyEdit
+            difficulty={currentSet.difficulty as WeightDifficulty}
+            onUpdate={handleDifficultyUpdate}
+            focusField={focusField}
+          />
+        ) : currentSet ? (
+          <BodyweightDifficultyEdit
+            difficulty={currentSet.difficulty as BodyWeightDifficulty}
+            onUpdate={handleDifficultyUpdate}
+            focusField={focusField}
+          />
+        ) : null}
         <KeyboardSpacer />
       </View>
     </PopupBottomSheet>
@@ -513,12 +516,12 @@ export const EditDurationSetSheet = forwardRef<BottomSheet, EditSetSheetProps>(
     return (
       <PopupBottomSheet show={show} onHide={onHide} ref={ref}>
         <View style={editSetStyles.container}>
-            <TimeDifficultyEdit
-              difficulty={currentSet?.difficulty as TimeDifficulty}
-              onUpdate={handleDifficultyUpdate}
-              focusField={focusField}
-              setId={currentSetId!}
-            />
+          <TimeDifficultyEdit
+            difficulty={currentSet?.difficulty as TimeDifficulty}
+            onUpdate={handleDifficultyUpdate}
+            focusField={focusField}
+            setId={currentSetId!}
+          />
           <View style={editSetStyles.timeSpacer} />
         </View>
       </PopupBottomSheet>
@@ -528,7 +531,11 @@ export const EditDurationSetSheet = forwardRef<BottomSheet, EditSetSheetProps>(
 
 export const EditSetSheet = forwardRef<BottomSheet, EditSetSheetProps>(
   ({ show, hide, onHide, exercise, setId, focusField, onUpdate }, ref) => {
-    const exerciseDifficultyType = getDifficultyType(exercise.name);
+    const exerciseDifficultyType = useExercisesStore(
+      (state) =>
+        ExerciseStoreSelectors.getExercise(exercise.metaId, state)
+          .difficultyType
+    );
 
     if (exerciseDifficultyType === DifficultyType.TIME) {
       return (

@@ -9,8 +9,6 @@ import { StartWorkoutSheet } from "../sheets/start-workout";;
 import BottomSheet from "@gorhom/bottom-sheet";
 import { TrendsPeriodSelectionSheet } from "@/components/sheets/trends-period-selection";
 import { FilterExercises } from "@/components/sheets/filter-exercises";
-import { WhatsNewSheet } from "@/components/sheets/whats-new";
-import { WhatsNewApi } from "@/api/whats-new";
 
 type PopupActions = {
   open: () => void;
@@ -31,7 +29,6 @@ type PopupContext = {
     timeRange: string;
   };
   filterExercises: FilterExercisesActions;
-  whatsNew: PopupActions & { checkWhatsNew: () => void };
 };
 
 const PopupContext = createContext<PopupContext>({
@@ -53,11 +50,6 @@ const PopupContext = createContext<PopupContext>({
     onUpdateMuscleFilters: () => {},
     onUpdateExerciseTypeFilters: () => {},
   },
-  whatsNew: {
-    open: () => {},
-    close: () => {},
-    checkWhatsNew: () => {},
-  },
 });
 
 type PopupProviderProps = {
@@ -69,14 +61,12 @@ export function PopupProvider({ children }: PopupProviderProps) {
   const [isTrendsPeriodSelectionOpen, setIsTrendsPeriodSelectionOpen] =
     useState(false);
   const [isFilterExercisesOpen, setIsFilterExercisesOpen] = useState(false);
-  const [isWhatsNewOpen, setIsWhatsNewOpen] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState("6w");
   const [muscleFilters, setMuscleFilters] = useState<string[]>([]);
   const [exerciseTypeFilters, setExerciseTypeFilters] = useState<string[]>([]);
   const startWorkoutSheetRef = useRef<BottomSheet>(null);
   const trendsPeriodSelectionSheetRef = useRef<BottomSheet>(null);
   const filterExercisesSheetRef = useRef<BottomSheet>(null);
-  const whatsNewSheetRef = useRef<BottomSheet>(null);
 
   const startWorkout = {
     open: () => setIsStartWorkoutOpen(true),
@@ -99,15 +89,6 @@ export function PopupProvider({ children }: PopupProviderProps) {
     onUpdateExerciseTypeFilters: setExerciseTypeFilters,
   };
 
-  const whatsNew = {
-    open: () => setIsWhatsNewOpen(true),
-    close: () => whatsNewSheetRef.current?.close(),
-    checkWhatsNew: async () => {
-      const hasSeenWhatsNew = await WhatsNewApi.hasSeenWhatsNew();
-      setIsWhatsNewOpen(!hasSeenWhatsNew);
-    },
-  };
-
   const setTimeRange = useCallback((range: string) => {
     setSelectedTimeRange(range);
     trendsPeriodSelectionSheetRef.current?.close();
@@ -115,7 +96,7 @@ export function PopupProvider({ children }: PopupProviderProps) {
 
   return (
     <PopupContext.Provider
-      value={{ startWorkout, trendsPeriodSelection, filterExercises, whatsNew }}
+      value={{ startWorkout, trendsPeriodSelection, filterExercises }}
     >
       {children}
       <StartWorkoutSheet
@@ -141,12 +122,6 @@ export function PopupProvider({ children }: PopupProviderProps) {
         exerciseTypeFilters={exerciseTypeFilters}
         onUpdateMuscleFilters={setMuscleFilters}
         onUpdateExerciseTypeFilters={setExerciseTypeFilters}
-      />
-      <WhatsNewSheet
-        ref={whatsNewSheetRef}
-        show={isWhatsNewOpen}
-        hide={whatsNew.close}
-        onHide={() => setIsWhatsNewOpen(false)}
       />
     </PopupContext.Provider>
   );

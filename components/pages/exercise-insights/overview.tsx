@@ -1,27 +1,13 @@
 import { View, Text, useThemeColoring } from "@/components/Themed";
-import {
-  StyleSheet,
-  Image,
-  useWindowDimensions,
-  ScrollView,
-} from "react-native";
+import { StyleSheet, useWindowDimensions, ScrollView } from "react-native";
 import { StyleUtils } from "@/util/styles";
-import {
-  getExerciseDemonstration,
-  NAME_TO_EXERCISE_META,
-  getDifficultyType,
-} from "@/api/exercise";
 import { convertHexToRGBA, tintColor } from "@/util/color";
 import { CompletedExercise, DifficultyType, ExerciseMeta } from "@/interface";
 import { Clock, Dumbbell, Trophy } from "lucide-react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TextSkeleton } from "@/components/util/loading";
-
-type OverviewProps = {
-  name: string;
-  completions: CompletedExercise[];
-  isLoading: boolean;
-};
+import { ExerciseImage } from "@/components/exercise/image";
+import { MuscleDistinction } from "@/components/heatmap";
 
 type ExerciseStats = {
   totalSets: number;
@@ -32,7 +18,7 @@ type ExerciseStats = {
 
 function aggregateExerciseStats(
   completions: CompletedExercise[],
-  meta: ExerciseMeta
+  difficultyType: DifficultyType
 ): ExerciseStats {
   const stats: ExerciseStats = {
     totalSets: 0,
@@ -49,8 +35,8 @@ function aggregateExerciseStats(
   completions.forEach((exercise) => {
     exercise.sets.forEach((set) => {
       if (
-        meta.difficultyType === DifficultyType.WEIGHT ||
-        meta.difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT
+        difficultyType === DifficultyType.WEIGHT ||
+        difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT
       ) {
         const { weight, reps } = set.difficulty as {
           weight: number;
@@ -58,10 +44,10 @@ function aggregateExerciseStats(
         };
         stats.totalVolume += weight * reps;
         stats.totalReps += reps;
-      } else if (meta.difficultyType === DifficultyType.BODYWEIGHT) {
+      } else if (difficultyType === DifficultyType.BODYWEIGHT) {
         const { reps } = set.difficulty as { reps: number };
         stats.totalReps += reps;
-      } else if (meta.difficultyType === DifficultyType.TIME) {
+      } else if (difficultyType === DifficultyType.TIME) {
         const { duration } = set.difficulty as { duration: number };
         stats.totalDuration += duration;
       }
@@ -137,26 +123,71 @@ function LifetimeSummaryStat({
   );
 }
 
-const musclePillStyles = StyleSheet.create({
+const muscleIconStyles = StyleSheet.create({
   container: {
-    ...StyleUtils.flexColumn(10),
-  },
-  pillsRow: {
-    ...StyleUtils.flexRow(10),
-    paddingVertical: "2%",
+    ...StyleUtils.flexColumn(8),
     alignItems: "center",
-    flexWrap: "wrap",
   },
-  groupLabel: {
-    marginBottom: 5,
-  },
-  pill: {
-    paddingHorizontal: "4%",
-    paddingVertical: "2%",
-    borderRadius: 10,
+  icon: {
+    borderRadius: "50%",
+    padding: "8%",
+    borderWidth: 1,
+    overflow: "hidden",
     ...StyleUtils.flexRowCenterAll(),
   },
 });
+
+const musclePillStyles = StyleSheet.create({
+  container: {
+    ...StyleUtils.flexColumn(12),
+    paddingHorizontal: "2%",
+  },
+  headerText: {
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  musclesContainer: {
+    ...StyleUtils.flexRow(12),
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: "2%",
+    paddingHorizontal: "1%",
+  },
+});
+
+type MuscleIconProps = {
+  muscle: string;
+  size: number;
+};
+
+function MuscleIcon({ muscle, size }: MuscleIconProps) {
+  const iconContainerColor = tintColor(useThemeColoring("appBackground"), 0.1);
+  const iconContainerBorderColor = convertHexToRGBA(
+    useThemeColoring("lightText"),
+    0.12
+  );
+
+  return (
+    <View style={muscleIconStyles.container}>
+      <View
+        style={[
+          muscleIconStyles.icon,
+          {
+            backgroundColor: iconContainerColor,
+            borderColor: iconContainerBorderColor,
+            width: size,
+            height: size,
+          },
+        ]}
+      >
+        <MuscleDistinction size={44} muscle={muscle} intensity={1} />
+      </View>
+      <Text light small style={{ fontSize: 10 }}>
+        {muscle}
+      </Text>
+    </View>
+  );
+}
 
 type MusclePillsProps = {
   primaryMuscles: string[];
@@ -164,39 +195,30 @@ type MusclePillsProps = {
 };
 
 function MusclePills({ primaryMuscles, secondaryMuscles }: MusclePillsProps) {
-  const pillColor = tintColor(useThemeColoring("appBackground"), 0.05);
+  const { width } = useWindowDimensions();
+  const muscleIconSize = width * 0.14;
 
   return (
     <View style={musclePillStyles.container}>
       <View>
-        <Text light style={musclePillStyles.groupLabel}>
+        <Text small light style={musclePillStyles.headerText}>
           Primary Muscles
         </Text>
-        <View style={musclePillStyles.pillsRow}>
+        <View style={musclePillStyles.musclesContainer}>
           {primaryMuscles.map((muscle) => (
-            <View
-              key={muscle}
-              style={[musclePillStyles.pill, { backgroundColor: pillColor }]}
-            >
-              <Text sneutral>{muscle}</Text>
-            </View>
+            <MuscleIcon key={muscle} muscle={muscle} size={muscleIconSize} />
           ))}
         </View>
       </View>
 
       {secondaryMuscles.length > 0 && (
         <View>
-          <Text light style={musclePillStyles.groupLabel}>
+          <Text small light style={musclePillStyles.headerText}>
             Secondary Muscles
           </Text>
-          <View style={musclePillStyles.pillsRow}>
+          <View style={musclePillStyles.musclesContainer}>
             {secondaryMuscles.map((muscle) => (
-              <View
-                key={muscle}
-                style={[musclePillStyles.pill, { backgroundColor: pillColor }]}
-              >
-                <Text sneutral>{muscle}</Text>
-              </View>
+              <MuscleIcon key={muscle} muscle={muscle} size={muscleIconSize} />
             ))}
           </View>
         </View>
@@ -221,14 +243,17 @@ const prExplanationStyles = StyleSheet.create({
   },
 });
 
-function PRExplanation({ name }: { name: string }) {
-  const type = getDifficultyType(name);
+type PRExplanationProps = {
+  difficultyType: DifficultyType;
+};
+
+function PRExplanation({ difficultyType }: PRExplanationProps) {
   const accentColor = convertHexToRGBA(useThemeColoring("primaryAction"), 0.1);
   const iconColor = useThemeColoring("primaryAction");
   const iconFill = convertHexToRGBA(iconColor, 0.3);
 
   let explanation = "";
-  switch (type) {
+  switch (difficultyType) {
     case DifficultyType.WEIGHT:
     case DifficultyType.WEIGHTED_BODYWEIGHT:
       explanation =
@@ -281,17 +306,21 @@ const overviewStyles = StyleSheet.create({
   },
 });
 
-export function Overview({ name, completions, isLoading }: OverviewProps) {
+type OverviewProps = {
+  meta: ExerciseMeta;
+  completions: CompletedExercise[];
+  isLoading: boolean;
+};
+
+export function Overview({ meta, completions, isLoading }: OverviewProps) {
   const { height } = useWindowDimensions();
-  const demonstration = getExerciseDemonstration(name);
-  const meta = NAME_TO_EXERCISE_META.get(name) as ExerciseMeta;
   const imageBackgroundColor = tintColor(
     useThemeColoring("appBackground"),
     0.05
   );
   const accentColor = useThemeColoring("primaryAction");
 
-  const stats = aggregateExerciseStats(completions, meta);
+  const stats = aggregateExerciseStats(completions, meta.difficultyType);
 
   return (
     <ScrollView
@@ -302,18 +331,21 @@ export function Overview({ name, completions, isLoading }: OverviewProps) {
       <View
         style={[
           overviewStyles.imageContainer,
-          { backgroundColor: imageBackgroundColor },
+          { backgroundColor: imageBackgroundColor, height: height * 0.3 },
         ]}
       >
-        {demonstration && (
-          <Image
-            source={demonstration}
-            style={{ height: height * 0.3 }}
-            resizeMode="contain"
-          />
-        )}
+        <ExerciseImage
+          metaId={meta.metaId}
+          imageStyle={{
+            height: height * 0.25,
+            width: height * 0.25,
+            borderRadius: 10,
+          }}
+          fallbackSize={height * 0.2}
+          fallbackColor={imageBackgroundColor}
+        />
       </View>
-      <Text light>{meta.description}</Text>
+      {meta.description && <Text light>{meta.description}</Text>}
 
       <View style={overviewStyles.statsContainer}>
         <LifetimeSummaryStat
@@ -366,7 +398,7 @@ export function Overview({ name, completions, isLoading }: OverviewProps) {
         )}
       </View>
 
-      <PRExplanation name={name} />
+      <PRExplanation difficultyType={meta.difficultyType} />
 
       <MusclePills
         primaryMuscles={meta.primaryMuscles}

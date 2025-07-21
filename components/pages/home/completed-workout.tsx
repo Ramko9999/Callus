@@ -15,6 +15,8 @@ import Animated, {
   LightSpeedInRight,
   LightSpeedOutLeft,
 } from "react-native-reanimated";
+import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
+import { useShallow } from "zustand/react/shallow";
 
 const completedWorkoutStyles = StyleSheet.create({
   container: {
@@ -47,10 +49,25 @@ type CompletedWorkoutProps = {
 };
 
 function CompletedWorkout({ workout, onClick }: CompletedWorkoutProps) {
-  const { totalWeightLifted, totalReps, totalDuration } =
-    getWorkoutSummary(workout);
+  const metaIdToDifficultyType = useExercisesStore(
+    useShallow(ExerciseStoreSelectors.getMetaIdToDifficultyType)
+  );
+  const metaIdToName = useExercisesStore(
+    useShallow(ExerciseStoreSelectors.getMetaIdToExercise)
+  );
+  // todo: fix this in the future
+  const filteredWorkout = {
+    ...workout,
+    exercises: workout.exercises.filter(
+      ({ metaId }) => metaIdToName[metaId] !== undefined
+    ),
+  };
+  const { totalWeightLifted, totalReps, totalDuration } = getWorkoutSummary(
+    filteredWorkout,
+    metaIdToDifficultyType
+  );
 
-  const date = new Date(workout.startedAt);
+  const date = new Date(filteredWorkout.startedAt);
   const formattedDate = `${date.toLocaleString("default", {
     weekday: "short",
   })}. ${date.toLocaleString("default", {
@@ -73,9 +90,9 @@ function CompletedWorkout({ workout, onClick }: CompletedWorkoutProps) {
           <Text light>{formattedDate}</Text>
         </View>
         <View style={completedWorkoutStyles.exercises}>
-          {workout.exercises.map((exercise, index) => (
-            <Text neutral light key={index}>
-              {exercise.name}
+          {filteredWorkout.exercises.map((exercise, index) => (
+            <Text neutral light key={exercise.id}>
+              {metaIdToName[exercise.metaId].name}
             </Text>
           ))}
         </View>

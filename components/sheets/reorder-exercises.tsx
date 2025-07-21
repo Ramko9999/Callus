@@ -20,6 +20,7 @@ import Sortable from "react-native-sortables";
 import Animated, { useAnimatedRef } from "react-native-reanimated";
 import { GripVertical } from "lucide-react-native";
 import { Exercise } from "@/interface";
+import { ExerciseStoreSelectors, useExercisesStore } from "../store";
 
 const reorderingExerciseItemStyles = StyleSheet.create({
   container: {
@@ -54,6 +55,10 @@ const ReorderingExerciseItem = memo(
     const backgroundColor = useThemeColoring("appBackground");
     const primaryTextColor = useThemeColoring("primaryText");
 
+    const exerciseName = useExercisesStore(
+      (state) => ExerciseStoreSelectors.getExercise(exercise.metaId, state).name
+    );
+
     return (
       <View style={reorderingExerciseItemStyles.itemContainer}>
         <TouchableOpacity
@@ -70,7 +75,7 @@ const ReorderingExerciseItem = memo(
             <View style={reorderingExerciseItemStyles.dragHandle}>
               <GripVertical size={20} color={primaryTextColor} />
             </View>
-            <Text>{exercise.name}</Text>
+            <Text>{exerciseName}</Text>
           </View>
         </TouchableOpacity>
       </View>

@@ -28,6 +28,10 @@ export function generateSetPlanId() {
   return generateRandomId("spl", 8);
 }
 
+export function generateCustomExerciseId() {
+  return generateRandomId("cex", 8);
+}
+
 export function getQuickstartWorkoutName() {
   const date = new Date(Date.now());
   if (date.getHours() >= 0 && date.getHours() < 5) {
@@ -39,6 +43,22 @@ export function getQuickstartWorkoutName() {
   } else {
     return "Evening Workout";
   }
+}
+
+export function generateDefaultDifficulty(type: DifficultyType): Difficulty {
+  let difficulty: Difficulty;
+  if (type === DifficultyType.ASSISTED_BODYWEIGHT) {
+    difficulty = { assistanceWeight: 0, reps: 0 };
+  } else if (type === DifficultyType.TIME) {
+    difficulty = { duration: 60 };
+  } else if (type === DifficultyType.WEIGHT) {
+    difficulty = { reps: 0, weight: 0 };
+  } else if (type === DifficultyType.WEIGHTED_BODYWEIGHT) {
+    difficulty = { reps: 0, weight: 0 };
+  } else {
+    difficulty = { reps: 0 };
+  }
+  return difficulty;
 }
 
 export function createDefaultSet(type: DifficultyType, restDuration: number): Set {

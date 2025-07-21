@@ -617,5 +617,13 @@
     "name": "Supine Press",
     "metaId": "217",
     "description": "Supine presses are a chest-building classic, working your pecs, front delts, and triceps as you press from a flat position. This move is a go-to for building a strong, solid upper body foundation."
+  },
+  {
+    "difficultyType": "TIME",
+    "primaryMuscles": ["Front Delts", "Side Delts", "Rear Delts"],
+    "secondaryMuscles": ["Triceps", "Traps"],
+    "name": "Handstand Hold (Bent Arm)",
+    "metaId": "218",
+    "description": "The bent arm handstand hold focuses on the bottom position of a handstand push-up, where your elbows are bent and your body hovers just above the ground. This static hold builds serious strength in your shoulders, triceps, and upper back while training control and stability in one of the most demanding support positions."
   }
 ]

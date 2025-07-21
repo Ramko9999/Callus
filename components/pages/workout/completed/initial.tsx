@@ -12,11 +12,9 @@ import {
   ScrollView,
   TouchableOpacity,
   View as RNView,
-  Image,
 } from "react-native";
-import { getExerciseDemonstration, getMeta } from "@/api/exercise";
 import { Heatmap } from "@/components/heatmap";
-import { Exercise, Workout } from "@/interface";
+import { Exercise, ExerciseMeta, Workout } from "@/interface";
 import { HeaderPage } from "@/components/util/header-page";
 import {
   FilePenLine,
@@ -63,6 +61,9 @@ import {
 import { EditWorkout } from "@/components/sheets/edit-workout";
 import { ReorderExercisesSheet } from "@/components/sheets/reorder-exercises";
 import { useLiveWorkout } from "../live/context";
+import { ExerciseImage } from "@/components/exercise/image";
+import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
+import { useShallow } from "zustand/shallow";
 
 type MusclesToSets = Record<string, number>;
 
@@ -77,48 +78,39 @@ function formatVolume(volume: number): string {
 }
 
 // Helper function to get muscles worked from a workout object
-function getMusclesWorked(workout: Workout): MusclesToSets {
+function getMusclesWorked(
+  workout: Workout,
+  exerciseMetas: ExerciseMeta[]
+): MusclesToSets {
   const musclesToSets: MusclesToSets = {};
 
-  // Iterate through each exercise in the workout
   for (const exercise of workout.exercises) {
-    try {
-      // Get the exercise meta to find which muscles it targets
-      const exerciseMeta = getMeta(exercise.name);
+    const exerciseMeta = exerciseMetas.find(
+      (meta) => meta.metaId === exercise.metaId
+    )!;
 
-      // Count the number of sets for this exercise
-      const setCount = exercise.sets.length;
+    const setCount = exercise.sets.length;
 
-      // Add full set count to primary muscles
-      for (const muscle of exerciseMeta.primaryMuscles) {
-        if (musclesToSets[muscle]) {
-          musclesToSets[muscle] += setCount;
-        } else {
-          musclesToSets[muscle] = setCount;
-        }
+    for (const muscle of exerciseMeta.primaryMuscles) {
+      if (musclesToSets[muscle]) {
+        musclesToSets[muscle] += setCount;
+      } else {
+        musclesToSets[muscle] = setCount;
       }
+    }
 
-      // Add half set count to secondary muscles
-      for (const muscle of exerciseMeta.secondaryMuscles) {
-        const halfSetCount = setCount * 0.5;
-        if (musclesToSets[muscle]) {
-          musclesToSets[muscle] += halfSetCount;
-        } else {
-          musclesToSets[muscle] = halfSetCount;
-        }
+    for (const muscle of exerciseMeta.secondaryMuscles) {
+      const halfSetCount = setCount * 0.5;
+      if (musclesToSets[muscle]) {
+        musclesToSets[muscle] += halfSetCount;
+      } else {
+        musclesToSets[muscle] = halfSetCount;
       }
-    } catch (error) {
-      // If we can't find the exercise meta, skip it
-      console.warn(`Could not find meta for exercise: ${exercise.name}`);
     }
   }
 
   return musclesToSets;
 }
-
-
-
-
 
 const workoutSummaryStyles = StyleSheet.create({
   container: {
@@ -230,9 +222,15 @@ type ExerciseItemProps = {
 };
 
 function ExerciseItem({ exercise, onDelete, onPress }: ExerciseItemProps) {
-  const demonstration = getExerciseDemonstration(exercise.name);
   const { width } = useWindowDimensions();
   const lightTextColor = useThemeColoring("lightText");
+  const exerciseName = useExercisesStore(
+    (state) => ExerciseStoreSelectors.getExercise(exercise.metaId, state).name
+  );
+  const difficultyType = useExercisesStore(
+    (state) =>
+      ExerciseStoreSelectors.getExercise(exercise.metaId, state).difficultyType
+  );
 
   const handleDelete = () => {
     onDelete(exercise.id);
@@ -252,18 +250,20 @@ function ExerciseItem({ exercise, onDelete, onPress }: ExerciseItemProps) {
       <TouchableOpacity onPress={handlePress}>
         <View style={exerciseListStyles.exerciseItem}>
           <View style={[exerciseListStyles.exerciseImage]}>
-            {demonstration && (
-              <Image
-                source={demonstration}
-                style={{ width: width * 0.15, height: width * 0.15 }}
-                resizeMode="contain"
-              />
-            )}
+            <ExerciseImage
+              metaId={exercise.metaId}
+              imageStyle={{ width: width * 0.15, height: width * 0.15, borderRadius: 5 }}
+              fallbackSize={width * 0.15}
+              fallbackColor={lightTextColor}
+            />
           </View>
           <View style={exerciseListStyles.exerciseContent}>
-            <Text>{exercise.name}</Text>
+            <Text>{exerciseName}</Text>
             <Text light sneutral>
-              {getHistoricalExerciseDescription(exercise)}
+              {getHistoricalExerciseDescription({
+                difficulties: exercise.sets.map((set) => set.difficulty),
+                difficultyType,
+              })}
             </Text>
             {exercise.note && (
               <Text light italic small numberOfLines={2} ellipsizeMode="tail">
@@ -280,8 +280,6 @@ function ExerciseItem({ exercise, onDelete, onPress }: ExerciseItemProps) {
   );
 }
 
-
-
 export type ExercisesRef = {
   openExercisesPopover: () => void;
 };
@@ -295,7 +293,16 @@ type ExercisesProps = {
 };
 
 const Exercises = forwardRef<ExercisesRef, ExercisesProps>(
-  ({ exercises, exercisesPopoverRef, onDelete, onExercisePress, exercisesPopoverProgress }, ref) => {
+  (
+    {
+      exercises,
+      exercisesPopoverRef,
+      onDelete,
+      onExercisePress,
+      exercisesPopoverProgress,
+    },
+    ref
+  ) => {
     const moreButtonRef = useRef<any>(null);
     const { height } = useWindowDimensions();
 
@@ -322,7 +329,11 @@ const Exercises = forwardRef<ExercisesRef, ExercisesProps>(
           <Text header style={exerciseListStyles.sectionTitle}>
             Exercises
           </Text>
-          <MoreButton ref={moreButtonRef} onClick={handleMorePress} progress={exercisesPopoverProgress} />
+          <MoreButton
+            ref={moreButtonRef}
+            onClick={handleMorePress}
+            progress={exercisesPopoverProgress}
+          />
         </View>
         {exercises.length === 0 ? (
           <View
@@ -443,6 +454,10 @@ export function CompletedWorkoutInitial() {
   const exercisesPopoverRef = useRef<PopoverRef>(null);
   const popoverProgress = useSharedValue(0);
   const exercisesPopoverProgress = useSharedValue(0);
+  const allExerciseMetas = useExercisesStore((state) => state.exercises);
+  const metaIdToDifficultyType = useExercisesStore(
+    useShallow(ExerciseStoreSelectors.getMetaIdToDifficultyType)
+  );
 
   const { workout, onSave } = useCompletedWorkout();
 
@@ -452,7 +467,10 @@ export function CompletedWorkoutInitial() {
   );
 
   // Compute muscles worked in component body
-  const musclesWorked = workout ? getMusclesWorked(workout) : {};
+  // todo: this is nasty
+  const musclesWorked = workout
+    ? getMusclesWorked(workout, allExerciseMetas)
+    : {};
 
   const handleMorePress = () => {
     if (moreButtonRef.current) {
@@ -558,7 +576,10 @@ export function CompletedWorkoutInitial() {
             <WorkoutSummaryStat
               value={
                 workout
-                  ? formatVolume(getWorkoutSummary(workout).totalWeightLifted)
+                  ? formatVolume(
+                      getWorkoutSummary(workout, metaIdToDifficultyType)
+                        .totalWeightLifted
+                    )
                   : "0 lbs"
               }
               label="Volume"
@@ -573,7 +594,14 @@ export function CompletedWorkoutInitial() {
             />
 
             <WorkoutSummaryStat
-              value={workout ? `${getWorkoutSummary(workout).totalReps}` : "0"}
+              value={
+                workout
+                  ? `${
+                      getWorkoutSummary(workout, metaIdToDifficultyType)
+                        .totalReps
+                    }`
+                  : "0"
+              }
               label="Reps"
               icon={
                 <MaterialCommunityIcons
@@ -590,7 +618,8 @@ export function CompletedWorkoutInitial() {
                 workout
                   ? getTimePeriodDisplay(
                       roundToNearestMinute(
-                        getWorkoutSummary(workout).totalDuration
+                        getWorkoutSummary(workout, metaIdToDifficultyType)
+                          .totalDuration
                       )
                     )
                   : "0m"

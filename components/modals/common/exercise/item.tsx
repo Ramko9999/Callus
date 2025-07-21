@@ -1,31 +1,20 @@
-import { Exercise, ExercisePlan, Workout } from "@/interface";
+import { Exercise, ExercisePlan } from "@/interface";
 import {
   EDITOR_EXERCISE_HEIGHT,
   EDITOR_EXERCISE_WITH_NOTE_HEIGHT,
   StyleUtils,
 } from "@/util/styles";
-import { memo, useEffect } from "react";
+import { memo } from "react";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import {
-  getHistoricalExerciseDescription,
-  getLiveExerciseDescription,
+  getHistoricalExerciseDescription
 } from "@/util/workout/display";
 import { SwipeableDelete } from "@/components/util/swipeable-delete";
-import { TouchableOpacity, StyleSheet, Pressable } from "react-native";
-import Animated, {
-  interpolateColor,
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from "react-native-reanimated";
+import { TouchableOpacity, StyleSheet } from "react-native";
 import { View, Text, useThemeColoring } from "@/components/Themed";
 import { FontAwesome } from "@expo/vector-icons";
 import { textTheme } from "@/constants/Themes";
-import {
-  getCurrentWorkoutActivity,
-  useWorkout,
-} from "@/context/WorkoutContext";
+import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
 
 export function getExerciseHeight(exercise: Exercise) {
   return exercise.note != undefined
@@ -78,59 +67,19 @@ const exerciseStyles = StyleSheet.create({
   },
 });
 
-export const CompletedWorkoutExercise = memo(
-  ({ exercise, onClick, onLongClick, onTrash }: ExerciseProps) => {
-    const historicalWorkoutExercise = exercise as Exercise;
-
-    return (
-      <Swipeable
-        overshootRight={false}
-        renderRightActions={(_, drag) => (
-          <SwipeableDelete
-            drag={drag}
-            onDelete={() => onTrash(historicalWorkoutExercise.id)}
-            dimension={getExerciseHeight(historicalWorkoutExercise)}
-          />
-        )}
-      >
-        <TouchableOpacity
-          onPress={() => onClick(historicalWorkoutExercise.id)}
-          onLongPress={onLongClick}
-          style={[
-            exerciseStyles.container,
-            {
-              height: getExerciseHeight(historicalWorkoutExercise),
-            },
-          ]}
-        >
-          <View style={exerciseStyles.title}>
-            <Text large>{exercise.name}</Text>
-            <Text neutral light>
-              {getHistoricalExerciseDescription(exercise)}
-            </Text>
-            {historicalWorkoutExercise.note && (
-              <Text neutral light italic numberOfLines={1}>
-                {historicalWorkoutExercise.note}
-              </Text>
-            )}
-          </View>
-          <View style={exerciseStyles.rightActions}>
-            <FontAwesome
-              name="angle-right"
-              color={useThemeColoring("lightText")}
-              size={textTheme.large.fontSize}
-            />
-          </View>
-        </TouchableOpacity>
-      </Swipeable>
-    );
-  },
-  areExercisePropsSame
-);
-
 export const RoutineExercise = memo(
   ({ exercise, onClick, onLongClick, onTrash }: ExerciseProps) => {
     const exercisePlan = exercise as ExercisePlan;
+    const exerciseName = useExercisesStore(
+      (state) =>
+        ExerciseStoreSelectors.getExercise(exercisePlan.metaId, state).name
+    );
+    const difficultyType = useExercisesStore(
+      (state) =>
+        ExerciseStoreSelectors.getExercise(exercisePlan.metaId, state)
+          .difficultyType
+    );
+
     return (
       <Swipeable
         overshootRight={false}
@@ -148,9 +97,12 @@ export const RoutineExercise = memo(
           style={[exerciseStyles.container, { height: EDITOR_EXERCISE_HEIGHT }]}
         >
           <View style={exerciseStyles.title}>
-            <Text large>{exercise.name}</Text>
+            <Text large>{exerciseName}</Text>
             <Text neutral light>
-              {getHistoricalExerciseDescription(exercise)}
+              {getHistoricalExerciseDescription({
+                difficulties: exercise.sets.map((set) => set.difficulty),
+                difficultyType,
+              })}
             </Text>
           </View>
           <View style={exerciseStyles.rightActions}>
@@ -160,84 +112,6 @@ export const RoutineExercise = memo(
               size={textTheme.large.fontSize}
             />
           </View>
-        </TouchableOpacity>
-      </Swipeable>
-    );
-  },
-  areExercisePropsSame
-);
-
-export const LiveWorkoutExercise = memo(
-  ({ exercise, onClick, onLongClick, onTrash, isDragging }: ExerciseProps) => {
-    const liveWorkoutExercise = exercise as Exercise;
-    const { editor } = useWorkout();
-    const currentExerciseId = getCurrentWorkoutActivity(
-      editor.workout as Workout
-    ).activityData.exercise?.id;
-    const activeAnimationColor = useSharedValue(0);
-    const activeColor = useThemeColoring("highlightedAnimationColor");
-
-    useEffect(() => {
-      if (currentExerciseId === liveWorkoutExercise.id && !isDragging) {
-        activeAnimationColor.value = withRepeat(
-          withTiming(1, { duration: 1000 }),
-          -1,
-          true
-        );
-      } else {
-        activeAnimationColor.value = 0;
-      }
-    }, [currentExerciseId, isDragging]);
-
-    const animatedStyle = useAnimatedStyle(() => ({
-      backgroundColor: interpolateColor(
-        activeAnimationColor.value,
-        [0, 1],
-        ["transparent", activeColor]
-      ),
-    }));
-
-    return (
-      <Swipeable
-        overshootRight={false}
-        renderRightActions={(_, drag) => (
-          <SwipeableDelete
-            drag={drag}
-            onDelete={() => onTrash(liveWorkoutExercise.id)}
-            dimension={getExerciseHeight(liveWorkoutExercise)}
-          />
-        )}
-      >
-        <TouchableOpacity
-          onPress={() => onClick(liveWorkoutExercise.id)}
-          onLongPress={onLongClick}
-        >
-          <Animated.View
-            style={[
-              exerciseStyles.container,
-              animatedStyle,
-              { height: getExerciseHeight(liveWorkoutExercise) },
-            ]}
-          >
-            <View style={exerciseStyles.title}>
-              <Text large>{exercise.name}</Text>
-              <Text neutral light>
-                {getLiveExerciseDescription(exercise as Exercise)}
-              </Text>
-              {liveWorkoutExercise.note && (
-                <Text neutral light italic numberOfLines={1}>
-                  {liveWorkoutExercise.note}
-                </Text>
-              )}
-            </View>
-            <View style={exerciseStyles.rightActions}>
-              <FontAwesome
-                name="angle-right"
-                color={useThemeColoring("lightText")}
-                size={textTheme.large.fontSize}
-              />
-            </View>
-          </Animated.View>
         </TouchableOpacity>
       </Swipeable>
     );

@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import {
   StyleSheet,
   useWindowDimensions,
-  Image,
   TouchableOpacity,
   GestureResponderEvent,
 } from "react-native";
@@ -15,11 +14,9 @@ import Animated, {
 import { View, Text, useThemeColoring } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
 import { updateSet } from "@/context/WorkoutContext";
-import { getExerciseDemonstration } from "@/api/exercise";
 import { Exercise, Set, DifficultyType, SetStatus } from "@/interface";
 
 import { tintColor } from "@/util/color";
-import { getDifficultyType } from "@/api/exercise";
 import * as Haptics from "expo-haptics";
 import { useSound } from "@/components/sounds";
 import { RestingProgress } from "@/components/workout/live";
@@ -29,6 +26,8 @@ import {
   SetHeader,
   EditField,
 } from "@/components/pages/workout/common";
+import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
+import { ExerciseImage } from "@/components/exercise/image";
 
 type LiveSetRowProps = {
   set: Set;
@@ -127,7 +126,6 @@ const setCardStyles = StyleSheet.create({
   },
   imageContainer: {
     borderRadius: 20,
-    overflow: "hidden",
   },
   exerciseImage: {
     borderRadius: 20,
@@ -165,8 +163,15 @@ export function SetCard({
   const primaryActionColor = useThemeColoring("primaryAction");
   const bgColor = tintColor(useThemeColoring("appBackground"), 0.05);
 
-  const demonstration = getExerciseDemonstration(exercise.name);
-  const difficultyType = getDifficultyType(exercise.name);
+  const difficultyType = useExercisesStore(
+    (state) =>
+      ExerciseStoreSelectors.getExercise(exercise.metaId, state).difficultyType
+  );
+
+  const exerciseName = useExercisesStore(
+    (state) =>
+      ExerciseStoreSelectors.getExercise(exercise.metaId, state).name
+  );
 
   const isResting = set.status === SetStatus.RESTING;
   const { remainingRestMs, restProgress } = useRest({
@@ -183,7 +188,7 @@ export function SetCard({
   };
 
   const mediaDimensions = {
-    width: width * 0.95,
+    width: width * 0.94,
     height: height * 0.4,
   };
 
@@ -196,76 +201,77 @@ export function SetCard({
     >
       <View style={setCardStyles.headerRow}>
         <Text action style={{ fontWeight: "600" }}>
-          {exercise.name}
+          {exerciseName}
         </Text>
         <Text style={{ color: primaryActionColor }}>
           Set {currentSetIndex + 1} of {totalSets}
         </Text>
       </View>
+      <Animated.View
+        style={[setCardStyles.mediaContainer, mediaDimensions]}
+        layout={LinearTransition.springify().damping(20).stiffness(150)}
+      >
+        {!isResting && (
+          <Animated.View
+            key="spacer-start"
+            style={mediaDimensions}
+            layout={LinearTransition.springify().damping(20).stiffness(150)}
+          />
+        )}
 
-      {demonstration && (
         <Animated.View
-          style={[setCardStyles.mediaContainer, mediaDimensions]}
+          key="demonstration"
+          style={[setCardStyles.pageContainer, mediaDimensions]}
           layout={LinearTransition.springify().damping(20).stiffness(150)}
         >
-          {!isResting && (
-            <Animated.View
-              key="spacer-start"
-              style={mediaDimensions}
-              layout={LinearTransition.springify().damping(20).stiffness(150)}
+          <View style={setCardStyles.imageContainer}>
+            <ExerciseImage
+              metaId={exercise.metaId}
+              imageStyle={{
+                ...setCardStyles.exerciseImage,
+                ...mediaDimensions,
+              }}
+              fallbackSize={mediaDimensions.width}
+              fallbackColor={primaryActionColor}
             />
-          )}
-
-          <Animated.View
-            key="demonstration"
-            style={[setCardStyles.pageContainer, mediaDimensions]}
-            layout={LinearTransition.springify().damping(20).stiffness(150)}
-          >
-            <View style={setCardStyles.imageContainer}>
-              <Image
-                source={demonstration}
-                style={[setCardStyles.exerciseImage, mediaDimensions]}
-                resizeMode="contain"
-              />
-            </View>
-          </Animated.View>
-
-          <Animated.View
-            key="resting-progress"
-            style={[setCardStyles.pageContainer, mediaDimensions]}
-            layout={LinearTransition.springify().damping(20).stiffness(150)}
-          >
-            <View style={setCardStyles.restingContainer}>
-              <RestingProgress
-                progress={restProgress}
-                dimension={Math.min(width * 0.8, height * 0.5)}
-                strokeWidth={10}
-                timeRemaining={Math.floor(remainingRestMs / 1000)}
-                currentDuration={set.restDuration || 0}
-                onEditDuration={(newDuration) => {
-                  if (workout) {
-                    const updatedWorkout = updateSet(
-                      set.id,
-                      { restDuration: newDuration },
-                      workout
-                    );
-                    onUpdateWorkout(updatedWorkout);
-                  }
-                }}
-                onSkip={onSkipRest}
-              />
-            </View>
-          </Animated.View>
-
-          {isResting && (
-            <Animated.View
-              key="spacer-end"
-              style={mediaDimensions}
-              layout={LinearTransition.springify().damping(20).stiffness(150)}
-            />
-          )}
+          </View>
         </Animated.View>
-      )}
+
+        <Animated.View
+          key="resting-progress"
+          style={[setCardStyles.pageContainer, mediaDimensions]}
+          layout={LinearTransition.springify().damping(20).stiffness(150)}
+        >
+          <View style={setCardStyles.restingContainer}>
+            <RestingProgress
+              progress={restProgress}
+              dimension={Math.min(width * 0.8, height * 0.5)}
+              strokeWidth={10}
+              timeRemaining={Math.floor(remainingRestMs / 1000)}
+              currentDuration={set.restDuration || 0}
+              onEditDuration={(newDuration) => {
+                if (workout) {
+                  const updatedWorkout = updateSet(
+                    set.id,
+                    { restDuration: newDuration },
+                    workout
+                  );
+                  onUpdateWorkout(updatedWorkout);
+                }
+              }}
+              onSkip={onSkipRest}
+            />
+          </View>
+        </Animated.View>
+
+        {isResting && (
+          <Animated.View
+            key="spacer-end"
+            style={mediaDimensions}
+            layout={LinearTransition.springify().damping(20).stiffness(150)}
+          />
+        )}
+      </Animated.View>
 
       <View style={setCardStyles.setsContainer}>
         <SetHeader difficultyType={difficultyType} />

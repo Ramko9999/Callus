@@ -1,163 +1,28 @@
-import {
-  StyleSheet,
-  TouchableOpacity,
-  FlatList,
-  Keyboard,
-} from "react-native";
+import { StyleSheet, TouchableOpacity, FlatList, Keyboard } from "react-native";
 import { useThemeColoring, View } from "@/components/Themed";
-import { TAB_BAR_HEIGHT } from "@/util/styles";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { ExerciseMeta, SearchExerciseSummary } from "@/interface";
 import { WorkoutApi } from "@/api/workout";
 import React from "react";
-import { EXERCISE_REPOSITORY } from "@/api/exercise";
 import { HeaderPage } from "@/components/util/header-page";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import {
   FilterActions,
-  getResultsToDisplay,
-  SearchExercise,
-  SearchExerciseGrouping,
-  ExerciseDisplayResult,
   SearchBar,
-  SearchExerciseGroupNav,
-  SEARCH_EXERCISE_HEIGHT,
   ExerciseGridItem,
 } from "@/components/exercise/search/common";
-import * as Haptics from "expo-haptics";
 import { tintColor } from "@/util/color";
 import { usePopup } from "@/components/popup";
-import { LayoutGrid, List } from "lucide-react-native";
 import { LiveWorkoutPreview } from "@/components/workout/preview";
-
-type SearchExerciseWithSummaryProps = {
-  meta: ExerciseMeta;
-  summary?: SearchExerciseSummary;
-  onClick: () => void;
-};
-
-function SearchExerciseWithSummary({
-  meta,
-  summary,
-  onClick,
-}: SearchExerciseWithSummaryProps) {
-  const description = summary ? `- ${summary.totalSetsCompleted} sets` : "";
-
-  return (
-    <TouchableOpacity onPress={onClick}>
-      <SearchExercise meta={meta} description={description} />
-    </TouchableOpacity>
-  );
-}
+import { PlusButton } from "@/components/pages/common";
+import { useExercisesStore } from "@/components/store";
+import { queryExercises } from "@/api/exercise";
 
 const exercisesStyles = StyleSheet.create({
   search: {
     paddingHorizontal: "3%",
   },
 });
-
-const verticalViewStyles = StyleSheet.create({
-  scroll: {
-    flex: 1,
-    paddingHorizontal: "3%",
-  },
-  content: {
-    paddingBottom: "10%",
-  },
-  groupNavigation: {
-    position: "absolute",
-    left: "97%",
-    bottom: TAB_BAR_HEIGHT + 20,
-  },
-});
-
-type VerticalViewProps = {
-  results: ExerciseDisplayResult[];
-  performedExerciseSummaries: SearchExerciseSummary[];
-  onExercisePress: (exercise: ExerciseMeta) => void;
-};
-
-function VerticalView({
-  results,
-  performedExerciseSummaries,
-  onExercisePress,
-}: VerticalViewProps) {
-  const flatListRef = useRef<FlatList>(null);
-
-  const getSummary = (meta: ExerciseMeta) => {
-    const summaryIndex = performedExerciseSummaries
-      .map(({ name }) => name)
-      .indexOf(meta.name);
-    if (summaryIndex > -1) {
-      return performedExerciseSummaries[summaryIndex];
-    }
-  };
-
-  const renderItem = useCallback(
-    ({ item }: { item: ExerciseDisplayResult }) =>
-      item.resultType === "group" ? (
-        <SearchExerciseGrouping group={item.group as string} />
-      ) : (
-        <SearchExerciseWithSummary
-          meta={item.exercise as ExerciseMeta}
-          summary={getSummary(item.exercise as ExerciseMeta)}
-          onClick={() => onExercisePress(item.exercise as ExerciseMeta)}
-        />
-      ),
-    [performedExerciseSummaries, onExercisePress]
-  );
-
-  const getItemLayout = useCallback(
-    (_: any, index: number) => ({
-      length: SEARCH_EXERCISE_HEIGHT,
-      offset: SEARCH_EXERCISE_HEIGHT * index,
-      index,
-    }),
-    []
-  );
-
-  const keyExtractor = useCallback(
-    ({ resultType, exercise, group }: ExerciseDisplayResult) =>
-      exercise ? `${resultType}-${exercise.name}` : `${resultType}-${group}`,
-    []
-  );
-
-  const groups = results
-    .filter(({ resultType }) => resultType === "group")
-    .map(({ group }) => group) as string[];
-
-  return (
-    <>
-      <FlatList
-        ref={flatListRef}
-        style={verticalViewStyles.scroll}
-        contentContainerStyle={verticalViewStyles.content}
-        showsVerticalScrollIndicator={false}
-        data={results}
-        getItemLayout={getItemLayout}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-      />
-      <View style={verticalViewStyles.groupNavigation}>
-        <SearchExerciseGroupNav
-          enabledGroups={groups}
-          onClick={(selectedGroup) => {
-            const scrollIndex = results
-              .map(({ resultType, group }) =>
-                resultType === "group" ? group : ""
-              )
-              .indexOf(selectedGroup);
-            flatListRef.current?.scrollToIndex({
-              animated: true,
-              index: scrollIndex,
-            });
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          }}
-        />
-      </View>
-    </>
-  );
-}
 
 const gridViewStyles = StyleSheet.create({
   container: {
@@ -182,22 +47,20 @@ type GridItemProps = {
 };
 
 const GridItem = React.memo(
-  function GridItem({ exercise, halfFlex, summary, onPress }: GridItemProps){
+  function GridItem({ exercise, halfFlex, summary, onPress }: GridItemProps) {
     return (
       <TouchableOpacity
         style={[gridViewStyles.item, { flex: halfFlex ? 0.5 : 1 }]}
         onPress={() => onPress(exercise)}
       >
-        <ExerciseGridItem
-          exercise={exercise}
-          summary={summary}
-        />
+        <ExerciseGridItem exercise={exercise} summary={summary} />
       </TouchableOpacity>
     );
   },
   (prevProps, nextProps) => {
     return (
-      JSON.stringify(prevProps.exercise) === JSON.stringify(nextProps.exercise) &&
+      JSON.stringify(prevProps.exercise) ===
+        JSON.stringify(nextProps.exercise) &&
       prevProps.halfFlex === nextProps.halfFlex &&
       prevProps.summary === nextProps.summary &&
       prevProps.onPress === nextProps.onPress
@@ -206,25 +69,21 @@ const GridItem = React.memo(
 );
 
 type GridViewProps = {
-  results: ExerciseDisplayResult[];
+  exercises: ExerciseMeta[];
   performedExerciseSummaries: SearchExerciseSummary[];
   onExercisePress: (exercise: ExerciseMeta) => void;
 };
 
 function GridView({
-  results,
+  exercises,
   performedExerciseSummaries,
   onExercisePress,
 }: GridViewProps) {
-  const exercises = results.filter(
-    (result) => result.resultType === "exercise"
-  ) as { resultType: "exercise"; exercise: ExerciseMeta }[];
-
   const getSummary = useCallback(
     (meta: ExerciseMeta) => {
       const summaryIndex = performedExerciseSummaries
-        .map(({ name }) => name)
-        .indexOf(meta.name);
+        .map(({ metaId }) => metaId)
+        .indexOf(meta.metaId);
       if (summaryIndex > -1) {
         return `${performedExerciseSummaries[summaryIndex].totalSetsCompleted} sets`;
       }
@@ -234,13 +93,14 @@ function GridView({
   );
 
   const renderGridItem = useCallback(
-    ({ item, index }: { item: { resultType: "exercise"; exercise: ExerciseMeta }; index: number }) => {
-      const shouldHaveHalfFlex = index === exercises.length - 1 && exercises.length % 2 === 1;
+    ({ item, index }: { item: ExerciseMeta; index: number }) => {
+      const shouldHaveHalfFlex =
+        index === exercises.length - 1 && exercises.length % 2 === 1;
       return (
         <GridItem
-          exercise={item.exercise}
+          exercise={item}
           halfFlex={shouldHaveHalfFlex}
-          summary={getSummary(item.exercise)}
+          summary={getSummary(item)}
           onPress={onExercisePress}
         />
       );
@@ -256,7 +116,7 @@ function GridView({
       removeClippedSubviews={false}
       data={exercises}
       renderItem={renderGridItem}
-      keyExtractor={(item) => item.exercise.name}
+      keyExtractor={(item) => item.metaId}
       numColumns={2}
       showsVerticalScrollIndicator={false}
     />
@@ -266,7 +126,7 @@ function GridView({
 export function Exercises() {
   const navigation = useNavigation();
   const { filterExercises } = usePopup();
-  const [isGridView, setIsGridView] = useState(true);
+  const exercises = useExercisesStore((state) => state.exercises);
 
   const [performedExerciseSummaries, setPerformedExerciseSummaries] = useState<
     SearchExerciseSummary[]
@@ -281,9 +141,9 @@ export function Exercises() {
     }, [])
   );
 
-  const results = getResultsToDisplay(
+  const filteredExercises = queryExercises(
     searchQuery,
-    EXERCISE_REPOSITORY,
+    exercises,
     filterExercises.muscleFilters,
     filterExercises.exerciseTypeFilters
   );
@@ -297,16 +157,16 @@ export function Exercises() {
     (exercise: ExerciseMeta) => {
       // @ts-ignore
       navigation.navigate("exerciseInsightSheet", {
-        name: exercise.name,
+        id: exercise.metaId,
       });
     },
     [navigation]
   );
 
-  const toggleView = useCallback(() => {
-    setIsGridView((prev) => !prev);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  }, []);
+  const handleCreateExercise = useCallback(() => {
+    // @ts-ignore
+    navigation.navigate("createExerciseSheet");
+  }, [navigation]);
 
   const hasFilters =
     filterExercises.muscleFilters.length > 0 ||
@@ -314,49 +174,33 @@ export function Exercises() {
 
   return (
     <>
-    <HeaderPage
-      title="Exercises"
-      rightAction={
-        <TouchableOpacity onPress={toggleView}>
-          {isGridView ? (
-            <List size={24} color={useThemeColoring("primaryAction")} />
-          ) : (
-            <LayoutGrid size={24} color={useThemeColoring("primaryAction")} />
-          )}
-        </TouchableOpacity>
-      }
-    >
-      <View style={exercisesStyles.search}>
-        <SearchBar
-          onChangeSearchQuery={setSearchQuery}
-          style={{ backgroundColor: barColor }}
+      <HeaderPage
+        title="Exercises"
+        rightAction={<PlusButton onClick={handleCreateExercise} />}
+      >
+        <View style={exercisesStyles.search}>
+          <SearchBar
+            onChangeSearchQuery={setSearchQuery}
+            style={{ backgroundColor: barColor }}
+          />
+        </View>
+        <FilterActions
+          hasFilters={hasFilters}
+          muscleFilters={filterExercises.muscleFilters}
+          exerciseTypeFilters={filterExercises.exerciseTypeFilters}
+          onUpdateMuscleFilters={filterExercises.onUpdateMuscleFilters}
+          onUpdateExerciseTypeFilters={
+            filterExercises.onUpdateExerciseTypeFilters
+          }
+          onShowFilters={onShowFilters}
         />
-      </View>
-      <FilterActions
-        hasFilters={hasFilters}
-        muscleFilters={filterExercises.muscleFilters}
-        exerciseTypeFilters={filterExercises.exerciseTypeFilters}
-        onUpdateMuscleFilters={filterExercises.onUpdateMuscleFilters}
-        onUpdateExerciseTypeFilters={
-          filterExercises.onUpdateExerciseTypeFilters
-        }
-        onShowFilters={onShowFilters}
-      />
-      {isGridView ? (
         <GridView
-          results={results}
+          exercises={filteredExercises}
           performedExerciseSummaries={performedExerciseSummaries}
           onExercisePress={handleExercisePress}
         />
-      ) : (
-        <VerticalView
-          results={results}
-          performedExerciseSummaries={performedExerciseSummaries}
-          onExercisePress={handleExercisePress}
-        />
-      )}
-    </HeaderPage>
-    <LiveWorkoutPreview />
+      </HeaderPage>
+      <LiveWorkoutPreview />
     </>
   );
 }

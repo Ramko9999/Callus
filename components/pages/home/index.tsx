@@ -28,10 +28,11 @@ import { getNumberSuffix } from "@/util/misc";
 import { Loading } from "@/components/util/loading";
 import { usePopup } from "@/components/popup";
 import * as Haptics from "expo-haptics";
-import { Plus } from "lucide-react-native";
 import { LiveWorkoutPreview } from "@/components/workout/preview";
 import { PlusButton } from "@/components/pages/common";
 import { useRestSounds } from "@/components/hooks/use-rest";
+import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
+import { useShallow } from "zustand/shallow";
 
 
 
@@ -66,10 +67,13 @@ function CompletedWorkoutsSummary({
   workouts,
   calendarItem,
 }: CompletedWorkoutsSummaryProps) {
+  const metaIdToDifficultyType = useExercisesStore(
+    useShallow(ExerciseStoreSelectors.getMetaIdToDifficultyType)
+  );
   const totalStats = workouts.reduce(
     (acc, workout) => {
       const { totalWeightLifted, totalReps, totalDuration } =
-        getWorkoutSummary(workout);
+        getWorkoutSummary(workout, metaIdToDifficultyType);
       return {
         totalWeightLifted: acc.totalWeightLifted + totalWeightLifted,
         totalReps: acc.totalReps + totalReps,

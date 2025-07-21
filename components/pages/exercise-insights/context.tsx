@@ -18,12 +18,12 @@ const ExerciseInsightsContext = createContext<ExerciseInsightsState>({
 });
 
 type ExerciseInsightsProviderProps = {
-  exerciseName: string;
+  id: string;
   children: React.ReactNode;
 };
 
 export function ExerciseInsightsProvider({
-  exerciseName,
+  id,
   children,
 }: ExerciseInsightsProviderProps) {
   const [completedExercises, setCompletedExercises] =
@@ -32,10 +32,10 @@ export function ExerciseInsightsProvider({
 
   useEffect(() => {
     setSelectedMetricIndex(0);
-    artificallyDelay(WorkoutApi.getExerciseCompletions(exerciseName), 300).then(
+    artificallyDelay(WorkoutApi.getExerciseCompletions(id), 300).then(
       setCompletedExercises
     );
-  }, [exerciseName]);
+  }, [id]);
 
   return (
     <ExerciseInsightsContext.Provider

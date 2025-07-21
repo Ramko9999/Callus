@@ -36,20 +36,14 @@ const MOST_RECENT_CHANGES: WhatsNew = {
   version: nativeApplicationVersion as string,
   changes: [
     {
-      feature: "Revampled Completed Workout",
-      description: "Muscle heatmaps and a crisper completed workout UI.",
-      image: require("../assets/whats-new/completed-workout.png"),
+      feature: "Live Workout Player",
+      description: "Tracking sets doesn't have to be boring. See your progress click into place delightfully!",
+      image: require("../assets/whats-new/live-workout.png"),
     },
     {
-      feature: "Revamped Exercise Insight",
-      description: "A 10x better exercise insight experience.",
-      image: require("../assets/whats-new/exercise-insights.png"),
-    },
-    {
-      feature: "8 New Exercises",
-      description:
-        "From Hack Squat to Machine Leg Press to Incline Bench Press and more.",
-      image: require("../assets/whats-new/new-added-exercises.png"),
+      feature: "Custom Exercise",
+      description: "Create your own exercises and use them in your workouts!",
+      image: require("../assets/whats-new/create-custom-exercise.png"),
     },
   ],
 };

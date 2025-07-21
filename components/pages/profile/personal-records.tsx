@@ -7,7 +7,6 @@ import { convertHexToRGBA } from "@/util/color";
 import { CompletedExercise } from "@/interface";
 import { WorkoutApi } from "@/api/workout";
 import { DifficultyType } from "@/interface";
-import { NAME_TO_EXERCISE_META } from "@/api/exercise";
 import {
   getOneRepMaxEstimate,
   getOneRepMaxEstimateForWeightedBodyWeight,
@@ -16,9 +15,11 @@ import {
 } from "@/api/metric/util";
 import { ArrayUtils } from "@/util/misc";
 import { TextSkeleton } from "@/components/util/loading";
+import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
+import { useShallow } from "zustand/shallow";
 
 type PersonalRecordData = {
-  exercise: string;
+  metaId: string;
   performance: string;
   value: number;
   date: number;
@@ -67,18 +68,14 @@ function getPersonalRecordType(difficultyType: DifficultyType) {
 }
 
 function getPersonalRecord(
-  exerciseName: string,
+  metaId: string,
+  difficultyType: DifficultyType,
   exercises: CompletedExercise[]
 ): PersonalRecordData | null {
-  const exerciseMeta = NAME_TO_EXERCISE_META.get(exerciseName);
-  if (!exerciseMeta) return null;
-
   const validExercises = exercises.filter(
     (exercise) => exercise.sets.length > 0
   );
   if (validExercises.length === 0) return null;
-
-  const difficultyType = exerciseMeta.difficultyType;
 
   // Get the appropriate evaluation function based on difficulty type
   const evaluationFunc = getPersonalRecordEvaluationFunc(difficultyType);
@@ -112,7 +109,7 @@ function getPersonalRecord(
   );
 
   return {
-    exercise: exerciseName,
+    metaId: metaId,
     performance: formattedPerformance,
     value: bestPerformance.value.metric,
     date: bestPerformance.exercise.workoutStartedAt,
@@ -121,26 +118,32 @@ function getPersonalRecord(
 }
 
 function getPersonalRecords(
+  metaIdsToDifficultyType: Record<string, DifficultyType>,
   completedExercises: CompletedExercise[]
 ): PersonalRecordData[] {
   const exerciseMap: Record<string, CompletedExercise[]> = {};
 
   completedExercises.forEach((exercise) => {
-    if (!exerciseMap[exercise.name]) {
-      exerciseMap[exercise.name] = [];
+    if (!exerciseMap[exercise.metaId]) {
+      exerciseMap[exercise.metaId] = [];
     }
-    exerciseMap[exercise.name].push(exercise);
+    exerciseMap[exercise.metaId].push(exercise);
   });
 
   const exerciseWithMeta = Object.entries(exerciseMap).map(
-    ([exerciseName, exercises]) => {
-      const meta = NAME_TO_EXERCISE_META.get(exerciseName);
-      return { exerciseName, exercises, meta };
+    ([metaId, exercises]) => {
+      return { metaId, exercises };
     }
   );
 
   const personalRecords = exerciseWithMeta
-    .map((group) => getPersonalRecord(group.exerciseName, group.exercises))
+    .map((group) =>
+      getPersonalRecord(
+        group.metaId,
+        metaIdsToDifficultyType[group.metaId],
+        group.exercises
+      )
+    )
     .filter((record): record is PersonalRecordData => record !== null);
 
   // Sort by date (most recent first)
@@ -188,6 +191,9 @@ type PersonalRecordProps = {
 function PersonalRecord({ record }: PersonalRecordProps) {
   const accentColor = useThemeColoring("primaryAction");
   const { width, height } = useWindowDimensions();
+  const exerciseName = useExercisesStore(
+    (state) => ExerciseStoreSelectors.getExercise(record.metaId, state).name
+  );
 
   return (
     <View
@@ -199,7 +205,7 @@ function PersonalRecord({ record }: PersonalRecordProps) {
     >
       <View style={recordItemStyles.centerContent}>
         <Text style={recordItemStyles.value}>{record.performance}</Text>
-        <Text style={recordItemStyles.name}>{record.exercise}</Text>
+        <Text style={recordItemStyles.name}>{exerciseName}</Text>
         <Text style={recordItemStyles.recordType}>{record.recordType}</Text>
       </View>
     </View>
@@ -260,12 +266,20 @@ const personalRecordsGridStyles = StyleSheet.create({
 export function PersonalRecords() {
   const [records, setRecords] = useState<PersonalRecordData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const metaIdToDifficultyType = useExercisesStore(
+    useShallow((state) =>
+      ExerciseStoreSelectors.getMetaIdToDifficultyType(state)
+    )
+  );
 
   useFocusEffect(
     useCallback(() => {
       WorkoutApi.getAllExerciseCompletions(0, Date.now())
         .then((completions) => {
-          const personalRecords = getPersonalRecords(completions);
+          const personalRecords = getPersonalRecords(
+            metaIdToDifficultyType,
+            completions
+          );
           setRecords(personalRecords);
         })
         .finally(() => {
@@ -310,7 +324,7 @@ export function PersonalRecords() {
       >
         {records.map((record, index) => (
           <PersonalRecord
-            key={`record-${index}-${record.exercise}`}
+            key={`record-${index}-${record.metaId}`}
             record={record}
           />
         ))}

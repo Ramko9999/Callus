@@ -2,6 +2,7 @@ import { tintColor } from "@/util/color";
 import { G, Defs, RadialGradient, Stop } from "react-native-svg";
 import { useThemeColoring } from "../Themed";
 import React from "react";
+
 export type MuscleProps = {
   intensity: number;
 };

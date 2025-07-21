@@ -6,7 +6,7 @@ import { useThemeColoring } from "@/components/Themed";
 import { TabBar } from "@/components/tab-bar";
 import { getTabActiveTintColor } from "@/constants/Themes";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
+import { NavigationContainer, DefaultTheme, useNavigation } from "@react-navigation/native";
 import {
   createStackNavigator,
   StackScreenProps,
@@ -29,11 +29,13 @@ import Animated, {
 } from "react-native-reanimated";
 import { useEffect } from "react";
 import React from "react";
-import { usePopup } from "@/components/popup";
-import { BetterExerciseInsight } from "@/components/exercise/insight";
+import { ExerciseInsight } from "@/components/pages/exercise-insights";
 import { CompletedWorkout } from "@/components/pages/workout/completed/index";
 import { createSlideUpModalNavigator } from "@/components/util/slide-up";
 import { LiveWorkout } from "@/components/pages/workout/live";
+import { CreateExercise } from "@/components/pages/create-exercise";
+import { WhatsNew } from "@/components/pages/whats-new";
+import { WhatsNewApi } from "@/api/whats-new";
 
 const Tab = createMaterialTopTabNavigator<TabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
@@ -51,15 +53,19 @@ const tabsStyles = StyleSheet.create({
 type TabsProps = StackScreenProps<RootStackParamList, "tabs">;
 
 function Tabs({ route }: TabsProps) {
+  const navigation = useNavigation();
   const fromOnboarding = route.params?.fromOnboarding ?? false;
   const flickerAnimation = useSharedValue(fromOnboarding ? 1 : 0);
   const colorScheme = useColorScheme();
   const primaryAction = useThemeColoring("primaryAction");
-  const { whatsNew } = usePopup();
 
   const openWhatsNew = () => {
     setTimeout(() => {
-      whatsNew.checkWhatsNew();
+      WhatsNewApi.hasSeenWhatsNew().then((hasSeen) => {
+        if (!hasSeen) {
+          navigation.navigate("whatsNewSheet");
+        }
+      });
     }, 300);
   };
 
@@ -194,7 +200,7 @@ export function Layout() {
       <SlideUpModal.Screen
         name="exerciseInsightSheet"
         options={{ enableContentPanningGesture: false, enableBackdrop: false }}
-        component={BetterExerciseInsight}
+        component={ExerciseInsight}
       />
       <SlideUpModal.Screen
         name="completedWorkoutSheet"
@@ -205,6 +211,16 @@ export function Layout() {
         name="liveWorkoutSheet"
         options={{ enableContentPanningGesture: false, enableBackdrop: false }}
         component={LiveWorkout}
+      />
+      <SlideUpModal.Screen
+        name="createExerciseSheet"
+        options={{ enableContentPanningGesture: false, enableBackdrop: false }}
+        component={CreateExercise}
+      />
+      <SlideUpModal.Screen
+        name="whatsNewSheet"
+        options={{ enableContentPanningGesture: false, enableBackdrop: false }}
+        component={WhatsNew}
       />
     </SlideUpModal.Navigator>
   );

@@ -12,6 +12,7 @@ type UseDebounceResult<T> = {
 
 // todo: fix the typing and use this function
 export function useDebounce<T>({ delay }: UseDebounceProps): UseDebounceResult<T> {
+  // @ts-ignore
   const timer = useRef<any>();
 
   const invoke = (fn: Function<T>) => {
