@@ -5,7 +5,12 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 import { StyleUtils } from "@/util/styles";
-import { X as LucideX, ArrowLeft } from "lucide-react-native";
+import {
+  X as LucideX,
+  ArrowLeft,
+  AlertTriangle,
+  AlertCircle,
+} from "lucide-react-native";
 import { useThemeColoring, Text } from "@/components/Themed";
 import { useKeyboardHeight } from "@/components/hooks/use-keyboard-height";
 import { tintColor } from "@/util/color";
@@ -40,9 +45,9 @@ export const commonSheetStyles = StyleSheet.create({
     paddingVertical: "3%",
     borderRadius: 8,
   },
-  errorText: {
-    fontSize: 14,
-    textAlign: "center",
+  errorContent: {
+    ...StyleUtils.flexRow(12),
+    alignItems: "center",
   },
 });
 
@@ -79,9 +84,35 @@ export function SheetError({ text }: SheetErrorProps) {
         { backgroundColor: convertHexToRGBA(errorColor, 0.1) },
       ]}
     >
-      <Text style={[commonSheetStyles.errorText, { color: errorColor }]}>
-        {text}
-      </Text>
+      <View style={commonSheetStyles.errorContent}>
+        <AlertCircle size={16} color={errorColor} />
+        <Text sneutral style={{ color: errorColor, flex: 1 }}>
+          {text}
+        </Text>
+      </View>
+    </View>
+  );
+}
+
+type SheetWarningProps = {
+  text: string;
+};
+
+export function SheetWarning({ text }: SheetWarningProps) {
+  const warningColor = useThemeColoring("warningAction");
+  return (
+    <View
+      style={[
+        commonSheetStyles.errorContainer,
+        { backgroundColor: convertHexToRGBA(warningColor, 0.1) },
+      ]}
+    >
+      <View style={commonSheetStyles.errorContent}>
+        <AlertTriangle size={16} color={warningColor} />
+        <Text sneutral style={{ color: warningColor, flex: 1 }}>
+          {text}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -98,9 +129,7 @@ export function KeyboardSpacer() {
 
   useEffect(() => {
     if (isKeyboardOpen) {
-      keyboardSpacerHeight.value = 
-        keyboardHeight
-  
+      keyboardSpacerHeight.value = keyboardHeight;
     } else {
       keyboardSpacerHeight.value = 0;
     }

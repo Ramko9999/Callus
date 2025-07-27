@@ -13,7 +13,7 @@ For example, if we created a component <Week/>, its stylesheet would be `weekSty
 
 2. Leverage the utilies in [styles.ts](mdc:util/styles.ts) whenever defining flex layouts in the style sheets. 
 
-3. Always use <View/> and <Text/> from [Themed.tsx](mdc:components/Themed.tsx).
+3. Always use <View/> and <Text/> from [Themed.tsx](mdc:components/Themed.tsx). Try not to set font sizes in styles and try to use inline size props for <Text> where possible. Ask me if you feel like you need to introduce a new font size.
 
 4. When specifying padding or margins, try to use percentiles instead of absolute values.
 

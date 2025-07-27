@@ -37,6 +37,7 @@ export type ExerciseMeta = {
   secondaryMuscles: string[];
   metaId: string;
   description: string;
+  image?: string;
 };
 
 export type SetPlan = {
@@ -163,7 +164,7 @@ export type WorkoutLifetimeStats = {
 export type MetricGenerationResult = {
   metric: number;
   bestSetId?: string;
-}
+};
 
 export type MetricGenerationFunc = (
   completion: CompletedExercise

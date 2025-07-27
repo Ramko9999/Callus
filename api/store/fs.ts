@@ -3,12 +3,12 @@ import * as ImageManipulator from "expo-image-manipulator";
 
 export async function saveCustomExerciseImage(
   sourceUri: string,
-  customExerciseId: string
+  imageId: string
 ): Promise<string> {
   try {
     // Create the target directory path
     const targetDir = `${FileSystem.documentDirectory}custom_exercises`;
-    const targetUri = `${targetDir}/${customExerciseId}.jpg`;
+    const targetUri = `${targetDir}/${imageId}.jpg`;
 
     // Ensure the directory exists
     const dirInfo = await FileSystem.getInfoAsync(targetDir);
@@ -18,7 +18,7 @@ export async function saveCustomExerciseImage(
 
     const result = await ImageManipulator.manipulateAsync(sourceUri, [], {
       format: ImageManipulator.SaveFormat.JPEG,
-      compress: 0.8,
+      compress: 0.6,
     });
 
     await FileSystem.copyAsync({
@@ -33,6 +33,39 @@ export async function saveCustomExerciseImage(
   }
 }
 
-export function getCustomExerciseUri(customExerciseId: string): string {
-  return `${FileSystem.documentDirectory}custom_exercises/${customExerciseId}.jpg`;
+export function getCustomExerciseUri(imageId: string): string {
+  return `${FileSystem.documentDirectory}custom_exercises/${imageId}.jpg`;
+}
+
+export async function deleteCustomExerciseImages(
+  exerciseId: string,
+  exceptImageId?: string
+): Promise<void> {
+  try {
+    const customExercisesDir = `${FileSystem.documentDirectory}custom_exercises`;
+
+    const dirInfo = await FileSystem.getInfoAsync(customExercisesDir);
+    if (!dirInfo.exists) {
+      return;
+    }
+
+    const files = await FileSystem.readDirectoryAsync(customExercisesDir);
+
+    const filesToDelete = files.filter((file) => {
+      if (exceptImageId) {
+        return file.startsWith(exerciseId) && !file.startsWith(exceptImageId);
+      } else {
+        return file.startsWith(exerciseId);
+      }
+    });
+
+    const deletePromises = filesToDelete.map((file) =>
+      FileSystem.deleteAsync(`${customExercisesDir}/${file}`)
+    );
+
+    await Promise.all(deletePromises);
+  } catch (error) {
+    console.error("Error deleting custom exercise images:", error);
+    throw error;
+  }
 }

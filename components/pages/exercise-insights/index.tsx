@@ -24,11 +24,16 @@ import { CloseButton, MoreButton } from "@/components/pages/common";
 import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
 import { isExerciseCustom } from "@/api/exercise";
 import { Popover, PopoverItem, PopoverRef } from "@/components/util/popover";
-import { Trash2 } from "lucide-react-native";
+import { Trash2, FilePenLine } from "lucide-react-native";
 import { DeleteCustomExercise } from "@/components/sheets/delete-custom-exercise";
 import { WorkoutApi } from "@/api/workout";
 import { useLiveWorkout } from "../workout/live/context";
 import { WorkoutActions } from "@/api/model/workout";
+import {
+  createStackNavigator,
+  StackScreenProps,
+} from "@react-navigation/stack";
+import { EditExercise } from "./edit-exercise";
 
 const insightTabsStyles = StyleSheet.create({
   container: {
@@ -105,11 +110,24 @@ function TabBar({ state, descriptors, navigation }: any) {
 
 const Tab = createMaterialTopTabNavigator();
 
-type ExerciseInsightContentProps = {
-  id: string;
+type ExerciseInsightStackParams = {
+  exerciseInsightContent: {
+    id: string;
+  };
+  editExercise: {
+    id: string;
+  };
 };
 
-function ExerciseInsightContent({ id }: ExerciseInsightContentProps) {
+const Stack = createStackNavigator<ExerciseInsightStackParams>();
+
+type ExerciseInsightContentProps = StackScreenProps<
+  ExerciseInsightStackParams,
+  "exerciseInsightContent"
+>;
+
+function ExerciseInsightContent({ route }: ExerciseInsightContentProps) {
+  const { id } = route.params;
   const { userDetails } = useUserDetails();
   const navigation = useNavigation();
   const {
@@ -118,7 +136,7 @@ function ExerciseInsightContent({ id }: ExerciseInsightContentProps) {
     setSelectedMetricIndex,
     isLoading,
   } = useExerciseInsights();
-  const { saveWorkout, isInWorkout } = useLiveWorkout();
+  const { saveWorkout } = useLiveWorkout();
   const [showMetricSheet, setShowMetricSheet] = useState(false);
   const selectMetricSheetRef = useRef<BottomSheet>(null);
   const difficultyType = useExercisesStore(
@@ -138,6 +156,7 @@ function ExerciseInsightContent({ id }: ExerciseInsightContentProps) {
   const popoverProgress = useSharedValue(0);
   const removeExercise = useExercisesStore((state) => state.removeExercise);
   const dangerAction = useThemeColoring("dangerAction");
+  const popoverIconColor = useThemeColoring("primaryText");
 
   // Delete confirmation sheet state
   const [showDeleteSheet, setShowDeleteSheet] = useState(false);
@@ -184,6 +203,12 @@ function ExerciseInsightContent({ id }: ExerciseInsightContentProps) {
       );
     }
   }, []);
+
+  const handleEditExercise = useCallback(() => {
+    popoverRef.current?.close();
+    // @ts-ignore
+    navigation.navigate("editExercise", { id });
+  }, [navigation, id]);
 
   const handleDeleteExercise = useCallback(() => {
     popoverRef.current?.close();
@@ -279,6 +304,11 @@ function ExerciseInsightContent({ id }: ExerciseInsightContentProps) {
 
       <Popover ref={popoverRef} progress={popoverProgress}>
         <PopoverItem
+          label="Edit Exercise"
+          icon={<FilePenLine size={20} color={popoverIconColor} />}
+          onClick={handleEditExercise}
+        />
+        <PopoverItem
           label={<Text style={{ color: dangerAction }}>Delete Exercise</Text>}
           icon={<Trash2 size={20} color={dangerAction} />}
           onClick={handleDeleteExercise}
@@ -309,7 +339,23 @@ export function ExerciseInsight({ route }: ExerciseInsightProps) {
 
   return (
     <ExerciseInsightsProvider id={id}>
-      <ExerciseInsightContent id={id} />
+      <Stack.Navigator
+        initialRouteName="exerciseInsightContent"
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen
+          name="exerciseInsightContent"
+          component={ExerciseInsightContent}
+          initialParams={{ id }}
+        />
+        <Stack.Screen
+          name="editExercise"
+          component={EditExercise}
+          initialParams={{ id }}
+        />
+      </Stack.Navigator>
     </ExerciseInsightsProvider>
   );
 }

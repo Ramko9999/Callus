@@ -8,6 +8,7 @@ export type CustomExercise = {
   primaryMuscles: string[];
   secondaryMuscles: string[];
   description?: string;
+  image?: string;
 };
 
 export function createCustomExercise(
@@ -45,5 +46,6 @@ export function toExerciseMeta(customExercise: CustomExercise): ExerciseMeta {
     primaryMuscles: customExercise.primaryMuscles,
     secondaryMuscles: customExercise.secondaryMuscles,
     description: customExercise.description || "",
+    image: customExercise.image,
   };
 }

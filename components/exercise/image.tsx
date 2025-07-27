@@ -8,6 +8,7 @@ import { Image as ImageIcon } from "lucide-react-native";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { StyleUtils } from "@/util/styles";
+import { ExerciseStoreSelectors, useExercisesStore } from "../store";
 
 const exerciseImageStyles = StyleSheet.create({
   fallback: {
@@ -31,9 +32,14 @@ export function ExerciseImage({
   const [hasError, setHasError] = useState(false);
 
   const isCustom = isExerciseCustom(metaId);
+  const exerciseImage = useExercisesStore(
+    (state) => ExerciseStoreSelectors.getExercise(metaId, state).image
+  );
 
   const imageSource = isCustom
-    ? { uri: getCustomExerciseUri(metaId) }
+    ? exerciseImage
+      ? { uri: getCustomExerciseUri(exerciseImage) }
+      : undefined
     : getExerciseDemonstrationFromMetaId(metaId);
 
   if (!imageSource || hasError) {

@@ -79,7 +79,8 @@ function toCustomExercise({ id, name, data }: any): CustomExercise {
     type: parsedData.type,
     primaryMuscles: parsedData.primaryMuscles,
     secondaryMuscles: parsedData.secondaryMuscles,
-    description: data.description,
+    description: parsedData.description,
+    image: parsedData.image,
   };
 }
 

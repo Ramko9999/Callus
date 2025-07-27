@@ -9,7 +9,10 @@ import { addDays } from "@/util/date";
 import { Store } from "./store";
 import { ArrayUtils } from "@/util/misc";
 import { CustomExercise } from "./model/custom-exercise";
-import { saveCustomExerciseImage } from "./store/fs";
+import {
+  deleteCustomExerciseImages,
+  saveCustomExerciseImage,
+} from "./store/fs";
 
 export class WorkoutApi {
   static async getWorkouts(localDate: number): Promise<Workout[]> {
@@ -130,15 +133,25 @@ export class WorkoutApi {
   static async saveCustomExercise(
     exercise: CustomExercise,
     sourceImageUri?: string
-  ): Promise<void> {
+  ): Promise<CustomExercise> {
+    let exerciseToCreate = { ...exercise };
+
     if (sourceImageUri) {
-      await saveCustomExerciseImage(sourceImageUri, exercise.id);
+      const imageId = `${exercise.id}-${Date.now()}`;
+      await saveCustomExerciseImage(sourceImageUri, imageId);
+      await deleteCustomExerciseImages(exercise.id, imageId);
+      exerciseToCreate.image = imageId;
+    } else {
+      exerciseToCreate.image = undefined;
+      await deleteCustomExerciseImages(exercise.id);
     }
-    await Store.instance().saveCustomExercise(exercise);
+    await Store.instance().saveCustomExercise(exerciseToCreate);
+    return exerciseToCreate;
   }
 
   static async deleteCustomExercise(id: string): Promise<void> {
     await Store.instance().deleteAllPerformedExercises(id);
     await Store.instance().deleteCustomExercise(id);
+    await deleteCustomExerciseImages(id);
   }
 }
