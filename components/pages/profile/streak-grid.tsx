@@ -21,7 +21,7 @@ import Animated, {
 const STREAK_COLUMN_GROUP_SIZE = 7;
 const STREAK_GROUP_SIZE = 3;
 const LOOK_BACK_DAYS = STREAK_COLUMN_GROUP_SIZE * STREAK_GROUP_SIZE * 7;
-const MAX_DURATION = 7200000; // 2 hours in milliseconds
+const MAX_DURATION = 1000 * 60 * 60 * 1.5;
 
 function formatCompactDate(timestamp: number): string {
   const date = new Date(timestamp);

@@ -1,5 +1,5 @@
 import { useRefresh } from "./use-refresh";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { SetStatus } from "@/interface";
 import { useSound } from "../sounds";
 import {
@@ -11,6 +11,14 @@ import {
 } from "react-native-reanimated";
 import { useCurrentSet, useLiveWorkout } from "../pages/workout/live/context";
 import { SetActions } from "@/api/model/workout";
+import { useUserDetails } from "../user-details";
+import {
+  scheduleNotification,
+  unscheduleNotifications,
+  NotificationType,
+} from "@/api/notification";
+import * as Notifications from "expo-notifications";
+import { useDebounce } from "./use-debounce";
 
 const REST_FINISHING_THRESHOLD = 5000;
 
@@ -110,4 +118,147 @@ export function useRest({
     : 0;
 
   return { remainingRestMs, restProgress };
+}
+
+const REST_NOTIFICATION_MESSAGES = [
+  {
+    title: "Time to Crush It!",
+    body: "Your rest is up! Let's push harder and make this set count!",
+  },
+  {
+    title: "Hey, Ready?",
+    body: "Rest's over! Let's get moving.",
+  },
+  {
+    title: "Back at It!",
+    body: "Rest done, energy up, go smash that next set!",
+  },
+  {
+    title: "You Got This!",
+    body: "Rest is over. Keep the momentum going!",
+  },
+  {
+    title: "Beat Your Best!",
+    body: "Time's ticking. Let's go for that next set and break your limits!",
+  },
+  {
+    title: "Rest's Over!",
+    body: "Time to hit the next set. Let's do this!",
+  },
+  {
+    title: "Ready for the next round?",
+    body: "Shake off the rest and show that set who's boss!",
+  },
+  {
+    title: "Focus Time",
+    body: "Rest complete. Dial in and give this set your best effort.",
+  },
+  {
+    title: "Lights, Camera, Action!",
+    body: "Your break's done. Now it's showtime for the next set!",
+  },
+  {
+    title: "Keep the Fire Burning",
+    body: "Rest ended. Stoke the energy and crush your next reps.",
+  },
+  {
+    title: "Next Set, Next Level!",
+    body: "You rested. Now rise to the challenge!",
+  },
+  {
+    title: "Get Back to It!",
+    body: "Rest is over. Time to get back to it!",
+  },
+  {
+    title: "Reset Complete",
+    body: "Recharge done! Hit the next set with full force.",
+  },
+  {
+    title: "Let's Go!",
+    body: "Rest finished. Back to the grind!",
+  },
+  {
+    title: "Push Past Limits",
+    body: "Break's ended. Time to shatter your goals!",
+  },
+  {
+    title: "Time to Hustle",
+    body: "Your rest clocked out. Time to get back to work!",
+  },
+  {
+    title: "Rise and Grind",
+    body: "Rest done. Let's build that strength set by set!",
+  },
+  {
+    title: "Champions Don't Rest Long",
+    body: "Break's over. You know what to do next!",
+  },
+  {
+    title: "Ready to Dominate?",
+    body: "Rest time's up. Show that set who's in charge!",
+  },
+];
+
+export function useRestNotification() {
+  const { userDetails } = useUserDetails();
+  const { invoke } = useDebounce({ delay: 300 });
+
+  const currentSet = useCurrentSet();
+
+  const scheduleRestNotification = useCallback(
+    async (toNotifyInMillis: number) => {
+      await unscheduleNotifications(NotificationType.REST_OVER);
+      const randomIndex = Math.floor(
+        Math.random() * REST_NOTIFICATION_MESSAGES.length
+      );
+      const randomMessage = REST_NOTIFICATION_MESSAGES[randomIndex];
+      await scheduleNotification({
+        content: {
+          ...randomMessage,
+          sound: "rest_notification_ending.wav",
+          data: {
+            type: NotificationType.REST_OVER,
+          },
+        },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+          seconds: Math.floor(toNotifyInMillis / 1000),
+        },
+      });
+    },
+    []
+  );
+
+  const debouncedScheduleRestNotification = useCallback(
+    // @ts-ignore
+    invoke(scheduleRestNotification),
+    [invoke, scheduleRestNotification]
+  );
+
+  useEffect(() => {
+    const handle = async () => {
+      if (!userDetails?.notificationsEnabled) {
+        await unscheduleNotifications(NotificationType.REST_OVER);
+        return;
+      }
+
+      if (currentSet?.set.status === SetStatus.RESTING) {
+        const restEndTime =
+          (currentSet.set.restStartedAt as number) +
+          currentSet.set.restDuration * 1000;
+        const now = Date.now();
+
+        if (restEndTime > now) {
+          debouncedScheduleRestNotification(restEndTime - now);
+        }
+      } else {
+        await unscheduleNotifications(NotificationType.REST_OVER);
+      }
+    };
+    handle();
+  }, [
+    currentSet?.set.status,
+    userDetails?.notificationsEnabled,
+    currentSet?.set.restDuration,
+  ]);
 }

@@ -30,9 +30,10 @@ import { usePopup } from "@/components/popup";
 import * as Haptics from "expo-haptics";
 import { LiveWorkoutPreview } from "@/components/workout/preview";
 import { PlusButton } from "@/components/pages/common";
-import { useRestSounds } from "@/components/hooks/use-rest";
+import { useRestSounds, useRestNotification } from "@/components/hooks/use-rest";
 import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
 import { useShallow } from "zustand/shallow";
+import { useRemindLiveWorkout } from "@/components/hooks/use-remind-live-workout";
 
 
 
@@ -138,6 +139,8 @@ export default function Home() {
   const { startWorkout } = usePopup();
 
   useRestSounds();
+  useRestNotification();
+  useRemindLiveWorkout();
 
   useFocusEffect(
     useCallback(() => {

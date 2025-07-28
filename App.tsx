@@ -19,6 +19,7 @@ import { Layout, NavigationProvider } from "./layout";
 import { SoundProvider } from "./components/sounds";
 import { PopupProvider } from "./components/popup";
 import { LiveWorkoutProvider } from "./components/pages/workout/live/context";
+import { NotificationProvider } from "./components/notifications";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -40,15 +41,17 @@ function RootLayoutNav() {
             <ToastProvider>
               <SoundProvider>
                 <UserDetailsProvider>
-                  <LiveWorkoutProvider>
-                    <NavigationProvider onReady={SplashScreen.hideAsync}>
-                      <PopupProvider>
-                        <Preloader>
-                          <Layout />
-                        </Preloader>
-                      </PopupProvider>
-                    </NavigationProvider>
-                  </LiveWorkoutProvider>
+                  <NotificationProvider>
+                    <LiveWorkoutProvider>
+                      <NavigationProvider onReady={SplashScreen.hideAsync}>
+                        <PopupProvider>
+                          <Preloader>
+                            <Layout />
+                          </Preloader>
+                        </PopupProvider>
+                      </NavigationProvider>
+                    </LiveWorkoutProvider>
+                  </NotificationProvider>
                 </UserDetailsProvider>
               </SoundProvider>
             </ToastProvider>

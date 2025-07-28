@@ -11,6 +11,7 @@ import { tintColor } from "@/util/color";
 import { SectionHeader, SettingsRow } from "./common";
 import {
   ArrowUpRight,
+  Bell,
   ChevronRight,
   Download,
   Newspaper,
@@ -19,6 +20,7 @@ import {
 } from "lucide-react-native";
 import React, { useState, useRef } from "react";
 import { AccountSettings } from "./account";
+import { NotificationsSettings } from "./notifications";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { ImportProgressSheet } from "@/components/sheets/import-progress";
 import BottomSheet from "@gorhom/bottom-sheet";
@@ -93,6 +95,12 @@ function RootSettings({ navigation }: any) {
             onPress={() => navigation.navigate("account")}
             rightIcon={<ChevronRight color={accent} size={20} />}
           />
+          <SettingsRow
+            icon={<Bell color={accent} size={22} />}
+            label="Notifications"
+            onPress={() => navigation.navigate("notifications")}
+            rightIcon={<ChevronRight color={accent} size={20} />}
+          />
           <SectionHeader title="Data" />
           <SettingsRow
             icon={<Upload color={accent} size={22} />}
@@ -151,6 +159,7 @@ export function Settings() {
     >
       <Stack.Screen name="root" component={RootSettings} />
       <Stack.Screen name="account" component={AccountSettings} />
+      <Stack.Screen name="notifications" component={NotificationsSettings} />
     </Stack.Navigator>
   );
 }

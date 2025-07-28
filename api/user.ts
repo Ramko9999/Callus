@@ -7,6 +7,7 @@ export type UserDetails = {
   bodyweight: number;
   height: number;
   dob: number; // epoch time
+  notificationsEnabled?: boolean;
 };
 
 const USER_DETAILS_KEY = "user_details";

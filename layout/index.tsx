@@ -6,7 +6,11 @@ import { useThemeColoring } from "@/components/Themed";
 import { TabBar } from "@/components/tab-bar";
 import { getTabActiveTintColor } from "@/constants/Themes";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { NavigationContainer, DefaultTheme, useNavigation } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  DefaultTheme,
+  useNavigation,
+} from "@react-navigation/native";
 import {
   createStackNavigator,
   StackScreenProps,
@@ -36,6 +40,9 @@ import { LiveWorkout } from "@/components/pages/workout/live";
 import { CreateExercise } from "@/components/pages/create-exercise";
 import { WhatsNew } from "@/components/pages/whats-new";
 import { WhatsNewApi } from "@/api/whats-new";
+import { useUserDetails } from "@/components/user-details";
+import { UserApi } from "@/api/user";
+import * as Notifications from "expo-notifications";
 
 const Tab = createMaterialTopTabNavigator<TabParamList>();
 const Stack = createStackNavigator<RootStackParamList>();
@@ -53,6 +60,7 @@ const tabsStyles = StyleSheet.create({
 type TabsProps = StackScreenProps<RootStackParamList, "tabs">;
 
 function Tabs({ route }: TabsProps) {
+  const { userDetails, setUserDetails } = useUserDetails();
   const navigation = useNavigation();
   const fromOnboarding = route.params?.fromOnboarding ?? false;
   const flickerAnimation = useSharedValue(fromOnboarding ? 1 : 0);
@@ -80,6 +88,27 @@ function Tabs({ route }: TabsProps) {
       openWhatsNew();
     }
   }, [fromOnboarding]);
+
+  useEffect(() => {
+    if (userDetails?.notificationsEnabled === undefined && userDetails) {
+      const checkAndUpdatePermissions = async () => {
+        const { status } = await Notifications.requestPermissionsAsync();
+        const permissionGranted = status === "granted";
+
+        const updatedDetails = {
+          ...userDetails,
+          notificationsEnabled: permissionGranted,
+        };
+
+        await UserApi.updateUserDetails(updatedDetails);
+        setUserDetails(updatedDetails);
+      };
+
+      setTimeout(() => {
+        checkAndUpdatePermissions();
+      }, 700);
+    }
+  }, [userDetails?.notificationsEnabled, userDetails, setUserDetails]);
 
   const flickerAnimationStyle = useAnimatedStyle(() => {
     return {

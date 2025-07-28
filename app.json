@@ -3,7 +3,7 @@
     "newArchEnabled": true,
     "name": "Callus",
     "slug": "Callus",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -33,9 +33,10 @@
       }
     },
     "android": {
-      "versionCode": 14,
+      "versionCode": 16,
       "adaptiveIcon": {
         "foregroundImage": "./assets/icon/android/adaptive.png",
+        "monochromeImage": "./assets/icon/android/adaptive.png",
         "backgroundColor": "#000000"
       },
       "splash": {
@@ -73,6 +74,14 @@
             "targetSdkVersion": 35,
             "buildToolsVersion": "35.0.0"
           }
+        }
+      ],
+      "expo-sqlite",
+      [
+        "expo-notifications",
+        {
+          "sounds": ["./assets/audio/rest_notification_ending.wav"],
+          "icon": "./assets/icon/android/notification_icon.png"
         }
       ]
     ],

@@ -99,8 +99,8 @@ android {
         applicationId 'com.ramko9999.callus'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 14
-        versionName "1.0.4"
+        versionCode 16
+        versionName "1.0.5"
     }
     signingConfigs {
         debug {
@@ -109,12 +109,14 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-        release {
+         release {
             storeFile file(keystoreProperties.storeFile)
             storePassword keystoreProperties.storePassword
             keyAlias keystoreProperties.keyAlias
             keyPassword keystoreProperties.keyPassword
         }
+
+
     }
     buildTypes {
         debug {

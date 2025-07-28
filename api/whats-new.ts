@@ -36,14 +36,10 @@ const MOST_RECENT_CHANGES: WhatsNew = {
   version: nativeApplicationVersion as string,
   changes: [
     {
-      feature: "Live Workout Player",
-      description: "Tracking sets doesn't have to be boring. See your progress click into place delightfully!",
-      image: require("../assets/whats-new/live-workout.png"),
-    },
-    {
-      feature: "Custom Exercise",
-      description: "Create your own exercises and use them in your workouts!",
-      image: require("../assets/whats-new/create-custom-exercise.png"),
+      feature: "Edit Custom Exercises",
+      description:
+        "You can now edit your custom exercises to change the name, description, targeted muscles and image.",
+      image: require("../assets/whats-new/edit-custom-exercise.png"),
     },
   ],
 };
