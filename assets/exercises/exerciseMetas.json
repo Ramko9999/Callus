@@ -625,5 +625,45 @@
     "name": "Handstand Hold (Bent Arm)",
     "metaId": "218",
     "description": "The bent arm handstand hold focuses on the bottom position of a handstand push-up, where your elbows are bent and your body hovers just above the ground. This static hold builds serious strength in your shoulders, triceps, and upper back while training control and stability in one of the most demanding support positions."
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Chest"],
+    "secondaryMuscles": ["Front Delts", "Triceps"],
+    "name": "Incline Dumbbell Press",
+    "metaId": "219",
+    "description": "Incline dumbbell presses target your upper chest, front delts, and triceps, giving your pecs a powerful lift and shape. It is beneficial for building a well-rounded chest and the unilateral nature of the exercise balances out development between both sides."
+  },
+  {
+    "difficultyType": "WEIGHTED_BODYWEIGHT",
+    "primaryMuscles": ["Abs"],
+    "secondaryMuscles": ["Obliques"],
+    "name": "Weighted Crunch",
+    "metaId": "220",
+    "description": "Weighted crunches are the next level from the bodyweight crunch. You can progressively overload the movement by holding a dumbbell in your hands to further challenge your core."
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Side Delts"],
+    "secondaryMuscles": [],
+    "name": "Machine Lateral Raise",
+    "metaId": "221",
+    "description": "Machine lateral raises are an isolation superstar for your shoulders, honing in on the side delts to boost width and definition. The fixed path lets you focus on perfect form, making it a beginner-friendly way to sculpt broad shoulders."
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Abs"],
+    "secondaryMuscles": [],
+    "name": "Machine Crunch",
+    "metaId": "222",
+    "description": "Machine crunches provide targeted ab training by guiding your torso through a fixed range of motion for a deep, isolated core contraction. The adjustable resistance helps you effectively challenge and strengthen your abs while maintaining proper form and minimizing neck or back strain."
+  },
+  {
+    "difficultyType": "WEIGHT",
+    "primaryMuscles": ["Traps"],
+    "secondaryMuscles": ["Forearm Flexors"],
+    "name": "Dumbbell Shrug",
+    "metaId": "223",
+    "description": "Dumbbell shrugs are for building monstrous traps while developing your grip and improving your posture. The movement is simple but deceptively challenging, especially as you perform higher reps."
   }
 ]

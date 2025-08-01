@@ -287,7 +287,7 @@ const EXERCISE_DEMONSTRATIONS: Record<string, ImageRequireSource> = {
   "204": require("../../assets/exercises/images/hollow-body-pull-up.png"),
   "202": require("../../assets/exercises/images/vertical-knee-raises.png"),
   "203": require("../../assets/exercises/images/vertical-leg-raises.png"),
-  "55": require("../../assets/exercises/images/dumbell-bicep-curl.png"),
+  "55": require("../../assets/exercises/images/dumbbell-bicep-curl.png"),
   "14": require("../../assets/exercises/images/barbell-preacher-curl.png"),
   "190": require("../../assets/exercises/images/cable-tricep-extension.png"),
   "105": require("../../assets/exercises/images/lat-pulldown.png"),
@@ -307,4 +307,9 @@ const EXERCISE_DEMONSTRATIONS: Record<string, ImageRequireSource> = {
   "216": require("../../assets/exercises/images/seated-dumbbell-overhead-press.png"),
   "217": require("../../assets/exercises/images/supine-press.png"),
   "218": require("../../assets/exercises/images/handstand-hold-bent-arm.png"),
+  "219": require("../../assets/exercises/images/dumbbell-incline-press.png"),
+  "220": require("../../assets/exercises/images/weighted-crunch.png"),
+  "221": require("../../assets/exercises/images/machine-lateral-raise.png"),
+  "222": require("../../assets/exercises/images/machine-crunch.png"),
+  "223": require("../../assets/exercises/images/dumbbell-shrug.png"),
 };
