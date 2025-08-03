@@ -10,26 +10,6 @@ import {
 } from "@/interface";
 import { getDurationDisplay } from "../date";
 
-export function getLiveExerciseDescription(exercise: Exercise) {
-  const totalSets = exercise.sets.length;
-  const completedSets = exercise.sets.filter(
-    ({ status }) => status === SetStatus.FINISHED
-  ).length;
-  const allSetsAreUnstarted = exercise.sets.every(
-    ({ status }) => status === SetStatus.UNSTARTED
-  );
-
-  if (totalSets === completedSets) {
-    return `All ${totalSets} sets completed!`;
-  }
-
-  if (allSetsAreUnstarted) {
-    return `${totalSets} sets not yet started`;
-  }
-
-  return `${completedSets} of ${totalSets} sets completed`;
-}
-
 export function getHistoricalExerciseDescription({
   difficulties,
   difficultyType,
@@ -93,27 +73,4 @@ export function getHistoricalExerciseDescription({
   }
 
   return description.join(" ");
-}
-
-export function getDifficultyDescription(
-  difficultyType: DifficultyType,
-  difficulty: Difficulty
-) {
-  if (
-    difficultyType === DifficultyType.WEIGHT ||
-    difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT
-  ) {
-    const { weight, reps } = difficulty as WeightDifficulty;
-    return `${weight} lbs for ${reps} reps`;
-  } else if (difficultyType === DifficultyType.BODYWEIGHT) {
-    const { reps } = difficulty as BodyWeightDifficulty;
-    return `${reps} reps`;
-  } else if (difficultyType === DifficultyType.ASSISTED_BODYWEIGHT) {
-    const { assistanceWeight, reps } =
-      difficulty as AssistedBodyWeightDifficulty;
-    return `${assistanceWeight} lbs of assistance for ${reps} reps`;
-  } else {
-    const { duration } = difficulty as TimeDifficulty;
-    return `${duration} seconds`;
-  }
 }

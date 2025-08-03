@@ -7,27 +7,16 @@ import React, {
 import {
   StyleSheet,
   View as RNView,
-  TouchableOpacity,
-  Pressable,
 } from "react-native";
 import Animated, {
   useSharedValue,
-  useAnimatedStyle,
-  interpolate,
-  SharedValue,
   LinearTransition,
   FadeInUp,
   FadeOutDown,
 } from "react-native-reanimated";
-
-import { View, Text, useThemeColoring } from "@/components/Themed";
+import { Text, useThemeColoring } from "@/components/Themed";
 import { HeaderPage } from "@/components/util/header-page";
 import { StyleUtils } from "@/util/styles";
-import {
-  getCurrentWorkoutActivity,
-  updateSet,
-  wrapUpSets,
-} from "@/context/WorkoutContext";
 import { Set, Workout } from "@/interface";
 import { EditField } from "@/components/pages/workout/common";
 import { useNavigation } from "@react-navigation/native";
@@ -385,7 +374,7 @@ const PlayerSheets = forwardRef<PlayerSheetsRef, PlayerSheetsProps>(
 
     const handleUpdateSetFromSheet = (setId: string, update: Partial<Set>) => {
       if (workout) {
-        const updatedWorkout = updateSet(setId, update, workout);
+        const updatedWorkout = SetActions(workout, setId).update(update);
         onUpdateWorkout(updatedWorkout);
       }
     };

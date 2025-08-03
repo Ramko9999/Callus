@@ -1,7 +1,7 @@
 import { Workout } from "@/interface";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { View, Text, useThemeColoring } from "@/components/Themed";
-import { getWorkoutSummary } from "@/context/WorkoutContext";
+import { WorkoutQuery } from "@/api/model/workout";
 import { StyleUtils } from "@/util/styles";
 import {
   DurationMetaIcon,
@@ -62,7 +62,7 @@ function CompletedWorkout({ workout, onClick }: CompletedWorkoutProps) {
       ({ metaId }) => metaIdToName[metaId] !== undefined
     ),
   };
-  const { totalWeightLifted, totalReps, totalDuration } = getWorkoutSummary(
+  const { totalWeightLifted, totalReps, totalDuration } = WorkoutQuery.summarize(
     filteredWorkout,
     metaIdToDifficultyType
   );

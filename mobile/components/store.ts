@@ -1,4 +1,4 @@
-import { DifficultyType, ExerciseMeta } from "@/interface";
+import { DifficultyType, ExerciseMeta, Workout } from "@/interface";
 import { create } from "zustand";
 
 type ExercisesStore = {
@@ -50,3 +50,14 @@ export const ExerciseStoreSelectors = {
       return acc;
     }, {} as Record<string, ExerciseMeta>),
 };
+
+
+type LiveWorkoutStore = {
+  workout: Workout | undefined;
+  setWorkout: (workout: Workout | undefined) => void;
+}
+
+export const useLiveWorkoutStore = create<LiveWorkoutStore>((set) => ({
+  workout: undefined,
+  setWorkout: (workout) => set({ workout }),
+}));

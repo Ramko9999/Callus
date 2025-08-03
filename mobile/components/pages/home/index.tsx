@@ -1,17 +1,12 @@
-import { Text, useThemeColoring, View } from "@/components/Themed";
-import { ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { Text, View } from "@/components/Themed";
+import { ScrollView, StyleSheet } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-  truncTime,
-  getDurationDisplay,
-  getTimePeriodDisplay,
+  truncTime
 } from "@/util/date";
 import { WorkoutApi } from "@/api/workout";
 import {
-  Workout,
-  WorkoutActivityType,
-  ExercisingActivity,
-  RestingActivity,
+  Workout
 } from "@/interface";
 import { CompletedWorkouts } from "./completed-workout";
 import { HeaderPage } from "@/components/util/header-page";
@@ -23,7 +18,7 @@ import {
   RepsMetaIcon,
   WeightMetaIcon,
 } from "@/components/theme/icons";
-import { getWorkoutSummary } from "@/context/WorkoutContext";
+import { WorkoutQuery } from "@/api/model/workout";
 import { getNumberSuffix } from "@/util/misc";
 import { Loading } from "@/components/util/loading";
 import { usePopup } from "@/components/popup";
@@ -74,7 +69,7 @@ function CompletedWorkoutsSummary({
   const totalStats = workouts.reduce(
     (acc, workout) => {
       const { totalWeightLifted, totalReps, totalDuration } =
-        getWorkoutSummary(workout, metaIdToDifficultyType);
+        WorkoutQuery.summarize(workout, metaIdToDifficultyType);
       return {
         totalWeightLifted: acc.totalWeightLifted + totalWeightLifted,
         totalReps: acc.totalReps + totalReps,

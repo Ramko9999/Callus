@@ -34,7 +34,6 @@ import {
 import { tintColor, convertHexToRGBA } from "@/util/color";
 import { Clock } from "lucide-react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { getWorkoutSummary } from "@/context/WorkoutContext";
 import { StyleUtils } from "@/util/styles";
 import { TextSkeleton } from "@/components/util/loading";
 import { Popover, PopoverItem, PopoverRef } from "@/components/util/popover";
@@ -53,7 +52,7 @@ import { getHistoricalExerciseDescription } from "@/util/workout/display";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { useUserDetails } from "@/components/user-details";
 import { WorkoutApi } from "@/api/workout";
-import { WorkoutCreation } from "@/api/model/workout";
+import { WorkoutCreation, WorkoutQuery } from "@/api/model/workout";
 import {
   RepeatWorkoutConfirmation,
   WorkoutDeleteConfirmation,
@@ -252,7 +251,11 @@ function ExerciseItem({ exercise, onDelete, onPress }: ExerciseItemProps) {
           <View style={[exerciseListStyles.exerciseImage]}>
             <ExerciseImage
               metaId={exercise.metaId}
-              imageStyle={{ width: width * 0.15, height: width * 0.15, borderRadius: 5 }}
+              imageStyle={{
+                width: width * 0.15,
+                height: width * 0.15,
+                borderRadius: 5,
+              }}
               fallbackSize={width * 0.15}
               fallbackColor={lightTextColor}
             />
@@ -461,6 +464,10 @@ export function CompletedWorkoutInitial() {
 
   const { workout, onSave } = useCompletedWorkout();
 
+  const summary = workout
+    ? WorkoutQuery.summarize(workout, metaIdToDifficultyType)
+    : undefined;
+
   const heatmapContainerColor = tintColor(
     useThemeColoring("appBackground"),
     0.05
@@ -575,12 +582,7 @@ export function CompletedWorkoutInitial() {
           <View style={workoutSummaryStyles.statsContainer}>
             <WorkoutSummaryStat
               value={
-                workout
-                  ? formatVolume(
-                      getWorkoutSummary(workout, metaIdToDifficultyType)
-                        .totalWeightLifted
-                    )
-                  : "0 lbs"
+                summary ? formatVolume(summary.totalWeightLifted) : "0 lbs"
               }
               label="Volume"
               icon={
@@ -594,14 +596,7 @@ export function CompletedWorkoutInitial() {
             />
 
             <WorkoutSummaryStat
-              value={
-                workout
-                  ? `${
-                      getWorkoutSummary(workout, metaIdToDifficultyType)
-                        .totalReps
-                    }`
-                  : "0"
-              }
+              value={summary ? `${summary.totalReps}` : "0"}
               label="Reps"
               icon={
                 <MaterialCommunityIcons
@@ -615,12 +610,9 @@ export function CompletedWorkoutInitial() {
 
             <WorkoutSummaryStat
               value={
-                workout
+                summary
                   ? getTimePeriodDisplay(
-                      roundToNearestMinute(
-                        getWorkoutSummary(workout, metaIdToDifficultyType)
-                          .totalDuration
-                      )
+                      roundToNearestMinute(summary.totalDuration)
                     )
                   : "0m"
               }

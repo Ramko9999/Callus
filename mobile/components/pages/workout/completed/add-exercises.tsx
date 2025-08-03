@@ -6,7 +6,7 @@ import { HeaderPage } from "@/components/util/header-page";
 import { ExerciseAdder } from "@/components/popup/workout/common/exercise/add";
 import { FilterExercises } from "@/components/sheets";
 import { useCompletedWorkout } from "./context";
-import { addExercise } from "@/context/WorkoutContext";
+import { WorkoutActions } from "@/api/model/workout";
 import { ExerciseMeta } from "@/interface";
 import BottomSheet from "@gorhom/bottom-sheet";
 import React from "react";
@@ -27,11 +27,10 @@ export function AddExercises() {
   const filterExercisesSheetRef = useRef<BottomSheet>(null);
 
   const onAddExercises = (metas: ExerciseMeta[]) => {
-    let updatedWorkout = JSON.parse(JSON.stringify(workout));
-    metas.forEach((meta) => {
-      updatedWorkout = addExercise(meta, updatedWorkout);
-    });
-    onSave(updatedWorkout);
+    if (workout) {
+      const updatedWorkout = WorkoutActions(workout).addExercises(metas);
+      onSave(updatedWorkout);
+    }
   };
 
   const onShowFilters = useCallback(() => {

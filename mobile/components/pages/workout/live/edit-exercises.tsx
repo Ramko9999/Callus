@@ -39,7 +39,6 @@ import { EditRestDuration } from "@/components/sheets/edit-rest-duration";
 import { EditSetSheet } from "@/components/sheets/edit-set";
 import { AddNoteSheet } from "@/components/sheets/add-note";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { updateSet } from "@/context/WorkoutContext";
 import { getDurationDisplay } from "@/util/date";
 import { useSound } from "@/components/sounds";
 import * as Haptics from "expo-haptics";
@@ -782,14 +781,11 @@ export function EditExercises() {
   };
 
   const handleUpdateRestDuration = (setId: string, duration: number) => {
-    if (workout) {
-      const updatedWorkout = updateSet(
-        setId,
-        { restDuration: duration },
-        workout
-      );
-      saveWorkout(updatedWorkout);
-    }
+    saveWorkout((workout) => {
+      if (workout) {
+        return SetActions(workout!, setId).update({ restDuration: duration });
+      }
+    });
   };
 
   const handleSkipRest = (setId: string) => {

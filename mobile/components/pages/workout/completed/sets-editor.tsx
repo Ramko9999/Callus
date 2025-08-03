@@ -12,11 +12,9 @@ import { BackButton, MoreButton } from "@/components/pages/common";
 import { HeaderPage } from "@/components/util/header-page";
 import { useCompletedWorkout } from "./context";
 import {
-  duplicateLastSet,
-  removeSet,
-  updateSet,
-  updateExercise,
-} from "@/context/WorkoutContext";
+  ExerciseActions,
+  SetActions,
+} from "@/api/model/workout";
 import {
   Set,
   DifficultyType,
@@ -230,7 +228,7 @@ export function SetsEditor() {
 
   const handleAddSet = () => {
     if (workout && exerciseId) {
-      onSave(duplicateLastSet(exerciseId, workout));
+      onSave(ExerciseActions(workout, exerciseId).duplicateLastSet());
     }
   };
 
@@ -239,13 +237,13 @@ export function SetsEditor() {
       navigation.goBack();
     }
     if (workout) {
-      onSave(removeSet(setId, workout));
+      onSave(SetActions(workout, setId).delete());
     }
   };
 
   const handleUpdateSet = (setId: string, update: Partial<Set>) => {
     if (workout) {
-      onSave(updateSet(setId, update, workout));
+      onSave(SetActions(workout, setId).update(update));
     }
   };
 
@@ -279,11 +277,9 @@ export function SetsEditor() {
   const handleUpdateNote = useCallback(
     (note: string) => {
       if (workout && exerciseId) {
-        const updatedWorkout = updateExercise(
-          exerciseId,
-          { note: note.trim() === "" ? undefined : note },
-          workout
-        );
+        const updatedWorkout = ExerciseActions(workout, exerciseId).update({
+          note: note.trim() === "" ? undefined : note,
+        });
         onSave(updatedWorkout);
       }
     },
@@ -311,7 +307,7 @@ export function SetsEditor() {
   const handleUpdateSetFromSheet = useCallback(
     (setId: string, update: Partial<Set>) => {
       if (workout) {
-        const updatedWorkout = updateSet(setId, update, workout);
+        const updatedWorkout = SetActions(workout, setId).update(update);
         onSave(updatedWorkout);
       }
     },

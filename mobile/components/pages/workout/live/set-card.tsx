@@ -13,7 +13,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { View, Text, useThemeColoring } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
-import { updateSet } from "@/context/WorkoutContext";
+import { SetActions } from "@/api/model/workout";
 import { Exercise, Set, DifficultyType, SetStatus } from "@/interface";
 
 import { tintColor } from "@/util/color";
@@ -250,12 +250,11 @@ export function SetCard({
               timeRemaining={Math.floor(remainingRestMs / 1000)}
               currentDuration={set.restDuration || 0}
               onEditDuration={(newDuration) => {
+                // shouldn't need copy of workout here
                 if (workout) {
-                  const updatedWorkout = updateSet(
-                    set.id,
-                    { restDuration: newDuration },
-                    workout
-                  );
+                  const updatedWorkout = SetActions(workout, set.id).update({
+                    restDuration: newDuration,
+                  });
                   onUpdateWorkout(updatedWorkout);
                 }
               }}

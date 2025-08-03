@@ -5,6 +5,10 @@ import {
   Set,
   SetStatus,
   Workout,
+  WorkoutSummary,
+  DifficultyType,
+  BodyWeightDifficulty,
+  WeightDifficulty,
 } from "@/interface";
 import {
   generateExerciseId,
@@ -355,9 +359,43 @@ function getNextUnstartedSet(workout: Workout, setId: string) {
   }
 }
 
+export function summarize(
+  workout: Workout,
+  metaIdToDifficultyType: Record<string, DifficultyType>
+): WorkoutSummary {
+  let totalReps: number = 0;
+  let totalWeightLifted: number = 0;
+
+  // todo: this does ignore time difficulty
+  workout.exercises.forEach((ex) =>
+    ex.sets.forEach((set) => {
+      if (set.status !== SetStatus.UNSTARTED) {
+        const difficultyType = metaIdToDifficultyType[ex.metaId];
+        if (difficultyType === DifficultyType.BODYWEIGHT) {
+          const { reps } = set.difficulty as BodyWeightDifficulty;
+          totalReps += reps;
+          totalWeightLifted += workout.bodyweight * reps;
+        } else if (difficultyType === DifficultyType.WEIGHTED_BODYWEIGHT) {
+          const { reps, weight } = set.difficulty as WeightDifficulty;
+          totalReps += reps;
+          totalWeightLifted += (workout.bodyweight + weight) * reps;
+        } else if (difficultyType === DifficultyType.WEIGHT) {
+          const { reps, weight } = set.difficulty as WeightDifficulty;
+          totalReps += reps;
+          totalWeightLifted += weight * reps;
+        }
+      }
+    })
+  );
+
+  let totalDuration = (workout.endedAt ?? Date.now()) - workout.startedAt;
+  return { totalReps, totalWeightLifted, totalDuration };
+}
+
 export const WorkoutQuery = {
   getCurrentSetAndExercise,
   getExercise,
   hasUnfinishedSets,
   getNextUnstartedSet,
+  summarize,
 };
