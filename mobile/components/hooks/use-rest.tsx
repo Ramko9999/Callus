@@ -48,7 +48,7 @@ export function useRestSounds() {
     if (currentSet?.set.status !== SetStatus.RESTING) {
       stop("ready_up");
     }
-    if (currentSet?.set.status === SetStatus.RESTING) {
+    else {
       if (
         isRestFinished(
           currentSet.set.restStartedAt as number,

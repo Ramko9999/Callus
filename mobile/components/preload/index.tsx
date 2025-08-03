@@ -7,8 +7,7 @@ import { View, Text } from "@/components/Themed";
 import { Store } from "@/api/store";
 import { StyleUtils } from "@/util/styles";
 import React from "react";
-import { loadSoundAssets, useSound } from "../sounds";
-import { Audio } from "expo-av";
+import { useSound } from "../sounds";
 import { useExercisesStore } from "../store";
 import { toExerciseMeta } from "@/api/model/custom-exercise";
 import { EXERCISE_REPOSITORY } from "@/api/exercise";
@@ -62,16 +61,9 @@ export function Preloader({ children }: Props) {
     }
   }, []);
 
-  const setupAudio = async () => {
-    const registry = await loadSoundAssets();
-    await Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-    initialize(registry);
-  };
-
   const preload = async () => {
     await preloadDB();
     await hydrateInProgressWorkout();
-    await setupAudio();
 
     const customExercises = await Store.instance().getCustomExercises();
     const allExercises = [
