@@ -2,7 +2,7 @@ import { Audio, InterruptionModeAndroid } from "expo-av";
 import { createContext, useContext, useEffect, useRef } from "react";
 
 const ASSETS = {
-  positive_ring: require("@/assets/audio/positive-notification-ring.wav"),
+  positive_ring: require("@/assets/audio/positive-ring.mp3"),
   ready_up: require("@/assets/audio/ready-up.mp3"),
 };
 
@@ -26,11 +26,8 @@ export function SoundProvider({ children }: SoundProviderProps) {
   const activeSoundsRef = useRef<Partial<Record<SoundType, Audio.Sound>>>({});
 
   const play = async (type: SoundType) => {
-    const startTime = Date.now();
     const { sound } = await Audio.Sound.createAsync(ASSETS[type]);
-    const endTime = Date.now();
-    console.log(`Sound creation: ${type} took ${endTime - startTime}ms`);
-    
+
     activeSoundsRef.current[type] = sound;
     await sound.playAsync();
     sound.setOnPlaybackStatusUpdate((status) => {

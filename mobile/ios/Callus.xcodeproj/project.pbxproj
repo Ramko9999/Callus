@@ -7,31 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0168244CA43EF330D7E6E86B /* libPods-Callus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19CF319338F8140BE52EB328 /* libPods-Callus.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		ACDA792731213F1F47BE2124 /* libPods-Callus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9230D25258991AD5647BE35 /* libPods-Callus.a */; };
-		B3F904FF012E8F25413D2E01 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB1F73C32940A62322A5D7B /* ExpoModulesProvider.swift */; };
+		7CBEFEE807794D25B7042C2C /* rest_notification_ending.wav in Resources */ = {isa = PBXBuildFile; fileRef = 99D5026960C34DEDBDC109D6 /* rest_notification_ending.wav */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
-		C7C20A97CABE4BF28F73BD78 /* rest_notification_ending.wav in Resources */ = {isa = PBXBuildFile; fileRef = 954A773442C94773B8EEF4B0 /* rest_notification_ending.wav */; };
+		CA5E2543447253DA2CFEF204 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79FB259FA5187F682A1BB3A7 /* ExpoModulesProvider.swift */; };
+		E9927BCC5BC30F1BDE2F100C /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 86EA2DA907B3491B1EC7C3C9 /* PrivacyInfo.xcprivacy */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		F94C14B7E1207684D11329EF /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 20C8009B641F98B5BFFB24D8 /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		1343AFCF0D2A92D0ED74A09D /* Pods-Callus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Callus.debug.xcconfig"; path = "Target Support Files/Pods-Callus/Pods-Callus.debug.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Callus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Callus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = Callus/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = Callus/Info.plist; sourceTree = "<group>"; };
-		20C8009B641F98B5BFFB24D8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Callus/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		954A773442C94773B8EEF4B0 /* rest_notification_ending.wav */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = rest_notification_ending.wav; path = Callus/rest_notification_ending.wav; sourceTree = "<group>"; };
+		19CF319338F8140BE52EB328 /* libPods-Callus.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Callus.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		36E8FACA20162E0D462EFB83 /* Pods-Callus.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Callus.debug.xcconfig"; path = "Target Support Files/Pods-Callus/Pods-Callus.debug.xcconfig"; sourceTree = "<group>"; };
+		79FB259FA5187F682A1BB3A7 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Callus/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		86EA2DA907B3491B1EC7C3C9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = Callus/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		899642E712F98BB452A0AC43 /* Pods-Callus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Callus.release.xcconfig"; path = "Target Support Files/Pods-Callus/Pods-Callus.release.xcconfig"; sourceTree = "<group>"; };
+		99D5026960C34DEDBDC109D6 /* rest_notification_ending.wav */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = rest_notification_ending.wav; path = Callus/rest_notification_ending.wav; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = Callus/SplashScreen.storyboard; sourceTree = "<group>"; };
-		ABB1F73C32940A62322A5D7B /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-Callus/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		D9230D25258991AD5647BE35 /* libPods-Callus.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Callus.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = Callus/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* Callus-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Callus-Bridging-Header.h"; path = "Callus/Callus-Bridging-Header.h"; sourceTree = "<group>"; };
-		FBADD6E6C8547CCD7A55260B /* Pods-Callus.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Callus.release.xcconfig"; path = "Target Support Files/Pods-Callus/Pods-Callus.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,7 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ACDA792731213F1F47BE2124 /* libPods-Callus.a in Frameworks */,
+				0168244CA43EF330D7E6E86B /* libPods-Callus.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,17 +55,17 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				954A773442C94773B8EEF4B0 /* rest_notification_ending.wav */,
-				20C8009B641F98B5BFFB24D8 /* PrivacyInfo.xcprivacy */,
+				99D5026960C34DEDBDC109D6 /* rest_notification_ending.wav */,
+				86EA2DA907B3491B1EC7C3C9 /* PrivacyInfo.xcprivacy */,
 			);
 			name = Callus;
 			sourceTree = "<group>";
 		};
-		21FB3821B8189F69F83AF011 /* Pods */ = {
+		1A6A67A8DF7C40FCA51A991A /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				1343AFCF0D2A92D0ED74A09D /* Pods-Callus.debug.xcconfig */,
-				FBADD6E6C8547CCD7A55260B /* Pods-Callus.release.xcconfig */,
+				36E8FACA20162E0D462EFB83 /* Pods-Callus.debug.xcconfig */,
+				899642E712F98BB452A0AC43 /* Pods-Callus.release.xcconfig */,
 			);
 			name = Pods;
 			path = Pods;
@@ -75,15 +75,15 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				D9230D25258991AD5647BE35 /* libPods-Callus.a */,
+				19CF319338F8140BE52EB328 /* libPods-Callus.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		746D6AEAE0F6488F010B914E /* Callus */ = {
+		566166D3B8F293E220464739 /* Callus */ = {
 			isa = PBXGroup;
 			children = (
-				ABB1F73C32940A62322A5D7B /* ExpoModulesProvider.swift */,
+				79FB259FA5187F682A1BB3A7 /* ExpoModulesProvider.swift */,
 			);
 			name = Callus;
 			sourceTree = "<group>";
@@ -102,8 +102,8 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				21FB3821B8189F69F83AF011 /* Pods */,
-				F585E8896C6FEE28C6A02733 /* ExpoModulesProviders */,
+				1A6A67A8DF7C40FCA51A991A /* Pods */,
+				B477849B1F921BAB1C6FD954 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -118,6 +118,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		B477849B1F921BAB1C6FD954 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				566166D3B8F293E220464739 /* Callus */,
+			);
+			name = ExpoModulesProviders;
+			sourceTree = "<group>";
+		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
 			isa = PBXGroup;
 			children = (
@@ -125,14 +133,6 @@
 			);
 			name = Supporting;
 			path = Callus/Supporting;
-			sourceTree = "<group>";
-		};
-		F585E8896C6FEE28C6A02733 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				746D6AEAE0F6488F010B914E /* Callus */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -143,13 +143,13 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Callus" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				187876159A2F354E3D6D51BC /* [Expo] Configure project */,
+				57B6D795A5EE50922B6AD63A /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				A2D7A7D4C324E4C5D42C565E /* [CP] Embed Pods Frameworks */,
+				A1DF3CA056D51BCF509D85E7 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -199,8 +199,8 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				C7C20A97CABE4BF28F73BD78 /* rest_notification_ending.wav in Resources */,
-				F94C14B7E1207684D11329EF /* PrivacyInfo.xcprivacy in Resources */,
+				7CBEFEE807794D25B7042C2C /* rest_notification_ending.wav in Resources */,
+				E9927BCC5BC30F1BDE2F100C /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -244,7 +244,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		187876159A2F354E3D6D51BC /* [Expo] Configure project */ = {
+		57B6D795A5EE50922B6AD63A /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -305,7 +305,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Callus/Pods-Callus-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		A2D7A7D4C324E4C5D42C565E /* [CP] Embed Pods Frameworks */ = {
+		A1DF3CA056D51BCF509D85E7 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -331,7 +331,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				B3F904FF012E8F25413D2E01 /* ExpoModulesProvider.swift in Sources */,
+				CA5E2543447253DA2CFEF204 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -340,7 +340,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 1343AFCF0D2A92D0ED74A09D /* Pods-Callus.debug.xcconfig */;
+			baseConfigurationReference = 36E8FACA20162E0D462EFB83 /* Pods-Callus.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -376,7 +376,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FBADD6E6C8547CCD7A55260B /* Pods-Callus.release.xcconfig */;
+			baseConfigurationReference = 899642E712F98BB452A0AC43 /* Pods-Callus.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
