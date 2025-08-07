@@ -52,7 +52,11 @@ import { getHistoricalExerciseDescription } from "@/util/workout/display";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { useUserDetails } from "@/components/user-details";
 import { WorkoutApi } from "@/api/workout";
-import { WorkoutCreation, WorkoutQuery } from "@/api/model/workout";
+import {
+  WorkoutActions,
+  WorkoutCreation,
+  WorkoutQuery,
+} from "@/api/model/workout";
 import {
   RepeatWorkoutConfirmation,
   WorkoutDeleteConfirmation,
@@ -63,6 +67,7 @@ import { useLiveWorkout } from "../live/context";
 import { ExerciseImage } from "@/components/exercise/image";
 import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
 import { useShallow } from "zustand/shallow";
+import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 type MusclesToSets = Record<string, number>;
 
@@ -461,6 +466,7 @@ export function CompletedWorkoutInitial() {
   const metaIdToDifficultyType = useExercisesStore(
     useShallow(ExerciseStoreSelectors.getMetaIdToDifficultyType)
   );
+  const reorderExercisesSheetRef = useRef<BottomSheetModal>(null);
 
   const { workout, onSave } = useCompletedWorkout();
 
@@ -510,7 +516,7 @@ export function CompletedWorkoutInitial() {
 
   const handleReorderExercises = () => {
     exercisesPopoverRef.current?.close();
-    sheetsRef.current?.openReorderExercises();
+    reorderExercisesSheetRef.current?.present();
   };
 
   const handleDeleteExercise = (exerciseId: string) => {
@@ -525,6 +531,18 @@ export function CompletedWorkoutInitial() {
 
   const handleExercisePress = (exerciseId: string) => {
     (navigation as any).navigate("setsEditor", { exerciseId });
+  };
+
+  const handleExercisesReorder = (
+    newExercises: { exerciseId: string; metaId: string }[]
+  ) => {
+    if (workout) {
+      onSave(
+        WorkoutActions(workout).reorderExercises(
+          newExercises.map((ex) => ex.exerciseId)
+        )
+      );
+    }
   };
 
   return (
@@ -637,6 +655,16 @@ export function CompletedWorkoutInitial() {
             <ExercisesSkeleton />
           )}
         </ScrollView>
+        <ReorderExercisesSheet
+          ref={reorderExercisesSheetRef}
+          exercises={
+            workout?.exercises.map((ex) => ({
+              exerciseId: ex.id,
+              metaId: ex.metaId,
+            })) ?? []
+          }
+          onReorder={handleExercisesReorder}
+        />
       </HeaderPage>
 
       <Popover ref={popoverRef} progress={popoverProgress}>
@@ -696,7 +724,6 @@ type CompletedWorkoutInitialSheetsRef = {
   openDelete: () => void;
   openEdit: () => void;
   openRepeat: () => void;
-  openReorderExercises: () => void;
 };
 
 const CompletedWorkoutInitialSheets = forwardRef<
@@ -707,37 +734,29 @@ const CompletedWorkoutInitialSheets = forwardRef<
   const { isInWorkout, saveWorkout } = useLiveWorkout();
   const { userDetails } = useUserDetails();
 
-  const workoutDeleteConfirmationSheetRef = useRef<any>(null);
-  const editCompletedWorkoutSheetRef = useRef<any>(null);
-  const repeatWorkoutConfirmationSheetRef = useRef<any>(null);
-  const reorderExercisesSheetRef = useRef<any>(null);
+  const workoutDeleteConfirmationSheetRef = useRef<BottomSheet>(null);
+  const editCompletedWorkoutSheetRef = useRef<BottomSheetModal>(null);
+  const repeatWorkoutConfirmationSheetRef = useRef<BottomSheet>(null);
 
   const [isTrashingWorkout, setIsTrashingWorkout] = useState(false);
-  const [isEditingWorkout, setIsEditingWorkout] = useState(false);
   const [isRepeating, setIsRepeating] = useState(false);
-  const [isReorderingExercises, setIsReorderingExercises] = useState(false);
 
   const openDelete = () => {
     setIsTrashingWorkout(true);
   };
 
   const openEdit = () => {
-    setIsEditingWorkout(true);
+    editCompletedWorkoutSheetRef.current?.present();
   };
 
   const openRepeat = () => {
     setIsRepeating(true);
   };
 
-  const openReorderExercises = () => {
-    setIsReorderingExercises(true);
-  };
-
   useImperativeHandle(ref, () => ({
     openDelete,
     openEdit,
     openRepeat,
-    openReorderExercises,
   }));
 
   const handleDeleteConfirm = () => {
@@ -762,20 +781,13 @@ const CompletedWorkoutInitialSheets = forwardRef<
     navigation.navigate("liveWorkoutSheet");
   };
 
-  const handleWorkoutUpdate = async (
+  const handleWorkoutUpdate = (
     update: Partial<{ name: string; startedAt: number; endedAt: number }>
   ) => {
     if (!workout) return;
 
     // Update the workout with the new data
     const updatedWorkout = { ...workout, ...update };
-    onUpdateWorkout(updatedWorkout);
-  };
-
-  const handleExercisesReorder = async (newExercises: Exercise[]) => {
-    if (!workout) return;
-
-    const updatedWorkout = { ...workout, exercises: newExercises };
     onUpdateWorkout(updatedWorkout);
   };
 
@@ -792,11 +804,8 @@ const CompletedWorkoutInitialSheets = forwardRef<
           />
           <EditWorkout
             ref={editCompletedWorkoutSheetRef}
-            show={isEditingWorkout}
-            onHide={() => setIsEditingWorkout(false)}
             workout={workout}
             onUpdate={handleWorkoutUpdate}
-            hide={() => editCompletedWorkoutSheetRef.current?.close()}
           />
           <RepeatWorkoutConfirmation
             ref={repeatWorkoutConfirmationSheetRef}
@@ -805,14 +814,6 @@ const CompletedWorkoutInitialSheets = forwardRef<
             onHide={() => setIsRepeating(false)}
             isInWorkout={isInWorkout}
             onRepeat={handleRepeatConfirm}
-          />
-          <ReorderExercisesSheet
-            ref={reorderExercisesSheetRef}
-            show={isReorderingExercises}
-            onHide={() => setIsReorderingExercises(false)}
-            exercises={workout.exercises}
-            onReorder={handleExercisesReorder}
-            hide={() => reorderExercisesSheetRef.current?.close()}
           />
         </>
       ) : null}

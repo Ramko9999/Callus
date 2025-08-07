@@ -74,12 +74,9 @@ export function useCurrentSet(): CurrentSetResult | undefined {
     workout !== undefined
       ? WorkoutQuery.getCurrentSetAndExercise(workout!)
       : undefined;
-  return useMemo(
-    () => {
-      return currentSetAndExercise;
-    },
-    [serialize(currentSetAndExercise)]
-  );
+  return useMemo(() => {
+    return currentSetAndExercise;
+  }, [serialize(currentSetAndExercise)]);
 }
 
 type LiveSetResult = {

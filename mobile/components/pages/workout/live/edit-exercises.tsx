@@ -4,8 +4,8 @@ import {
   ScrollView,
   TouchableOpacity,
   GestureResponderEvent,
-  Keyboard,
   Platform,
+  View as RNView,
 } from "react-native";
 import Animated, {
   LinearTransition,
@@ -16,7 +16,6 @@ import Animated, {
   FadeOutDown,
 } from "react-native-reanimated";
 import { View, Text, useThemeColoring } from "@/components/Themed";
-import { HeaderPage } from "@/components/util/header-page";
 import { Exercise, DifficultyType, SetStatus, Set, Workout } from "@/interface";
 import { StyleUtils } from "@/util/styles";
 import { tintColor } from "@/util/color";
@@ -32,13 +31,7 @@ import {
   SkipForward,
   StickyNote,
 } from "lucide-react-native";
-import { getTimePeriodDisplay } from "@/util/date";
 import { Popover, PopoverItem, PopoverRef } from "@/components/util/popover";
-import { ReorderExercisesSheet } from "@/components/sheets/reorder-exercises";
-import { EditRestDuration } from "@/components/sheets/edit-rest-duration";
-import { EditSetSheet } from "@/components/sheets/edit-set";
-import { AddNoteSheet } from "@/components/sheets/add-note";
-import BottomSheet from "@gorhom/bottom-sheet";
 import { getDurationDisplay } from "@/util/date";
 import { useSound } from "@/components/sounds";
 import * as Haptics from "expo-haptics";
@@ -55,16 +48,21 @@ import {
   EditField,
 } from "@/components/pages/workout/common";
 import { useLiveExercise, useCurrentSet, useLiveWorkout } from "./context";
+import { useLiveWorkoutSheets } from "./sheets";
 import {
   ExerciseActions,
   SetActions,
   WorkoutActions,
   WorkoutQuery,
 } from "@/api/model/workout";
-import { BackButton, PlusButton } from "../../common";
 import { ExerciseImage } from "@/components/exercise/image";
 import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
-import { getHistoricalExerciseDescription } from "@/util/workout/display";
+import {
+  getHistoricalExerciseDescription,
+  getInProgressExerciseDescription,
+} from "@/util/workout/display";
+import { ReorderExercisesSheet } from "@/components/sheets/reorder-exercises";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 const exerciseCardHeaderStyles = StyleSheet.create({
   container: {
@@ -107,6 +105,7 @@ type ExerciseCardHeaderProps = {
   onMorePress: (event: any, ref: React.RefObject<any>) => void;
   moreButtonRef: React.RefObject<any>;
   onNotePress: () => void;
+  onOpenExercise: (metaIdToDifficultyType: string) => void;
 };
 
 function ExerciseCardHeader({
@@ -117,18 +116,21 @@ function ExerciseCardHeader({
   onMorePress,
   moreButtonRef,
   onNotePress,
+  onOpenExercise,
 }: ExerciseCardHeaderProps) {
   const primaryActionColor = useThemeColoring("primaryAction");
 
   return (
     <View style={exerciseCardHeaderStyles.container}>
       <View style={exerciseCardHeaderStyles.topHeader}>
-        <ExerciseImage
-          metaId={metaId}
-          imageStyle={exerciseCardHeaderStyles.image}
-          fallbackSize={50}
-          fallbackColor={primaryActionColor}
-        />
+        <TouchableOpacity onPress={() => onOpenExercise(metaId)}>
+          <ExerciseImage
+            metaId={metaId}
+            imageStyle={exerciseCardHeaderStyles.image}
+            fallbackSize={50}
+            fallbackColor={primaryActionColor}
+          />
+        </TouchableOpacity>
         <View style={exerciseCardHeaderStyles.info}>
           <Text header style={exerciseCardHeaderStyles.name}>
             {name}
@@ -477,6 +479,7 @@ type ExerciseCardProps = {
   exerciseId: string;
   onMorePress: (exerciseId: string, ref: React.RefObject<any>) => void;
   onNotePress: (exerciseId: string) => void;
+  onExerciseDescriptionPress: (exerciseMetaId: string) => void;
   onEditSet: (setId: string, field: EditField) => void;
 };
 
@@ -485,6 +488,7 @@ const ExerciseCard = memo(
     exerciseId,
     onMorePress,
     onNotePress,
+    onExerciseDescriptionPress,
     onEditSet,
   }: ExerciseCardProps) {
     const exercise = useLiveExercise(exerciseId);
@@ -526,6 +530,10 @@ const ExerciseCard = memo(
       onMorePress(exercise.id, moreButtonRef);
     }, [onMorePress, exercise.id]);
 
+    const handleOpenExerciseDescription = useCallback(() => {
+      onExerciseDescriptionPress(exercise.metaId);
+    }, [onExerciseDescriptionPress, exercise.metaId]);
+
     return (
       <Animated.View
         style={editExercisesStyles.exerciseCard}
@@ -534,14 +542,15 @@ const ExerciseCard = memo(
         <ExerciseCardHeader
           metaId={exercise.metaId}
           name={exerciseName}
-          description={getHistoricalExerciseDescription({
-            difficulties: exercise.sets.map((set) => set.difficulty),
-            difficultyType,
-          })}
+          description={getInProgressExerciseDescription(
+            exercise,
+            difficultyType
+          )}
           note={exercise.note}
           onMorePress={handleMorePress}
           moreButtonRef={moreButtonRef}
           onNotePress={handleNotePress}
+          onOpenExercise={handleOpenExerciseDescription}
         />
         <View style={editExercisesStyles.setsContainer}>
           <SetHeader difficultyType={difficultyType} />
@@ -615,78 +624,59 @@ const ExerciseCard = memo(
   }
 );
 
-type LiveElapsedProps = {
-  workout?: Workout;
-};
-
-function LiveElapsed({ workout }: LiveElapsedProps) {
-  useRefresh({ period: 1000 });
-  return (
-    <Text light>
-      {workout?.startedAt
-        ? getTimePeriodDisplay(Date.now() - workout.startedAt)
-        : ""}
-    </Text>
-  );
-}
-
 export function EditExercises() {
   const navigation = useNavigation();
   const { workout, saveWorkout } = useLiveWorkout();
+  const { openEditSet, openEditRest, openAddNote } = useLiveWorkoutSheets();
+
+  const [shouldRender, setShouldRender] = useState(false);
 
   // Popover state
   const popoverRef = useRef<PopoverRef>(null);
+  const containerRef = useRef<RNView>(null);
+  const containerYRef = useRef<number | undefined>(undefined);
+  const reorderExercisesSheetRef = useRef<BottomSheetModal>(null);
   const popoverProgress = useSharedValue(0);
   const [popoverExerciseId, setPopoverExerciseId] = useState<string | null>(
     null
   );
-  const [isArtificallyLoading, setIsArtificallyLoading] = useState(true);
-  const sheetsRef = useRef<EditExercisesSheetsRef>(null);
-
-  // Edit set sheet state
-  const [showEditSetSheet, setShowEditSetSheet] = useState(false);
-  const [selectedSetId, setSelectedSetId] = useState<string | undefined>();
-  const [selectedField, setSelectedField] = useState<EditField | undefined>();
 
   const currentSet = useCurrentSet();
 
-  // For now, we'll remove the activity-dependent features
-  const isResting = currentSet?.set.status === SetStatus.RESTING;
+  const dangerActionColor = useThemeColoring("dangerAction");
+  const neutralTextColor = useThemeColoring("primaryText");
 
   useEffect(() => {
     setTimeout(() => {
-      setIsArtificallyLoading(false);
-    }, 200);
+      setShouldRender(true);
+    }, 100);
   }, []);
 
-  const handleClose = () => {
-    navigation.goBack();
-  };
+  const isResting = currentSet?.set.status === SetStatus.RESTING;
 
-  const handleEditSet = useCallback((setId: string, field: EditField) => {
-    setSelectedSetId(setId);
-    setSelectedField(field);
-    setShowEditSetSheet(true);
-  }, []);
+  const handleEditSet = useCallback(
+    (setId: string, field: EditField) => {
+      // We need to find the exercise that contains this set
+      const exercise = workout?.exercises.find((ex) =>
+        ex.sets.some((set) => set.id === setId)
+      );
+      if (exercise) {
+        openEditSet(exercise.id, setId, field);
+      }
+    },
+    [openEditSet, workout]
+  );
 
-  const handleHideEditSetSheet = () => {
-    setShowEditSetSheet(false);
-    setSelectedSetId(undefined);
-    setSelectedField(undefined);
-  };
-
-  const handleUpdateSetFromSheet = (setId: string, update: Partial<Set>) => {
-    saveWorkout((workout) => SetActions(workout!, setId).update(update));
-  };
-
-  // Popover trigger handler
   const handleMorePress = useCallback(
     (exerciseId: string, ref: React.RefObject<any>) => {
       setPopoverExerciseId(exerciseId);
-      if (ref.current) {
+      if (ref.current && containerYRef.current !== undefined) {
         ref.current.measure(
           (x: any, y: any, width: any, height: any, pageX: any, pageY: any) => {
-            popoverRef.current?.open(pageX + width + 5, pageY + 20);
+            popoverRef.current?.open(
+              pageX + width + 5,
+              pageY + 20 - (containerYRef.current as number)
+            );
           }
         );
       }
@@ -695,58 +685,17 @@ export function EditExercises() {
   );
 
   const handleRemoveExercise = () => {
-    saveWorkout((workout) =>
-      ExerciseActions(workout!, popoverExerciseId!).delete()
-    );
-    popoverRef.current?.close();
-    setPopoverExerciseId(null);
-  };
-
-  // Sheet handlers
-  const handleOpenReorderExercises = () => {
-    popoverRef.current?.close();
-    setTimeout(() => {
-      sheetsRef.current?.openReorderExercises();
-    }, 200);
-    setPopoverExerciseId(null);
-  };
-
-  const handleOpenEditRest = () => {
-    popoverRef.current?.close();
-    setTimeout(() => {
-      sheetsRef.current?.openEditRest();
-    }, 200);
-  };
-
-  const handleOpenAddNote = useCallback((exerciseId: string) => {
-    setPopoverExerciseId(exerciseId);
-    setTimeout(() => {
-      sheetsRef.current?.openAddNote();
-    }, 200);
-  }, []);
-
-  const handleOpenAddNoteFromPopover = () => {
-    popoverRef.current?.close();
-    setTimeout(() => {
-      sheetsRef.current?.openAddNote();
-    }, 200);
-  };
-
-  const handleUpdateNote = useCallback(
-    (note: string) => {
+    if (popoverExerciseId) {
       saveWorkout((workout) =>
-        ExerciseActions(workout!, popoverExerciseId!).update({
-          note: note.trim() === "" ? undefined : note,
-        })
+        ExerciseActions(workout!, popoverExerciseId).delete()
       );
-    },
-    [saveWorkout, popoverExerciseId]
-  );
+      popoverRef.current?.close();
+      setPopoverExerciseId(null);
+    }
+  };
 
   const handleViewExercise = () => {
     popoverRef.current?.close();
-    setPopoverExerciseId(null);
-
     if (popoverExerciseId) {
       const exercise = WorkoutQuery.getExercise(workout!, popoverExerciseId);
       // @ts-ignore
@@ -754,31 +703,35 @@ export function EditExercises() {
         id: exercise.metaId,
       });
     }
+    setPopoverExerciseId(null);
   };
 
-  // For rest duration, use the currently selected exercise (from popoverExerciseId)
-  const currentExercise =
-    workout?.exercises.find((ex: Exercise) => ex.id === popoverExerciseId) ||
-    workout?.exercises[0];
-  const restDuration = currentExercise?.restDuration || 60;
+  const handleOpenReorderExercises = () => {
+    popoverRef.current?.close();
+    reorderExercisesSheetRef.current?.present();
+  };
 
-  const handleReorder = (newExercises: Exercise[]) => {
-    saveWorkout((workout) =>
-      WorkoutActions(workout!).reorderExercises(
-        newExercises.map(({ id }) => id)
-      )
+  const handleOpenEditRest = () => {
+    popoverRef.current?.close();
+    if (popoverExerciseId) {
+      openEditRest(popoverExerciseId);
+    }
+  };
+
+  const handleOpenAddNoteFromPopover = () => {
+    popoverRef.current?.close();
+    if (popoverExerciseId) {
+      openAddNote(popoverExerciseId);
+    }
+  };
+
+  const handleLayout = useCallback(() => {
+    containerRef.current?.measure(
+      (x: any, y: any, width: any, height: any, pageX: any, pageY: any) => {
+        containerYRef.current = pageY;
+      }
     );
-  };
-
-  const handleUpdateRest = (duration: number) => {
-    saveWorkout((workout) =>
-      ExerciseActions(workout!, popoverExerciseId!).updateRest(duration)
-    );
-  };
-
-  const handleAddExercise = () => {
-    navigation.navigate("addExercises" as never);
-  };
+  }, []);
 
   const handleUpdateRestDuration = (setId: string, duration: number) => {
     saveWorkout((workout) => {
@@ -792,30 +745,49 @@ export function EditExercises() {
     saveWorkout((workout) => SetActions(workout!, setId).finish());
   };
 
+  const handleReorder = (
+    exercises: { exerciseId: string; metaId: string }[]
+  ) => {
+    saveWorkout((workout) => {
+      if (workout) {
+        return WorkoutActions(workout).reorderExercises(
+          exercises.map((ex) => ex.exerciseId)
+        );
+      }
+    });
+  };
+
+  if (!shouldRender) {
+    return null;
+  }
+
   return (
-    <View style={editExercisesStyles.container}>
-      <HeaderPage
-        title={workout!.name}
-        subtitle={<LiveElapsed workout={workout} />}
-        leftAction={<BackButton onClick={handleClose} />}
-        rightAction={<PlusButton onClick={handleAddExercise} />}
+    <View
+      ref={containerRef}
+      style={editExercisesStyles.container}
+      onLayout={handleLayout}
+    >
+      <ScrollView
+        style={editExercisesStyles.scrollContainer}
+        contentContainerStyle={{ paddingBottom: "30%" }}
+        showsVerticalScrollIndicator={false}
       >
-        <ScrollView
-          style={editExercisesStyles.scrollContainer}
-          contentContainerStyle={{ paddingBottom: "30%" }}
-          showsVerticalScrollIndicator={false}
-        >
-          {workout!.exercises.map((exercise: Exercise) => (
-            <ExerciseCard
-              key={exercise.id}
-              exerciseId={exercise.id}
-              onMorePress={handleMorePress}
-              onNotePress={handleOpenAddNote}
-              onEditSet={handleEditSet}
-            />
-          ))}
-        </ScrollView>
-      </HeaderPage>
+        {workout?.exercises.map((exercise: Exercise) => (
+          <ExerciseCard
+            key={exercise.id}
+            exerciseId={exercise.id}
+            onMorePress={handleMorePress}
+            onNotePress={openAddNote}
+            onEditSet={handleEditSet}
+            onExerciseDescriptionPress={(metaId) => {
+              // @ts-ignore
+              navigation.navigate("exerciseInsightSheet", {
+                id: metaId,
+              });
+            }}
+          />
+        ))}
+      </ScrollView>
       {isResting && currentSet?.set && (
         <Animated.View
           key="rest-indicator"
@@ -829,175 +801,45 @@ export function EditExercises() {
           />
         </Animated.View>
       )}
-      {!isArtificallyLoading && (
-        <EditExercisesSheets
-          clearExerciseFocus={() => setPopoverExerciseId(null)}
-          ref={sheetsRef}
-          exercises={workout?.exercises || []}
-          restDuration={restDuration}
-          onReorder={handleReorder}
-          onUpdateRest={handleUpdateRest}
-          showEditSetSheet={showEditSetSheet}
-          selectedSetId={selectedSetId}
-          selectedField={selectedField}
-          onHideEditSetSheet={handleHideEditSetSheet}
-          onUpdateSetFromSheet={handleUpdateSetFromSheet}
-          currentExerciseNote={currentExercise?.note}
-          onUpdateNote={handleUpdateNote}
-        />
-      )}
+      <ReorderExercisesSheet
+        ref={reorderExercisesSheetRef}
+        exercises={
+          workout?.exercises.map((ex) => ({
+            exerciseId: ex.id,
+            metaId: ex.metaId,
+          })) || []
+        }
+        onReorder={handleReorder}
+      />
       <Popover ref={popoverRef} progress={popoverProgress}>
         <PopoverItem
           label="View Exercise"
-          icon={<Info size={20} color={useThemeColoring("primaryText")} />}
+          icon={<Info size={20} color={neutralTextColor} />}
           onClick={handleViewExercise}
         />
         <PopoverItem
           label="Edit Note"
-          icon={
-            <StickyNote size={20} color={useThemeColoring("primaryText")} />
-          }
+          icon={<StickyNote size={20} color={neutralTextColor} />}
           onClick={handleOpenAddNoteFromPopover}
         />
         <PopoverItem
           label="Reorder Exercises"
-          icon={<Shuffle size={20} color={useThemeColoring("primaryText")} />}
+          icon={<Shuffle size={20} color={neutralTextColor} />}
           onClick={handleOpenReorderExercises}
         />
         <PopoverItem
           label="Edit Rest"
-          icon={<Clock size={20} color={useThemeColoring("primaryText")} />}
+          icon={<Clock size={20} color={neutralTextColor} />}
           onClick={handleOpenEditRest}
         />
         <PopoverItem
           label={
-            <Text style={{ color: useThemeColoring("dangerAction") }}>
-              Remove Exercise
-            </Text>
+            <Text style={{ color: dangerActionColor }}>Remove Exercise</Text>
           }
-          icon={<Trash2 size={20} color={useThemeColoring("dangerAction")} />}
+          icon={<Trash2 size={20} color={dangerActionColor} />}
           onClick={handleRemoveExercise}
         />
       </Popover>
     </View>
   );
 }
-
-type EditExercisesSheetsProps = {
-  exercises: Exercise[];
-  restDuration: number;
-  onReorder: (newExercises: Exercise[]) => void;
-  onUpdateRest: (duration: number) => void;
-  clearExerciseFocus: () => void;
-  showEditSetSheet: boolean;
-  selectedSetId?: string;
-  selectedField?: EditField;
-  onHideEditSetSheet: () => void;
-  onUpdateSetFromSheet: (setId: string, update: Partial<Set>) => void;
-  currentExerciseNote?: string;
-  onUpdateNote: (note: string) => void;
-};
-
-type EditExercisesSheetsRef = {
-  openReorderExercises: () => void;
-  openEditRest: () => void;
-  openAddNote: () => void;
-};
-
-const EditExercisesSheets = React.forwardRef<
-  EditExercisesSheetsRef,
-  EditExercisesSheetsProps
->(
-  (
-    {
-      exercises,
-      restDuration,
-      onReorder,
-      onUpdateRest,
-      clearExerciseFocus,
-      showEditSetSheet,
-      selectedSetId,
-      selectedField,
-      onHideEditSetSheet,
-      onUpdateSetFromSheet,
-      currentExerciseNote,
-      onUpdateNote,
-    },
-    ref
-  ) => {
-    const [showReorder, setShowReorder] = useState(false);
-    const [showEditRest, setShowEditRest] = useState(false);
-    const [showAddNoteSheet, setShowAddNoteSheet] = useState(false);
-    const reorderSheetRef = useRef<BottomSheet>(null);
-    const editRestSheetRef = useRef<BottomSheet>(null);
-    const editSetSheetRef = useRef<BottomSheet>(null);
-    const addNoteSheetRef = useRef<BottomSheet>(null);
-
-    const openReorderExercises = () => setShowReorder(true);
-    const openEditRest = () => setShowEditRest(true);
-    const openAddNote = () => setShowAddNoteSheet(true);
-
-    React.useImperativeHandle(ref, () => ({
-      openReorderExercises,
-      openEditRest,
-      openAddNote,
-    }));
-
-    const onHideEditRest = () => {
-      setShowEditRest(false);
-      clearExerciseFocus();
-    };
-
-    const onHideAddNote = () => {
-      Keyboard.dismiss();
-      setShowAddNoteSheet(false);
-      clearExerciseFocus();
-    };
-
-    // Find the exercise that contains the selected set
-    const selectedExercise = exercises.find((ex) =>
-      ex.sets.some((set) => set.id === selectedSetId)
-    );
-
-    return (
-      <>
-        <ReorderExercisesSheet
-          ref={reorderSheetRef}
-          show={showReorder}
-          hide={() => reorderSheetRef.current?.close()}
-          onHide={() => setShowReorder(false)}
-          exercises={exercises}
-          onReorder={onReorder}
-        />
-        <EditRestDuration
-          ref={editRestSheetRef}
-          show={showEditRest}
-          hide={() => editRestSheetRef.current?.close()}
-          onHide={onHideEditRest}
-          duration={restDuration}
-          onUpdateDuration={onUpdateRest}
-        />
-        {selectedExercise && (
-          <EditSetSheet
-            ref={editSetSheetRef}
-            show={showEditSetSheet}
-            hide={() => editSetSheetRef.current?.close()}
-            onHide={onHideEditSetSheet}
-            exercise={selectedExercise}
-            setId={selectedSetId}
-            focusField={selectedField}
-            onUpdate={onUpdateSetFromSheet}
-          />
-        )}
-        <AddNoteSheet
-          ref={addNoteSheetRef}
-          show={showAddNoteSheet}
-          hide={() => addNoteSheetRef.current?.close()}
-          onHide={onHideAddNote}
-          note={currentExerciseNote ?? ""}
-          onUpdate={onUpdateNote}
-        />
-      </>
-    );
-  }
-);

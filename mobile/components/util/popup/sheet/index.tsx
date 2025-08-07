@@ -7,6 +7,7 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetBackgroundProps,
   BottomSheetHandle,
+  BottomSheetModal,
 } from "@gorhom/bottom-sheet";
 
 const popupBottomSheetStyles = StyleSheet.create({
@@ -32,11 +33,12 @@ type PopupBottomSheetProps = {
   show: boolean;
   onHide: () => void;
   enablePanDownToClose?: boolean;
+  snapPoints?: string[];
 };
 
 export const PopupBottomSheet = forwardRef(
   (
-    { children, show, onHide, enablePanDownToClose = true }: PopupBottomSheetProps,
+    { children, show, onHide, enablePanDownToClose = true, snapPoints = [] }: PopupBottomSheetProps,
     ref: ForwardedRef<BottomSheet>
   ) => {
     const sheetColor = useThemeColoring("primaryViewBackground");
@@ -90,7 +92,7 @@ export const PopupBottomSheet = forwardRef(
     return (
       <BottomSheet
         ref={ref}
-        snapPoints={[]}
+        snapPoints={snapPoints}
         enablePanDownToClose={enablePanDownToClose}
         enableOverDrag={false}
         onClose={onHide}
@@ -111,3 +113,82 @@ export const PopupBottomSheet = forwardRef(
     );
   }
 );
+
+
+
+type PopupBottomSheetModalProps = {
+  children: ReactNode;
+  header?: ReactNode;
+}
+
+export const PopupBottomSheetModal = forwardRef(
+  ({ children, header }: PopupBottomSheetModalProps, ref: ForwardedRef<BottomSheetModal>) => {
+    const sheetColor = useThemeColoring("primaryViewBackground");
+    const textColor = useThemeColoring("primaryText");
+
+    const renderBackground = useCallback(
+      (props: BottomSheetBackgroundProps) => (
+        <View
+          {...props}
+          style={[
+            props.style,
+            { backgroundColor: sheetColor },
+            popupBottomSheetStyles.background,
+          ]}
+        />
+      ),
+      [sheetColor]
+    );
+
+    const renderBackdrop = useCallback(
+      (props: any) => (
+        <BottomSheetBackdrop
+          {...props}
+          disappearsOnIndex={-1}
+          appearsOnIndex={0}
+          opacity={0.5}
+        />
+      ),
+      []
+    );
+
+    const renderHandle = useCallback(
+      (props: any) => (
+        <BottomSheetHandle
+          {...props}
+          style={[
+            props.style,
+            {
+              ...popupBottomSheetStyles.handle,
+            },
+          ]}
+          indicatorStyle={{
+            backgroundColor: textColor,
+            ...popupBottomSheetStyles.indicator,
+          }}
+        >
+          {header}
+        </BottomSheetHandle>
+      ),
+      [sheetColor, textColor, header]
+    );
+
+    return (
+      <BottomSheetModal 
+        ref={ref}
+        backdropComponent={renderBackdrop}
+        handleComponent={renderHandle}
+        backgroundComponent={renderBackground}
+      >
+        <BottomSheetView
+          style={[
+            popupBottomSheetStyles.container,
+            { backgroundColor: sheetColor },
+          ]}
+        >
+          {children}
+        </BottomSheetView>
+      </BottomSheetModal>
+    )
+  }
+)

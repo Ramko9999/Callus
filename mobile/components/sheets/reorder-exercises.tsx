@@ -12,14 +12,13 @@ import {
   TouchableOpacity,
   useWindowDimensions,
 } from "react-native";
-import { commonSheetStyles, SheetProps, SheetX } from "./common";
+import { commonSheetStyles, SheetX } from "./common";
 import { StyleUtils } from "@/util/styles";
-import { PopupBottomSheet } from "@/components/util/popup/sheet";
-import BottomSheet from "@gorhom/bottom-sheet";
+import { PopupBottomSheetModal } from "@/components/util/popup/sheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import Sortable from "react-native-sortables";
 import Animated, { useAnimatedRef } from "react-native-reanimated";
 import { GripVertical } from "lucide-react-native";
-import { Exercise } from "@/interface";
 import { ExerciseStoreSelectors, useExercisesStore } from "../store";
 
 const reorderingExerciseItemStyles = StyleSheet.create({
@@ -46,7 +45,7 @@ const reorderingExerciseItemStyles = StyleSheet.create({
 });
 
 type ReorderingExerciseItemProps = {
-  exercise: Exercise;
+  exercise: ReorderExercise;
   itemHeight: number;
 };
 
@@ -95,12 +94,14 @@ const reorderExercisesStyles = StyleSheet.create({
     ...StyleUtils.flexColumn(),
     paddingBottom: "10%",
   },
-  headerContainer: {
+  header: {
+    ...StyleUtils.flexColumn(10),
+  },
+  title: {
     ...StyleUtils.flexRow(),
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "3%",
-    paddingHorizontal: "5%",
+    justifyContent: "space-between",
+    width: "100%",
   },
   item: {
     ...StyleUtils.flexRow(),
@@ -122,82 +123,92 @@ const reorderExercisesStyles = StyleSheet.create({
     marginBottom: "3%",
   },
   scrollContent: {
-    flex: 1,
+    paddingBottom: "10%",
   },
 });
 
-type ReorderExercisesSheetProps = SheetProps & {
-  exercises: Exercise[];
-  onReorder: (newExercises: Exercise[]) => void;
+type ReorderExercise = {
+  exerciseId: string;
+  metaId: string;
+};
+
+type ReorderExercisesSheetProps = {
+  exercises: ReorderExercise[];
+  onReorder: (newExercises: ReorderExercise[]) => void;
 };
 
 export const ReorderExercisesSheet = forwardRef<
-  BottomSheet,
+  BottomSheetModal,
   ReorderExercisesSheetProps
->(({ show, hide, onHide, exercises, onReorder }, ref) => {
+>(({ exercises, onReorder }, ref) => {
   const activeGripColor = useThemeColoring("primaryAction");
   const scrollableRef = useAnimatedRef<Animated.ScrollView>();
   const { height } = useWindowDimensions();
 
+  const sheetHeight = height * 0.75;
+
   const itemHeight = height * 0.07;
   const originalOrderRef = useRef<string[]>([]);
-  const [currentExercises, setCurrentExercises] = useState(exercises);
+  const [currentExercises, setCurrentExercises] =
+    useState<ReorderExercise[]>(exercises);
 
   useEffect(() => {
-    if (show) {
-      originalOrderRef.current = exercises.map((ex) => ex.id);
-      setCurrentExercises(exercises);
-    }
-  }, [show, exercises]);
+    originalOrderRef.current = exercises.map((ex) => ex.exerciseId);
+    setCurrentExercises(exercises);
+  }, [exercises]);
 
-  const handleReorder = useCallback(({ data }: { data: Exercise[] }) => {
+  const handleReorder = useCallback(({ data }: { data: ReorderExercise[] }) => {
     setCurrentExercises(data);
   }, []);
 
   const handleSave = useCallback(() => {
     onReorder(currentExercises);
-    hide();
-  }, [currentExercises, onReorder, hide]);
+    (ref as any).current?.close();
+  }, [currentExercises, onReorder]);
 
   const handleBack = useCallback(() => {
-    hide();
-  }, [hide]);
+    (ref as any).current?.close();
+    setCurrentExercises(exercises);
+  }, [exercises]);
 
-  const currentOrder = currentExercises.map((ex) => ex.id);
+  const currentOrder = currentExercises.map((ex) => ex.exerciseId);
   const hasOrderChanged =
     JSON.stringify(currentOrder) !== JSON.stringify(originalOrderRef.current);
 
   const renderItem = useCallback(
-    ({ item }: { item: Exercise }) => (
+    ({ item }: { item: ReorderExercise }) => (
       <ReorderingExerciseItem exercise={item} itemHeight={itemHeight} />
     ),
     [itemHeight]
   );
 
-  const keyExtractor = useCallback((item: Exercise) => item.id, []);
+  const keyExtractor = useCallback(
+    (item: ReorderExercise) => item.exerciseId,
+    []
+  );
+
+  const header = (
+    <View style={[commonSheetStyles.sheetHeader, { paddingHorizontal: "3%" }]}>
+      <View style={reorderExercisesStyles.header}>
+        <View style={reorderExercisesStyles.title}>
+          <Text action style={{ fontWeight: 600 }}>
+            Reorder Exercises
+          </Text>
+          <TouchableOpacity onPress={handleBack}>
+            <SheetX />
+          </TouchableOpacity>
+        </View>
+        <Text light>Hold and drag the exercises to reorder</Text>
+      </View>
+    </View>
+  );
 
   return (
-    <PopupBottomSheet
-      show={show}
-      onHide={onHide}
-      ref={ref}
-      enablePanDownToClose={false}
-    >
-      <View style={commonSheetStyles.sheetHeader}>
-        <Text action style={{ fontWeight: 600 }}>
-          Reorder Exercises
-        </Text>
-        <TouchableOpacity onPress={handleBack}>
-          <SheetX />
-        </TouchableOpacity>
-      </View>
-      <View style={reorderExercisesStyles.container}>
-        <View style={reorderExercisesStyles.headerContainer}>
-          <Text light>Hold and drag the exercises to reorder</Text>
-        </View>
+    <PopupBottomSheetModal ref={ref} header={header}>
+      <View style={[reorderExercisesStyles.container, { height: sheetHeight }]}>
         <Animated.ScrollView
           ref={scrollableRef}
-          style={[reorderExercisesStyles.scrollContainer, { height: "75%" }]}
+          style={reorderExercisesStyles.scrollContainer}
           contentContainerStyle={reorderExercisesStyles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
@@ -220,23 +231,23 @@ export const ReorderExercisesSheet = forwardRef<
           />
         </Animated.ScrollView>
         <View style={reorderExercisesStyles.buttonContainer}>
-        <TouchableOpacity
-          style={[
-            commonSheetStyles.sheetButton,
-            {
-              backgroundColor: activeGripColor,
-            },
-            !hasOrderChanged && reorderExercisesStyles.disabledButton,
-          ]}
-          onPress={handleSave}
-          disabled={!hasOrderChanged}
-        >
-          <Text neutral emphasized>
-            Update
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[
+              commonSheetStyles.sheetButton,
+              {
+                backgroundColor: activeGripColor,
+              },
+              !hasOrderChanged && reorderExercisesStyles.disabledButton,
+            ]}
+            onPress={handleSave}
+            disabled={!hasOrderChanged}
+          >
+            <Text neutral emphasized>
+              Update
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
-    </PopupBottomSheet>
+    </PopupBottomSheetModal>
   );
 });

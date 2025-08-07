@@ -13,8 +13,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { View, Text, useThemeColoring } from "@/components/Themed";
 import { StyleUtils } from "@/util/styles";
-import { SetActions } from "@/api/model/workout";
-import { Exercise, Set, DifficultyType, SetStatus } from "@/interface";
+import { SetActions, WorkoutQuery } from "@/api/model/workout";
+import { Exercise, Set, DifficultyType, SetStatus, Workout } from "@/interface";
 
 import { tintColor } from "@/util/color";
 import * as Haptics from "expo-haptics";
@@ -28,6 +28,7 @@ import {
 } from "@/components/pages/workout/common";
 import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
 import { ExerciseImage } from "@/components/exercise/image";
+import { useShallow } from "zustand/shallow";
 
 type LiveSetRowProps = {
   set: Set;
@@ -169,8 +170,7 @@ export function SetCard({
   );
 
   const exerciseName = useExercisesStore(
-    (state) =>
-      ExerciseStoreSelectors.getExercise(exercise.metaId, state).name
+    (state) => ExerciseStoreSelectors.getExercise(exercise.metaId, state).name
   );
 
   const isResting = set.status === SetStatus.RESTING;
@@ -363,7 +363,7 @@ const completionCardStyles = StyleSheet.create({
 });
 
 export type CompletionCardProps = {
-  workout: any;
+  workout: Workout;
   onAddExercises: () => void;
   onFinishWorkout: () => void;
 };
@@ -377,6 +377,11 @@ export function CompletionCard({
   const primaryActionColor = useThemeColoring("primaryAction");
   const bgColor = tintColor(useThemeColoring("appBackground"), 0.05);
   const secondaryTextColor = useThemeColoring("lightText");
+
+  // Get difficulty types for exercises
+  const metaIdToDifficultyType = useExercisesStore(
+    useShallow(ExerciseStoreSelectors.getMetaIdToDifficultyType)
+  );
 
   // Function to format duration
   const formatDuration = (seconds: number): string => {
@@ -393,7 +398,7 @@ export function CompletionCard({
     }
   };
 
-  // Calculate workout summary
+  // Calculate workout summary using WorkoutQuery.summarize
   const totalExercises = workout.exercises.length;
   const totalSets = workout.exercises.reduce(
     (sum: number, exercise: any) => sum + exercise.sets.length,
@@ -410,34 +415,13 @@ export function CompletionCard({
     ? Math.floor((Date.now() - workout.startedAt) / 1000 / 60) // minutes
     : 0;
 
-  // Calculate volume, reps, and hold time
-  let totalVolume = 0;
-  let totalReps = 0;
-  let totalHoldTime = 0;
-  let hasTimeExercises = false;
+  const { totalReps, totalWeightLifted, totalDuration, totalHoldTime } =
+    WorkoutQuery.summarize(workout, metaIdToDifficultyType);
 
-  workout.exercises.forEach((exercise: any) => {
-    exercise.sets.forEach((set: any) => {
-      if (set.status !== SetStatus.UNSTARTED) {
-        const difficulty = set.difficulty;
-
-        // Calculate volume (weight * reps)
-        if (difficulty.weight && difficulty.reps) {
-          totalVolume += difficulty.weight * difficulty.reps;
-        }
-
-        // Calculate total reps
-        if (difficulty.reps) {
-          totalReps += difficulty.reps;
-        }
-
-        // Calculate hold time for time-based exercises
-        if (difficulty.duration) {
-          totalHoldTime += difficulty.duration;
-          hasTimeExercises = true;
-        }
-      }
-    });
+  // Check if there are time-based exercises
+  const hasTimeExercises = workout.exercises.some((exercise: Exercise) => {
+    const difficultyType = metaIdToDifficultyType[exercise.metaId];
+    return difficultyType === DifficultyType.TIME;
   });
 
   return (
@@ -480,17 +464,17 @@ export function CompletionCard({
               <Text style={completionCardStyles.summaryValue}>{totalReps}</Text>
             </View>
           )}
-          {totalVolume > 0 && (
+          {totalWeightLifted > 0 && (
             <View style={completionCardStyles.summaryRow}>
               <Text style={completionCardStyles.summaryLabel}>
                 Total Volume:
               </Text>
               <Text style={completionCardStyles.summaryValue}>
-                {totalVolume.toLocaleString()} lbs
+                {Math.round(totalWeightLifted)} lbs
               </Text>
             </View>
           )}
-          {hasTimeExercises && totalHoldTime > 0 && (
+          {hasTimeExercises && totalDuration > 0 && (
             <View style={completionCardStyles.summaryRow}>
               <Text style={completionCardStyles.summaryLabel}>Hold Time:</Text>
               <Text style={completionCardStyles.summaryValue}>

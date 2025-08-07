@@ -1,6 +1,6 @@
 import { StyleSheet, TouchableOpacity, FlatList, Keyboard } from "react-native";
 import { useThemeColoring, View } from "@/components/Themed";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { ExerciseMeta, SearchExerciseSummary } from "@/interface";
 import { WorkoutApi } from "@/api/workout";
 import React from "react";
@@ -12,11 +12,12 @@ import {
   ExerciseGridItem,
 } from "@/components/exercise/search/common";
 import { tintColor } from "@/util/color";
-import { usePopup } from "@/components/popup";
 import { LiveWorkoutPreview } from "@/components/workout/preview";
 import { PlusButton } from "@/components/pages/common";
 import { useExercisesStore } from "@/components/store";
 import { queryExercises } from "@/api/exercise";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { FilterExercisesSheet } from "@/components/sheets";
 
 const exercisesStyles = StyleSheet.create({
   search: {
@@ -125,7 +126,10 @@ function GridView({
 
 export function Exercises() {
   const navigation = useNavigation();
-  const { filterExercises } = usePopup();
+  const filterExercisesSheetRef = useRef<BottomSheetModal>(null);
+  const [muscleFilters, setMuscleFilters] = useState<string[]>([]);
+  const [exerciseTypeFilters, setExerciseTypeFilters] = useState<string[]>([]);
+
   const exercises = useExercisesStore((state) => state.exercises);
 
   const [performedExerciseSummaries, setPerformedExerciseSummaries] = useState<
@@ -144,14 +148,14 @@ export function Exercises() {
   const filteredExercises = queryExercises(
     searchQuery,
     exercises,
-    filterExercises.muscleFilters,
-    filterExercises.exerciseTypeFilters
+    muscleFilters,
+    exerciseTypeFilters
   );
 
   const onShowFilters = useCallback(() => {
     Keyboard.dismiss();
-    filterExercises.open();
-  }, [filterExercises]);
+    filterExercisesSheetRef.current?.present();
+  }, []);
 
   const handleExercisePress = useCallback(
     (exercise: ExerciseMeta) => {
@@ -168,9 +172,7 @@ export function Exercises() {
     navigation.navigate("createExerciseSheet");
   }, [navigation]);
 
-  const hasFilters =
-    filterExercises.muscleFilters.length > 0 ||
-    filterExercises.exerciseTypeFilters.length > 0;
+  const hasFilters = muscleFilters.length > 0 || exerciseTypeFilters.length > 0;
 
   return (
     <>
@@ -186,18 +188,23 @@ export function Exercises() {
         </View>
         <FilterActions
           hasFilters={hasFilters}
-          muscleFilters={filterExercises.muscleFilters}
-          exerciseTypeFilters={filterExercises.exerciseTypeFilters}
-          onUpdateMuscleFilters={filterExercises.onUpdateMuscleFilters}
-          onUpdateExerciseTypeFilters={
-            filterExercises.onUpdateExerciseTypeFilters
-          }
+          muscleFilters={muscleFilters}
+          exerciseTypeFilters={exerciseTypeFilters}
+          onUpdateMuscleFilters={setMuscleFilters}
+          onUpdateExerciseTypeFilters={setExerciseTypeFilters}
           onShowFilters={onShowFilters}
         />
         <GridView
           exercises={filteredExercises}
           performedExerciseSummaries={performedExerciseSummaries}
           onExercisePress={handleExercisePress}
+        />
+        <FilterExercisesSheet
+          ref={filterExercisesSheetRef}
+          muscleFilters={muscleFilters}
+          exerciseTypeFilters={exerciseTypeFilters}
+          onUpdateMuscleFilters={setMuscleFilters}
+          onUpdateExerciseTypeFilters={setExerciseTypeFilters}
         />
       </HeaderPage>
       <LiveWorkoutPreview />

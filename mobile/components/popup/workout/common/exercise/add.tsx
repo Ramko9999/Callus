@@ -2,9 +2,14 @@ import { SignificantAction } from "@/components/theme/actions";
 import { View, useThemeColoring } from "@/components/Themed";
 import { ExerciseMeta } from "@/interface";
 import { StyleUtils } from "@/util/styles";
-import React, { useCallback, useEffect } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { useState } from "react";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -15,7 +20,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
-import { FlatList } from "react-native-gesture-handler";
 import {
   FilterActions,
   SearchBar,
@@ -182,92 +186,117 @@ type ExerciseAdderProps = {
   onShowFilters: () => void;
 };
 
-export function ExerciseAdder({
-  onClose,
-  onAdd,
-  muscleFilters,
-  exerciseTypeFilters,
-  onUpdateMuscleFilters,
-  onUpdateExerciseTypeFilters,
-  onShowFilters,
-}: ExerciseAdderProps) {
-  const insets = useSafeAreaInsets();
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [exercisesToAdd, setExercisesToAdd] = useState<ExerciseMeta[]>([]);
-  const allExercises = useExercisesStore((state) => state.exercises);
+export type ExerciseAdderRef = {
+  clear: () => void;
+};
 
-  const hasFilters = muscleFilters.length > 0 || exerciseTypeFilters.length > 0;
+export const ExerciseAdder = forwardRef<ExerciseAdderRef, ExerciseAdderProps>(
+  (
+    {
+      onClose,
+      onAdd,
+      muscleFilters,
+      exerciseTypeFilters,
+      onUpdateMuscleFilters,
+      onUpdateExerciseTypeFilters,
+      onShowFilters,
+    },
+    ref
+  ) => {
+    const insets = useSafeAreaInsets();
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [exercisesToAdd, setExercisesToAdd] = useState<ExerciseMeta[]>([]);
+    const allExercises = useExercisesStore((state) => state.exercises);
 
-  const exercises = queryExercises(
-    searchQuery,
-    allExercises,
-    muscleFilters,
-    exerciseTypeFilters
-  );
+    const hasFilters =
+      muscleFilters.length > 0 || exerciseTypeFilters.length > 0;
 
-  const onToggle = useCallback((meta: ExerciseMeta) => {
-    setExercisesToAdd((exerciseMetas) => {
-      if (exerciseMetas.map(({ name }) => name).indexOf(meta.name) > -1) {
-        return exerciseMetas.filter(({ name }) => name !== meta.name);
-      } else {
-        return [{ ...meta }, ...exerciseMetas];
-      }
-    });
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  }, []);
+    const exercises = queryExercises(
+      searchQuery,
+      allExercises,
+      muscleFilters,
+      exerciseTypeFilters
+    );
 
-  return (
-    <>
-      <View style={exerciseAdderStyles.search}>
-        <View style={StyleUtils.flexRow(10)}>
-          <SearchBar
-            onChangeSearchQuery={setSearchQuery}
-            style={{
-              backgroundColor: useThemeColoring("calendarDayBackground"),
-              flex: 1,
-            }}
-          />
+    const clear = useCallback(() => {
+      setSearchQuery("");
+      setExercisesToAdd([]);
+    }, []);
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        clear,
+      }),
+      [clear]
+    );
+
+    const onToggle = useCallback((meta: ExerciseMeta) => {
+      setExercisesToAdd((exerciseMetas) => {
+        if (exerciseMetas.map(({ name }) => name).indexOf(meta.name) > -1) {
+          return exerciseMetas.filter(({ name }) => name !== meta.name);
+        } else {
+          return [{ ...meta }, ...exerciseMetas];
+        }
+      });
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }, []);
+
+    const handleAdd = useCallback(() => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
+      onAdd(exercisesToAdd);
+      onClose();
+    }, [onAdd, exercisesToAdd, onClose]);
+
+    return (
+      <>
+        <View style={exerciseAdderStyles.search}>
+          <View style={StyleUtils.flexRow(10)}>
+            <SearchBar
+              onChangeSearchQuery={setSearchQuery}
+              style={{
+                backgroundColor: useThemeColoring("calendarDayBackground"),
+                flex: 1,
+              }}
+            />
+          </View>
         </View>
-      </View>
-      <FilterActions
-        hasFilters={hasFilters}
-        muscleFilters={muscleFilters}
-        exerciseTypeFilters={exerciseTypeFilters}
-        onUpdateMuscleFilters={onUpdateMuscleFilters}
-        onUpdateExerciseTypeFilters={onUpdateExerciseTypeFilters}
-        onShowFilters={onShowFilters}
-      />
-      <GridView
-        exercises={exercises}
-        exercisesToAdd={exercisesToAdd}
-        onToggle={onToggle}
-      />
+        <FilterActions
+          hasFilters={hasFilters}
+          muscleFilters={muscleFilters}
+          exerciseTypeFilters={exerciseTypeFilters}
+          onUpdateMuscleFilters={onUpdateMuscleFilters}
+          onUpdateExerciseTypeFilters={onUpdateExerciseTypeFilters}
+          onShowFilters={onShowFilters}
+        />
+        <GridView
+          exercises={exercises}
+          exercisesToAdd={exercisesToAdd}
+          onToggle={onToggle}
+        />
 
-      {exercisesToAdd.length > 0 && (
-        <Animated.View
-          key="action-button"
-          style={[
-            exerciseAdderStyles.actionContainer,
-            { bottom: insets.bottom },
-          ]}
-          entering={FadeInDown.springify().damping(15).stiffness(150)}
-          exiting={FadeOutDown.springify().damping(15).stiffness(150)}
-        >
-          <SignificantAction
-            onClick={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
-              onAdd(exercisesToAdd);
-              onClose();
-            }}
-            style={exerciseAdderStyles.action}
-            text={
-              exercisesToAdd.length === 1
-                ? "Add 1 exercise"
-                : `Add ${exercisesToAdd.length} exercises`
-            }
-          />
-        </Animated.View>
-      )}
-    </>
-  );
-}
+        {exercisesToAdd.length > 0 && (
+          <Animated.View
+            key="action-button"
+            style={[
+              exerciseAdderStyles.actionContainer,
+              { bottom: insets.bottom },
+            ]}
+            entering={FadeInDown.springify().damping(15).stiffness(150)}
+            exiting={FadeOutDown.springify().damping(15).stiffness(150)}
+          >
+            <SignificantAction
+              onClick={handleAdd}
+              style={exerciseAdderStyles.action}
+              text={
+                exercisesToAdd.length === 1
+                  ? "Add 1 exercise"
+                  : `Add ${exercisesToAdd.length} exercises`
+              }
+            />
+          </Animated.View>
+        )}
+      </>
+    );
+  }
+);

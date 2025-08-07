@@ -20,6 +20,7 @@ import { SoundProvider } from "./components/sounds";
 import { PopupProvider } from "./components/popup";
 import { LiveWorkoutProvider } from "./components/pages/workout/live/context";
 import { NotificationProvider } from "./components/notifications";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 configureReanimatedLogger({
   level: ReanimatedLogLevel.warn,
@@ -44,11 +45,13 @@ function RootLayoutNav() {
                   <NotificationProvider>
                     <LiveWorkoutProvider>
                       <NavigationProvider onReady={SplashScreen.hideAsync}>
-                        <PopupProvider>
-                          <Preloader>
-                            <Layout />
-                          </Preloader>
-                        </PopupProvider>
+                        <BottomSheetModalProvider>
+                          <PopupProvider>
+                            <Preloader>
+                              <Layout />
+                            </Preloader>
+                          </PopupProvider>
+                        </BottomSheetModalProvider>
                       </NavigationProvider>
                     </LiveWorkoutProvider>
                   </NotificationProvider>

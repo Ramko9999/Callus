@@ -9,6 +9,7 @@ import {
   DifficultyType,
   BodyWeightDifficulty,
   WeightDifficulty,
+  TimeDifficulty,
 } from "@/interface";
 import {
   generateExerciseId,
@@ -365,6 +366,7 @@ export function summarize(
 ): WorkoutSummary {
   let totalReps: number = 0;
   let totalWeightLifted: number = 0;
+  let totalHoldTime: number = 0;
 
   // todo: this does ignore time difficulty
   workout.exercises.forEach((ex) =>
@@ -383,13 +385,16 @@ export function summarize(
           const { reps, weight } = set.difficulty as WeightDifficulty;
           totalReps += reps;
           totalWeightLifted += weight * reps;
+        } else if (difficultyType === DifficultyType.TIME) {
+          const { duration } = set.difficulty as TimeDifficulty;
+          totalHoldTime += duration;
         }
       }
     })
   );
 
   let totalDuration = (workout.endedAt ?? Date.now()) - workout.startedAt;
-  return { totalReps, totalWeightLifted, totalDuration };
+  return { totalReps, totalWeightLifted, totalDuration, totalHoldTime };
 }
 
 export const WorkoutQuery = {

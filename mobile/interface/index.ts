@@ -141,6 +141,7 @@ export type WorkoutSummary = {
   totalReps: number;
   totalWeightLifted: number;
   totalDuration: number;
+  totalHoldTime: number;
 };
 
 export type WorkoutMetadata = {

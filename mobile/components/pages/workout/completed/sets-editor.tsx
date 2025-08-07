@@ -11,16 +11,10 @@ import { Plus, StickyNote } from "lucide-react-native";
 import { BackButton, MoreButton } from "@/components/pages/common";
 import { HeaderPage } from "@/components/util/header-page";
 import { useCompletedWorkout } from "./context";
-import {
-  ExerciseActions,
-  SetActions,
-} from "@/api/model/workout";
+import { ExerciseActions, SetActions } from "@/api/model/workout";
 import {
   Set,
   DifficultyType,
-  WeightDifficulty,
-  BodyWeightDifficulty,
-  TimeDifficulty,
   Exercise,
 } from "@/interface";
 import { StyleUtils } from "@/util/styles";
@@ -49,6 +43,7 @@ import {
   EditField,
 } from "@/components/pages/workout/common";
 import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
+import { getHistoricalExerciseDescription } from "@/util/workout/display";
 
 type CompletedSetRowProps = {
   set: Set;
@@ -110,54 +105,6 @@ function CompletedSetRow({
       onDelete={onDelete}
     />
   );
-}
-
-function getSubtitle(
-  exercise: Exercise,
-  difficultyType: DifficultyType
-): string {
-  if (!exercise || !exercise.sets || exercise.sets.length === 0) {
-    return "0 sets";
-  }
-
-  const setCount = exercise.sets.length;
-
-  switch (difficultyType) {
-    case DifficultyType.WEIGHT:
-    case DifficultyType.WEIGHTED_BODYWEIGHT: {
-      let totalWeight = 0;
-      let totalReps = 0;
-
-      exercise.sets.forEach((set: Set) => {
-        const weightDiff = set.difficulty as WeightDifficulty;
-        totalWeight += weightDiff.weight * weightDiff.reps;
-        totalReps += weightDiff.reps;
-      });
-
-      return `${setCount} sets • ${Math.round(
-        totalWeight
-      )} lbs • ${totalReps} reps`;
-    }
-    case DifficultyType.BODYWEIGHT:
-    case DifficultyType.ASSISTED_BODYWEIGHT: {
-      let totalReps = 0;
-      exercise.sets.forEach((set: Set) => {
-        const bodyweightDiff = set.difficulty as BodyWeightDifficulty;
-        totalReps += bodyweightDiff.reps;
-      });
-      return `${setCount} sets • ${totalReps} reps`;
-    }
-    case DifficultyType.TIME: {
-      let totalDuration = 0;
-      exercise.sets.forEach((set: Set) => {
-        const timeDiff = set.difficulty as TimeDifficulty;
-        totalDuration += timeDiff.duration;
-      });
-      return `${setCount} sets • ${getDurationDisplay(totalDuration)}`;
-    }
-    default:
-      return `${setCount} sets`;
-  }
 }
 
 // SetNote styles
@@ -333,7 +280,10 @@ export function SetsEditor() {
     <View style={{ height: "100%" }}>
       <HeaderPage
         title={exerciseName}
-        subtitle={getSubtitle(exercise, difficultyType)}
+        subtitle={getHistoricalExerciseDescription({
+          difficulties: exercise.sets.map((set) => set.difficulty),
+          difficultyType,
+        })}
         leftAction={<BackButton onClick={navigation.goBack} />}
         rightAction={
           <MoreButton

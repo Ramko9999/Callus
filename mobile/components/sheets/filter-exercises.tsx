@@ -1,10 +1,10 @@
 import { View, Text } from "@/components/Themed";
 import { StyleSheet, TouchableOpacity } from "react-native";
 import { StyleUtils } from "@/util/styles";
-import { PopupBottomSheet } from "@/components/util/popup/sheet";
+import { PopupBottomSheetModal } from "@/components/util/popup/sheet";
 import { forwardRef, ForwardedRef } from "react";
-import BottomSheet from "@gorhom/bottom-sheet";
-import { SheetProps, SheetX, commonSheetStyles } from "./common";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { SheetX, commonSheetStyles } from "./common";
 import {
   getExerciseTypeDisplayInfo,
   isMuscleLowerBody,
@@ -222,7 +222,7 @@ function ExerciseTypeSelectionGroup({
   );
 }
 
-const filterExercisesStyles = StyleSheet.create({
+const filterExercisesSheetStyles = StyleSheet.create({
   container: {
     ...StyleUtils.flexColumn(),
     paddingBottom: "10%",
@@ -232,30 +232,27 @@ const filterExercisesStyles = StyleSheet.create({
   },
   muscleGroupsContainer: {
     ...StyleUtils.flexColumn(),
-    gap: "5%",
+    gap: "1%",
   },
   actions: {},
 });
 
-type FilterExercisesProps = SheetProps & {
+type FilterExercisesSheetProps = {
   muscleFilters: string[];
   exerciseTypeFilters: string[];
   onUpdateMuscleFilters: (filters: string[]) => void;
   onUpdateExerciseTypeFilters: (filters: string[]) => void;
 };
 
-export const FilterExercises = forwardRef(
+export const FilterExercisesSheet = forwardRef(
   (
     {
-      show,
-      hide,
-      onHide,
       muscleFilters,
       exerciseTypeFilters,
       onUpdateMuscleFilters,
       onUpdateExerciseTypeFilters,
-    }: FilterExercisesProps,
-    ref: ForwardedRef<BottomSheet>
+    }: FilterExercisesSheetProps,
+    ref: ForwardedRef<BottomSheetModal>
   ) => {
     const dangerAction = useThemeColoring("dangerAction");
     const neutralPillColor = tintColor(
@@ -291,19 +288,22 @@ export const FilterExercises = forwardRef(
       onUpdateExerciseTypeFilters([]);
     };
 
+    const header = (
+      <View style={commonSheetStyles.sheetHeader}>
+        <Text action style={{ fontWeight: 600 }}>
+          Filter exercises
+        </Text>
+        <TouchableOpacity onPress={() => (ref as any)?.current?.dismiss()}>
+          <SheetX />
+        </TouchableOpacity>
+      </View>
+    );
+
     return (
-      <PopupBottomSheet ref={ref} show={show} onHide={onHide}>
-        <View style={filterExercisesStyles.container}>
-          <View style={commonSheetStyles.sheetHeader}>
-            <Text action style={{ fontWeight: 600 }}>
-              Filter exercises
-            </Text>
-            <TouchableOpacity onPress={hide}>
-              <SheetX />
-            </TouchableOpacity>
-          </View>
-          <View style={filterExercisesStyles.content}>
-            <View style={filterExercisesStyles.muscleGroupsContainer}>
+      <PopupBottomSheetModal ref={ref} header={header}>
+        <View style={filterExercisesSheetStyles.container}>
+          <View style={filterExercisesSheetStyles.content}>
+            <View style={filterExercisesSheetStyles.muscleGroupsContainer}>
               <MuscleSelectionGroup
                 title="Upper Body"
                 muscles={UPPER_BODY_MUSCLES}
@@ -329,7 +329,7 @@ export const FilterExercises = forwardRef(
                 onSelectExerciseType={handleExerciseTypeSelect}
               />
             </View>
-            <View style={filterExercisesStyles.actions}>
+            <View style={filterExercisesSheetStyles.actions}>
               <TouchableOpacity
                 style={[
                   commonSheetStyles.sheetButton,
@@ -350,7 +350,7 @@ export const FilterExercises = forwardRef(
             </View>
           </View>
         </View>
-      </PopupBottomSheet>
+      </PopupBottomSheetModal>
     );
   }
 );

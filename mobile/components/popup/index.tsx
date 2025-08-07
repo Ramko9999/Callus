@@ -6,9 +6,8 @@ import {
   useState,
 } from "react";
 import { StartWorkoutSheet } from "../sheets/start-workout";;
-import BottomSheet from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { TrendsPeriodSelectionSheet } from "@/components/sheets/trends-period-selection";
-import { FilterExercises } from "@/components/sheets/filter-exercises";
 
 type PopupActions = {
   open: () => void;
@@ -66,7 +65,7 @@ export function PopupProvider({ children }: PopupProviderProps) {
   const [exerciseTypeFilters, setExerciseTypeFilters] = useState<string[]>([]);
   const startWorkoutSheetRef = useRef<BottomSheet>(null);
   const trendsPeriodSelectionSheetRef = useRef<BottomSheet>(null);
-  const filterExercisesSheetRef = useRef<BottomSheet>(null);
+  const filterExercisesSheetRef = useRef<BottomSheetModal>(null);
 
   const startWorkout = {
     open: () => setIsStartWorkoutOpen(true),
@@ -112,16 +111,6 @@ export function PopupProvider({ children }: PopupProviderProps) {
         onHide={trendsPeriodSelection.close}
         selectedTimeRange={selectedTimeRange}
         onSelectTimeRange={setTimeRange}
-      />
-      <FilterExercises
-        ref={filterExercisesSheetRef}
-        show={isFilterExercisesOpen}
-        hide={filterExercises.close}
-        onHide={() => setIsFilterExercisesOpen(false)}
-        muscleFilters={muscleFilters}
-        exerciseTypeFilters={exerciseTypeFilters}
-        onUpdateMuscleFilters={setMuscleFilters}
-        onUpdateExerciseTypeFilters={setExerciseTypeFilters}
       />
     </PopupContext.Provider>
   );

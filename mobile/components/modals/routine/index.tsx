@@ -17,22 +17,19 @@ import {
   EditRestDuration,
   RoutineDeleteConfirmation,
   RoutineStartConfirmation,
-  FilterExercises,
+  FilterExercisesSheet,
 } from "@/components/sheets";
 import { useCallback, useRef, useState } from "react";
 import { SetsEditorTopActions } from "./top-actions";
 import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
 import { ExerciseAdder } from "@/components/popup/workout/common/exercise/add";
-import {
-  AddExercisesTopActions,
-  ExerciseInsightTopActions,
-} from "../common/top-actions";
+import { AddExercisesTopActions } from "../common/top-actions";
 import { ExerciseEditor } from "../common/exercise";
 import { RoutineExercise } from "../common/exercise/item";
 import { SetEditor } from "../common/set";
 import { RoutineSet } from "../common/set/item";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import BottomSheet from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
 import React from "react";
 import { Keyboard } from "react-native";
 import { useLiveWorkout } from "@/components/pages/workout/live/context";
@@ -209,16 +206,15 @@ type AddExerciseProps = CompositeScreenProps<
 
 function AddExercises({ navigation }: AddExerciseProps) {
   const { routine, onSave } = useRoutine();
-  const [isFiltering, setIsFiltering] = useState(false);
   const [muscleFilters, setMuscleFilters] = useState<string[]>([]);
   const [exerciseTypeFilters, setExerciseTypeFilters] = useState<string[]>([]);
   const [isGridView, setIsGridView] = useState(true);
-  const filterExercisesSheetRef = useRef<BottomSheet>(null);
+  const filterExercisesSheetRef = useRef<BottomSheetModal>(null);
 
   const exercisePlanActions = ExercisePlanActions(routine);
 
   const onShowFilters = useCallback(() => {
-    setIsFiltering(true);
+    filterExercisesSheetRef.current?.present();
     Keyboard.dismiss();
   }, []);
 
@@ -240,17 +236,14 @@ function AddExercises({ navigation }: AddExerciseProps) {
             onUpdateMuscleFilters={setMuscleFilters}
             onUpdateExerciseTypeFilters={setExerciseTypeFilters}
           />
+          <FilterExercisesSheet
+            ref={filterExercisesSheetRef}
+            muscleFilters={muscleFilters}
+            exerciseTypeFilters={exerciseTypeFilters}
+            onUpdateMuscleFilters={setMuscleFilters}
+            onUpdateExerciseTypeFilters={setExerciseTypeFilters}
+          />
         </View>
-        <FilterExercises
-          ref={filterExercisesSheetRef}
-          show={isFiltering}
-          hide={() => filterExercisesSheetRef.current?.close()}
-          onHide={() => setIsFiltering(false)}
-          muscleFilters={muscleFilters}
-          exerciseTypeFilters={exerciseTypeFilters}
-          onUpdateMuscleFilters={setMuscleFilters}
-          onUpdateExerciseTypeFilters={setExerciseTypeFilters}
-        />
       </ModalWrapper>
     </>
   );

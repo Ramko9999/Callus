@@ -15,14 +15,15 @@ import {
 import { useThemeColoring } from "@/components/Themed";
 import {
   commonSheetStyles,
-  SheetProps,
   SheetX,
   SheetArrowLeft,
   KeyboardSpacer,
 } from "./common";
 import { StyleUtils } from "@/util/styles";
-import { PopupBottomSheet } from "@/components/util/popup/sheet";
-import BottomSheet from "@gorhom/bottom-sheet";
+import {
+  PopupBottomSheetModal,
+} from "@/components/util/popup/sheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { tintColor } from "@/util/color";
 import { Svg, Line } from "react-native-svg";
 import Animated, {
@@ -322,19 +323,16 @@ function EditWorkoutInitial({
   );
 }
 
-type EditWorkoutProps = SheetProps & {
+type EditWorkoutProps = {
   workout: Workout;
   onUpdate: (
     update: Partial<{ name: string; startedAt: number; endedAt: number }>
-  ) => Promise<void>;
+  ) => void;
   disableEndDateEdit?: boolean;
 };
 
-export const EditWorkout = forwardRef<BottomSheet, EditWorkoutProps>(
-  (
-    { show, hide, onHide, workout, onUpdate, disableEndDateEdit = false },
-    ref
-  ) => {
+export const EditWorkout = forwardRef<BottomSheetModal, EditWorkoutProps>(
+  ({ workout, onUpdate, disableEndDateEdit = false }, ref) => {
     const [isEditingName, setIsEditingName] = useState(false);
     const [isEditingStartTime, setIsEditingStartTime] = useState(false);
     const [isEditingEndTime, setIsEditingEndTime] = useState(false);
@@ -364,9 +362,8 @@ export const EditWorkout = forwardRef<BottomSheet, EditWorkoutProps>(
 
     const handleNameUpdate = useCallback(
       (name: string) => {
-        onUpdate({ name }).then(() => {
-          setIsEditingName(false);
-        });
+        onUpdate({ name });
+        setIsEditingName(false);
       },
       [onUpdate]
     );
@@ -374,13 +371,11 @@ export const EditWorkout = forwardRef<BottomSheet, EditWorkoutProps>(
     const handleStartTimeUpdate = useCallback(
       (timestamp: number) => {
         if (timestamp > workout.endedAt!) {
-          onUpdate({ startedAt: timestamp, endedAt: timestamp }).then(() => {
-            setIsEditingStartTime(false);
-          });
+          onUpdate({ startedAt: timestamp, endedAt: timestamp });
+          setIsEditingStartTime(false);
         } else {
-          onUpdate({ startedAt: timestamp }).then(() => {
-            setIsEditingStartTime(false);
-          });
+          onUpdate({ startedAt: timestamp });
+          setIsEditingStartTime(false);
         }
       },
       [onUpdate, workout.endedAt]
@@ -389,24 +384,19 @@ export const EditWorkout = forwardRef<BottomSheet, EditWorkoutProps>(
     const handleEndTimeUpdate = useCallback(
       (timestamp: number) => {
         if (timestamp < workout.startedAt) {
-          onUpdate({ startedAt: timestamp, endedAt: timestamp }).then(() => {
-            setIsEditingEndTime(false);
-          });
+          onUpdate({ startedAt: timestamp, endedAt: timestamp });
+          setIsEditingEndTime(false);
         } else {
-          onUpdate({ endedAt: timestamp }).then(() => {
-            setIsEditingEndTime(false);
-          });
+          onUpdate({ endedAt: timestamp });
+          setIsEditingEndTime(false);
         }
       },
       [onUpdate, workout.startedAt]
     );
 
-    const onSheetHide = useCallback(() => {
-      setIsEditingName(false);
-      setIsEditingStartTime(false);
-      setIsEditingEndTime(false);
-      onHide();
-    }, [onHide]);
+    const handleClose = useCallback(() => {
+      (ref as any).current?.close();
+    }, [ref]);
 
     const validateStart = useCallback(
       (timestamp: number) => {
@@ -447,7 +437,7 @@ export const EditWorkout = forwardRef<BottomSheet, EditWorkoutProps>(
     );
 
     return (
-      <PopupBottomSheet show={show} onHide={onSheetHide} ref={ref}>
+      <PopupBottomSheetModal ref={ref}>
         {isEditingName ? (
           <EditWorkoutName
             name={workout.name}
@@ -476,11 +466,11 @@ export const EditWorkout = forwardRef<BottomSheet, EditWorkoutProps>(
             onNamePress={handleNamePress}
             onStartTimePress={handleStartTimePress}
             onEndTimePress={handleEndTimePress}
-            onHide={hide}
+            onHide={handleClose}
             disableEndDateEdit={disableEndDateEdit}
           />
         )}
-      </PopupBottomSheet>
+      </PopupBottomSheetModal>
     );
   }
 );
