@@ -92,7 +92,7 @@ android {
         applicationId 'com.ramko9999.callus'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 17
+        versionCode 18
         versionName "1.0.5"
     }
     signingConfigs {

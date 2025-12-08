@@ -86,7 +86,7 @@ export function LiveWorkoutSheets({
   // Sheet refs
   const editNameSheetRef = useRef<BottomSheetModal>(null);
   const discardAndFinishSheetRef = useRef<BottomSheet>(null);
-  const editSetSheetRef = useRef<BottomSheet>(null);
+  const editSetSheetRef = useRef<BottomSheetModal>(null);
   const editRestSheetRef = useRef<BottomSheet>(null);
   const addNoteSheetRef = useRef<BottomSheet>(null);
 
@@ -107,9 +107,15 @@ export function LiveWorkoutSheets({
         selectedField: field,
         showEditSetSheet: true,
       });
+      editSetSheetRef.current?.present();
     },
     []
   );
+
+   const handleHideEditSetSheet = useCallback(() => {
+    setSheetsState({ ...initialState });
+    Keyboard.dismiss();
+   }, []);
 
   const openReorderExercises = useCallback(
     () => setSheetsState({ ...initialState, showReorder: true }),
@@ -220,18 +226,15 @@ export function LiveWorkoutSheets({
             onHide={() => setSheetsState({ ...initialState })}
             onDiscard={handleFinishConfirm}
           />
-          {selectedExercise && selectedSetId && (
-            <EditSetSheet
-              ref={editSetSheetRef}
-              show={showEditSetSheet}
-              hide={() => editSetSheetRef.current?.close()}
-              onHide={() => setSheetsState({ ...initialState })}
-              exercise={selectedExercise}
-              setId={selectedSetId}
-              focusField={selectedField}
-              onUpdate={handleUpdateSetFromSheet}
-            />
-          )}
+          <EditSetSheet
+            ref={editSetSheetRef}
+            hide={() => editSetSheetRef.current?.close()}
+            onHide={handleHideEditSetSheet}
+            exercise={selectedExercise}
+            setId={selectedSetId}
+            focusField={selectedField}
+            onUpdate={handleUpdateSetFromSheet}
+          />
 
           {selectedExerciseId && (
             <EditRestDuration

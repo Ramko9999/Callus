@@ -12,10 +12,9 @@ import {
   TextInput as RNTextInput,
 } from "react-native";
 import { useThemeColoring } from "@/components/Themed";
-import { SheetProps } from "./common";
 import { StyleUtils } from "@/util/styles";
-import { PopupBottomSheet } from "@/components/util/popup/sheet";
-import BottomSheet from "@gorhom/bottom-sheet";
+import { PopupBottomSheetModal } from "@/components/util/popup/sheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 import { KeyboardSpacer } from "./common";
 import {
@@ -437,24 +436,31 @@ const editSetStyles = StyleSheet.create({
   },
 });
 
-type EditSetSheetProps = SheetProps & {
-  exercise: Exercise;
+type SheetModalProps = {
+  hide: () => void;
+  onHide: () => void;
+};
+
+type EditSetSheetProps = SheetModalProps & {
+  exercise?: Exercise;
   setId?: string;
   focusField?: EditField;
   onUpdate: (setId: string, update: Partial<Set>) => void;
 };
 
 export const EditWeightRepsSetSheet = forwardRef<
-  BottomSheet,
+  BottomSheetModal,
   EditSetSheetProps
->(({ show, onHide, exercise, setId, focusField, onUpdate }, ref) => {
+>(({ onHide, exercise, setId, focusField, onUpdate }, ref) => {
   const [currentSetId, setCurrentSetId] = useState<string | undefined>(setId);
 
   // Find current set from exercise
-  const currentSet = exercise.sets.find((set) => set.id === currentSetId);
-  const exerciseDifficultyType = useExercisesStore(
-    (state) =>
-      ExerciseStoreSelectors.getExercise(exercise.metaId, state).difficultyType
+  const currentSet = (exercise?.sets ?? []).find((set) => set.id === currentSetId);
+  const exerciseDifficultyType = useExercisesStore((state) =>
+    exercise
+      ? ExerciseStoreSelectors.getExercise(exercise.metaId, state)
+          .difficultyType
+      : undefined
   );
 
   useEffect(() => {
@@ -471,7 +477,7 @@ export const EditWeightRepsSetSheet = forwardRef<
   );
 
   return (
-    <PopupBottomSheet show={show} onHide={onHide} ref={ref}>
+    <PopupBottomSheetModal onDismiss={onHide} ref={ref}>
       <View style={editSetStyles.container}>
         {currentSet &&
         (exerciseDifficultyType === DifficultyType.WEIGHT ||
@@ -490,57 +496,57 @@ export const EditWeightRepsSetSheet = forwardRef<
         ) : null}
         <KeyboardSpacer />
       </View>
-    </PopupBottomSheet>
+    </PopupBottomSheetModal>
   );
 });
 
-export const EditDurationSetSheet = forwardRef<BottomSheet, EditSetSheetProps>(
-  ({ show, onHide, exercise, setId, focusField, onUpdate }, ref) => {
-    const [currentSetId, setCurrentSetId] = useState<string | undefined>(setId);
+export const EditDurationSetSheet = forwardRef<
+  BottomSheetModal,
+  EditSetSheetProps
+>(({ onHide, exercise, setId, focusField, onUpdate }, ref) => {
+  const [currentSetId, setCurrentSetId] = useState<string | undefined>(setId);
+  const currentSet = (exercise?.sets ?? []).find((set) => set.id === currentSetId);
 
-    const currentSet = exercise.sets.find((set) => set.id === currentSetId);
+  useEffect(() => {
+    setCurrentSetId(setId);
+  }, [setId]);
 
-    useEffect(() => {
-      setCurrentSetId(setId);
-    }, [setId]);
+  const handleDifficultyUpdate = useCallback(
+    (difficulty: TimeDifficulty) => {
+      if (currentSetId) {
+        onUpdate(currentSetId, { difficulty });
+      }
+    },
+    [currentSetId, onUpdate]
+  );
 
-    const handleDifficultyUpdate = useCallback(
-      (difficulty: TimeDifficulty) => {
-        if (currentSetId) {
-          onUpdate(currentSetId, { difficulty });
-        }
-      },
-      [currentSetId, onUpdate]
-    );
+  return (
+    <PopupBottomSheetModal onDismiss={onHide} ref={ref}>
+      <View style={editSetStyles.container}>
+        <TimeDifficultyEdit
+          difficulty={currentSet?.difficulty as TimeDifficulty}
+          onUpdate={handleDifficultyUpdate}
+          focusField={focusField}
+          setId={currentSetId!}
+        />
+        <View style={editSetStyles.timeSpacer} />
+      </View>
+    </PopupBottomSheetModal>
+  );
+});
 
-    return (
-      <PopupBottomSheet show={show} onHide={onHide} ref={ref}>
-        <View style={editSetStyles.container}>
-          <TimeDifficultyEdit
-            difficulty={currentSet?.difficulty as TimeDifficulty}
-            onUpdate={handleDifficultyUpdate}
-            focusField={focusField}
-            setId={currentSetId!}
-          />
-          <View style={editSetStyles.timeSpacer} />
-        </View>
-      </PopupBottomSheet>
-    );
-  }
-);
-
-export const EditSetSheet = forwardRef<BottomSheet, EditSetSheetProps>(
-  ({ show, hide, onHide, exercise, setId, focusField, onUpdate }, ref) => {
-    const exerciseDifficultyType = useExercisesStore(
-      (state) =>
-        ExerciseStoreSelectors.getExercise(exercise.metaId, state)
-          .difficultyType
+export const EditSetSheet = forwardRef<BottomSheetModal, EditSetSheetProps>(
+  ({ hide, onHide, exercise, setId, focusField, onUpdate }, ref) => {
+    const exerciseDifficultyType = useExercisesStore((state) =>
+      exercise
+        ? ExerciseStoreSelectors.getExercise(exercise.metaId, state)
+            .difficultyType
+        : undefined
     );
 
     if (exerciseDifficultyType === DifficultyType.TIME) {
       return (
         <EditDurationSetSheet
-          show={show}
           hide={hide}
           onHide={onHide}
           exercise={exercise}
@@ -554,7 +560,6 @@ export const EditSetSheet = forwardRef<BottomSheet, EditSetSheetProps>(
 
     return (
       <EditWeightRepsSetSheet
-        show={show}
         hide={hide}
         onHide={onHide}
         exercise={exercise}

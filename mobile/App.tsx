@@ -1,7 +1,5 @@
-import { FontAwesome } from "@expo/vector-icons";
-import { useFonts } from "expo-font";
 import { SplashScreen } from "expo-router";
-import React, { useEffect } from "react";
+import React from "react";
 import {
   configureReanimatedLogger,
   ReanimatedLogLevel,
@@ -66,20 +64,5 @@ function RootLayoutNav() {
 }
 
 export function App() {
-  const [loaded, error] = useFonts({
-    SpaceMono: require("./assets/fonts/SpaceMono-Regular.ttf"),
-    ...FontAwesome.font,
-  });
-
-  // Expo Router uses Error Boundaries to catch errors in the navigation tree.
-  // todo: do we even need those fonts, if not remove them
-  useEffect(() => {
-    if (error) throw error;
-  }, [error]);
-
-  if (!loaded) {
-    return null;
-  }
-
   return <RootLayoutNav />;
 }

@@ -119,10 +119,11 @@ export const PopupBottomSheet = forwardRef(
 type PopupBottomSheetModalProps = {
   children: ReactNode;
   header?: ReactNode;
+  onDismiss?: () => void;
 }
 
 export const PopupBottomSheetModal = forwardRef(
-  ({ children, header }: PopupBottomSheetModalProps, ref: ForwardedRef<BottomSheetModal>) => {
+  ({ children, header, onDismiss }: PopupBottomSheetModalProps, ref: ForwardedRef<BottomSheetModal>) => {
     const sheetColor = useThemeColoring("primaryViewBackground");
     const textColor = useThemeColoring("primaryText");
 
@@ -173,9 +174,16 @@ export const PopupBottomSheetModal = forwardRef(
       [sheetColor, textColor, header]
     );
 
+    const handleDismiss = useCallback(() => {
+      if(onDismiss){
+        onDismiss();
+      }
+    }, [onDismiss]);
+
     return (
       <BottomSheetModal 
         ref={ref}
+        onDismiss={handleDismiss}
         backdropComponent={renderBackdrop}
         handleComponent={renderHandle}
         backgroundComponent={renderBackground}

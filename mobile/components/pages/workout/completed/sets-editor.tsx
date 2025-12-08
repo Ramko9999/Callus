@@ -33,7 +33,7 @@ import { getDurationDisplay } from "@/util/date";
 import { Popover, PopoverItem, PopoverRef } from "@/components/util/popover";
 import { AddNoteSheet } from "@/components/sheets/add-note";
 import { EditSetSheet } from "@/components/sheets/edit-set";
-import BottomSheet from "@gorhom/bottom-sheet";
+import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { useSound } from "@/components/sounds";
 import * as Haptics from "expo-haptics";
 import { SetStatus } from "@/interface";
@@ -152,10 +152,9 @@ export function SetsEditor() {
   const scrollRef = useRef<ScrollView>(null);
   const scrollContentHeightRef = useRef<number | undefined>(undefined);
   const addNoteSheetRef = useRef<BottomSheet>(null);
-  const editSetSheetRef = useRef<BottomSheet>(null);
+  const editSetSheetRef = useRef<BottomSheetModal>(null);
   const popoverProgress = useSharedValue(0);
   const [showAddNoteSheet, setShowAddNoteSheet] = useState(false);
-  const [showEditSetSheet, setShowEditSetSheet] = useState(false);
   const [selectedSetId, setSelectedSetId] = useState<string | undefined>();
   const [selectedField, setSelectedField] = useState<EditField | undefined>();
 
@@ -241,11 +240,10 @@ export function SetsEditor() {
   const handleEditSet = useCallback((setId: string, field: EditField) => {
     setSelectedSetId(setId);
     setSelectedField(field);
-    setShowEditSetSheet(true);
+    editSetSheetRef.current?.present();
   }, []);
 
   const handleHideEditSetSheet = useCallback(() => {
-    setShowEditSetSheet(false);
     setSelectedSetId(undefined);
     setSelectedField(undefined);
     Keyboard.dismiss();
@@ -360,7 +358,6 @@ export function SetsEditor() {
 
       <EditSetSheet
         ref={editSetSheetRef}
-        show={showEditSetSheet}
         hide={() => editSetSheetRef.current?.close()}
         onHide={handleHideEditSetSheet}
         exercise={exercise}
