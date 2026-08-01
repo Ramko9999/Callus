@@ -43,3 +43,7 @@ expo-env.d.ts
 .idea/
 
 release.keystore
+
+# Native projects (generated via expo prebuild)
+/ios/
+/android/
