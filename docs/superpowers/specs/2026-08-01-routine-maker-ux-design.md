@@ -141,30 +141,53 @@ The routine-only `InputsPad` / `NumericPad` / `DurationPad` stack and its
 Current flow: `+` → persist "New Routine" → navigate into an empty screen whose
 only affordance is passive text.
 
+A routine differs from a workout here. A workout is named automatically (from its
+routine, or the date) and is a one-off record. A routine is a reusable template
+whose **name is its identity** — the Routines list shows nothing but name and
+exercise count, so an unnamed routine cannot be told apart from another. Leaving
+the default "New Routine" in place produces a list of identical rows. Naming is
+therefore part of creation, not an afterthought buried in a menu.
+
 New flow:
 
 1. `+` on the Routines list opens the routine maker with an **in-memory draft**.
    Nothing is written to storage yet.
-2. A brand-new routine opens **on the AddExercises tab**, since there is nothing
-   to edit until it has exercises. The header reads "New Routine".
-3. The draft is persisted on the first meaningful change — a name edit or the
+2. The routine maker opens on the Edit tab and immediately presents the
+   **Name Routine sheet**: an autofocused input, placeholder `e.g. Push Day`,
+   primary button "Continue".
+3. Continue persists the draft under that name and switches to the
+   **AddExercises** tab, so the user lands where the next action is.
+4. Dismissing the sheet persists nothing. The user lands on the empty Edit tab,
+   titled "New Routine", with the "Add Exercises" CTA. Naming remains available
+   from `⋮` → Edit Name. This path exists for users who do not know the name
+   until they have picked the exercises.
+5. An empty or whitespace-only name is treated as a dismissal — the routine keeps
+   "New Routine". Duplicate names are allowed; no deduplication or suffixing.
+6. The draft is persisted on the first meaningful change — a name entered or the
    first exercise added. Thereafter the existing debounced autosave in
    `RoutineProvider` applies unchanged.
-4. Closing a draft that has no name change and no exercises discards it. No
-   empty routine is left behind.
+7. Closing a draft with neither a name nor an exercise discards it. No empty
+   routine is left behind.
 
-Existing routines are unaffected: they open on the Edit tab and autosave as they
-do today.
+Existing routines are unaffected: they open on the Edit tab, present no sheet,
+and autosave as they do today.
 
 ### 6. Naming a routine
 
 Replace `MetaEditor` (`components/popup/routine/common/meta.tsx`), which keeps
-its own local state and syncs only on `onEndEditing`, with an **Edit Name sheet**
-reached from the `⋮` menu — matching live workout's "Edit Name and Time".
+its own local state and syncs only on `onEndEditing`, with a **routine name sheet**
+— matching live workout's "Edit Name and Time".
 
-The header title remains tappable as a shortcut to the same sheet. The sheet
-autofocuses its input and commits on save, so the routine name follows the same
-save path as every other edit.
+One component serves both entry points, differing only in copy:
+
+| Entry point | Title | Primary button | On dismiss |
+|---|---|---|---|
+| Creation (auto-presented) | "Name Routine" | "Continue" | draft not persisted |
+| `⋮` → Edit Name | "Edit Name" | "Save" | no change |
+
+The header title remains tappable as a shortcut to the rename variant. The sheet
+autofocuses its input and commits on the primary button, so the routine name
+follows the same save path as every other edit.
 
 ### 7. Empty state
 
@@ -251,9 +274,15 @@ app on a simulator:
 5. Reorder exercises via the sheet.
 6. `⋮` → Edit Name — renames and persists.
 7. `⋮` → Start Routine — starts a live workout from the routine.
-8. Create a routine, back out immediately — **no** empty routine in the list.
-9. Create a routine, add an exercise, back out — routine is saved with it.
-10. Confirm the live workout screens still behave identically after the shared
+8. Tap `+` — the Name Routine sheet auto-presents with the input focused.
+9. Enter a name, Continue — lands on AddExercises; the routine appears in the
+   list under that name.
+10. Tap `+`, dismiss the sheet, back out immediately — **no** empty routine in
+    the list.
+11. Tap `+`, dismiss the sheet, add an exercise, back out — routine is saved as
+    "New Routine" with that exercise.
+12. Tap `+`, enter only whitespace, Continue — treated as a dismissal.
+13. Confirm the live workout screens still behave identically after the shared
     extraction.
 
 Run on a simulator other than the iPhone 17 (in use by another project) and on
