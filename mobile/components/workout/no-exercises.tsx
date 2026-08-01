@@ -5,7 +5,7 @@ import { StyleUtils } from "@/util/styles";
 
 const noExercisesStyles = StyleSheet.create({
   container: {
-    height: "60%",
+    flex: 1,
     ...StyleUtils.flexColumn(10),
     alignItems: "center",
     justifyContent: "center",

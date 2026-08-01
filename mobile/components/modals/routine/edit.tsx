@@ -230,7 +230,11 @@ export function EditRoutine() {
     <View ref={containerRef} style={editRoutineStyles.container}>
       <ScrollView
         style={editRoutineStyles.scrollContainer}
-        contentContainerStyle={{ paddingBottom: "30%" }}
+        contentContainerStyle={
+          routine.plan.length === 0
+            ? { flexGrow: 1, paddingBottom: "30%" }
+            : { paddingBottom: "30%" }
+        }
         showsVerticalScrollIndicator={false}
       >
         {routine.plan.length === 0 ? (

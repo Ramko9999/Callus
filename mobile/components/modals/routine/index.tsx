@@ -184,12 +184,14 @@ function AnimatedSubtitle({
 
 type RoutineModalContentProps = {
   isDraft: boolean;
+  sheetsReady: boolean;
   tabNavigation: any;
   setTabNavigation: (navigation: any) => void;
 };
 
 function RoutineModalContent({
   isDraft,
+  sheetsReady,
   tabNavigation,
   setTabNavigation,
 }: RoutineModalContentProps) {
@@ -208,12 +210,14 @@ function RoutineModalContent({
   const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
   const tabSwitchProgress = useSharedValue(0);
 
+  const hasPresentedDraftName = useRef(false);
+
   useEffect(() => {
-    if (isDraft) {
+    if (isDraft && sheetsReady && !hasPresentedDraftName.current) {
+      hasPresentedDraftName.current = true;
       openEditName("create");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isDraft, sheetsReady, openEditName]);
 
   const primaryTextColor = useThemeColoring("primaryText");
   const primaryActionColor = useThemeColoring("primaryAction");
@@ -400,6 +404,11 @@ function RoutineModalBody({ isDraft }: { isDraft: boolean }) {
   const { userDetails } = useUserDetails();
   const toast = useToast();
   const [tabNavigation, setTabNavigation] = useState<any>(null);
+  const [sheetsReady, setSheetsReady] = useState<boolean>(false);
+
+  const handleSheetsReady = useCallback(() => {
+    setSheetsReady(true);
+  }, []);
 
   const handleStart = useCallback(() => {
     if (isInWorkout) {
@@ -439,9 +448,11 @@ function RoutineModalBody({ isDraft }: { isDraft: boolean }) {
         onStart={handleStart}
         onDelete={handleDelete}
         onNameSaved={handleNameSaved}
+        onSheetsReady={handleSheetsReady}
       >
         <RoutineModalContent
           isDraft={isDraft}
+          sheetsReady={sheetsReady}
           tabNavigation={tabNavigation}
           setTabNavigation={setTabNavigation}
         />

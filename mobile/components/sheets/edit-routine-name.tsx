@@ -5,7 +5,6 @@ import {
   useWindowDimensions,
   TextInput as RNTextInput,
 } from "react-native";
-import Animated from "react-native-reanimated";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { View, Text, TextInput, useThemeColoring } from "@/components/Themed";
 import { commonSheetStyles, KeyboardSpacer } from "./common";
@@ -39,8 +38,6 @@ function DashedDivider({
     </Svg>
   );
 }
-
-const AnimatedTextInput = Animated.createAnimatedComponent(TextInput);
 
 const editRoutineNameStyles = StyleSheet.create({
   container: {
@@ -119,8 +116,8 @@ export const EditRoutineName = forwardRef<
           <Text action>{isCreating ? "Name Routine" : "Edit Name"}</Text>
         </View>
         <View style={editRoutineNameStyles.inputContainer}>
-          <AnimatedTextInput
-            ref={inputRef as any}
+          <TextInput
+            ref={inputRef}
             style={editRoutineNameStyles.input}
             placeholder="e.g. Push Day"
             placeholderTextColor={placeholderColor}

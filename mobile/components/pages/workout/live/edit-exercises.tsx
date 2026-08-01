@@ -608,7 +608,11 @@ export function EditExercises() {
     >
       <ScrollView
         style={editExercisesStyles.scrollContainer}
-        contentContainerStyle={{ paddingBottom: "30%" }}
+        contentContainerStyle={
+          (workout?.exercises.length ?? 0) === 0
+            ? { flexGrow: 1, paddingBottom: "30%" }
+            : { paddingBottom: "30%" }
+        }
         showsVerticalScrollIndicator={false}
       >
         {(workout?.exercises.length ?? 0) === 0 ? (

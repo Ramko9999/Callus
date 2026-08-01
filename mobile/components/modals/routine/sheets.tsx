@@ -5,6 +5,7 @@ import React, {
   useRef,
   useCallback,
   useEffect,
+  useMemo,
 } from "react";
 import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { Keyboard } from "react-native";
@@ -79,6 +80,7 @@ const initialState: RoutineSheetsState = {
 type RoutineSheetsProps = {
   children: React.ReactNode;
   onNameSaved?: (mode: "create" | "rename") => void;
+  onSheetsReady?: () => void;
   onStart: () => void;
   onDelete: () => void;
 };
@@ -86,6 +88,7 @@ type RoutineSheetsProps = {
 export function RoutineSheets({
   children,
   onNameSaved,
+  onSheetsReady,
   onStart,
   onDelete,
 }: RoutineSheetsProps) {
@@ -105,6 +108,13 @@ export function RoutineSheets({
 
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (shouldRenderSheets) {
+      onSheetsReady?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shouldRenderSheets]);
 
   const editNameSheetRef = useRef<BottomSheetModal>(null);
   const editSetSheetRef = useRef<BottomSheetModal>(null);
@@ -201,22 +211,35 @@ export function RoutineSheets({
     [routine, onSave]
   );
 
+  const contextValue = useMemo<RoutineSheetsContextValue>(
+    () => ({
+      openEditName,
+      openEditSet,
+      openEditRest,
+      openAddNote,
+      openReorderExercises,
+      openStartConfirmation,
+      openDeleteConfirmation,
+      muscleFilters,
+      exerciseTypeFilters,
+      onUpdateMuscleFilters: setMuscleFilters,
+      onUpdateExerciseTypeFilters: setExerciseTypeFilters,
+    }),
+    [
+      openEditName,
+      openEditSet,
+      openEditRest,
+      openAddNote,
+      openReorderExercises,
+      openStartConfirmation,
+      openDeleteConfirmation,
+      muscleFilters,
+      exerciseTypeFilters,
+    ]
+  );
+
   return (
-    <RoutineSheetsContext.Provider
-      value={{
-        openEditName,
-        openEditSet,
-        openEditRest,
-        openAddNote,
-        openReorderExercises,
-        openStartConfirmation,
-        openDeleteConfirmation,
-        muscleFilters,
-        exerciseTypeFilters,
-        onUpdateMuscleFilters: setMuscleFilters,
-        onUpdateExerciseTypeFilters: setExerciseTypeFilters,
-      }}
-    >
+    <RoutineSheetsContext.Provider value={contextValue}>
       {children}
 
       {shouldRenderSheets && (
@@ -224,7 +247,7 @@ export function RoutineSheets({
       <EditRoutineName
         ref={editNameSheetRef}
         show={state.showEditName}
-        hide={() => editNameSheetRef.current?.close()}
+        hide={() => editNameSheetRef.current?.dismiss()}
         onHide={handleHideEditName}
         name={routine.name}
         mode={state.editNameMode}
@@ -233,7 +256,7 @@ export function RoutineSheets({
 
       <EditSetSheet
         ref={editSetSheetRef}
-        hide={() => editSetSheetRef.current?.close()}
+        hide={() => editSetSheetRef.current?.dismiss()}
         onHide={() => setState({ ...initialState })}
         exercise={
           selectedExercisePlan

@@ -163,11 +163,11 @@ export const ReorderExercisesSheet = forwardRef<
 
   const handleSave = useCallback(() => {
     onReorder(currentExercises);
-    (ref as any).current?.close();
+    (ref as any).current?.dismiss();
   }, [currentExercises, onReorder]);
 
   const handleBack = useCallback(() => {
-    (ref as any).current?.close();
+    (ref as any).current?.dismiss();
     setCurrentExercises(exercises);
   }, [exercises]);
 
