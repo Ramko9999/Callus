@@ -1,7 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View as RNView, StyleSheet } from "react-native";
-import { RootStackParamList } from "@/layout/types";
-import { StackScreenProps } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
@@ -383,7 +381,7 @@ function RoutineModalContent({
   );
 }
 
-type RoutineModalProps = StackScreenProps<RootStackParamList, "routine">;
+type RoutineModalProps = { route: any };
 
 export function RoutineModal({ route }: RoutineModalProps) {
   const { id, isDraft } = route.params;

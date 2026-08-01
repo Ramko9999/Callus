@@ -14,10 +14,9 @@ import {
 import {
   createStackNavigator,
   StackScreenProps,
-  TransitionPresets,
 } from "@react-navigation/stack";
 import Home from "@/components/pages/home";
-import { Platform, useColorScheme } from "react-native";
+import { useColorScheme } from "react-native";
 import { RootStackParamList, TabParamList } from "./types";
 import { RoutineModal } from "@/components/modals/routine";
 import { Settings } from "@/components/pages/settings";
@@ -207,17 +206,6 @@ function InnerLayout() {
       />
       <Stack.Screen name="settings" component={Settings} />
       <Stack.Screen name="onboarding" component={Onboarding} />
-      <Stack.Group
-        screenOptions={{
-          presentation: "modal",
-          gestureEnabled: true,
-          ...(Platform.OS === "android"
-            ? TransitionPresets.ModalPresentationIOS
-            : {}),
-        }}
-      >
-        <Stack.Screen name="routine" component={RoutineModal} />
-      </Stack.Group>
     </Stack.Navigator>
   );
 }
@@ -240,6 +228,11 @@ export function Layout() {
         name="liveWorkoutSheet"
         options={{ enableContentPanningGesture: false, enableBackdrop: false }}
         component={LiveWorkout}
+      />
+      <SlideUpModal.Screen
+        name="routine"
+        options={{ enableContentPanningGesture: false, enableBackdrop: false }}
+        component={RoutineModal}
       />
       <SlideUpModal.Screen
         name="createExerciseSheet"
