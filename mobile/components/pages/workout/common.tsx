@@ -162,8 +162,9 @@ type SetRowProps = {
   containerAnimatedStyle?: AnimatedStyle<ViewStyle>;
   overlayAnimatedStyle?: AnimatedStyle<ViewStyle>;
   onEdit: (setId: string, field: EditField) => void;
-  onToggle: (event: GestureResponderEvent) => void;
+  onToggle?: (event: GestureResponderEvent) => void;
   showSwipeActions: boolean;
+  showStatus?: boolean;
   onDelete: (setId: string) => void;
 };
 
@@ -177,6 +178,7 @@ export function SetRow({
   onEdit,
   onToggle,
   showSwipeActions,
+  showStatus = true,
   onDelete,
 }: SetRowProps) {
   const appBackgroundColor = useThemeColoring("appBackground");
@@ -259,9 +261,11 @@ export function SetRow({
         )}
       </View>
 
-      <View style={commonSetStyles.checkmark}>
-        <SetStatusInput isActive={isActive} onToggle={onToggle} />
-      </View>
+      {showStatus && (
+        <View style={commonSetStyles.checkmark}>
+          <SetStatusInput isActive={isActive} onToggle={onToggle ?? (() => {})} />
+        </View>
+      )}
 
       {overlayAnimatedStyle && (
         <Animated.View
@@ -295,9 +299,12 @@ export function SetRow({
 
 type SetHeaderProps = {
   difficultyType: DifficultyType;
+  showStatus?: boolean;
 };
 
-export function SetHeader({ difficultyType }: SetHeaderProps) {
+export function SetHeader({ difficultyType, showStatus = true }: SetHeaderProps) {
+  const lightTextColor = useThemeColoring("lightText");
+
   return (
     <View style={commonSetStyles.container}>
       <View style={commonSetStyles.setNumber}>
@@ -328,13 +335,15 @@ export function SetHeader({ difficultyType }: SetHeaderProps) {
           </View>
         )}
       </View>
-      <View style={commonSetStyles.checkmark}>
-        <Check
-          color={useThemeColoring("lightText")}
-          strokeWidth={2}
-          size={20}
-        />
-      </View>
+      {showStatus && (
+        <View style={commonSetStyles.checkmark}>
+          <Check
+            color={lightTextColor}
+            strokeWidth={2}
+            size={20}
+          />
+        </View>
+      )}
     </View>
   );
 }
