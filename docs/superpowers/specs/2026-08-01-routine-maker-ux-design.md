@@ -191,9 +191,41 @@ follows the same save path as every other edit.
 
 ### 7. Empty state
 
-When the Edit tab has no exercises, show a centered CTA button ("Add Exercises")
-that switches to the AddExercises tab, replacing the current passive text. Copy
-is corrected from "workout" to "routine".
+The Edit tab is empty in three cases: a new routine where the name sheet was
+dismissed, a new routine whose exercise picking was abandoned, and an existing
+routine whose last exercise was deleted.
+
+Today the routine shows left-aligned text that draws the `+` glyph inline to
+point at a header button — "Add an exercise by clicking '`+`'". That instruction
+becomes wrong under this design, since `+` no longer sits in the header on the
+Edit tab.
+
+The app's established empty-state idiom is `NoWorkoutsLogged`
+(`components/pages/home/completed-workout.tsx:118`): a centered column at 60%
+height, a 100px lucide icon at `strokeWidth 1.5` in `lightText`, and a
+`<Text light>` caption. The routine empty state follows it, with a primary action
+added:
+
+```
+            [ Dumbbell icon, 100px, lightText ]
+
+              No exercises in this routine
+
+                 [ + Add Exercises ]
+```
+
+The button switches to the AddExercises tab.
+
+`EditExercises` in the live workout has **no** empty branch at all — it maps over
+`workout.exercises` directly, so an empty workout renders a blank screen. This is
+the same gap, so the empty state is built once as a shared component
+parameterised by its caption:
+
+- Routine: "No exercises in this routine"
+- Live workout: "No exercises in this workout"
+
+When the list is non-empty, the `+ Add Exercise` dashed button at the end of the
+list is the affordance instead — prominent when empty, subdued when populated.
 
 ### 8. Picking exercises
 
@@ -223,6 +255,9 @@ move out of `components/pages/workout/live/` into a shared location so both the
 live workout and the routine maker consume one copy. The live workout keeps its
 status-specific behaviour by passing callbacks the routine omits.
 
+A new shared empty-state component (§7), parameterised by caption and add-action,
+is consumed by both Edit tabs.
+
 ### Deleted
 
 All of the following are consumed only by the routine maker and become
@@ -242,7 +277,10 @@ unreachable once it adopts the live workout components (verified by grep):
 - The two-tap-to-open lag (`modals/routine/index.tsx:52`) — the `ExerciseEditor`
   `shouldRender` delay and the hardcoded `height * 0.65` both disappear with the
   component swap.
-- Empty-state copy: "workout" → "routine".
+- Empty-state copy: "workout" → "routine", and no longer instructs the user to
+  press a button that has moved.
+- The live workout's missing empty state — an empty workout currently renders a
+  blank Edit tab.
 
 ## Directory layout
 
@@ -282,7 +320,10 @@ app on a simulator:
 11. Tap `+`, dismiss the sheet, add an exercise, back out — routine is saved as
     "New Routine" with that exercise.
 12. Tap `+`, enter only whitespace, Continue — treated as a dismissal.
-13. Confirm the live workout screens still behave identically after the shared
+13. Delete the last exercise from a routine — the empty state appears with a
+    working "Add Exercises" button.
+14. Start an empty live workout — the same empty state appears, worded "workout".
+15. Confirm the live workout screens still behave identically after the shared
     extraction.
 
 Run on a simulator other than the iPhone 17 (in use by another project) and on
