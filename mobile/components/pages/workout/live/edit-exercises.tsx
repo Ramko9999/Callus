@@ -47,6 +47,7 @@ import {
   SetHeader,
   EditField,
 } from "@/components/pages/workout/common";
+import { NoExercises } from "@/components/workout/no-exercises";
 import { useLiveExercise, useCurrentSet, useLiveWorkout } from "./context";
 import { useLiveWorkoutSheets } from "./sheets";
 import {
@@ -772,6 +773,15 @@ export function EditExercises() {
         contentContainerStyle={{ paddingBottom: "30%" }}
         showsVerticalScrollIndicator={false}
       >
+        {(workout?.exercises.length ?? 0) === 0 ? (
+          <NoExercises
+            message="No exercises in this workout"
+            onAdd={() => {
+              // @ts-ignore
+              navigation.navigate("AddExercises");
+            }}
+          />
+        ) : null}
         {workout?.exercises.map((exercise: Exercise) => (
           <ExerciseCard
             key={exercise.id}
