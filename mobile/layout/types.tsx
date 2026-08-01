@@ -12,7 +12,7 @@ type ModalParamsList = {
   settings: undefined;
   completedWorkout: { id: string };
   liveWorkout: {};
-  routine: { id: string };
+  routine: { id: string; isDraft?: boolean };
   congratulations: { id: string };
 };
 

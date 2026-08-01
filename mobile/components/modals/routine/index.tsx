@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View as RNView, StyleSheet } from "react-native";
 import { RootStackParamList } from "@/layout/types";
 import { StackScreenProps } from "@react-navigation/stack";
@@ -184,7 +184,17 @@ function AnimatedSubtitle({
   );
 }
 
-function RoutineModalContent() {
+type RoutineModalContentProps = {
+  isDraft: boolean;
+  tabNavigation: any;
+  setTabNavigation: (navigation: any) => void;
+};
+
+function RoutineModalContent({
+  isDraft,
+  tabNavigation,
+  setTabNavigation,
+}: RoutineModalContentProps) {
   const navigation = useNavigation();
   const { routine } = useRoutine();
   const {
@@ -198,8 +208,14 @@ function RoutineModalContent() {
   const moreButtonProgress = useSharedValue(0);
   const popoverRef = useRef<PopoverRef>(null);
   const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
-  const [tabNavigation, setTabNavigation] = useState<any>(null);
   const tabSwitchProgress = useSharedValue(0);
+
+  useEffect(() => {
+    if (isDraft) {
+      openEditName("create");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const primaryTextColor = useThemeColoring("primaryText");
   const primaryActionColor = useThemeColoring("primaryAction");
@@ -370,19 +386,22 @@ function RoutineModalContent() {
 type RoutineModalProps = StackScreenProps<RootStackParamList, "routine">;
 
 export function RoutineModal({ route }: RoutineModalProps) {
+  const { id, isDraft } = route.params;
+
   return (
-    <RoutineProvider routineId={route.params.id}>
-      <RoutineModalBody />
+    <RoutineProvider routineId={id} isDraft={isDraft}>
+      <RoutineModalBody isDraft={!!isDraft} />
     </RoutineProvider>
   );
 }
 
-function RoutineModalBody() {
+function RoutineModalBody({ isDraft }: { isDraft: boolean }) {
   const navigation = useNavigation();
   const { routine } = useRoutine();
   const { isInWorkout, saveWorkout } = useLiveWorkout();
   const { userDetails } = useUserDetails();
   const toast = useToast();
+  const [tabNavigation, setTabNavigation] = useState<any>(null);
 
   const handleStart = useCallback(() => {
     if (isInWorkout) {
@@ -407,10 +426,27 @@ function RoutineModalBody() {
     WorkoutApi.deleteRoutine(routine.id).then(() => navigation.goBack());
   }, [routine.id, navigation]);
 
+  const handleNameSaved = useCallback(
+    (mode: "create" | "rename") => {
+      if (mode === "create") {
+        tabNavigation?.navigate("AddExercises");
+      }
+    },
+    [tabNavigation]
+  );
+
   return (
     <BottomSheetModalProvider>
-      <RoutineSheets onStart={handleStart} onDelete={handleDelete}>
-        <RoutineModalContent />
+      <RoutineSheets
+        onStart={handleStart}
+        onDelete={handleDelete}
+        onNameSaved={handleNameSaved}
+      >
+        <RoutineModalContent
+          isDraft={isDraft}
+          tabNavigation={tabNavigation}
+          setTabNavigation={setTabNavigation}
+        />
       </RoutineSheets>
     </BottomSheetModalProvider>
   );
