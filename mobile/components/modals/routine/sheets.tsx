@@ -4,6 +4,7 @@ import React, {
   useState,
   useRef,
   useCallback,
+  useEffect,
 } from "react";
 import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { Keyboard } from "react-native";
@@ -95,6 +96,15 @@ export function RoutineSheets({
   const [exerciseTypeFilters, setExerciseTypeFilters] = useState<string[]>(
     []
   );
+  const [shouldRenderSheets, setShouldRenderSheets] = useState<boolean>(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShouldRenderSheets(true);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const editNameSheetRef = useRef<BottomSheetModal>(null);
   const editSetSheetRef = useRef<BottomSheetModal>(null);
@@ -209,6 +219,8 @@ export function RoutineSheets({
     >
       {children}
 
+      {shouldRenderSheets && (
+        <>
       <EditRoutineName
         ref={editNameSheetRef}
         show={state.showEditName}
@@ -297,6 +309,8 @@ export function RoutineSheets({
         onHide={() => setState({ ...initialState })}
         onDelete={onDelete}
       />
+        </>
+      )}
     </RoutineSheetsContext.Provider>
   );
 }

@@ -133,7 +133,6 @@ export function EditRoutine() {
 
   const popoverRef = useRef<PopoverRef>(null);
   const containerRef = useRef<RNView>(null);
-  const containerYRef = useRef<number | undefined>(undefined);
   const popoverProgress = useSharedValue(0);
   const [popoverExercisePlanId, setPopoverExercisePlanId] = useState<
     string | null
@@ -144,27 +143,38 @@ export function EditRoutine() {
   const primaryActionColor = useThemeColoring("primaryAction");
   const borderColor = tintColor(useThemeColoring("appBackground"), 0.1);
 
-  const handleLayout = useCallback(() => {
-    containerRef.current?.measure(
-      (x: any, y: any, width: any, height: any, pageX: any, pageY: any) => {
-        containerYRef.current = pageY;
-      }
-    );
-  }, []);
-
   const handleMorePress = useCallback(
     (exercisePlanId: string, ref: React.RefObject<any>) => {
       setPopoverExercisePlanId(exercisePlanId);
-      if (ref.current && containerYRef.current !== undefined) {
-        ref.current.measure(
-          (x: any, y: any, width: any, height: any, pageX: any, pageY: any) => {
-            popoverRef.current?.open(
-              pageX + width + 5,
-              pageY + 20 - (containerYRef.current as number)
-            );
-          }
-        );
+      if (!ref.current || !containerRef.current) {
+        return;
       }
+      containerRef.current.measure(
+        (
+          cx: number,
+          cy: number,
+          cwidth: number,
+          cheight: number,
+          cpageX: number,
+          cpageY: number
+        ) => {
+          ref.current?.measure(
+            (
+              x: number,
+              y: number,
+              width: number,
+              height: number,
+              pageX: number,
+              pageY: number
+            ) => {
+              popoverRef.current?.open(
+                pageX + width + 5,
+                pageY + 20 - cpageY
+              );
+            }
+          );
+        }
+      );
     },
     []
   );
@@ -217,11 +227,7 @@ export function EditRoutine() {
   };
 
   return (
-    <View
-      ref={containerRef}
-      style={editRoutineStyles.container}
-      onLayout={handleLayout}
-    >
+    <View ref={containerRef} style={editRoutineStyles.container}>
       <ScrollView
         style={editRoutineStyles.scrollContainer}
         contentContainerStyle={{ paddingBottom: "30%" }}
