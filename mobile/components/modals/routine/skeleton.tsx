@@ -1,7 +1,8 @@
 import { StyleUtils } from "@/util/styles";
 import { View, StyleSheet } from "react-native";
-import { ModalWrapper } from "../common";
-import { ExercisesEditorTopActions } from "./top-actions";
+import { HeaderPage } from "@/components/util/header-page";
+import { CloseButton } from "@/components/pages/common";
+import { useNavigation } from "@react-navigation/native";
 
 const skeletionStyles = StyleSheet.create({
   container: {
@@ -12,16 +13,14 @@ const skeletionStyles = StyleSheet.create({
 });
 
 export function Skeleton() {
+  const navigation = useNavigation();
+
   return (
-    <ModalWrapper>
-      <View style={skeletionStyles.container}>
-        <ExercisesEditorTopActions
-          onClose={() => {}}
-          onAdd={() => {}}
-          onStart={() => {}}
-          onTrash={() => {}}
-        />
-      </View>
-    </ModalWrapper>
+    <HeaderPage
+      title=""
+      leftAction={<CloseButton onClick={() => navigation.goBack()} />}
+    >
+      <View style={skeletionStyles.container} />
+    </HeaderPage>
   );
 }

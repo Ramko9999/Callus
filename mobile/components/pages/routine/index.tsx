@@ -97,10 +97,8 @@ export function Routines() {
 
   const onCreateRoutine = () => {
     const createdRoutine = RoutineActions.makeEmptyRoutine();
-    WorkoutApi.saveRoutine(createdRoutine).then(() =>
-      //@ts-ignore
-      navigation.navigate("routine", { id: createdRoutine.id })
-    );
+    //@ts-ignore
+    navigation.navigate("routine", { id: createdRoutine.id, isDraft: true });
   };
 
   return (

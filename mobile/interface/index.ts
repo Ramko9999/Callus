@@ -50,6 +50,7 @@ export type ExercisePlan = {
   metaId: string;
   rest: number;
   sets: SetPlan[];
+  note?: string;
 };
 
 export type WorkoutPlan = {

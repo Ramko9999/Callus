@@ -1,78 +1,416 @@
-import { RootStackParamList } from "@/layout/types";
-import { StackScreenProps } from "@react-navigation/stack";
-import { RoutineProvider, useRoutine } from "./context";
-import { CompositeScreenProps, useNavigation } from "@react-navigation/native";
-import { useUserDetails } from "@/components/user-details";
-import { useToast } from "react-native-toast-notifications";
-import { ModalWrapper } from "../common";
-import { contentStyles } from "../common/styles";
-import { View, Text } from "@/components/Themed";
-import { ExercisesEditorTopActions } from "./top-actions";
-import { MetaEditor } from "@/components/popup/routine/common/meta";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { View as RNView, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { HeaderPage } from "@/components/util/header-page";
+import {
+  CloseButton,
+  MoreButton,
+  BackButton,
+  PlusButton,
+} from "@/components/pages/common";
+import { View, Text, useThemeColoring } from "@/components/Themed";
+import { Popover, PopoverItem, PopoverRef } from "@/components/util/popover";
+import {
+  Flag,
+  FilePenLine,
+  Dumbbell,
+  Shuffle,
+  Trash2,
+} from "lucide-react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  SharedValue,
+} from "react-native-reanimated";
 import { WorkoutApi } from "@/api/workout";
 import { WorkoutCreation } from "@/api/model/workout";
-import { ExercisePlan, Routine } from "@/interface";
-import { ExercisePlanActions, SetPlanActions } from "@/api/model/routine";
-import {
-  EditRestDuration,
-  RoutineDeleteConfirmation,
-  RoutineStartConfirmation,
-  FilterExercisesSheet,
-} from "@/components/sheets";
-import { useCallback, useRef, useState } from "react";
-import { SetsEditorTopActions } from "./top-actions";
-import { InputsPadProvider } from "@/components/util/popup/inputs-pad/context";
-import { ExerciseAdder } from "@/components/popup/workout/common/exercise/add";
-import { AddExercisesTopActions } from "../common/top-actions";
-import { ExerciseEditor } from "../common/exercise";
-import { RoutineExercise } from "../common/exercise/item";
-import { SetEditor } from "../common/set";
-import { RoutineSet } from "../common/set/item";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import BottomSheet, { BottomSheetModal } from "@gorhom/bottom-sheet";
-import React from "react";
-import { Keyboard } from "react-native";
+import { useUserDetails } from "@/components/user-details";
+import { useToast } from "react-native-toast-notifications";
 import { useLiveWorkout } from "@/components/pages/workout/live/context";
-import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
+import { RoutineProvider, useRoutine } from "./context";
+import { RoutineSheets, useRoutineSheets } from "./sheets";
+import { EditRoutine } from "./edit";
+import { AddExercises } from "./add-exercises";
 
-type RoutineStackParamList = {
-  exercises: undefined;
-  sets: { exerciseId: string };
-  addExercises: undefined;
-  exerciseInsight: { name: string };
+export type RoutineTabParamList = {
+  Edit: undefined;
+  AddExercises: undefined;
 };
 
-const Stack = createNativeStackNavigator<RoutineStackParamList>();
+const Tab = createMaterialTopTabNavigator<RoutineTabParamList>();
 
-type ExerciseEditorProps = CompositeScreenProps<
-  StackScreenProps<RoutineStackParamList, "exercises">,
-  StackScreenProps<RootStackParamList>
->;
+const actionStyles = StyleSheet.create({
+  container: {
+    position: "absolute",
+    width: 24,
+    height: 24,
+  },
+});
 
-// todo: fix the lag in which it takes for the exercises to show up
-function ExercisesEditor({ navigation }: ExerciseEditorProps) {
-  const rootNavigation = useNavigation();
-  const { routine, onSave } = useRoutine();
+type AnimatedLeftActionProps = {
+  tabSwitchProgress: SharedValue<number>;
+  onClosePress: () => void;
+  onBackPress: () => void;
+};
+
+function AnimatedLeftAction({
+  tabSwitchProgress,
+  onClosePress,
+  onBackPress,
+}: AnimatedLeftActionProps) {
+  const closeStyle = useAnimatedStyle(() => ({
+    opacity: 1 - tabSwitchProgress.value,
+    transform: [{ scale: 1 - tabSwitchProgress.value * 0.2 }],
+    display: tabSwitchProgress.value === 1 ? "none" : "flex",
+  }));
+
+  const backStyle = useAnimatedStyle(() => ({
+    opacity: tabSwitchProgress.value,
+    transform: [{ scale: 0.8 + tabSwitchProgress.value * 0.2 }],
+    display: tabSwitchProgress.value === 0 ? "none" : "flex",
+  }));
+
+  return (
+    <View style={actionStyles.container}>
+      <Animated.View style={[closeStyle, { position: "absolute" }]}>
+        <CloseButton onClick={onClosePress} />
+      </Animated.View>
+      <Animated.View style={[backStyle, { position: "absolute" }]}>
+        <BackButton onClick={onBackPress} />
+      </Animated.View>
+    </View>
+  );
+}
+
+type AnimatedRightActionProps = {
+  tabSwitchProgress: SharedValue<number>;
+  popoverProgress: SharedValue<number>;
+  onMorePress: () => void;
+  onPlusPress: () => void;
+};
+
+const AnimatedRightAction = React.forwardRef<any, AnimatedRightActionProps>(
+  ({ tabSwitchProgress, popoverProgress, onMorePress, onPlusPress }, ref) => {
+    const moreStyle = useAnimatedStyle(() => ({
+      opacity: 1 - tabSwitchProgress.value,
+      transform: [{ scale: 1 - tabSwitchProgress.value * 0.2 }],
+      display: tabSwitchProgress.value === 1 ? "none" : "flex",
+    }));
+
+    const plusStyle = useAnimatedStyle(() => ({
+      opacity: tabSwitchProgress.value,
+      transform: [{ scale: 0.8 + tabSwitchProgress.value * 0.2 }],
+      display: tabSwitchProgress.value === 0 ? "none" : "flex",
+    }));
+
+    return (
+      <View style={actionStyles.container}>
+        <Animated.View style={[moreStyle, { position: "absolute" }]}>
+          <MoreButton
+            ref={ref}
+            onClick={onMorePress}
+            progress={popoverProgress}
+          />
+        </Animated.View>
+        <Animated.View style={[plusStyle, { position: "absolute" }]}>
+          <PlusButton onClick={onPlusPress} />
+        </Animated.View>
+      </View>
+    );
+  }
+);
+
+type AnimatedHeaderProps = {
+  routineName: string;
+  tabSwitchProgress: SharedValue<number>;
+  onTitlePress: () => void;
+};
+
+function AnimatedHeader({
+  routineName,
+  tabSwitchProgress,
+  onTitlePress,
+}: AnimatedHeaderProps) {
+  const nameStyle = useAnimatedStyle(() => ({
+    opacity: 1 - tabSwitchProgress.value,
+    transform: [{ scale: 1 - tabSwitchProgress.value * 0.1 }],
+  }));
+
+  const addExercisesStyle = useAnimatedStyle(() => ({
+    opacity: tabSwitchProgress.value,
+    transform: [{ scale: 0.9 + tabSwitchProgress.value * 0.1 }],
+  }));
+
+  return (
+    <>
+      <Text header style={{ color: "transparent" }}>
+        {"Add Exercises Placeholder"}
+      </Text>
+      <Animated.View style={[nameStyle, { position: "absolute" }]}>
+        <Text header onPress={onTitlePress}>
+          {routineName}
+        </Text>
+      </Animated.View>
+      <Animated.View style={[addExercisesStyle, { position: "absolute" }]}>
+        <Text header>Add Exercises</Text>
+      </Animated.View>
+    </>
+  );
+}
+
+type AnimatedSubtitleProps = {
+  exerciseCount: number;
+  tabSwitchProgress: SharedValue<number>;
+};
+
+function AnimatedSubtitle({
+  exerciseCount,
+  tabSwitchProgress,
+}: AnimatedSubtitleProps) {
+  const subtitleStyle = useAnimatedStyle(() => ({
+    opacity: 1 - tabSwitchProgress.value,
+    transform: [{ scale: 1 - tabSwitchProgress.value * 0.1 }],
+  }));
+
+  return (
+    <Animated.View style={subtitleStyle}>
+      <Text light>{`${exerciseCount} exercises`}</Text>
+    </Animated.View>
+  );
+}
+
+type RoutineModalContentProps = {
+  isDraft: boolean;
+  sheetsReady: boolean;
+  tabNavigation: any;
+  setTabNavigation: (navigation: any) => void;
+};
+
+function RoutineModalContent({
+  isDraft,
+  sheetsReady,
+  tabNavigation,
+  setTabNavigation,
+}: RoutineModalContentProps) {
+  const navigation = useNavigation();
+  const { routine } = useRoutine();
+  const {
+    openEditName,
+    openReorderExercises,
+    openStartConfirmation,
+    openDeleteConfirmation,
+  } = useRoutineSheets();
+
+  const moreButtonRef = useRef<RNView>(null);
+  const moreButtonProgress = useSharedValue(0);
+  const popoverRef = useRef<PopoverRef>(null);
+  const [activeTabIndex, setActiveTabIndex] = useState<number>(0);
+  const tabSwitchProgress = useSharedValue(0);
+
+  const hasPresentedDraftName = useRef(false);
+
+  useEffect(() => {
+    if (isDraft && sheetsReady && !hasPresentedDraftName.current) {
+      hasPresentedDraftName.current = true;
+      openEditName("create");
+    }
+  }, [isDraft, sheetsReady, openEditName]);
+
+  const primaryTextColor = useThemeColoring("primaryText");
+  const primaryActionColor = useThemeColoring("primaryAction");
+  const dangerActionColor = useThemeColoring("dangerAction");
+
+  const handleClose = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
+  const handleBack = useCallback(() => {
+    tabNavigation?.navigate("Edit");
+  }, [tabNavigation]);
+
+  const handleMore = useCallback(() => {
+    if (moreButtonRef.current) {
+      moreButtonRef.current.measure(
+        (
+          x: number,
+          y: number,
+          width: number,
+          height: number,
+          pageX: number,
+          pageY: number
+        ) => {
+          popoverRef.current?.open(pageX + width + 5, pageY + 20);
+        }
+      );
+    }
+  }, []);
+
+  const handlePlus = useCallback(() => {
+    // The plus button is only visible on the AddExercises tab.
+    // @ts-ignore
+    navigation.navigate("createExerciseSheet");
+  }, [navigation]);
+
+  const handleTabChange = useCallback((index: number) => {
+    setActiveTabIndex(index);
+    tabSwitchProgress.value = withTiming(index, { duration: 200 });
+  }, []);
+
+  const handleTitlePress = useCallback(() => {
+    openEditName("rename");
+  }, [openEditName]);
+
+  const handleEditName = useCallback(() => {
+    popoverRef.current?.close();
+    openEditName("rename");
+  }, [openEditName]);
+
+  const handleAddExercises = useCallback(() => {
+    popoverRef.current?.close();
+    tabNavigation?.navigate("AddExercises");
+  }, [tabNavigation]);
+
+  const handleReorderExercises = useCallback(() => {
+    popoverRef.current?.close();
+    openReorderExercises();
+  }, [openReorderExercises]);
+
+  const handleStart = useCallback(() => {
+    popoverRef.current?.close();
+    openStartConfirmation();
+  }, [openStartConfirmation]);
+
+  const handleDelete = useCallback(() => {
+    popoverRef.current?.close();
+    openDeleteConfirmation();
+  }, [openDeleteConfirmation]);
+
+  return (
+    <View style={{ height: "100%" }}>
+      <HeaderPage
+        title={
+          <AnimatedHeader
+            routineName={routine.name}
+            tabSwitchProgress={tabSwitchProgress}
+            onTitlePress={handleTitlePress}
+          />
+        }
+        subtitle={
+          <AnimatedSubtitle
+            exerciseCount={routine.plan.length}
+            tabSwitchProgress={tabSwitchProgress}
+          />
+        }
+        leftAction={
+          <AnimatedLeftAction
+            tabSwitchProgress={tabSwitchProgress}
+            onClosePress={handleClose}
+            onBackPress={handleBack}
+          />
+        }
+        rightAction={
+          <AnimatedRightAction
+            ref={moreButtonRef}
+            tabSwitchProgress={tabSwitchProgress}
+            popoverProgress={moreButtonProgress}
+            onMorePress={handleMore}
+            onPlusPress={handlePlus}
+          />
+        }
+      >
+        <Tab.Navigator
+          screenOptions={{
+            swipeEnabled: true,
+            tabBarStyle: { display: "none" },
+          }}
+        >
+          <Tab.Screen
+            name="Edit"
+            component={EditRoutine}
+            listeners={({ navigation }) => ({
+              focus: () => {
+                handleTabChange(0);
+                setTabNavigation(navigation);
+              },
+            })}
+          />
+          <Tab.Screen
+            name="AddExercises"
+            component={AddExercises}
+            listeners={({ navigation }) => ({
+              focus: () => {
+                handleTabChange(1);
+                setTabNavigation(navigation);
+              },
+            })}
+          />
+        </Tab.Navigator>
+      </HeaderPage>
+
+      <Popover ref={popoverRef} progress={moreButtonProgress}>
+        <PopoverItem
+          label="Edit Name"
+          icon={<FilePenLine size={20} color={primaryTextColor} />}
+          onClick={handleEditName}
+        />
+        <PopoverItem
+          label="Add Exercises"
+          icon={<Dumbbell size={20} color={primaryTextColor} />}
+          onClick={handleAddExercises}
+        />
+        <PopoverItem
+          label="Reorder Exercises"
+          icon={<Shuffle size={20} color={primaryTextColor} />}
+          onClick={handleReorderExercises}
+        />
+        <PopoverItem
+          label={
+            <Text style={{ color: primaryActionColor }}>Start Routine</Text>
+          }
+          icon={<Flag size={20} color={primaryActionColor} />}
+          onClick={handleStart}
+        />
+        <PopoverItem
+          label={
+            <Text style={{ color: dangerActionColor }}>Delete Routine</Text>
+          }
+          icon={<Trash2 size={20} color={dangerActionColor} />}
+          onClick={handleDelete}
+        />
+      </Popover>
+    </View>
+  );
+}
+
+type RoutineModalProps = { route: any };
+
+export function RoutineModal({ route }: RoutineModalProps) {
+  const { id, isDraft } = route.params;
+
+  return (
+    <RoutineProvider routineId={id} isDraft={isDraft}>
+      <RoutineModalBody isDraft={!!isDraft} />
+    </RoutineProvider>
+  );
+}
+
+function RoutineModalBody({ isDraft }: { isDraft: boolean }) {
+  const navigation = useNavigation();
+  const { routine } = useRoutine();
   const { isInWorkout, saveWorkout } = useLiveWorkout();
-
-  const [isTrashing, setIsTrashing] = useState(false);
-  const [isStarting, setIsStarting] = useState(false);
-  const routineDeleteConfirmationSheetRef = useRef<BottomSheet>(null);
-  const routineStartConfirmationSheetRef = useRef<BottomSheet>(null);
-
   const { userDetails } = useUserDetails();
-
   const toast = useToast();
+  const [tabNavigation, setTabNavigation] = useState<any>(null);
+  const [sheetsReady, setSheetsReady] = useState<boolean>(false);
 
-  const onUpdateMeta = (update: Partial<Routine>) => {
-    onSave({ ...routine, ...update });
-  };
+  const handleSheetsReady = useCallback(() => {
+    setSheetsReady(true);
+  }, []);
 
-  const trash = () => {
-    WorkoutApi.deleteRoutine(routine.id).then(() => navigation.goBack());
-  };
-
-  const start = () => {
+  const handleStart = useCallback(() => {
     if (isInWorkout) {
       toast.show(
         "Please finish your current workout before trying to start another workout",
@@ -85,185 +423,40 @@ function ExercisesEditor({ navigation }: ExerciseEditorProps) {
           userDetails?.bodyweight as number
         )
       );
-      rootNavigation.goBack();
-      //@ts-ignore
-      rootNavigation.navigate("liveWorkoutSheet");
-    }
-  };
-
-  return (
-    <>
-      <ModalWrapper>
-        <View style={contentStyles.container}>
-          <ExercisesEditorTopActions
-            onClose={navigation.goBack}
-            onAdd={() => navigation.navigate("addExercises" as never)}
-            onTrash={() => setIsTrashing(true)}
-            onStart={() => setIsStarting(true)}
-          />
-          <MetaEditor routine={routine} onUpdateMeta={onUpdateMeta} />
-          <ExerciseEditor
-            exercises={routine.plan}
-            onRemove={(id) => onSave(ExercisePlanActions(routine).remove(id))}
-            onEdit={(exerciseId) => navigation.navigate("sets", { exerciseId })}
-            onReorder={(plan) => onUpdateMeta({ plan: plan as ExercisePlan[] })}
-            renderExercise={(props) => <RoutineExercise {...props} />}
-          />
-        </View>
-      </ModalWrapper>
-      <RoutineDeleteConfirmation
-        ref={routineDeleteConfirmationSheetRef}
-        show={isTrashing}
-        hide={() => routineDeleteConfirmationSheetRef.current?.close()}
-        onHide={() => setIsTrashing(false)}
-        onDelete={trash}
-      />
-      <RoutineStartConfirmation
-        ref={routineStartConfirmationSheetRef}
-        show={isStarting}
-        hide={() => routineStartConfirmationSheetRef.current?.close()}
-        onHide={() => setIsStarting(false)}
-        onStart={start}
-      />
-    </>
-  );
-}
-
-type SetsEditorProps = CompositeScreenProps<
-  StackScreenProps<RoutineStackParamList, "sets">,
-  StackScreenProps<RootStackParamList>
->;
-
-function SetsEditor({ route, navigation }: SetsEditorProps) {
-  const { routine, onSave } = useRoutine();
-  const [isEditingRest, setIsEditingRest] = useState(false);
-  const editRestDurationSheetRef = useRef<BottomSheet>(null);
-  const exercisePlan = routine.plan.find(
-    ({ id }) => id === route.params.exerciseId
-  )!;
-
-  const exerciseName = useExercisesStore(
-    (state) =>
-      ExerciseStoreSelectors.getExercise(exercisePlan.metaId, state).name
-  );
-
-  const difficultyType = useExercisesStore(
-    (state) =>
-      ExerciseStoreSelectors.getExercise(exercisePlan.metaId, state)
-        .difficultyType
-  );
-
-  const exercisePlanActions = ExercisePlanActions(routine);
-  const setPlanActions = SetPlanActions(routine, route.params.exerciseId);
-
-  const onRemove = (setId: string) => {
-    if (exercisePlan?.sets.length == 1) {
       navigation.goBack();
+      // @ts-ignore
+      navigation.navigate("liveWorkoutSheet");
     }
-    onSave(setPlanActions.remove(setId));
-  };
+  }, [isInWorkout, toast, saveWorkout, routine, userDetails, navigation]);
 
-  return (
-    <InputsPadProvider>
-      <ModalWrapper>
-        <View style={contentStyles.container}>
-          <SetsEditorTopActions
-            onAdd={() => onSave(setPlanActions.add())}
-            onBack={navigation.goBack}
-            onViewProgress={() => {}}
-            onEditRest={() => setIsEditingRest(true)}
-          />
-          <View style={{ paddingLeft: "3%", paddingBottom: "3%" }}>
-            <Text extraLarge>{exerciseName}</Text>
-          </View>
-          <SetEditor
-            sets={exercisePlan?.sets ?? []}
-            difficultyType={difficultyType}
-            onEdit={(id, update) => onSave(setPlanActions.update(id, update))}
-            onRemove={onRemove}
-            renderSet={(props) => <RoutineSet {...props} />}
-          />
-        </View>
-      </ModalWrapper>
-      <EditRestDuration
-        ref={editRestDurationSheetRef}
-        show={isEditingRest}
-        hide={() => editRestDurationSheetRef.current?.close()}
-        onHide={() => setIsEditingRest(false)}
-        duration={exercisePlan?.rest ?? 60}
-        onUpdateDuration={(rest) =>
-          onSave(exercisePlanActions.update(route.params.exerciseId, { rest }))
-        }
-      />
-    </InputsPadProvider>
+  const handleDelete = useCallback(() => {
+    WorkoutApi.deleteRoutine(routine.id).then(() => navigation.goBack());
+  }, [routine.id, navigation]);
+
+  const handleNameSaved = useCallback(
+    (mode: "create" | "rename") => {
+      if (mode === "create") {
+        tabNavigation?.navigate("AddExercises");
+      }
+    },
+    [tabNavigation]
   );
-}
-
-type AddExerciseProps = CompositeScreenProps<
-  StackScreenProps<RoutineStackParamList, "addExercises">,
-  StackScreenProps<RootStackParamList>
->;
-
-function AddExercises({ navigation }: AddExerciseProps) {
-  const { routine, onSave } = useRoutine();
-  const [muscleFilters, setMuscleFilters] = useState<string[]>([]);
-  const [exerciseTypeFilters, setExerciseTypeFilters] = useState<string[]>([]);
-  const [isGridView, setIsGridView] = useState(true);
-  const filterExercisesSheetRef = useRef<BottomSheetModal>(null);
-
-  const exercisePlanActions = ExercisePlanActions(routine);
-
-  const onShowFilters = useCallback(() => {
-    filterExercisesSheetRef.current?.present();
-    Keyboard.dismiss();
-  }, []);
 
   return (
-    <>
-      <ModalWrapper>
-        <View style={contentStyles.container}>
-          <AddExercisesTopActions
-            onBack={navigation.goBack}
-            isGridView={isGridView}
-            onToggleView={() => setIsGridView((prev) => !prev)}
-          />
-          <ExerciseAdder
-            onClose={navigation.goBack}
-            onAdd={(metas) => onSave(exercisePlanActions.add(metas))}
-            muscleFilters={muscleFilters}
-            exerciseTypeFilters={exerciseTypeFilters}
-            onShowFilters={onShowFilters}
-            onUpdateMuscleFilters={setMuscleFilters}
-            onUpdateExerciseTypeFilters={setExerciseTypeFilters}
-          />
-          <FilterExercisesSheet
-            ref={filterExercisesSheetRef}
-            muscleFilters={muscleFilters}
-            exerciseTypeFilters={exerciseTypeFilters}
-            onUpdateMuscleFilters={setMuscleFilters}
-            onUpdateExerciseTypeFilters={setExerciseTypeFilters}
-          />
-        </View>
-      </ModalWrapper>
-    </>
-  );
-}
-
-type RoutineModalProps = StackScreenProps<RootStackParamList, "routine">;
-
-export function RoutineModal({ route }: RoutineModalProps) {
-  return (
-    <RoutineProvider routineId={route.params.id}>
-      <Stack.Navigator
-        initialRouteName="exercises"
-        screenOptions={{
-          headerShown: false,
-        }}
+    <BottomSheetModalProvider>
+      <RoutineSheets
+        onStart={handleStart}
+        onDelete={handleDelete}
+        onNameSaved={handleNameSaved}
+        onSheetsReady={handleSheetsReady}
       >
-        <Stack.Screen name="exercises" component={ExercisesEditor} />
-        <Stack.Screen name="sets" component={SetsEditor} />
-        <Stack.Screen name="addExercises" component={AddExercises} />
-      </Stack.Navigator>
-    </RoutineProvider>
+        <RoutineModalContent
+          isDraft={isDraft}
+          sheetsReady={sheetsReady}
+          tabNavigation={tabNavigation}
+          setTabNavigation={setTabNavigation}
+        />
+      </RoutineSheets>
+    </BottomSheetModalProvider>
   );
 }

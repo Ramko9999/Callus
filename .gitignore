@@ -1,1 +1,11 @@
 .DS_Store
+.mcp.json
+
+# Generated App Store assets and the data used to produce them. Regenerate with
+# tools/seed-data + tools/app-store-screenshots (see tools/README.md).
+app_store/screenshots/
+tools/app-store-screenshots/public/callus/screens/*.png
+tools/seed-data/
+
+# Design specs and implementation plans (working documents)
+docs/superpowers/

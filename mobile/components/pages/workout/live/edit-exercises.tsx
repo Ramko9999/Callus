@@ -10,8 +10,6 @@ import {
 import Animated, {
   LinearTransition,
   LightSpeedOutLeft,
-  LightSpeedInRight,
-  LayoutAnimationConfig,
   FadeInDown,
   FadeOutDown,
 } from "react-native-reanimated";
@@ -22,7 +20,6 @@ import { tintColor } from "@/util/color";
 import { useNavigation } from "@react-navigation/native";
 import {
   Plus,
-  MoreVertical,
   Trash2,
   Shuffle,
   Clock,
@@ -42,11 +39,9 @@ import {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRefresh } from "@/components/hooks/use-refresh";
-import {
-  SetRow,
-  SetHeader,
-  EditField,
-} from "@/components/pages/workout/common";
+import { SetRow, EditField } from "@/components/pages/workout/common";
+import { NoExercises } from "@/components/workout/no-exercises";
+import { SharedExerciseCard } from "@/components/workout/exercise-card";
 import { useLiveExercise, useCurrentSet, useLiveWorkout } from "./context";
 import { useLiveWorkoutSheets } from "./sheets";
 import {
@@ -55,7 +50,6 @@ import {
   WorkoutActions,
   WorkoutQuery,
 } from "@/api/model/workout";
-import { ExerciseImage } from "@/components/exercise/image";
 import { ExerciseStoreSelectors, useExercisesStore } from "@/components/store";
 import {
   getHistoricalExerciseDescription,
@@ -63,100 +57,6 @@ import {
 } from "@/util/workout/display";
 import { ReorderExercisesSheet } from "@/components/sheets/reorder-exercises";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
-
-const exerciseCardHeaderStyles = StyleSheet.create({
-  container: {
-    ...StyleUtils.flexColumn(),
-  },
-  topHeader: {
-    ...StyleUtils.flexRow(),
-    alignItems: "center",
-    marginBottom: "3%",
-  },
-  image: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    marginRight: "3%",
-  },
-  info: {
-    ...StyleUtils.flexColumn(),
-    justifyContent: "space-between",
-    flex: 1,
-  },
-  name: {
-    fontWeight: "600",
-  },
-  actions: {
-    ...StyleUtils.flexRow(),
-    alignItems: "center",
-  },
-  notesContainer: {
-    ...StyleUtils.flexColumn(),
-    marginBottom: "3%",
-  },
-});
-
-type ExerciseCardHeaderProps = {
-  metaId: string;
-  name: string;
-  description: string;
-  note?: string;
-  onMorePress: (event: any, ref: React.RefObject<any>) => void;
-  moreButtonRef: React.RefObject<any>;
-  onNotePress: () => void;
-  onOpenExercise: (metaIdToDifficultyType: string) => void;
-};
-
-function ExerciseCardHeader({
-  metaId,
-  name,
-  description,
-  note,
-  onMorePress,
-  moreButtonRef,
-  onNotePress,
-  onOpenExercise,
-}: ExerciseCardHeaderProps) {
-  const primaryActionColor = useThemeColoring("primaryAction");
-
-  return (
-    <View style={exerciseCardHeaderStyles.container}>
-      <View style={exerciseCardHeaderStyles.topHeader}>
-        <TouchableOpacity onPress={() => onOpenExercise(metaId)}>
-          <ExerciseImage
-            metaId={metaId}
-            imageStyle={exerciseCardHeaderStyles.image}
-            fallbackSize={50}
-            fallbackColor={primaryActionColor}
-          />
-        </TouchableOpacity>
-        <View style={exerciseCardHeaderStyles.info}>
-          <Text header style={exerciseCardHeaderStyles.name}>
-            {name}
-          </Text>
-          <Text light>{description}</Text>
-        </View>
-        <View style={exerciseCardHeaderStyles.actions}>
-          <TouchableOpacity
-            ref={moreButtonRef}
-            onPress={(e) => onMorePress(e, moreButtonRef)}
-          >
-            <MoreVertical size={24} color={primaryActionColor} />
-          </TouchableOpacity>
-        </View>
-      </View>
-      <TouchableOpacity
-        style={exerciseCardHeaderStyles.notesContainer}
-        onPress={onNotePress}
-      >
-        <Text light sneutral>
-          {note || "Add notes here..."}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
 
 type EditSetRowProps = {
   set: Set;
@@ -451,28 +351,6 @@ const editExercisesStyles = StyleSheet.create({
   scrollContainer: {
     padding: "3%",
   },
-  exerciseCard: {
-    borderRadius: 12,
-    marginBottom: "4%",
-    padding: "2%",
-  },
-  setsContainer: {
-    marginBottom: "3%",
-  },
-  addSetButton: {
-    ...StyleUtils.flexRow(),
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: "3%",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderStyle: "dashed",
-  },
-  addSetText: {
-    fontSize: 14,
-    fontWeight: "500",
-    marginLeft: "2%",
-  },
 });
 
 type ExerciseCardProps = {
@@ -506,9 +384,6 @@ const ExerciseCard = memo(
 
     const { saveWorkout } = useLiveWorkout();
 
-    const primaryActionColor = useThemeColoring("primaryAction");
-    const borderColor = tintColor(useThemeColoring("appBackground"), 0.1);
-
     const handleAddSet = useCallback(() => {
       saveWorkout((workout) =>
         ExerciseActions(workout!, exerciseId).duplicateLastSet()
@@ -535,82 +410,46 @@ const ExerciseCard = memo(
     }, [onExerciseDescriptionPress, exercise.metaId]);
 
     return (
-      <Animated.View
-        style={editExercisesStyles.exerciseCard}
-        layout={LinearTransition}
-      >
-        <ExerciseCardHeader
-          metaId={exercise.metaId}
-          name={exerciseName}
-          description={getInProgressExerciseDescription(
-            exercise,
-            difficultyType
-          )}
-          note={exercise.note}
-          onMorePress={handleMorePress}
-          moreButtonRef={moreButtonRef}
-          onNotePress={handleNotePress}
-          onOpenExercise={handleOpenExerciseDescription}
-        />
-        <View style={editExercisesStyles.setsContainer}>
-          <SetHeader difficultyType={difficultyType} />
-          <LayoutAnimationConfig skipEntering>
-            {exercise.sets.map((set: Set, index: number) => {
-              const isCurrent = currentSet?.set.id === set.id;
-              const isBefore = currentSet
-                ? exercise.sets.indexOf(set) <
-                  exercise.sets.indexOf(currentSet.set)
-                : false;
-              const isAfter = currentSet
-                ? exercise.sets.indexOf(set) >
-                  exercise.sets.indexOf(currentSet.set)
-                : false;
+      <SharedExerciseCard
+        metaId={exercise.metaId}
+        name={exerciseName}
+        description={getInProgressExerciseDescription(exercise, difficultyType)}
+        note={exercise.note}
+        difficultyType={difficultyType}
+        sets={exercise.sets}
+        moreButtonRef={moreButtonRef}
+        onMorePress={handleMorePress}
+        onNotePress={handleNotePress}
+        onOpenExercise={handleOpenExerciseDescription}
+        onAddSet={handleAddSet}
+        renderSetRow={(set, index) => {
+          const isCurrent = currentSet?.set.id === set.id;
+          const isBefore = currentSet
+            ? exercise.sets.indexOf(set) <
+              exercise.sets.indexOf(currentSet.set)
+            : false;
+          const isAfter = currentSet
+            ? exercise.sets.indexOf(set) >
+              exercise.sets.indexOf(currentSet.set)
+            : false;
 
-              return (
-                <Animated.View
-                  key={set.id}
-                  layout={LinearTransition}
-                  exiting={LightSpeedOutLeft}
-                  entering={LightSpeedInRight}
-                >
-                  <EditSetRow
-                    set={set}
-                    index={index}
-                    difficultyType={difficultyType}
-                    onEdit={handleEditSet}
-                    showSwipeActions={true}
-                    isCurrent={isCurrent}
-                    isBefore={isBefore}
-                    isAfter={isAfter}
-                    currentSetStatus={currentSet?.set.status}
-                    currentSetId={currentSet?.set.id}
-                    saveWorkout={saveWorkout}
-                  />
-                </Animated.View>
-              );
-            })}
-            <Animated.View key="add-set-button" layout={LinearTransition}>
-              <TouchableOpacity
-                style={[
-                  editExercisesStyles.addSetButton,
-                  { borderColor: borderColor },
-                ]}
-                onPress={handleAddSet}
-              >
-                <Plus size={16} color={primaryActionColor} />
-                <Text
-                  style={[
-                    editExercisesStyles.addSetText,
-                    { color: primaryActionColor },
-                  ]}
-                >
-                  Add Set
-                </Text>
-              </TouchableOpacity>
-            </Animated.View>
-          </LayoutAnimationConfig>
-        </View>
-      </Animated.View>
+          return (
+            <EditSetRow
+              set={set}
+              index={index}
+              difficultyType={difficultyType}
+              onEdit={handleEditSet}
+              showSwipeActions={true}
+              isCurrent={isCurrent}
+              isBefore={isBefore}
+              isAfter={isAfter}
+              currentSetStatus={currentSet?.set.status}
+              currentSetId={currentSet?.set.id}
+              saveWorkout={saveWorkout}
+            />
+          );
+        }}
+      />
     );
   },
   (prevProps, nextProps) => {
@@ -769,9 +608,22 @@ export function EditExercises() {
     >
       <ScrollView
         style={editExercisesStyles.scrollContainer}
-        contentContainerStyle={{ paddingBottom: "30%" }}
+        contentContainerStyle={
+          (workout?.exercises.length ?? 0) === 0
+            ? { flexGrow: 1, paddingBottom: "30%" }
+            : { paddingBottom: "30%" }
+        }
         showsVerticalScrollIndicator={false}
       >
+        {(workout?.exercises.length ?? 0) === 0 ? (
+          <NoExercises
+            message="No exercises in this workout"
+            onAdd={() => {
+              // @ts-ignore
+              navigation.navigate("AddExercises");
+            }}
+          />
+        ) : null}
         {workout?.exercises.map((exercise: Exercise) => (
           <ExerciseCard
             key={exercise.id}
