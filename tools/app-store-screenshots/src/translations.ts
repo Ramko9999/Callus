@@ -5,9 +5,7 @@ export type SlideId =
   | "live-workout"
   | "log-sets"
   | "progress"
-  | "routines"
-  | "consistency"
-  | "exercises";
+  | "consistency";
 
 export type SlideContent = {
   id: SlideId;
@@ -36,21 +34,9 @@ export const SLIDES: SlideContent[] = [
     subhead: "Watch your strength climb across reps, weight, and rest",
   },
   {
-    id: "routines",
-    label: "4 · Routines",
-    headline: "Build routines that fit you",
-    subhead: "Reorder, tweak sets, and start lifting in seconds",
-  },
-  {
     id: "consistency",
-    label: "5 · Consistency",
+    label: "4 · Consistency",
     headline: "Momentum you don't want to break",
     subhead: "Streaks and history that keep you coming back",
-  },
-  {
-    id: "exercises",
-    label: "6 · Exercises",
-    headline: "Works entirely offline",
-    subhead: "Your training data never leaves your phone",
   },
 ];

@@ -23,11 +23,17 @@ const IPHONE_SIZES = [
 // Readloom's warm beige/olive palette.
 
 const ACCENT = "#28A0ED"; // darkColors.primaryAction
-const BG = "#000000"; // darkColors.appBackground
-const TEXT = "#ffffff"; // darkColors.primaryText
-const SUBTEXT = "rgba(255, 255, 255, 0.62)"; // muted version of darkColors.lightText
-const PHONE_FRAME = "#3F4147"; // darkColors.secondaryViewBorder — placeholder phone bezel
-const PHONE_SCREEN = "#27272F"; // darkColors.secondaryViewBackground — placeholder phone screen
+
+// The app itself is pure black, so the slide background must NOT be — a black
+// screenshot on a black slide has no visible edge. A light slide makes the
+// device read as a device and lets the blue accent carry the brand.
+const BG = "linear-gradient(180deg, #FFFFFF 0%, #E7F0FA 100%)";
+const TEXT = "#0B1220";
+const SUBTEXT = "#5B6675";
+
+const PHONE_BEZEL = "#0A0A0C"; // device body
+const PHONE_FRAME = "#3F4147"; // darkColors.secondaryViewBorder — placeholder outline
+const PHONE_SCREEN = "#27272F"; // darkColors.secondaryViewBackground — placeholder screen
 
 const SANS = "var(--font-dm-sans), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
 
@@ -165,21 +171,50 @@ function Screenshot({
     );
   }
 
+  // simctl captures are raw screen content with no bezel, so draw the device
+  // body here: a black frame with rounded corners, the screen clipped inside.
+  const bezel = width * 0.028;
+  const outerRadius = width * 0.125;
+  const innerRadius = outerRadius - bezel;
+
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={src}
-      alt={label}
-      onError={() => setFailed(true)}
+    <div
       style={{
         width,
-        maxWidth: "none", // override Tailwind preflight's img { max-width: 100% }
-        height: "auto",
-        display: "block",
-        filter: `drop-shadow(0 22px 44px rgba(40, 160, 237, 0.25))`,
+        padding: bezel,
+        boxSizing: "border-box",
+        background: PHONE_BEZEL,
+        borderRadius: outerRadius,
+        boxShadow: [
+          "0 30px 70px rgba(11, 18, 32, 0.30)",
+          "0 6px 18px rgba(11, 18, 32, 0.16)",
+          `0 0 0 ${width * 0.0035}px rgba(255, 255, 255, 0.10) inset`,
+        ].join(", "),
       }}
-      draggable={false}
-    />
+    >
+      <div
+        style={{
+          borderRadius: innerRadius,
+          overflow: "hidden",
+          background: "#000",
+          lineHeight: 0,
+        }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt={label}
+          onError={() => setFailed(true)}
+          style={{
+            width: "100%",
+            maxWidth: "none", // override Tailwind preflight's img { max-width: 100% }
+            height: "auto",
+            display: "block",
+          }}
+          draggable={false}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -191,9 +226,7 @@ const SCREENSHOT_FILE: Record<string, string> = {
   "live-workout": "1-live-workout",
   "log-sets": "2-log-sets",
   progress: "3-progress",
-  routines: "4-routines",
-  consistency: "5-consistency",
-  exercises: "6-exercises",
+  consistency: "4-consistency",
 };
 
 function FeatureSlide({
@@ -251,9 +284,7 @@ const SCREEN_LABELS: Record<string, string> = {
   "live-workout": "Live Workout",
   "log-sets": "Log Sets",
   progress: "Progress",
-  routines: "Routines",
   consistency: "Consistency",
-  exercises: "Exercises",
 };
 
 function renderSlide(content: SlideContent, w: number, h: number) {
