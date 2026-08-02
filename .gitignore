@@ -6,3 +6,6 @@
 app_store/screenshots/
 tools/app-store-screenshots/public/callus/screens/*.png
 tools/seed-data/
+
+# Design specs and implementation plans (working documents)
+docs/superpowers/
