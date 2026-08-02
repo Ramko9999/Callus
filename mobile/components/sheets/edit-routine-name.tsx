@@ -44,6 +44,7 @@ const editRoutineNameStyles = StyleSheet.create({
     ...StyleUtils.flexColumn(),
     paddingHorizontal: "3%",
     paddingVertical: "3%",
+    paddingBottom: 30,
   },
   header: {
     ...StyleUtils.flexRowCenterAll(),
