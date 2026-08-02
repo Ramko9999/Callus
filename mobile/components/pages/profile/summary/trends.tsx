@@ -81,7 +81,9 @@ function formatVolume(volume: number): string {
 }
 
 function formatTotalVolume(volume: number): string {
-  return `${volume} lbs`;
+  // Fractional plate weights make this a float; round and group so it doesn't
+  // render as e.g. "540053.2999999999 lbs".
+  return `${Math.round(volume).toLocaleString("en-US")} lbs`;
 }
 
 function formatDuration(durationInMs: number): string {
