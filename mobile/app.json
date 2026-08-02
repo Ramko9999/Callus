@@ -3,7 +3,7 @@
     "newArchEnabled": true,
     "name": "Callus",
     "slug": "Callus",
-    "version": "1.0.8",
+    "version": "1.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -16,7 +16,7 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.ramko9999.callus",
       "icon": {
         "light": "./assets/icon/ios/light.png",
